@@ -13,16 +13,14 @@ class HexBinaryCodec constructor(
     override val blockSize: Int = 1
     override val encodedBlockSize = 2
 
-    override fun decode(input: String): ByteArray {
-        require(input.length % 2 == 0) { "Hex string must have even length" }
-
+    override fun decodeInternal(input: String): ByteArray {
         return ByteArray(input.length / 2) { i ->
             val index = i * 2
             input.substring(index, index + 2).toInt(16).toByte()
         }
     }
 
-    override fun encode(input: ByteArray): String {
+    override fun encodeInternal(input: ByteArray): String {
         val hexChars = CharArray(input.size * 2)
         for (j in input.indices) {
             val v = input[j].toInt() and 0xFF

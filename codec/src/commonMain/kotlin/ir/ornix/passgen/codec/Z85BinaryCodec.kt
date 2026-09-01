@@ -12,11 +12,7 @@ class Z85BinaryCodec : FixedLengthCodec {
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#"
     }
 
-    override fun decode(input: String): ByteArray {
-        require(input.length % encodedBlockSize == 0) {
-            "Base85 string length must be a multiple of $encodedBlockSize because Base85 encodes data in $blockSize-byte blocks."
-        }
-
+    override fun decodeInternal(input: String): ByteArray {
         val output = ByteArray(input.length / encodedBlockSize * blockSize)
         var outputIndex = 0
 
@@ -47,12 +43,7 @@ class Z85BinaryCodec : FixedLengthCodec {
         return output
     }
 
-    override fun encode(input: ByteArray): String {
-        // Fixed: Must be a multiple of blockSize (4), not encodedBlockSize (5)
-        require(input.size % blockSize == 0) {
-            "Base85 input size must be a multiple of $blockSize bytes."
-        }
-
+    override fun encodeInternal(input: ByteArray): String {
         val result = StringBuilder(input.size / blockSize * encodedBlockSize)
 
         for (i in input.indices step blockSize) {
