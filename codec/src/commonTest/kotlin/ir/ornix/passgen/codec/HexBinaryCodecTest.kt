@@ -71,4 +71,32 @@ class HexBinaryCodecTest {
         assertEquals(1, codec.blockSize)
         assertEquals(2, codec.encodedBlockSize)
     }
+
+
+    @Test
+    fun testAll() {
+        val uppercaseCodec = HexBinaryCodec(uppercaseOutput = true)
+        val lowercaseCodec = HexBinaryCodec(uppercaseOutput = false)
+
+        val str1 = ""
+        val encoded1 = ""
+
+        val str2 = " "
+        val encoded2 = "20"
+
+        val str3 = " \n"
+        val encoded3 = "200A"
+
+        val str4 = "Hello"
+        val encoded4 = "48656C6C6F"
+
+        val str5 = "Hello  World"
+        val encoded5 = "48656c6c6f2020576f726c64"
+
+        assertEquals(encoded1, uppercaseCodec.encode(str1.encodeToByteArray()))
+        assertEquals(encoded2, uppercaseCodec.encode(str2.encodeToByteArray()))
+        assertEquals(encoded3, uppercaseCodec.encode(str3.encodeToByteArray()))
+        assertEquals(encoded4, uppercaseCodec.encode(str4.encodeToByteArray()))
+        assertEquals(encoded5, lowercaseCodec.encode(str5.encodeToByteArray()))
+    }
 }

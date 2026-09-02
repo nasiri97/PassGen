@@ -40,4 +40,28 @@ class Utf8TextCodecTest {
         codec.encode(byteArrayOf(1, 2, 3))
         codec.encode(byteArrayOf())
     }
+
+    @Test
+    fun testAll() {
+        val str1 = ""
+        val encoded1 = ""
+
+        val str2 = " "
+        val encoded2 = " "
+
+        val str3 = " \n"
+        val encoded3 = " \n"
+
+        val str4 = "Hello"
+        val encoded4 = "Hello"
+
+        val str5 = "Hello  World"
+        val encoded5 = "Hello  World"
+
+        assertEquals(encoded1, codec.encode(str1.encodeToByteArray()))
+        assertEquals(encoded2, codec.encode(str2.encodeToByteArray()))
+        assertEquals(encoded3, codec.encode(str3.encodeToByteArray()))
+        assertEquals(encoded4, codec.encode(str4.encodeToByteArray()))
+        assertEquals(encoded5, codec.encode(str5.encodeToByteArray()))
+    }
 }

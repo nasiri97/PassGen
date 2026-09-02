@@ -1,9 +1,9 @@
 package ir.ornix.passgen.codec
 
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertContentEquals
 
 class Base64BinaryCodecTest {
 
@@ -79,5 +79,29 @@ class Base64BinaryCodecTest {
     fun testBlockSizes() {
         assertEquals(3, codec.blockSize)
         assertEquals(4, codec.encodedBlockSize)
+    }
+
+    @Test
+    fun testAll() {
+        val str1 = ""
+        val encoded1 = ""
+
+        val str2 = "   "
+        val encoded2 = "ICAg"
+
+        val str3 = "   \n\n\n"
+        val encoded3 = "ICAgCgoK"
+
+        val str4 = "Helloo"
+        val encoded4 = "SGVsbG9v"
+
+        val str5 = "Hello  World"
+        val encoded5 = "SGVsbG8gIFdvcmxk"
+
+        assertEquals(encoded1, codec.encode(str1.encodeToByteArray()))
+        assertEquals(encoded2, codec.encode(str2.encodeToByteArray()))
+        assertEquals(encoded3, codec.encode(str3.encodeToByteArray()))
+        assertEquals(encoded4, codec.encode(str4.encodeToByteArray()))
+        assertEquals(encoded5, codec.encode(str5.encodeToByteArray()))
     }
 }
