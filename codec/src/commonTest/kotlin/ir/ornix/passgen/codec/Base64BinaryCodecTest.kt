@@ -83,25 +83,31 @@ class Base64BinaryCodecTest {
 
     @Test
     fun testAll() {
-        val str1 = ""
-        val encoded1 = ""
+        val binaryRepresentation1 = "".encodeToByteArray()
+        val stringRepresentation1 = ""
 
-        val str2 = "   "
-        val encoded2 = "ICAg"
+        val binaryRepresentation2 = "   ".encodeToByteArray()
+        val stringRepresentation2 = "ICAg"
 
-        val str3 = "   \n\n\n"
-        val encoded3 = "ICAgCgoK"
+        val binaryRepresentation3 = "   \n\n\n".encodeToByteArray()
+        val stringRepresentation3 = "ICAgCgoK"
 
-        val str4 = "Helloo"
-        val encoded4 = "SGVsbG9v"
+        val binaryRepresentation4 = "Helloo".encodeToByteArray()
+        val stringRepresentation4 = "SGVsbG9v"
 
-        val str5 = "Hello  World"
-        val encoded5 = "SGVsbG8gIFdvcmxk"
+        val binaryRepresentation5 = "Hello  World".encodeToByteArray()
+        val stringRepresentation5 = "SGVsbG8gIFdvcmxk"
 
-        assertEquals(encoded1, codec.encode(str1.encodeToByteArray()))
-        assertEquals(encoded2, codec.encode(str2.encodeToByteArray()))
-        assertEquals(encoded3, codec.encode(str3.encodeToByteArray()))
-        assertEquals(encoded4, codec.encode(str4.encodeToByteArray()))
-        assertEquals(encoded5, codec.encode(str5.encodeToByteArray()))
+        assertEquals(stringRepresentation1, codec.encode(binaryRepresentation1))
+        assertEquals(stringRepresentation2, codec.encode(binaryRepresentation2))
+        assertEquals(stringRepresentation3, codec.encode(binaryRepresentation3))
+        assertEquals(stringRepresentation4, codec.encode(binaryRepresentation4))
+        assertEquals(stringRepresentation5, codec.encode(binaryRepresentation5))
+
+        assertContentEquals(binaryRepresentation1, codec.decode(stringRepresentation1))
+        assertContentEquals(binaryRepresentation2, codec.decode(stringRepresentation2))
+        assertContentEquals(binaryRepresentation3, codec.decode(stringRepresentation3))
+        assertContentEquals(binaryRepresentation4, codec.decode(stringRepresentation4))
+        assertContentEquals(binaryRepresentation5, codec.decode(stringRepresentation5))
     }
 }
