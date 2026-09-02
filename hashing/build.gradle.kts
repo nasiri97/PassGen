@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
-import org.gradle.kotlin.dsl.project
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -28,9 +27,6 @@ kotlin {
             // Coroutine
             implementation(libs.kotlinx.coroutines.core)
 
-            // Bcrypt
-            implementation(libs.jbcrypt)
-
             // Argon2
             implementation(libs.bcprov)
 
@@ -39,6 +35,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
