@@ -1,9 +1,9 @@
 package ir.ornix.passgen.codec
 
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertContentEquals
 
 class Base64BinaryCodecTest {
 
@@ -79,5 +79,35 @@ class Base64BinaryCodecTest {
     fun testBlockSizes() {
         assertEquals(3, codec.blockSize)
         assertEquals(4, codec.encodedBlockSize)
+    }
+
+    @Test
+    fun testAll() {
+        val binaryRepresentation1 = "".encodeToByteArray()
+        val stringRepresentation1 = ""
+
+        val binaryRepresentation2 = "   ".encodeToByteArray()
+        val stringRepresentation2 = "ICAg"
+
+        val binaryRepresentation3 = "   \n\n\n".encodeToByteArray()
+        val stringRepresentation3 = "ICAgCgoK"
+
+        val binaryRepresentation4 = "Helloo".encodeToByteArray()
+        val stringRepresentation4 = "SGVsbG9v"
+
+        val binaryRepresentation5 = "Hello  World".encodeToByteArray()
+        val stringRepresentation5 = "SGVsbG8gIFdvcmxk"
+
+        assertEquals(stringRepresentation1, codec.encode(binaryRepresentation1))
+        assertEquals(stringRepresentation2, codec.encode(binaryRepresentation2))
+        assertEquals(stringRepresentation3, codec.encode(binaryRepresentation3))
+        assertEquals(stringRepresentation4, codec.encode(binaryRepresentation4))
+        assertEquals(stringRepresentation5, codec.encode(binaryRepresentation5))
+
+        assertContentEquals(binaryRepresentation1, codec.decode(stringRepresentation1))
+        assertContentEquals(binaryRepresentation2, codec.decode(stringRepresentation2))
+        assertContentEquals(binaryRepresentation3, codec.decode(stringRepresentation3))
+        assertContentEquals(binaryRepresentation4, codec.decode(stringRepresentation4))
+        assertContentEquals(binaryRepresentation5, codec.decode(stringRepresentation5))
     }
 }
