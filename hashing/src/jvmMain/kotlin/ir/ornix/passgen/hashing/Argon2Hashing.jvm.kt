@@ -20,10 +20,13 @@ actual object Argon2Hashing : Hashing {
     private val sha256Hashing = Sha256Hashing()
 
     override suspend fun digest(input: ByteArray): ByteArray {
-
         // salt is 18 bytes (36 Hex-Chars) (24 Base64-Chars)
         val salt = sha256Hashing.digest(input).copyOfRange(0, 18)
 
+        return digest(input, salt)
+    }
+
+    internal suspend fun digest(input: ByteArray, salt: ByteArray): ByteArray {
         return mutex.withLock {
             val params = Argon2Parameters.Builder(TYPE)
                 .withSalt(salt)
