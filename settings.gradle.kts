@@ -10,6 +10,7 @@ pluginManagement {
             }
         }
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         gradlePluginPortal()
     }
 }
@@ -24,6 +25,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
@@ -37,3 +39,12 @@ include(":shared")
 include(":webApp")
 include(":codec")
 include(":hashing")
+
+include(":composeApp")
+include(":core:designsystem")
+
+include(":feature:home:api", ":feature:home:impl")
+include(":feature:about:api", ":feature:about:impl")
+include(":feature:saved-passwords:api", ":feature:saved-passwords:impl")
+include(":feature:settings:api", ":feature:settings:impl")
+include(":feature:setup:api", ":feature:setup:impl")
