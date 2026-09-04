@@ -8,17 +8,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.russhwolf.multiplatform.settings.Settings
+import com.russhwolf.settings.Settings
+import ir.ornix.passgen.core.data.SettingsMasterKeyRepository
 import ir.ornix.passgen.feature.about.api.AboutRoute
-import ir.ornix.passgen.feature.about.impl.AboutScreen
+import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
-import ir.ornix.passgen.feature.home.impl.HomeScreen
+import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
 import ir.ornix.passgen.feature.savedpasswords.api.SavedPasswordsRoute
-import ir.ornix.passgen.feature.savedpasswords.impl.SavedPasswordsScreen
+import ir.ornix.passgen.feature.savedpasswords.impl.ui.SavedPasswordsScreen
 import ir.ornix.passgen.feature.settings.api.SettingsRoute
-import ir.ornix.passgen.feature.settings.impl.SettingsScreen
+import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
 import ir.ornix.passgen.feature.setup.api.SetupRoute
-import ir.ornix.passgen.feature.setup.impl.SetupScreen
+import ir.ornix.passgen.feature.setup.impl.ui.SetupScreen
 import kotlinx.coroutines.launch
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
@@ -42,6 +43,7 @@ val drawerItems = listOf(
 @Composable
 fun App() {
     val settings = remember { Settings() }
+    val repository = remember { SettingsMasterKeyRepository(settings) }
     val hasMasterKey = remember { settings.hasKey("master_key") }
     
     val initialRoute: NavKey = if (hasMasterKey) HomeRoute else SetupRoute
@@ -98,10 +100,13 @@ fun App() {
                                 when (key) {
                                     is HomeRoute -> NavEntry(key) { HomeScreen() }
                                     is SetupRoute -> NavEntry(key) {
-                                        SetupScreen(onSetupComplete = {
-                                            backStack.clear()
-                                            backStack.add(HomeRoute)
-                                        })
+                                        SetupScreen(
+                                            repository = repository,
+                                            onSetupComplete = {
+                                                backStack.clear()
+                                                backStack.add(HomeRoute)
+                                            }
+                                        )
                                     }
                                     is AboutRoute -> NavEntry(key) { AboutScreen() }
                                     is SavedPasswordsRoute -> NavEntry(key) { SavedPasswordsScreen() }
@@ -120,10 +125,13 @@ fun App() {
                 entryProvider = { key ->
                     when (key) {
                         is SetupRoute -> NavEntry(key) {
-                            SetupScreen(onSetupComplete = {
-                                backStack.clear()
-                                backStack.add(HomeRoute)
-                            })
+                            SetupScreen(
+                                repository = repository,
+                                onSetupComplete = {
+                                    backStack.clear()
+                                    backStack.add(HomeRoute)
+                                }
+                            )
                         }
                         else -> NavEntry(key) { Text("Unknown Route") }
                     }

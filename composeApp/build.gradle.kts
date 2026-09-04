@@ -34,6 +34,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:designsystem"))
+            implementation(project(":core:domain"))
+            implementation(project(":core:data"))
             implementation(project(":feature:home:api"))
             implementation(project(":feature:home:impl"))
             implementation(project(":feature:about:api"))
@@ -49,6 +51,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
+            implementation(libs.compose.icons)
             implementation(libs.compose.components.resources)
             
             implementation(libs.jetbrains.navigation3.ui)

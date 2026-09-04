@@ -42,6 +42,8 @@ include(":hashing")
 
 include(":composeApp")
 include(":core:designsystem")
+include(":core:domain")
+include(":core:data")
 
 include(":feature:home:api", ":feature:home:impl")
 include(":feature:about:api", ":feature:about:impl")
