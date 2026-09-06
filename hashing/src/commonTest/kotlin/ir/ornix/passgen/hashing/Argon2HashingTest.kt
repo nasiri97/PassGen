@@ -70,12 +70,14 @@ class Argon2HashingTest {
 
     @Test
     fun testSaltLength() = runTest {
+        val saltSize = 18
+
         // Salt size should be 18 bytes
-        assertEquals(18, SALT1.size)
-        assertEquals(18, SALT2.size)
-        assertEquals(18, SALT3.size)
-        assertEquals(18, SALT4.size)
-        assertEquals(18, SALT5.size)
+        assertEquals(saltSize, SALT1.size)
+        assertEquals(saltSize, SALT2.size)
+        assertEquals(saltSize, SALT3.size)
+        assertEquals(saltSize, SALT4.size)
+        assertEquals(saltSize, SALT5.size)
     }
 
     @Test

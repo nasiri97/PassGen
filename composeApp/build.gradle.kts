@@ -10,16 +10,6 @@ plugins {
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
-    
     jvm()
     android {
        namespace = "ir.ornix.passgen.composeapp"
@@ -33,7 +23,7 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core:designsystem"))
+            api(project(":core:designsystem"))
             implementation(project(":core:domain"))
             implementation(project(":core:data"))
             implementation(project(":feature:home:api"))
@@ -47,17 +37,16 @@ kotlin {
             implementation(project(":feature:setup:api"))
             implementation(project(":feature:setup:impl"))
 
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
             implementation(libs.compose.icons)
-            implementation(libs.compose.components.resources)
             
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.androidx.navigation3.runtime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.multiplatform.settings)
+            
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
         }
     }
 }

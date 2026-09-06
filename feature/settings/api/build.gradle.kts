@@ -5,12 +5,11 @@ plugins {
 }
 
 kotlin {
-    iosArm64()
-    iosSimulatorArm64()
     jvm()
     android {
         namespace = "ir.ornix.passgen.feature.settings.api"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
     
     sourceSets {

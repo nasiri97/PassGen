@@ -4,9 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import ir.ornix.passgen.core.domain.MasterKeyRepository
+import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.masterkey.SaveMasterKeyUseCase
+import kotlinx.coroutines.launch
 
-class SetupViewModel(private val repository: MasterKeyRepository) : ViewModel() {
+class SetupViewModel(private val saveMasterKeyUseCase: SaveMasterKeyUseCase) : ViewModel() {
     var masterKey by mutableStateOf("")
         private set
 
@@ -16,8 +18,10 @@ class SetupViewModel(private val repository: MasterKeyRepository) : ViewModel() 
 
     fun saveAndContinue(onSuccess: () -> Unit) {
         if (masterKey.isNotBlank()) {
-            repository.saveMasterKey(masterKey)
-            onSuccess()
+            viewModelScope.launch {
+                saveMasterKeyUseCase(masterKey)
+                onSuccess()
+            }
         }
     }
 }

@@ -33,12 +33,15 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+include(":log-core")
+
+include(":codec")
+include(":hashing")
+include(":passwordGenerator")
+
 include(":androidApp")
 include(":desktopApp")
 include(":shared")
-include(":webApp")
-include(":codec")
-include(":hashing")
 
 include(":composeApp")
 include(":core:designsystem")

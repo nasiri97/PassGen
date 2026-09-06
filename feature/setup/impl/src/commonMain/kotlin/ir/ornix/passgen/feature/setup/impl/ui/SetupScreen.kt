@@ -6,16 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import ir.ornix.passgen.core.domain.MasterKeyRepository
 import ir.ornix.passgen.feature.setup.impl.presentation.SetupViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SetupScreen(
-    repository: MasterKeyRepository,
     onSetupComplete: () -> Unit
 ) {
-    val viewModel: SetupViewModel = viewModel { SetupViewModel(repository) }
+    val viewModel: SetupViewModel = koinViewModel()
 
     SetupContent(
         masterKey = viewModel.masterKey,

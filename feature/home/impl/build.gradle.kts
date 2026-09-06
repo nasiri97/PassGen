@@ -6,24 +6,29 @@ plugins {
 }
 
 kotlin {
-    iosArm64()
-    iosSimulatorArm64()
     jvm()
     android {
         namespace = "ir.ornix.passgen.feature.home.impl"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
     
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":log-core"))
+            implementation(project(":codec"))
+            implementation(project(":hashing"))
+            implementation(project(":passwordGenerator"))
+            implementation(project(":core:domain"))
             implementation(project(":feature:home:api"))
-            implementation(project(":core:designsystem"))
-            
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
+            implementation(project(":core:data"))
+            api(project(":core:designsystem"))
+
+            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
         }
     }
 }

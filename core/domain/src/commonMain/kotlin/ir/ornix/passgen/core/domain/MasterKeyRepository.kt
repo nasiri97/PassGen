@@ -1,7 +1,9 @@
 package ir.ornix.passgen.core.domain
 
+import kotlinx.coroutines.flow.Flow
+
 interface MasterKeyRepository {
-    fun saveMasterKey(key: String)
-    fun hasMasterKey(): Boolean
-    fun getMasterKey(): String?
+    suspend fun saveMasterKey(key: String)
+    fun getMasterKey(): Flow<String?>
+    suspend fun clearMasterKey()
 }

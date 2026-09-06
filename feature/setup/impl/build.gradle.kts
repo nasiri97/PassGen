@@ -6,26 +6,22 @@ plugins {
 }
 
 kotlin {
-    iosArm64()
-    iosSimulatorArm64()
     jvm()
     android {
         namespace = "ir.ornix.passgen.feature.setup.impl"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":feature:setup:api"))
-            implementation(project(":core:designsystem"))
             implementation(project(":core:domain"))
-            
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
+            api(project(":core:designsystem"))
+
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.multiplatform.settings)
         }
     }
 }

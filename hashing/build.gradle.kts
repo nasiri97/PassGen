@@ -10,7 +10,7 @@ plugins {
 kotlin {
 
     jvm()
-    androidLibrary {
+    android {
         namespace = "ir.ornix.passgen.hashing"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
