@@ -2,14 +2,13 @@ package ir.ornix.passgen.hashing
 
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.SHA512
+import ir.ornix.passgen.hashing.core.Hashing
 
 class Sha512Hashing : Hashing {
 
     override val outputByteSize = 64
 
     companion object {
-        const val SHA_512 = "SHA-512"
-
         private val sha512 = CryptographyProvider.Default
             .get(SHA512)
             .hasher()

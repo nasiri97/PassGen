@@ -1,5 +1,6 @@
 package ir.ornix.passgen.hashing
 
+import ir.ornix.passgen.hashing.core.Hashing
 import org.bouncycastle.crypto.generators.BCrypt
 
 /**

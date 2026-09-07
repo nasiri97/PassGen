@@ -2,7 +2,7 @@ package ir.ornix.passgen.passwordgenerator.model
 
 import ir.ornix.passgen.hashing.Argon2Hashing
 import ir.ornix.passgen.hashing.BCryptHashing
-import ir.ornix.passgen.hashing.Hashing
+import ir.ornix.passgen.hashing.core.Hashing
 import ir.ornix.passgen.hashing.Sha256Hashing
 import ir.ornix.passgen.hashing.Sha512Hashing
 import kotlinx.serialization.KSerializer

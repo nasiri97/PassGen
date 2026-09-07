@@ -1,5 +1,6 @@
 package ir.ornix.passgen.hashing
 
+import ir.ornix.passgen.hashing.core.Hashing
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
@@ -7,15 +8,15 @@ import org.bouncycastle.crypto.params.Argon2Parameters
 
 actual object Argon2Hashing : Hashing {
 
-    const val TYPE = Argon2Parameters.ARGON2_id
-    const val ITERATIONS = 4
-    const val MEMORY_COST = 128 * 1024  // 131072 KB
-    const val PARALLELISM_FACTOR = 1
-
-    private val mutex = Mutex()
-
     // The generated password is 72 bytes (144 Hex-Chars) (96 Base64-Chars) (90 Z85-Chars)
     override val outputByteSize = 72
+
+    private const val TYPE = Argon2Parameters.ARGON2_id
+    private const val ITERATIONS = 4
+    private const val MEMORY_COST = 128 * 1024  // 131072 KB
+    private const val PARALLELISM_FACTOR = 1
+
+    private val mutex = Mutex()
 
     private val sha256Hashing = Sha256Hashing()
 

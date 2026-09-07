@@ -1,7 +1,7 @@
 package ir.ornix.passgen.passwordgenerator
 
 import ir.ornix.passgen.codec.core.Decoder
-import ir.ornix.passgen.hashing.Hashing
+import ir.ornix.passgen.hashing.core.Hashing
 import ir.ornix.passgen.logcore.Logger
 
 /**
