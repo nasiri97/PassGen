@@ -6,69 +6,140 @@ import kotlin.test.assertEquals
 
 class Utf8TextCodecTest {
 
+
     private val codec = Utf8TextCodec()
 
+    // ---------------------------------------------------------------------
+    // Empty input
+    // ---------------------------------------------------------------------
+
     @Test
-    fun testEncode() {
+    fun `encode empty byte array returns empty string`() {
+        assertEquals("", codec.encode(ByteArray(0)))
+    }
+
+    @Test
+    fun `decode empty string returns empty byte array`() {
+        assertContentEquals(ByteArray(0), codec.decode(""))
+    }
+
+    // ---------------------------------------------------------------------
+    // ASCII
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `encode ascii bytes produces expected string`() {
         val input = byteArrayOf(72, 101, 108, 108, 111) // "Hello"
-        val expected = "Hello"
-        assertEquals(expected, codec.encode(input))
+        assertEquals("Hello", codec.encode(input))
     }
 
     @Test
-    fun testDecode() {
-        val input = "Hello"
-        val expected = byteArrayOf(72, 101, 108, 108, 111)
-        val actual = codec.decode(input)
-        assertEquals(expected.size, actual.size)
-        for (i in expected.indices) {
-            assertEquals(expected[i], actual[i])
-        }
+    fun `decode ascii string produces expected bytes`() {
+        val expected = byteArrayOf(72, 101, 108, 108, 111) // "Hello"
+        assertContentEquals(expected, codec.decode("Hello"))
     }
 
-    @Test
-    fun testEncodeUtf8() {
-        val input = "سلام".encodeToByteArray()
-        val encoded = codec.encode(input)
-        assertEquals("سلام", encoded)
-    }
+    // ---------------------------------------------------------------------
+    // No fixed block size — every input length is valid
+    // ---------------------------------------------------------------------
 
     @Test
-    fun testEncodeInvalidSize() {
+    fun `encode does not throw for any input size`() {
         // UTF-8 is not a fixed-block codec, so all sizes are valid.
+        codec.encode(byteArrayOf())
         codec.encode(byteArrayOf(1))
         codec.encode(byteArrayOf(1, 2))
         codec.encode(byteArrayOf(1, 2, 3))
-        codec.encode(byteArrayOf())
+        codec.encode(byteArrayOf(1, 2, 3, 4))
+        codec.encode(byteArrayOf(1, 2, 3, 4, 5))
+    }
+
+    // ---------------------------------------------------------------------
+    // Multi-byte UTF-8 (accents, CJK, Arabic script, emoji / surrogate pairs)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `encode and decode known multi-byte string vectors`() {
+        val cases = listOf(
+            "café",
+            "pässwörd",
+            "日本語",
+            "سلام",
+            "🔒",
+            "combining é\u0301", // base char + combining accent
+        )
+
+        for (text in cases) {
+            val bytes = text.encodeToByteArray()
+            assertEquals(text, codec.encode(bytes), "Encoding mismatch for \"$text\"")
+            assertContentEquals(bytes, codec.decode(text), "Decoding mismatch for \"$text\"")
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Encode/decode against known string vectors (whitespace-focused)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `encode and decode whitespace and plain text vectors`() {
+        val cases = listOf(
+            "",
+            " ",
+            " \n",
+            "Hello",
+            "Hello  World",
+        )
+
+        for (text in cases) {
+            val bytes = text.encodeToByteArray()
+            assertEquals(text, codec.encode(bytes), "Encoding mismatch for \"$text\"")
+            assertContentEquals(bytes, codec.decode(text), "Decoding mismatch for \"$text\"")
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Round trip
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `round trip for a sentence with spaces and punctuation`() {
+        val original = "The quick brown fox jumps over the lazy dog!"
+        assertEquals(original, codec.encode(codec.decode(original)))
     }
 
     @Test
-    fun testAll() {
-        val binaryRepresentation1 = "".encodeToByteArray()
-        val stringRepresentation1 = ""
+    fun `round trip for string with multiple spaces`() {
+        val original = "   multiple   spaces   between   words   "
+        assertEquals(original, codec.encode(codec.decode(original)))
+    }
 
-        val binaryRepresentation2 = " ".encodeToByteArray()
-        val stringRepresentation2 = " "
+    @Test
+    fun `round trip for mixed ascii and multi-byte characters`() {
+        val original = "Hello, 世界! 🌍 café"
+        assertEquals(original, codec.encode(codec.decode(original)))
+    }
 
-        val binaryRepresentation3 = " \n".encodeToByteArray()
-        val stringRepresentation3 = " \n"
+    @Test
+    fun `round trip is identity for encode then decode as well`() {
+        val original = "Round trip: café 🔒 日本語".encodeToByteArray()
+        assertContentEquals(original, codec.decode(codec.encode(original)))
+    }
 
-        val binaryRepresentation4 = "Hello".encodeToByteArray()
-        val stringRepresentation4 = "Hello"
+    // ---------------------------------------------------------------------
+    // Malformed byte sequences (lenient behavior, not an exception)
+    // ---------------------------------------------------------------------
 
-        val binaryRepresentation5 = "Hello  World".encodeToByteArray()
-        val stringRepresentation5 = "Hello  World"
+    @Test
+    fun `encode replaces invalid UTF-8 byte sequences instead of throwing`() {
+        // 0xFF is never valid in any position of a UTF-8 sequence.
+        val invalid = byteArrayOf(0xFF.toByte(), 0xFE.toByte())
+        assertEquals("\uFFFD\uFFFD", codec.encode(invalid))
+    }
 
-        assertEquals(stringRepresentation1, codec.encode(binaryRepresentation1))
-        assertEquals(stringRepresentation2, codec.encode(binaryRepresentation2))
-        assertEquals(stringRepresentation3, codec.encode(binaryRepresentation3))
-        assertEquals(stringRepresentation4, codec.encode(binaryRepresentation4))
-        assertEquals(stringRepresentation5, codec.encode(binaryRepresentation5))
-
-        assertContentEquals(binaryRepresentation1, codec.decode(stringRepresentation1))
-        assertContentEquals(binaryRepresentation2, codec.decode(stringRepresentation2))
-        assertContentEquals(binaryRepresentation3, codec.decode(stringRepresentation3))
-        assertContentEquals(binaryRepresentation4, codec.decode(stringRepresentation4))
-        assertContentEquals(binaryRepresentation5, codec.decode(stringRepresentation5))
+    @Test
+    fun `encode replaces incomplete multi-byte sequence at end of input`() {
+        // 0xC3 starts a 2-byte sequence but is not followed by a continuation byte.
+        val truncated = byteArrayOf(0x48, 0x69, 0xC3.toByte()) // "Hi" + dangling lead byte
+        assertEquals("Hi\uFFFD", codec.encode(truncated))
     }
 }

@@ -3,7 +3,6 @@ package ir.ornix.passgen.passwordgenerator.model
 import ir.ornix.passgen.codec.Base64BinaryCodec
 import ir.ornix.passgen.codec.HexBinaryCodec
 import ir.ornix.passgen.codec.Z85BinaryCodec
-import ir.ornix.passgen.codec.core.FixedLengthEncoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
