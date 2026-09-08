@@ -57,5 +57,21 @@ kotlin {
         jvmMain {
             dependsOn(jvmCommonMain)
         }
+
+        val webMain = create("webMain") {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.wrappers.browser)
+                implementation(npm("hash-wasm", "4.11.0"))
+            }
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+        }
     }
 }

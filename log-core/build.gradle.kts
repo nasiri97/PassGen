@@ -46,8 +46,22 @@ kotlin {
 
         androidMain {
             dependencies {
-
             }
+        }
+
+        val webMain = create("webMain") {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.wrappers.browser)
+            }
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
         }
 
         iosMain {

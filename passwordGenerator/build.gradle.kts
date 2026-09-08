@@ -57,20 +57,10 @@ kotlin {
             dependsOn(jvmCommonMain)
         }
 
-
-        val jsCommonMain = create("jsCommonMain") {
-            dependsOn(commonMain.get())
-            dependencies {
-
-            }
-        }
-
         jsMain {
-            dependsOn(jsCommonMain)
         }
 
         wasmJsMain {
-            dependsOn(jsCommonMain)
         }
     }
 
