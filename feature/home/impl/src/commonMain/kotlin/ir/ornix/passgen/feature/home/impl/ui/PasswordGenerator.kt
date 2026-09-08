@@ -17,7 +17,7 @@ import ir.ornix.passgen.core.designsystem.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.designsystem.component.PasswordAndActions
 import ir.ornix.passgen.core.designsystem.utils.strengthColor
 import ir.ornix.passgen.core.domain.model.Account
-import ir.ornix.passgen.passwordgenerator.model.KDFPassGenConfig
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
 import ir.ornix.passgen.passwordgenerator.model.Password
 import ir.ornix.passgen.passwordgenerator.model.strengthLabel
 import kotlinx.coroutines.launch

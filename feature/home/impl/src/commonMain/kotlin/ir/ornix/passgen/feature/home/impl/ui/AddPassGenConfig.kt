@@ -1,12 +1,33 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -14,13 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.designsystem.component.NumberSlider
-import ir.ornix.passgen.feature.home.impl.ui.utils.EncoderTypeSaver
 import ir.ornix.passgen.feature.home.impl.ui.utils.HashingTypeSaver
-import ir.ornix.passgen.passwordgenerator.TokenGen.Companion.calculateTokenLength
-import ir.ornix.passgen.passwordgenerator.model.EncoderType
+import ir.ornix.passgen.feature.home.impl.ui.utils.PassEncoderSaver
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
 import ir.ornix.passgen.passwordgenerator.model.HashingType
-import ir.ornix.passgen.passwordgenerator.model.KDFPassGenConfig
-import ir.ornix.passgen.passwordgenerator.model.PostProcessConfig
+import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.passwordgenerator.model.PreprocessConfig
 
 @Composable
@@ -63,16 +82,13 @@ private fun AddPassGenConfigContent(
         mutableStateOf(HashingType.SHA256)
     }
 
-    var selectedEncoder by rememberSaveable(stateSaver = EncoderTypeSaver) {
-        mutableStateOf(EncoderType.HEX)
+    var selectedEncoder by rememberSaveable(stateSaver = PassEncoderSaver) {
+        mutableStateOf(PassEncoder.HexPassEncoder)
     }
 
     val tokenUnitCount by remember(selectedHashing, selectedEncoder) {
         derivedStateOf {
-            calculateTokenLength(
-                hashing = selectedHashing.createInstance(),
-                outputEncoder = selectedEncoder.createInstance()
-            )
+            selectedEncoder.getTokenLength(hashing = selectedHashing.createInstance())
         }
     }
 
@@ -84,7 +100,7 @@ private fun AddPassGenConfigContent(
 
     val approximateByteCount by remember(selectedEncoder, passLength) {
         derivedStateOf {
-            selectedEncoder.createInstance().decodedApproximateByteCount(passLength)
+            selectedEncoder.approximateDecodedSize(passLength)
         }
     }
 
@@ -173,14 +189,14 @@ private fun AddPassGenConfigContent(
                         KDFPassGenConfig(
                             id = 0, // ID will be handled by logic/DB
                             name = name.trim(),
+                            passEncoder = selectedEncoder,
+                            passwordLength = passLength,
                             preprocessConfig = PreprocessConfig(
                                 trimLeadingAndTrailingSpaces = trimSpaces,
                                 collapseMultipleSpaces = collapseSpaces,
                                 convertToLowercase = lowercase
                             ),
-                            hashingType = selectedHashing,
-                            encoderType = selectedEncoder,
-                            postProcessConfig = PostProcessConfig(passLength)
+                            hashingType = selectedHashing
                         )
                     )
                 }

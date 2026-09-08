@@ -9,7 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.passwordgenerator.model.KDFPassGenConfig
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
 import ir.ornix.passgen.passwordgenerator.model.PreprocessConfig
 
 @Composable
@@ -55,7 +55,7 @@ fun PassGenConfigDialog(
                 )
 
                 ConfigRow(label = "Hashing Algorithm", value = config.hashingType.key)
-                ConfigRow(label = "Output Encoder Type", value = config.encoderType.key)
+                ConfigRow(label = "Output Encoder Type", value = config.passEncoder.key)
 
                 HorizontalDivider()
 
@@ -67,7 +67,7 @@ fun PassGenConfigDialog(
 
                 ConfigRow(
                     label = "Password Length",
-                    value = config.postProcessConfig.passwordLength.toString()
+                    value = config.passwordLength.toString()
                 )
             }
         },

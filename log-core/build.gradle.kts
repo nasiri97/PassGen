@@ -10,17 +10,25 @@ plugins {
 
 kotlin {
 
+    iosArm64()
+    iosSimulatorArm64()
+
+    js {
+        browser()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     jvm()
+
     android {
         namespace = "ir.ornix.passgen.logcore"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    iosArm64()
-    iosSimulatorArm64()
-    js { browser() }
-    wasmJs { browser() }
-
 
     sourceSets {
         commonMain {

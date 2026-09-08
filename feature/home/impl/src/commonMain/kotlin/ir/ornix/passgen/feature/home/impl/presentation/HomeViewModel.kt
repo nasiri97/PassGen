@@ -12,9 +12,9 @@ import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
 import ir.ornix.passgen.feature.home.impl.model.PassGenWrapper
 import ir.ornix.passgen.core.domain.model.Account
-import ir.ornix.passgen.passwordgenerator.KDFPassGen
-import ir.ornix.passgen.passwordgenerator.model.KDFPassGenConfig
-import ir.ornix.passgen.passwordgenerator.model.PassGenFeed
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
+import ir.ornix.passgen.passwordgenerator.kdf.PassGenFeed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin

@@ -10,17 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import ir.ornix.passgen.passwordgenerator.model.EncoderType
+import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
 @Composable
 fun EncoderTypeSelector(
-    selected: EncoderType?,
-    onSelected: (EncoderType) -> Unit,
+    selected: PassEncoder?,
+    onSelected: (PassEncoder) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     Column(modifier) {
-        EncoderType.items.forEach { encoder ->
+        PassEncoder.items.forEach { encoder ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

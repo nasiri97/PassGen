@@ -10,17 +10,39 @@ plugins {
 }
 
 kotlin {
-    jvm()
-    android {
-       namespace = "ir.ornix.passgen.composeapp"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
-    
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
+
+    val xcfName = "ComposeApp"
+
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = xcfName
+        }
     }
-    
+
+    js {
+        browser()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
+    jvm()
+
+    android {
+        namespace = "ir.ornix.passgen.composeapp"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(project(":core:designsystem"))
@@ -38,12 +60,10 @@ kotlin {
             implementation(project(":feature:setup:impl"))
 
             implementation(libs.compose.icons)
-            
-            implementation(libs.jetbrains.navigation3.ui)
-            implementation(libs.androidx.navigation3.runtime)
+            implementation(libs.compose.navigation3.ui)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.multiplatform.settings)
-            
+
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)

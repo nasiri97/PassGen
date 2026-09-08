@@ -1,8 +1,8 @@
-package ir.ornix.passgen.passwordgenerator
+package ir.ornix.passgen.passwordgenerator.random
 
+import ir.ornix.passgen.passwordgenerator.core.PassGen
 import ir.ornix.passgen.passwordgenerator.model.Password
 import ir.ornix.passgen.passwordgenerator.model.Password.Companion.toPassword
-import ir.ornix.passgen.passwordgenerator.model.RandomPassGenConfig
 import kotlin.random.Random
 
 data class RandomPassGen(override val passGenConfig: RandomPassGenConfig) : PassGen {
@@ -26,7 +26,7 @@ data class RandomPassGen(override val passGenConfig: RandomPassGenConfig) : Pass
         )
 
         val remaining = (4 until passGenConfig.passwordLength).map { ALL.random() }
-        val passwordChars = (mandatoryChars + remaining).shuffled(Random)
+        val passwordChars = (mandatoryChars + remaining).shuffled(Random.Default)
         return passwordChars.joinToString("").toPassword()
     }
 }

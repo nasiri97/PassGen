@@ -12,7 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.designsystem.component.getAdaptiveValue
 import ir.ornix.passgen.core.domain.model.Account
 import ir.ornix.passgen.feature.home.impl.model.PassGenWrapper
-import ir.ornix.passgen.passwordgenerator.model.KDFPassGenConfig
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
 
 @Composable
 fun PasswordGeneratorList(

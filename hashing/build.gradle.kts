@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -9,16 +7,25 @@ plugins {
 
 kotlin {
 
+    iosArm64()
+    iosSimulatorArm64()
+
+    js {
+        browser()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     jvm()
+
     android {
         namespace = "ir.ornix.passgen.hashing"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
-//    iosArm64()
-//    iosSimulatorArm64()
-//    js { browser() }
-//    wasmJs { browser() }
 
     sourceSets {
         commonMain.dependencies {
@@ -27,15 +34,28 @@ kotlin {
             // Coroutine
             implementation(libs.kotlinx.coroutines.core)
 
-            // Argon2
-            implementation(libs.bcprov)
-
             implementation(libs.cryptography.core)
             implementation(libs.cryptography.provider.optimal)
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+        }
+
+        val jvmCommonMain = create("jvmCommonMain") {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.bcprov)
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmCommonMain)
+        }
+
+        jvmMain {
+            dependsOn(jvmCommonMain)
         }
     }
 }

@@ -1,8 +1,9 @@
-package ir.ornix.passgen.passwordgenerator
+package ir.ornix.passgen.passwordgenerator.kdf
 
 import ir.ornix.passgen.codec.core.Decoder
 import ir.ornix.passgen.hashing.core.Hashing
 import ir.ornix.passgen.logcore.Logger
+import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
 /**
  * Generates a deterministic token from a textual input using a hashing algorithm
@@ -12,56 +13,17 @@ import ir.ornix.passgen.logcore.Logger
  *
  * @param hashing The hashing algorithm used to generate the raw token bytes.
  * @param inputDecoder Decoder used to convert the input string into a byte array before hashing (e.g., UTF-8).
- * @param outputEncoder Fixed-length encoder used to convert the generated token
+ * @param outputPassEncoder Encoder used to convert the generated token
  * into the desired textual representation (e.g., Base64, Hex).
  */
-class TokenGen(
+internal class TokenGen(
     private val hashing: Hashing,
     private val inputDecoder: Decoder,
-    private val outputEncoder: FixedLengthEncoder
+    private val outputPassEncoder: PassEncoder
 ) {
-
-    companion object {
-
-        /**
-         * The number of encoded units required to represent
-         * the output of the given [hashing] algorithm after applying the specified
-         * [outputEncoder].
-         *
-         * The hash output size is fixed and defined by the hashing algorithm itself.
-         * This method delegates the size calculation to the encoder, which may
-         * introduce expansion or padding depending on its encoding granularity.
-         *
-         * @param hashing Hashing algorithm that produces a fixed-length byte output.
-         * @param outputEncoder Encoder used to transform the hash output into its
-         * encoded representation.
-         * @return Number of encoded units needed for the encoded hash output.
-         */
-        fun calculateTokenLength(
-            hashing: Hashing,
-            outputEncoder: FixedLengthEncoder
-        ): Int {
-
-            /** Size of the raw hash output produced by the hashing algorithm, in bytes.*/
-            val tokenByteSize = hashing.outputByteSize
-
-            return outputEncoder.encodedUnitCount(tokenByteSize)
-        }
-    }
 
     private var input: String? = null
     private var token: ByteArray? = null
-
-
-    /**
-     * The number of encoded units required to represent
-     * the output of the given [hashing] algorithm after applying the specified
-     * [outputEncoder].
-     */
-    val tokenLength = calculateTokenLength(
-        hashing = hashing,
-        outputEncoder = outputEncoder
-    )
 
 
     /**
@@ -102,7 +64,7 @@ class TokenGen(
         if (this.input != input || token == null) generate(input)
 
         return token?.let {
-            outputEncoder.encode(it).substring(0, tokenLength)
+            outputPassEncoder.encode(it)
         }
     }
 }

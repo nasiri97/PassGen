@@ -1,4 +1,4 @@
-package ir.ornix.passgen.passwordgenerator.model
+package ir.ornix.passgen.passwordgenerator.kdf
 
 data class PassGenFeed(
     val masterKey: String,

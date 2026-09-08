@@ -1,7 +1,7 @@
 package ir.ornix.passgen.core.domain.passgenconfig
 
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.passwordgenerator.model.KDFPassGenConfig
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
 
 
 class AddPassGenConfigUseCase(

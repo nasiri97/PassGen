@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -8,7 +9,21 @@ plugins {
 }
 
 kotlin {
+
+    iosArm64()
+    iosSimulatorArm64()
+
+    js {
+        browser()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     jvm()
+
     android {
         namespace = "ir.ornix.passgen.core.designsystem"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -28,7 +43,7 @@ kotlin {
             api(libs.compose.uiToolingPreview)
             api(libs.compose.components.resources)
             api(libs.compose.icons)
-            api(libs.androidx.material3.adaptive)
+            api(libs.compose.material3.adaptive)
             implementation(project(":passwordGenerator"))
 
             api(libs.androidx.lifecycle.viewmodelCompose)

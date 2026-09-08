@@ -2,9 +2,9 @@ package ir.ornix.passgen.passwordgenerator.model
 
 import ir.ornix.passgen.hashing.Argon2Hashing
 import ir.ornix.passgen.hashing.BCryptHashing
-import ir.ornix.passgen.hashing.core.Hashing
 import ir.ornix.passgen.hashing.Sha256Hashing
 import ir.ornix.passgen.hashing.Sha512Hashing
+import ir.ornix.passgen.hashing.core.Hashing
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -15,7 +15,7 @@ import kotlinx.serialization.encoding.Encoder
 
 /**
  * Base class for all hashing algorithm configurations.
- * Each subclass defines a unique [key] and can create its corresponding [Hashing][ir.ornix.passgen.core.hashing.Hashing] instance.
+ * Each subclass defines a unique [key] and can create its corresponding [Hashing][ir.ornix.passgen.hashing.core.Hashing] instance.
  */
 @Serializable(with = HashingTypeSerializer::class)
 sealed class HashingType(override val key: String) : KeyBasedType<Hashing>() {
@@ -63,7 +63,10 @@ sealed class HashingType(override val key: String) : KeyBasedType<Hashing>() {
 }
 
 object HashingTypeSerializer : KSerializer<HashingType> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("HashingType", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("HashingType", PrimitiveKind.STRING)
+
     override fun serialize(encoder: Encoder, value: HashingType) = encoder.encodeString(value.key)
-    override fun deserialize(decoder: Decoder): HashingType = HashingType.fromKey(decoder.decodeString())
+    override fun deserialize(decoder: Decoder): HashingType =
+        HashingType.fromKey(decoder.decodeString())
 }

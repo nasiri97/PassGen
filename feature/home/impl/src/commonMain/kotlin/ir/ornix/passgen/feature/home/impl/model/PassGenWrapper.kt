@@ -1,8 +1,9 @@
 package ir.ornix.passgen.feature.home.impl.model
 
-import ir.ornix.passgen.passwordgenerator.KDFPassGen
-import ir.ornix.passgen.passwordgenerator.model.PassGenFeed
+import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
+import ir.ornix.passgen.passwordgenerator.kdf.PassGenFeed
 import ir.ornix.passgen.passwordgenerator.model.Password
+import ir.ornix.passgen.passwordgenerator.model.Password.Companion.toPassword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,7 +38,7 @@ data class PassGenWrapper(val passGen: KDFPassGen) {
                 if (lastCalculatedFeed != it) {
                     _password.value = null
                     lastCalculatedFeed = it
-                    _password.value = passGen.generate(feed = it)
+                    _password.value = passGen.generate(feed = it)?.toPassword()
                 }
             }
 

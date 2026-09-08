@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -10,16 +8,26 @@ plugins {
 
 kotlin {
 
+    iosArm64()
+    iosSimulatorArm64()
+
+    js {
+        browser()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     jvm()
+
     android {
         namespace = "ir.ornix.passgen.passwordgenerator"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
-//    iosArm64()
-//    iosSimulatorArm64()
-//    js { browser() }
-//    wasmJs { browser() }
+
 
     sourceSets {
         commonMain {
@@ -32,6 +40,37 @@ kotlin {
                 // Kotlin Serialization
                 implementation(libs.kotlinx.serialization.json)
             }
+        }
+
+        val jvmCommonMain = create("jvmCommonMain") {
+            dependsOn(commonMain.get())
+            dependencies {
+
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmCommonMain)
+        }
+
+        jvmMain {
+            dependsOn(jvmCommonMain)
+        }
+
+
+        val jsCommonMain = create("jsCommonMain") {
+            dependsOn(commonMain.get())
+            dependencies {
+
+            }
+        }
+
+        jsMain {
+            dependsOn(jsCommonMain)
+        }
+
+        wasmJsMain {
+            dependsOn(jsCommonMain)
         }
     }
 
