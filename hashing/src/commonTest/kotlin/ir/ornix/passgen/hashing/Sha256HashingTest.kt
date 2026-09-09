@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class Sha256HashingTest {
 
@@ -46,7 +47,7 @@ class Sha256HashingTest {
     fun testVerify() = runTest {
         val input = utf8Codec.decode("hello")
         val digest = sha256Hashing.digest(input)
-        assert(sha256Hashing.verify(input, digest))
+        assertTrue(sha256Hashing.verify(input, digest))
     }
 
     @Test

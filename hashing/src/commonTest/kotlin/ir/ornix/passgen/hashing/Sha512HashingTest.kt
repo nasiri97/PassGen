@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class Sha512HashingTest {
 
@@ -49,7 +50,7 @@ class Sha512HashingTest {
     fun testVerify() = runTest {
         val input = utf8Codec.decode("hello")
         val digest = sha512Hashing.digest(input)
-        assert(sha512Hashing.verify(input, digest))
+        assertTrue(sha512Hashing.verify(input, digest))
     }
 
     @Test

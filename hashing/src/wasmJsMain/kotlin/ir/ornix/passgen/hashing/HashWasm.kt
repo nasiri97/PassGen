@@ -1,34 +1,34 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package ir.ornix.passgen.hashing
 
-import kotlin.js.Promise
 import kotlin.js.JsAny
+import kotlin.js.JsModule
 import kotlin.js.JsString
+import kotlin.js.Promise
 
 @JsModule("hash-wasm")
-external object HashWasm {
-    fun argon2id(options: Argon2Options): Promise<JsString>
-    fun bcrypt(options: BcryptOptions): Promise<JsString>
-}
-
-external interface Argon2Options : JsAny {
-    var password: JsAny 
-    var salt: JsAny 
-    var iterations: Int
-    var memorySize: Int
-    var parallelism: Int
-    var hashLength: Int
-    var outputType: String
-}
-
-external interface BcryptOptions : JsAny {
-    var password: JsAny 
-    var salt: JsAny 
-    var cost: Int
-    var outputType: String
+actual external object HashWasm {
+    actual fun argon2id(options: Argon2Options): Promise<JsString>
+    actual fun bcrypt(options: BcryptOptions): Promise<JsString>
 }
 
 @JsFun("() => ({})")
-internal external fun createArgon2Options(): Argon2Options
+internal actual external fun createArgon2Options(): Argon2Options
 
 @JsFun("() => ({})")
-internal external fun createBcryptOptions(): BcryptOptions
+internal actual external fun createBcryptOptions(): BcryptOptions
+
+@JsFun("(size) => new Uint8Array(size)")
+private external fun createUint8Array(size: Int): JsAny
+
+@JsFun("(array, index, value) => array[index] = value")
+private external fun setUint8ArrayValue(array: JsAny, index: Int, value: Int)
+
+internal actual fun ByteArray.toUint8Array(): JsAny {
+    val result = createUint8Array(this.size)
+    for (i in this.indices) {
+        setUint8ArrayValue(result, i, this[i].toInt() and 0xFF)
+    }
+    return result
+}
