@@ -27,45 +27,55 @@ class Argon2IdHashingTest {
         private val DIGEST1_BASE64 = ARGON1.substring(ARGON1.lastIndexOf('$') + 1)
         private val DIGEST1 = base64Codec.decode(DIGEST1_BASE64)
 
-        private const val STR2 = "\n\n  "
+        private const val STR2 = " "
         private val STR2_BYTES = utf8TextCodec.decode(STR2)
         private const val STR2_SHA256 =
-            "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb"
+            "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
         private val SALT2 = hexBinaryCodec.decode(STR2_SHA256.substring(0, 32))
         private const val ARGON2 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$Qwjvlq0OhvNceVoXcgYFZQ==$+M4dfUMD1zmOBga1IcV/NaDmdsxr22+K3HSGwGW+0WEqfzUoMeABZCf/xkpBwNxf0BAGwDCj+MRzGut1MdJUIQGTXVVj/6z8"
+            $$"$argon2id$v=19$m=131072,t=4,p=1$Nqnn8clbgv+5l0PgxcTOlQ==$x/RSe3X12/iJb19Bu3jO9FqQeMQodBavxjLn9j2V+ulQIcXY+nUeKda5TWjl5Tn2eH6CCy0JzrmTy000TyaSHtVBYGXxV27/"
         private val DIGEST2_BASE64 = ARGON2.substring(ARGON2.lastIndexOf('$') + 1)
         private val DIGEST2 = base64Codec.decode(DIGEST2_BASE64)
 
-        private const val STR3 = "hello"
+        private const val STR3 = "\n\n  "
         private val STR3_BYTES = utf8TextCodec.decode(STR3)
         private const val STR3_SHA256 =
-            "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+            "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb"
         private val SALT3 = hexBinaryCodec.decode(STR3_SHA256.substring(0, 32))
         private const val ARGON3 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$LPJNul+wow4m6Dsqxbning==$w86NXvmXuVB4Y2qL0oUp6smnFj74fWLExLaw5bbXRPxo9i4ebgPo/Fn2W+MdHYWB5KOi5N6aLAPbX6IhfO5bu06F3HBUK1fY"
+            $$"$argon2id$v=19$m=131072,t=4,p=1$Qwjvlq0OhvNceVoXcgYFZQ==$+M4dfUMD1zmOBga1IcV/NaDmdsxr22+K3HSGwGW+0WEqfzUoMeABZCf/xkpBwNxf0BAGwDCj+MRzGut1MdJUIQGTXVVj/6z8"
         private val DIGEST3_BASE64 = ARGON3.substring(ARGON3.lastIndexOf('$') + 1)
         private val DIGEST3 = base64Codec.decode(DIGEST3_BASE64)
 
-        private const val STR4 = "Hello World"
+        private const val STR4 = "hello"
         private val STR4_BYTES = utf8TextCodec.decode(STR4)
         private const val STR4_SHA256 =
-            "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
+            "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
         private val SALT4 = hexBinaryCodec.decode(STR4_SHA256.substring(0, 32))
         private const val ARGON4 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$pZGm1Av0IEBKARczz7exkA==$0TZbIZYWkvG47xenS/+wrFmiYC6S5woPAvXorv4+vxgTEX5hakW0MI2v4IuXaNIOdadpXXYr8YWFiZVeDYxDEN1CjLB9WKgI"
+            $$"$argon2id$v=19$m=131072,t=4,p=1$LPJNul+wow4m6Dsqxbning==$w86NXvmXuVB4Y2qL0oUp6smnFj74fWLExLaw5bbXRPxo9i4ebgPo/Fn2W+MdHYWB5KOi5N6aLAPbX6IhfO5bu06F3HBUK1fY"
         private val DIGEST4_BASE64 = ARGON4.substring(ARGON4.lastIndexOf('$') + 1)
         private val DIGEST4 = base64Codec.decode(DIGEST4_BASE64)
 
-        private const val STR5 = "This is a simple tes! We are using Argon2_id.\nHave a good time."
+        private const val STR5 = "Hello World"
         private val STR5_BYTES = utf8TextCodec.decode(STR5)
         private const val STR5_SHA256 =
-            "ecbb28cc36276854bf5f7153b9d5eb6c07f65f50d49a50f4578fb2665e43d665"
+            "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
         private val SALT5 = hexBinaryCodec.decode(STR5_SHA256.substring(0, 32))
         private const val ARGON5 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$7LsozDYnaFS/X3FTudXrbA==$jNeZZExz96To82L0A2/IR/jPypRzd40P0u7dtHKekOyAoTiqXgB8iVgkcwS7Wyz6fn/vRRvraottQ9mEBAi92SYLTaILn0Yf"
+            $$"$argon2id$v=19$m=131072,t=4,p=1$pZGm1Av0IEBKARczz7exkA==$0TZbIZYWkvG47xenS/+wrFmiYC6S5woPAvXorv4+vxgTEX5hakW0MI2v4IuXaNIOdadpXXYr8YWFiZVeDYxDEN1CjLB9WKgI"
         private val DIGEST5_BASE64 = ARGON5.substring(ARGON5.lastIndexOf('$') + 1)
         private val DIGEST5 = base64Codec.decode(DIGEST5_BASE64)
+
+        private const val STR6 = "This is a simple test! We are using Argon2_id.\nHave a good time."
+        private val STR6_BYTES = utf8TextCodec.decode(STR6)
+        private const val STR6_SHA256 =
+            "6163f9727d2b2f770f94047405ceff3cda92383a94daef53b89641eb817dfd40"
+        private val SALT6 = hexBinaryCodec.decode(STR6_SHA256.substring(0, 32))
+        private const val ARGON6 =
+            $$"$argon2id$v=19$m=131072,t=4,p=1$YWP5cn0rL3cPlAR0Bc7/PA==$pr0WZICBLKueiCWuOURz1vTdyCeovdFw8+1Rs6Hl+dJ9hQiurdtJ9liV8OyWXYgkRSo6WIOeccs0ySvP7vt1P4vJsMvMrB1d"
+        private val DIGEST6_BASE64 = ARGON6.substring(ARGON6.lastIndexOf('$') + 1)
+        private val DIGEST6 = base64Codec.decode(DIGEST6_BASE64)
     }
 
 
@@ -79,6 +89,7 @@ class Argon2IdHashingTest {
         assertEquals(saltSize, SALT3.size)
         assertEquals(saltSize, SALT4.size)
         assertEquals(saltSize, SALT5.size)
+        assertEquals(saltSize, SALT6.size)
     }
 
     @Test
@@ -89,6 +100,7 @@ class Argon2IdHashingTest {
         assertContentEquals(DIGEST3, Argon2idHashing.digest(STR3_BYTES, SALT3))
         assertContentEquals(DIGEST4, Argon2idHashing.digest(STR4_BYTES, SALT4))
         assertContentEquals(DIGEST5, Argon2idHashing.digest(STR5_BYTES, SALT5))
+        assertContentEquals(DIGEST6, Argon2idHashing.digest(STR6_BYTES, SALT6))
     }
 
     @Test
@@ -98,6 +110,7 @@ class Argon2IdHashingTest {
         assertEquals(153, ARGON3.length)
         assertEquals(153, ARGON4.length)
         assertEquals(153, ARGON5.length)
+        assertEquals(153, ARGON6.length)
     }
 
     @Test
@@ -108,6 +121,7 @@ class Argon2IdHashingTest {
         assertContentEquals(DIGEST3, Argon2idHashing.digest(STR3_BYTES))
         assertContentEquals(DIGEST4, Argon2idHashing.digest(STR4_BYTES))
         assertContentEquals(DIGEST5, Argon2idHashing.digest(STR5_BYTES))
+        assertContentEquals(DIGEST6, Argon2idHashing.digest(STR6_BYTES))
 
         // Base64
         assertEquals(DIGEST1_BASE64, Argon2idHashing.digest(STR1_BYTES, base64Codec))
@@ -115,6 +129,7 @@ class Argon2IdHashingTest {
         assertEquals(DIGEST3_BASE64, Argon2idHashing.digest(STR3_BYTES, base64Codec))
         assertEquals(DIGEST4_BASE64, Argon2idHashing.digest(STR4_BYTES, base64Codec))
         assertEquals(DIGEST5_BASE64, Argon2idHashing.digest(STR5_BYTES, base64Codec))
+        assertEquals(DIGEST6_BASE64, Argon2idHashing.digest(STR6_BYTES, base64Codec))
     }
 
 
@@ -126,6 +141,7 @@ class Argon2IdHashingTest {
         assertEquals(72, Argon2idHashing.digest(STR3_BYTES).size)
         assertEquals(72, Argon2idHashing.digest(STR4_BYTES).size)
         assertEquals(72, Argon2idHashing.digest(STR5_BYTES).size)
+        assertEquals(72, Argon2idHashing.digest(STR6_BYTES).size)
 
         // 144 Hex-Chars
         assertEquals(144, Argon2idHashing.digest(STR1_BYTES, hexBinaryCodec).length)
@@ -133,6 +149,7 @@ class Argon2IdHashingTest {
         assertEquals(144, Argon2idHashing.digest(STR3_BYTES, hexBinaryCodec).length)
         assertEquals(144, Argon2idHashing.digest(STR4_BYTES, hexBinaryCodec).length)
         assertEquals(144, Argon2idHashing.digest(STR5_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2idHashing.digest(STR6_BYTES, hexBinaryCodec).length)
 
         // 96 Base64-Chars
         assertEquals(96, Argon2idHashing.digest(STR1_BYTES, base64Codec).length)
@@ -140,6 +157,7 @@ class Argon2IdHashingTest {
         assertEquals(96, Argon2idHashing.digest(STR3_BYTES, base64Codec).length)
         assertEquals(96, Argon2idHashing.digest(STR4_BYTES, base64Codec).length)
         assertEquals(96, Argon2idHashing.digest(STR5_BYTES, base64Codec).length)
+        assertEquals(96, Argon2idHashing.digest(STR6_BYTES, base64Codec).length)
 
         // 90 Z85-Chars
         assertEquals(90, Argon2idHashing.digest(STR1_BYTES, z85BinaryCodec).length)
@@ -147,5 +165,6 @@ class Argon2IdHashingTest {
         assertEquals(90, Argon2idHashing.digest(STR3_BYTES, z85BinaryCodec).length)
         assertEquals(90, Argon2idHashing.digest(STR4_BYTES, z85BinaryCodec).length)
         assertEquals(90, Argon2idHashing.digest(STR5_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2idHashing.digest(STR6_BYTES, z85BinaryCodec).length)
     }
 }
