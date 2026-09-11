@@ -73,7 +73,7 @@ class BCryptHashingTest {
 
 
     @Test
-    fun testSaltLength() = runTest {
+    fun testSalt() = runTest {
         val saltSize = 16
 
         // Salt size should be 16 bytes
@@ -83,10 +83,7 @@ class BCryptHashingTest {
         assertEquals(saltSize, SALT4.size)
         assertEquals(saltSize, SALT5.size)
         assertEquals(saltSize, SALT6.size)
-    }
 
-    @Test
-    fun testSalt() = runTest {
         val salt1 = BCRYPT1.substring(BCRYPT1.lastIndexOf('$') + 1, 29)
         val salt2 = BCRYPT2.substring(BCRYPT2.lastIndexOf('$') + 1, 29)
         val salt3 = BCRYPT3.substring(BCRYPT3.lastIndexOf('$') + 1, 29)

@@ -91,6 +91,7 @@ class Base64BinaryCodecTest {
     @Test
     fun `decode Zg produces f`() {
         assertEquals("f", codec.decode("Zg==").decodeToString())
+        assertEquals("f", codec.decode("Zg").decodeToString())
     }
 
     @Test
@@ -194,6 +195,27 @@ class Base64BinaryCodecTest {
     }
 
     // ---------------------------------------------------------------------
+    // Test optional Padding
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun `decode succeeds with or without optional padding`() {
+        // 2-char group (1 byte payload) — last char must be multiple of 16
+        assertContentEquals(codec.decode("AA"), codec.decode("AA=="))
+        assertContentEquals(codec.decode("AQ"), codec.decode("AQ=="))
+        assertContentEquals(codec.decode("gA"), codec.decode("gA=="))
+
+        // 3-char group (2 byte payload) — last char must be multiple of 4
+        assertContentEquals(codec.decode("ABA"), codec.decode("ABA="))
+        assertContentEquals(codec.decode("ABQ"), codec.decode("ABQ="))
+
+
+        // multi-block input: full blocks followed by a padded remainder
+        assertContentEquals(codec.decode("ABCDAA"), codec.decode("ABCDAA=="))
+        assertContentEquals(codec.decode("ABCDABA"), codec.decode("ABCDABA="))
+    }
+
+    // ---------------------------------------------------------------------
     // Error handling
     // ---------------------------------------------------------------------
 
@@ -205,15 +227,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `decode throws on malformed length not a multiple of 4`() {
-        assertFailsWith<IllegalArgumentException> {
-            codec.decode("Z")
-        }
-
-        assertFailsWith<IllegalArgumentException> {
-            codec.decode("Zg")
-        }
-
+    fun `decode throws when input length with padding is not a multiple of 4`() {
         assertFailsWith<IllegalArgumentException> {
             codec.decode("Zg=")
         }

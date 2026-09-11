@@ -33,19 +33,23 @@ import kotlin.io.encoding.Base64
  *
  * ### Size Relationship (3 bytes → 4 characters)
  *
- * Every valid Base64-encoded string has a length that's a multiple of 4,
+ * Every string produced by [encode] has a length that's a multiple of 4,
  * no matter what the original input length was. That's because encoding
  * always processes bytes in groups of 3 and always emits exactly 4
  * characters per group — using '=' padding to fill out a partial trailing
  * group rather than emitting a shorter, unpadded chunk.
  *
  * So:
- * - Input byte count       -> can be any length (0, 1, 2, 3, 4, 5, ...)
- * - Output string length   -> always a multiple of 4 (0, 4, 8, 12, ...)
+ * - Input byte count                   -> can be any length (0, 1, 2, 3, 4, 5, ...)
+ * - [encode] output length             -> always a multiple of 4 (0, 4, 8, 12, ...)
+ * - Output length if `=` is omitted    -> may fall short of a multiple of 4 for a partial trailing group
  *
- * The '=' padding exists specifically to guarantee that second property.
- * If the last group only had 1 or 2 real bytes, padding characters fill
- * the remaining slot(s) so the output still lands on a 4-character boundary.
+ * The '=' padding exists specifically to guarantee that second property
+ * for output produced by this codec. Note, however, that [decode] is
+ * configured with [Base64.PaddingOption.PRESENT_OPTIONAL], so it will also
+ * accept *unpadded* input whose length is not a multiple of 4 — `=` is
+ * required when [encode] emits output, but optional/may be omitted when
+ * [decode] is given input.
  *
  * @throws IllegalArgumentException if [decode] is given a malformed Base64
  * string (invalid characters, incorrect padding, or a length not congruent
@@ -54,7 +58,7 @@ import kotlin.io.encoding.Base64
 class Base64BinaryCodec : Codec {
 
     override fun decode(input: String): ByteArray {
-        return Base64.decode(input)
+        return Base64.withPadding(Base64.PaddingOption.PRESENT_OPTIONAL).decode(input)
     }
 
     override fun encode(input: ByteArray): String {

@@ -22,8 +22,9 @@ class Argon2IdHashingTest {
         private const val STR1_SHA256 =
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         private val SALT1 = hexBinaryCodec.decode(STR1_SHA256.substring(0, 32))
-        private const val ARGON1 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$47DEQpj8HBSa+/TImW+5JA==$7nCeECf0DBRzNoB9W17t0fDl0jJqc3eaxUOJUB9F+791buZnTj0/ESoGJPT3kyoW66SQfOvoGPomQEe/erftchq5NMuKNP5r"
+
+        private const val ARGON1 = // Salt: 47DEQpj8HBSa+/TImW+5JA==
+            $$"$argon2id$v=19$m=131072,t=4,p=1$47DEQpj8HBSa+/TImW+5JA$7nCeECf0DBRzNoB9W17t0fDl0jJqc3eaxUOJUB9F+791buZnTj0/ESoGJPT3kyoW66SQfOvoGPomQEe/erftchq5NMuKNP5r"
         private val DIGEST1_BASE64 = ARGON1.substring(ARGON1.lastIndexOf('$') + 1)
         private val DIGEST1 = base64Codec.decode(DIGEST1_BASE64)
 
@@ -32,8 +33,8 @@ class Argon2IdHashingTest {
         private const val STR2_SHA256 =
             "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
         private val SALT2 = hexBinaryCodec.decode(STR2_SHA256.substring(0, 32))
-        private const val ARGON2 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$Nqnn8clbgv+5l0PgxcTOlQ==$x/RSe3X12/iJb19Bu3jO9FqQeMQodBavxjLn9j2V+ulQIcXY+nUeKda5TWjl5Tn2eH6CCy0JzrmTy000TyaSHtVBYGXxV27/"
+        private const val ARGON2 = // Salt: Nqnn8clbgv+5l0PgxcTOlQ==
+            $$"$argon2id$v=19$m=131072,t=4,p=1$Nqnn8clbgv+5l0PgxcTOlQ$x/RSe3X12/iJb19Bu3jO9FqQeMQodBavxjLn9j2V+ulQIcXY+nUeKda5TWjl5Tn2eH6CCy0JzrmTy000TyaSHtVBYGXxV27/"
         private val DIGEST2_BASE64 = ARGON2.substring(ARGON2.lastIndexOf('$') + 1)
         private val DIGEST2 = base64Codec.decode(DIGEST2_BASE64)
 
@@ -42,8 +43,8 @@ class Argon2IdHashingTest {
         private const val STR3_SHA256 =
             "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb"
         private val SALT3 = hexBinaryCodec.decode(STR3_SHA256.substring(0, 32))
-        private const val ARGON3 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$Qwjvlq0OhvNceVoXcgYFZQ==$+M4dfUMD1zmOBga1IcV/NaDmdsxr22+K3HSGwGW+0WEqfzUoMeABZCf/xkpBwNxf0BAGwDCj+MRzGut1MdJUIQGTXVVj/6z8"
+        private const val ARGON3 = //Salt: Qwjvlq0OhvNceVoXcgYFZQ==
+            $$"$argon2id$v=19$m=131072,t=4,p=1$Qwjvlq0OhvNceVoXcgYFZQ$+M4dfUMD1zmOBga1IcV/NaDmdsxr22+K3HSGwGW+0WEqfzUoMeABZCf/xkpBwNxf0BAGwDCj+MRzGut1MdJUIQGTXVVj/6z8"
         private val DIGEST3_BASE64 = ARGON3.substring(ARGON3.lastIndexOf('$') + 1)
         private val DIGEST3 = base64Codec.decode(DIGEST3_BASE64)
 
@@ -52,8 +53,8 @@ class Argon2IdHashingTest {
         private const val STR4_SHA256 =
             "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
         private val SALT4 = hexBinaryCodec.decode(STR4_SHA256.substring(0, 32))
-        private const val ARGON4 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$LPJNul+wow4m6Dsqxbning==$w86NXvmXuVB4Y2qL0oUp6smnFj74fWLExLaw5bbXRPxo9i4ebgPo/Fn2W+MdHYWB5KOi5N6aLAPbX6IhfO5bu06F3HBUK1fY"
+        private const val ARGON4 = // Salt: LPJNul+wow4m6Dsqxbning==
+            $$"$argon2id$v=19$m=131072,t=4,p=1$LPJNul+wow4m6Dsqxbning$w86NXvmXuVB4Y2qL0oUp6smnFj74fWLExLaw5bbXRPxo9i4ebgPo/Fn2W+MdHYWB5KOi5N6aLAPbX6IhfO5bu06F3HBUK1fY"
         private val DIGEST4_BASE64 = ARGON4.substring(ARGON4.lastIndexOf('$') + 1)
         private val DIGEST4 = base64Codec.decode(DIGEST4_BASE64)
 
@@ -62,8 +63,8 @@ class Argon2IdHashingTest {
         private const val STR5_SHA256 =
             "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
         private val SALT5 = hexBinaryCodec.decode(STR5_SHA256.substring(0, 32))
-        private const val ARGON5 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$pZGm1Av0IEBKARczz7exkA==$0TZbIZYWkvG47xenS/+wrFmiYC6S5woPAvXorv4+vxgTEX5hakW0MI2v4IuXaNIOdadpXXYr8YWFiZVeDYxDEN1CjLB9WKgI"
+        private const val ARGON5 = // Salt: pZGm1Av0IEBKARczz7exkA==
+            $$"$argon2id$v=19$m=131072,t=4,p=1$pZGm1Av0IEBKARczz7exkA$0TZbIZYWkvG47xenS/+wrFmiYC6S5woPAvXorv4+vxgTEX5hakW0MI2v4IuXaNIOdadpXXYr8YWFiZVeDYxDEN1CjLB9WKgI"
         private val DIGEST5_BASE64 = ARGON5.substring(ARGON5.lastIndexOf('$') + 1)
         private val DIGEST5 = base64Codec.decode(DIGEST5_BASE64)
 
@@ -72,24 +73,46 @@ class Argon2IdHashingTest {
         private const val STR6_SHA256 =
             "6163f9727d2b2f770f94047405ceff3cda92383a94daef53b89641eb817dfd40"
         private val SALT6 = hexBinaryCodec.decode(STR6_SHA256.substring(0, 32))
-        private const val ARGON6 =
-            $$"$argon2id$v=19$m=131072,t=4,p=1$YWP5cn0rL3cPlAR0Bc7/PA==$pr0WZICBLKueiCWuOURz1vTdyCeovdFw8+1Rs6Hl+dJ9hQiurdtJ9liV8OyWXYgkRSo6WIOeccs0ySvP7vt1P4vJsMvMrB1d"
+        private const val ARGON6 = // Salt: YWP5cn0rL3cPlAR0Bc7/PA==
+            $$"$argon2id$v=19$m=131072,t=4,p=1$YWP5cn0rL3cPlAR0Bc7/PA$pr0WZICBLKueiCWuOURz1vTdyCeovdFw8+1Rs6Hl+dJ9hQiurdtJ9liV8OyWXYgkRSo6WIOeccs0ySvP7vt1P4vJsMvMrB1d"
         private val DIGEST6_BASE64 = ARGON6.substring(ARGON6.lastIndexOf('$') + 1)
         private val DIGEST6 = base64Codec.decode(DIGEST6_BASE64)
     }
 
 
     @Test
-    fun testSaltLength() = runTest {
+    fun testSalt() = runTest {
         val saltSize = 16
 
-        // Salt size should be 18 bytes
+        // Salt size should be 16 bytes
         assertEquals(saltSize, SALT1.size)
         assertEquals(saltSize, SALT2.size)
         assertEquals(saltSize, SALT3.size)
         assertEquals(saltSize, SALT4.size)
         assertEquals(saltSize, SALT5.size)
         assertEquals(saltSize, SALT6.size)
+
+        val salt1 = ARGON1.substring(ARGON1.indexOf('$', 15) + 1, ARGON1.lastIndexOf('$'))
+        val salt2 = ARGON2.substring(ARGON2.indexOf('$', 15) + 1, ARGON2.lastIndexOf('$'))
+        val salt3 = ARGON3.substring(ARGON3.indexOf('$', 15) + 1, ARGON3.lastIndexOf('$'))
+        val salt4 = ARGON4.substring(ARGON4.indexOf('$', 15) + 1, ARGON4.lastIndexOf('$'))
+        val salt5 = ARGON5.substring(ARGON5.indexOf('$', 15) + 1, ARGON5.lastIndexOf('$'))
+        val salt6 = ARGON6.substring(ARGON6.indexOf('$', 15) + 1, ARGON6.lastIndexOf('$'))
+
+        // 22 Base64-Chars
+        assertEquals(22, salt1.length)
+        assertEquals(22, salt2.length)
+        assertEquals(22, salt3.length)
+        assertEquals(22, salt4.length)
+        assertEquals(22, salt5.length)
+        assertEquals(22, salt6.length)
+
+        assertContentEquals(SALT1, base64Codec.decode(salt1))
+        assertContentEquals(SALT2, base64Codec.decode(salt2))
+        assertContentEquals(SALT3, base64Codec.decode(salt3))
+        assertContentEquals(SALT4, base64Codec.decode(salt4))
+        assertContentEquals(SALT5, base64Codec.decode(salt5))
+        assertContentEquals(SALT6, base64Codec.decode(salt6))
     }
 
     @Test
@@ -105,12 +128,12 @@ class Argon2IdHashingTest {
 
     @Test
     fun testArgonBase64Length() {
-        assertEquals(153, ARGON1.length)
-        assertEquals(153, ARGON2.length)
-        assertEquals(153, ARGON3.length)
-        assertEquals(153, ARGON4.length)
-        assertEquals(153, ARGON5.length)
-        assertEquals(153, ARGON6.length)
+        assertEquals(151, ARGON1.length)
+        assertEquals(151, ARGON2.length)
+        assertEquals(151, ARGON3.length)
+        assertEquals(151, ARGON4.length)
+        assertEquals(151, ARGON5.length)
+        assertEquals(151, ARGON6.length)
     }
 
     @Test
