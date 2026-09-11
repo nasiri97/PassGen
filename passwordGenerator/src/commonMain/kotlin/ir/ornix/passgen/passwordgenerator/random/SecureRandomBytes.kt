@@ -1,3 +1,3 @@
 package ir.ornix.passgen.passwordgenerator.random
 
-expect fun secureRandomBytes(size: Int): ByteArray
+internal expect fun secureRandomBytes(size: Int): ByteArray
