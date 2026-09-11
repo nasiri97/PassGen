@@ -1,6 +1,6 @@
 package ir.ornix.passgen.passwordgenerator.model
 
-import ir.ornix.passgen.hashing.Argon2Hashing
+import ir.ornix.passgen.hashing.Argon2idHashing
 import ir.ornix.passgen.hashing.BCryptHashing
 import ir.ornix.passgen.hashing.Sha256Hashing
 import ir.ornix.passgen.hashing.Sha512Hashing
@@ -33,7 +33,7 @@ sealed class HashingType(override val key: String) : KeyBasedType<Hashing>() {
     }
 
     object ARGON2ID : HashingType(KEY_ARGON2_ID) {
-        override fun createInstance(): Hashing = Argon2Hashing
+        override fun createInstance(): Hashing = Argon2idHashing
     }
 
     companion object {
