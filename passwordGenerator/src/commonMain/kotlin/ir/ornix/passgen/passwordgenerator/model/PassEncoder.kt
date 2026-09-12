@@ -3,7 +3,6 @@ package ir.ornix.passgen.passwordgenerator.model
 import ir.ornix.passgen.codec.Base64BinaryCodec
 import ir.ornix.passgen.codec.HexBinaryCodec
 import ir.ornix.passgen.codec.Z85BinaryCodec
-import ir.ornix.passgen.hashing.core.Hasher
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -24,23 +23,25 @@ sealed class PassEncoder(
     val encodedBlockSize: Int
 ) : KeyBasedType<ir.ornix.passgen.codec.core.Encoder>() {
 
-    val encoder = createInstance()
-
     fun encode(input: ByteArray): String {
         val size = input.size - (input.size % binaryBlockSize)
-        return encoder.encode(input.copyOfRange(0, size))
+        return instance.encode(input.copyOfRange(0, size))
+    }
+
+    fun encodeAllBytes(input: ByteArray): String {
+        return instance.encode(input)
     }
 
     object HexPassEncoder : PassEncoder(KEY_HEX_PASS_ENCODER, 1, 2) {
-        override fun createInstance() = HexBinaryCodec(false)
+        override val instance = HexBinaryCodec(false)
     }
 
     object Base64PassEncoder : PassEncoder(KEY_BASE64_PASS_ENCODER, 3, 4) {
-        override fun createInstance() = Base64BinaryCodec()
+        override val instance = Base64BinaryCodec()
     }
 
     object Z85PassEncoder : PassEncoder(KEY_Z85_PASS_ENCODER, 4, 5) {
-        override fun createInstance() = Z85BinaryCodec()
+        override val instance = Z85BinaryCodec()
     }
 
     companion object {
@@ -68,20 +69,20 @@ sealed class PassEncoder(
 
     /**
      * The number of encoded units required to represent
-     * the output of the given [hasher] algorithm after applying this PassEncoder
+     * the output of the given [inputHasher] algorithm after applying this PassEncoder
      *
      * The hash output size is fixed and defined by the hashing algorithm itself.
      * This method delegates the size calculation to the encoder, which may
      * introduce expansion or padding depending on its encoding granularity.
      *
-     * @param hasher Hashing algorithm that produces a fixed-length byte output.
+     * @param inputHasher Hashing algorithm that produces a fixed-length byte output.
      * encoded representation.
      * @return Number of encoded units needed for the encoded hash output.
      */
-    fun getTokenLength(hasher: Hasher): Int {
+    fun getTokenLength(inputHasher: InputHasher): Int {
 
         /** Size of the raw hash output produced by the hashing algorithm, in bytes.*/
-        val tokenByteSize = hasher.outputByteSize
+        val tokenByteSize = inputHasher.outputByteSize
 
         return (tokenByteSize / binaryBlockSize) * encodedBlockSize
     }

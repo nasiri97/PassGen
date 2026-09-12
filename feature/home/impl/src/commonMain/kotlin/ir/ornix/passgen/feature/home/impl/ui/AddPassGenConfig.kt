@@ -78,7 +78,7 @@ private fun AddPassGenConfigContent(
     var collapseSpaces by rememberSaveable { mutableStateOf(true) }
     var lowercase by rememberSaveable { mutableStateOf(false) }
 
-    var selectedHashing by rememberSaveable(stateSaver = InputHasherSaver) {
+    var selectedInputHasher by rememberSaveable(stateSaver = InputHasherSaver) {
         mutableStateOf(InputHasher.SHA256)
     }
 
@@ -86,9 +86,9 @@ private fun AddPassGenConfigContent(
         mutableStateOf(PassEncoder.HexPassEncoder)
     }
 
-    val tokenUnitCount by remember(selectedHashing, selectedEncoder) {
+    val tokenUnitCount by remember(selectedInputHasher, selectedEncoder) {
         derivedStateOf {
-            selectedEncoder.getTokenLength(hasher = selectedHashing.hasher)
+            selectedEncoder.getTokenLength(inputHasher = selectedInputHasher)
         }
     }
 
@@ -144,8 +144,8 @@ private fun AddPassGenConfigContent(
         )
 
         HashingTypeSelector(
-            selected = selectedHashing,
-            onSelected = { selectedHashing = it }
+            selected = selectedInputHasher,
+            onSelected = { selectedInputHasher = it }
         )
 
         HorizontalDivider()
@@ -196,7 +196,7 @@ private fun AddPassGenConfigContent(
                                 collapseMultipleSpaces = collapseSpaces,
                                 convertToLowercase = lowercase
                             ),
-                            inputHasher = selectedHashing
+                            inputHasher = selectedInputHasher
                         )
                     )
                 }

@@ -1,8 +1,8 @@
 package ir.ornix.passgen.passwordgenerator.kdf
 
 import ir.ornix.passgen.codec.core.Decoder
-import ir.ornix.passgen.hashing.core.Hasher
 import ir.ornix.passgen.logcore.Logger
+import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
 /**
@@ -12,12 +12,12 @@ import ir.ornix.passgen.passwordgenerator.model.PassEncoder
  * The token is cached per input and regenerated only when the input changes.
  *
  * @param inputDecoder Decoder used to convert the input string into a byte array before hashing (e.g., UTF-8).
- * @param hasher The hashing algorithm used to generate the raw token bytes.
+ * @param inputHasher The hashing algorithm used to generate the raw token bytes.
  * @param outputPassEncoder Encoder used to convert the generated token into the desired textual representation (e.g., Base64, Hex).
  */
 internal class TokenGen(
     private val inputDecoder: Decoder,
-    private val hasher: Hasher,
+    private val inputHasher: InputHasher,
     private val outputPassEncoder: PassEncoder
 ) {
 
@@ -36,7 +36,7 @@ internal class TokenGen(
     private suspend fun generate(input: String) {
         try {
             this.input = input
-            token = hasher.digest(
+            token = inputHasher.digest(
                 input = input,
                 inputDecoder = inputDecoder
             )

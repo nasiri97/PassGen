@@ -20,22 +20,30 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(with = InputHasherSerializer::class)
 sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
 
-    val hasher: Hasher = createInstance()
+    suspend fun digest(
+        input: String,
+        inputDecoder: ir.ornix.passgen.codec.core.Decoder
+    ): ByteArray {
+        return instance.digest(input = input, inputDecoder = inputDecoder)
+    }
+
+    val outputByteSize: Int
+        get() = instance.outputByteSize
 
     object SHA256 : InputHasher(KEY_SHA256) {
-        override fun createInstance(): Hasher = Sha256Hasher()
+        override val instance = Sha256Hasher()
     }
 
     object SHA512 : InputHasher(KEY_SHA512) {
-        override fun createInstance(): Hasher = Sha512Hasher()
+        override val instance = Sha512Hasher()
     }
 
     object BCrypt : InputHasher(KEY_BCRYPT) {
-        override fun createInstance(): Hasher = BCryptHasher()
+        override val instance = BCryptHasher()
     }
 
     object ARGON2ID : InputHasher(KEY_ARGON2_ID) {
-        override fun createInstance(): Hasher = Argon2IdHasher
+        override val instance = Argon2IdHasher
     }
 
     companion object {

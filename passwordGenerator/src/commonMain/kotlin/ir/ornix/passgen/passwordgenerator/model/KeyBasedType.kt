@@ -5,13 +5,13 @@ package ir.ornix.passgen.passwordgenerator.model
  *
  * Subclasses must provide:
  *  - [key]: a unique identifier for this type.
- *  - [createInstance]: a method to create an instance of type [T].
+ *  - [instance]:  an instance of type [T].
  */
 abstract class KeyBasedType<T> {
 
     abstract val key: String
 
-    protected abstract fun createInstance(): T
+    protected abstract val instance: T
 
     override fun equals(other: Any?): Boolean {
         return if (this === other) true

@@ -1,7 +1,6 @@
 package ir.ornix.passgen.passwordgenerator.kdf
 
 import ir.ornix.passgen.codec.core.Decoder
-import ir.ornix.passgen.hashing.core.Hasher
 import ir.ornix.passgen.passwordgenerator.core.PassGen
 import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
@@ -13,15 +12,13 @@ data class KDFPassGen(
     override val passwordLength: Int
 ) : PassGen {
 
-    private val hasher: Hasher = inputHasher.hasher
-
     init {
         validatePasswordLength()
     }
 
     private val tokenGen = TokenGen(
         inputDecoder = inputDecoder,
-        hasher = hasher,
+        inputHasher = inputHasher,
         outputPassEncoder = passEncoder
     )
 
@@ -37,7 +34,7 @@ data class KDFPassGen(
      * @throws IllegalArgumentException if the password length is invalid or too large for the token.
      */
     private fun validatePasswordLength() {
-        val tokenLength = passEncoder.getTokenLength(inputHasher.hasher)
+        val tokenLength = passEncoder.getTokenLength(inputHasher)
 
         require(passwordLength >= 4) { "Password length must be at least 4 characters!" }
         require(passwordLength <= tokenLength) {

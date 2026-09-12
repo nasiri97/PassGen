@@ -4,8 +4,6 @@ import ir.ornix.passgen.codec.BCryptBase64BinaryCodec
 import ir.ornix.passgen.codec.Base64BinaryCodec
 import ir.ornix.passgen.codec.HexBinaryCodec
 import ir.ornix.passgen.codec.Utf8TextCodec
-import ir.ornix.passgen.codec.Z85BinaryCodec
-import ir.ornix.passgen.codec.core.Encoder
 import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 import kotlinx.coroutines.test.runTest
@@ -90,7 +88,7 @@ class KDFPassGenTest {
         InputHasher.items.forEach { inputHasher ->
             PassEncoder.items.forEach { passEncoder ->
                 val maxLength =
-                    (inputHasher.hasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
+                    (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
                 assertFailsWith<IllegalArgumentException> {
                     KDFPassGen(
@@ -110,14 +108,14 @@ class KDFPassGenTest {
         InputHasher.items.forEach { inputHasher ->
             PassEncoder.items.forEach { passEncoder ->
                 val maxLength =
-                    (inputHasher.hasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
+                    (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
                 testCases.forEach { testCase ->
 
                     val expected = testCase.getDigest(
                         inputHasher = inputHasher,
                         length = null,
-                        encoder = passEncoder.encoder
+                        passEncoder = passEncoder
                     )
 
                     assertEquals(
@@ -141,13 +139,13 @@ class KDFPassGenTest {
             PassEncoder.items.forEach { passEncoder ->
                 testCases.forEach { testCase ->
                     val maxLength =
-                        (inputHasher.hasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
+                        (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
                     ((maxLength - 5)..maxLength).forEach { length ->
                         val expected = testCase.getDigest(
                             inputHasher = inputHasher,
                             length = length,
-                            encoder = passEncoder.encoder
+                            passEncoder = passEncoder
                         )
 
                         assertEquals(
@@ -177,7 +175,7 @@ class KDFPassGenTest {
         /**
          * @param length Set null for full-length
          */
-        fun getDigest(inputHasher: InputHasher, length: Int?, encoder: Encoder): String {
+        fun getDigest(inputHasher: InputHasher, length: Int?, passEncoder: PassEncoder): String {
             val binaryBlockSize: Int
             val encodedBlockSize: Int
 
@@ -188,30 +186,26 @@ class KDFPassGenTest {
                 is InputHasher.SHA256 -> sha256
             }
 
-            when (encoder) {
-                is HexBinaryCodec -> {
+            when (passEncoder) {
+                is PassEncoder.HexPassEncoder -> {
                     binaryBlockSize = 1
                     encodedBlockSize = 2
                 }
 
-                is Base64BinaryCodec -> {
+                is PassEncoder.Base64PassEncoder -> {
                     binaryBlockSize = 3
                     encodedBlockSize = 4
                 }
 
-                is Z85BinaryCodec -> {
+                is PassEncoder.Z85PassEncoder -> {
                     binaryBlockSize = 4
                     encodedBlockSize = 5
-                }
-
-                else -> {
-                    throw UnsupportedOperationException("This Codec is not supported!")
                 }
             }
 
             val maxSize = bytes.size - (bytes.size % binaryBlockSize)
             val validBytes = bytes.copyOfRange(0, maxSize)
-            val encoded = encoder.encode(validBytes)
+            val encoded = passEncoder.encodeAllBytes(validBytes)
 
             check(encoded.length == (maxSize / binaryBlockSize) * encodedBlockSize) {
                 "Encoded size must be a multiple of encodedBlockSize!"
