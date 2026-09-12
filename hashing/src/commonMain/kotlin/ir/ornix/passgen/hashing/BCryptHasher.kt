@@ -1,10 +1,10 @@
 package ir.ornix.passgen.hashing
 
-import ir.ornix.passgen.hashing.core.Hashing
+import ir.ornix.passgen.hashing.core.Hasher
 
 
 /**
- * BCrypt password hashing.
+ * BCrypt password hasher.
  *
  * The standard BCrypt encoded format is:
  *
@@ -24,7 +24,7 @@ import ir.ornix.passgen.hashing.core.Hashing
  * BCrypt uses its own Base64 variant, commonly called BCrypt Base64,
  * whose alphabet differs from RFC 4648 Base64.
  */
-class BCryptHashing() : Hashing {
+class BCryptHasher() : Hasher {
 
     /**
      * Size of the raw BCrypt hash returned by this implementation.
@@ -36,7 +36,7 @@ class BCryptHashing() : Hashing {
 
     companion object {
 
-        private val sha256Hashing = Sha256Hashing()
+        private val sha256Hashing = Sha256Hasher()
 
         // BCrypt Work-Factor
         private const val COST = 12

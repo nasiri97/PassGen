@@ -1,6 +1,6 @@
 package ir.ornix.passgen.feature.home.impl.presentation
 
-import ir.ornix.passgen.feature.home.impl.model.PassGenWrapper
+import ir.ornix.passgen.core.domain.PassGenWrapper
 
 data class HomeUiState(
     val input: String = "",

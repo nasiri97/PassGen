@@ -1,4 +1,6 @@
-package ir.ornix.passgen.passwordgenerator.model
+package ir.ornix.passgen.core.model
+
+import kotlin.text.iterator
 
 data class Password(
     val value: String,

@@ -8,9 +8,9 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class Sha256HashingTest {
+class Sha256HasherTest {
 
-    private val sha256Hashing = Sha256Hashing()
+    private val sha256Hashing = Sha256Hasher()
     private val hexCodec = HexBinaryCodec(false)
     private val utf8Codec = Utf8TextCodec()
 

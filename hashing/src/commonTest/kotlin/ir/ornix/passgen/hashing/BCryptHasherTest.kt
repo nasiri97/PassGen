@@ -8,10 +8,10 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
-class BCryptHashingTest {
+class BCryptHasherTest {
 
     companion object {
-        private val bCryptHashing = BCryptHashing()
+        private val bCryptHashing = BCryptHasher()
         private val bCryptBase64Codec = BCryptBase64BinaryCodec()
         private val utf8TextCodec = Utf8TextCodec()
         private val hexBinaryCodec = HexBinaryCodec(false)

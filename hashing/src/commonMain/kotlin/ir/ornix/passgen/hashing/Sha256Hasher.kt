@@ -2,9 +2,9 @@ package ir.ornix.passgen.hashing
 
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.SHA256
-import ir.ornix.passgen.hashing.core.Hashing
+import ir.ornix.passgen.hashing.core.Hasher
 
-class Sha256Hashing : Hashing {
+class Sha256Hasher : Hasher {
 
     override val outputByteSize = 32
 

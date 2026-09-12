@@ -1,11 +1,11 @@
 package ir.ornix.passgen.hashing
 
-import ir.ornix.passgen.hashing.core.Hashing
+import ir.ornix.passgen.hashing.core.Hasher
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 
-object Argon2idHashing : Hashing {
+object Argon2IdHasher : Hasher {
 
     // The generated password is 72 bytes (144 Hex-Chars) (96 Base64-Chars) (90 Z85-Chars)
     override val outputByteSize = 72
@@ -16,7 +16,7 @@ object Argon2idHashing : Hashing {
 
     private val mutex = Mutex()
 
-    private val sha256Hashing = Sha256Hashing()
+    private val sha256Hashing = Sha256Hasher()
 
     override suspend fun digest(input: ByteArray): ByteArray {
 

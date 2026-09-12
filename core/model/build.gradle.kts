@@ -23,49 +23,23 @@ kotlin {
     jvm()
 
     android {
-        namespace = "ir.ornix.passgen.passwordgenerator"
+        namespace = "ir.ornix.passgen.core.model"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 
-
     sourceSets {
         commonMain {
             dependencies {
-                api(project(":hashing"))
-                implementation(project(":log-core"))
                 implementation(libs.kotlin.stdlib)
-
-                // Kotlin Serialization
                 implementation(libs.kotlinx.serialization.json)
             }
         }
 
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.kotlinx.coroutines.test)
-        }
-
-        val jvmCommonMain = create("jvmCommonMain") {
-            dependsOn(commonMain.get())
+        commonTest {
             dependencies {
-
+                implementation(libs.kotlin.test)
             }
         }
-
-        androidMain {
-            dependsOn(jvmCommonMain)
-        }
-
-        jvmMain {
-            dependsOn(jvmCommonMain)
-        }
-
-        jsMain {
-        }
-
-        wasmJsMain {
-        }
     }
-
 }

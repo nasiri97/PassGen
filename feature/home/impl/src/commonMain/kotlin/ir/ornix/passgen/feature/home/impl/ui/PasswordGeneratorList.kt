@@ -10,9 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.designsystem.component.getAdaptiveValue
-import ir.ornix.passgen.core.domain.model.Account
-import ir.ornix.passgen.feature.home.impl.model.PassGenWrapper
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.PassGenWrapper
+import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.model.Account
 
 @Composable
 fun PasswordGeneratorList(
@@ -36,12 +36,12 @@ fun PasswordGeneratorList(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
     ) {
-        items(items = passGenWrappers, key = { it.passGen.passGenConfig.id }) { passGenWrapper ->
+        items(items = passGenWrappers, key = { it.passGenConfig.id }) { passGenWrapper ->
             val password by passGenWrapper.password.collectAsStateWithLifecycle()
             val isCalculating by passGenWrapper.isCalculating.collectAsStateWithLifecycle()
             
             SwipeablePasswordGenerator(
-                passGenConfig = passGenWrapper.passGen.passGenConfig,
+                passGenConfig = passGenWrapper.passGenConfig,
                 password = password,
                 isLoading = isCalculating,
                 onRemove = { removeConfig(passGenWrapper) },

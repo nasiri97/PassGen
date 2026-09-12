@@ -1,4 +1,4 @@
-package ir.ornix.passgen.passwordgenerator.model
+package ir.ornix.passgen.core.domain
 
 import kotlinx.serialization.Serializable
 

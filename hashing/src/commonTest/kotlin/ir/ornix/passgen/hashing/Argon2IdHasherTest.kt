@@ -9,7 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
-class Argon2IdHashingTest {
+class Argon2IdHasherTest {
 
     companion object {
         private val base64Codec = Base64BinaryCodec()
@@ -118,12 +118,12 @@ class Argon2IdHashingTest {
     @Test
     fun testCustomSalt() = runTest {
         // Getting digest with custom salt, should return the same digest
-        assertContentEquals(DIGEST1, Argon2idHashing.digest(STR1_BYTES, SALT1))
-        assertContentEquals(DIGEST2, Argon2idHashing.digest(STR2_BYTES, SALT2))
-        assertContentEquals(DIGEST3, Argon2idHashing.digest(STR3_BYTES, SALT3))
-        assertContentEquals(DIGEST4, Argon2idHashing.digest(STR4_BYTES, SALT4))
-        assertContentEquals(DIGEST5, Argon2idHashing.digest(STR5_BYTES, SALT5))
-        assertContentEquals(DIGEST6, Argon2idHashing.digest(STR6_BYTES, SALT6))
+        assertContentEquals(DIGEST1, Argon2IdHasher.digest(STR1_BYTES, SALT1))
+        assertContentEquals(DIGEST2, Argon2IdHasher.digest(STR2_BYTES, SALT2))
+        assertContentEquals(DIGEST3, Argon2IdHasher.digest(STR3_BYTES, SALT3))
+        assertContentEquals(DIGEST4, Argon2IdHasher.digest(STR4_BYTES, SALT4))
+        assertContentEquals(DIGEST5, Argon2IdHasher.digest(STR5_BYTES, SALT5))
+        assertContentEquals(DIGEST6, Argon2IdHasher.digest(STR6_BYTES, SALT6))
     }
 
     @Test
@@ -139,55 +139,55 @@ class Argon2IdHashingTest {
     @Test
     fun testDigest() = runTest {
         // Bytes
-        assertContentEquals(DIGEST1, Argon2idHashing.digest(STR1_BYTES))
-        assertContentEquals(DIGEST2, Argon2idHashing.digest(STR2_BYTES))
-        assertContentEquals(DIGEST3, Argon2idHashing.digest(STR3_BYTES))
-        assertContentEquals(DIGEST4, Argon2idHashing.digest(STR4_BYTES))
-        assertContentEquals(DIGEST5, Argon2idHashing.digest(STR5_BYTES))
-        assertContentEquals(DIGEST6, Argon2idHashing.digest(STR6_BYTES))
+        assertContentEquals(DIGEST1, Argon2IdHasher.digest(STR1_BYTES))
+        assertContentEquals(DIGEST2, Argon2IdHasher.digest(STR2_BYTES))
+        assertContentEquals(DIGEST3, Argon2IdHasher.digest(STR3_BYTES))
+        assertContentEquals(DIGEST4, Argon2IdHasher.digest(STR4_BYTES))
+        assertContentEquals(DIGEST5, Argon2IdHasher.digest(STR5_BYTES))
+        assertContentEquals(DIGEST6, Argon2IdHasher.digest(STR6_BYTES))
 
         // Base64
-        assertEquals(DIGEST1_BASE64, Argon2idHashing.digest(STR1_BYTES, base64Codec))
-        assertEquals(DIGEST2_BASE64, Argon2idHashing.digest(STR2_BYTES, base64Codec))
-        assertEquals(DIGEST3_BASE64, Argon2idHashing.digest(STR3_BYTES, base64Codec))
-        assertEquals(DIGEST4_BASE64, Argon2idHashing.digest(STR4_BYTES, base64Codec))
-        assertEquals(DIGEST5_BASE64, Argon2idHashing.digest(STR5_BYTES, base64Codec))
-        assertEquals(DIGEST6_BASE64, Argon2idHashing.digest(STR6_BYTES, base64Codec))
+        assertEquals(DIGEST1_BASE64, Argon2IdHasher.digest(STR1_BYTES, base64Codec))
+        assertEquals(DIGEST2_BASE64, Argon2IdHasher.digest(STR2_BYTES, base64Codec))
+        assertEquals(DIGEST3_BASE64, Argon2IdHasher.digest(STR3_BYTES, base64Codec))
+        assertEquals(DIGEST4_BASE64, Argon2IdHasher.digest(STR4_BYTES, base64Codec))
+        assertEquals(DIGEST5_BASE64, Argon2IdHasher.digest(STR5_BYTES, base64Codec))
+        assertEquals(DIGEST6_BASE64, Argon2IdHasher.digest(STR6_BYTES, base64Codec))
     }
 
 
     @Test
     fun testDigestLength() = runTest {
         // 72 bytes
-        assertEquals(72, Argon2idHashing.digest(STR1_BYTES).size)
-        assertEquals(72, Argon2idHashing.digest(STR2_BYTES).size)
-        assertEquals(72, Argon2idHashing.digest(STR3_BYTES).size)
-        assertEquals(72, Argon2idHashing.digest(STR4_BYTES).size)
-        assertEquals(72, Argon2idHashing.digest(STR5_BYTES).size)
-        assertEquals(72, Argon2idHashing.digest(STR6_BYTES).size)
+        assertEquals(72, Argon2IdHasher.digest(STR1_BYTES).size)
+        assertEquals(72, Argon2IdHasher.digest(STR2_BYTES).size)
+        assertEquals(72, Argon2IdHasher.digest(STR3_BYTES).size)
+        assertEquals(72, Argon2IdHasher.digest(STR4_BYTES).size)
+        assertEquals(72, Argon2IdHasher.digest(STR5_BYTES).size)
+        assertEquals(72, Argon2IdHasher.digest(STR6_BYTES).size)
 
         // 144 Hex-Chars
-        assertEquals(144, Argon2idHashing.digest(STR1_BYTES, hexBinaryCodec).length)
-        assertEquals(144, Argon2idHashing.digest(STR2_BYTES, hexBinaryCodec).length)
-        assertEquals(144, Argon2idHashing.digest(STR3_BYTES, hexBinaryCodec).length)
-        assertEquals(144, Argon2idHashing.digest(STR4_BYTES, hexBinaryCodec).length)
-        assertEquals(144, Argon2idHashing.digest(STR5_BYTES, hexBinaryCodec).length)
-        assertEquals(144, Argon2idHashing.digest(STR6_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2IdHasher.digest(STR1_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2IdHasher.digest(STR2_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2IdHasher.digest(STR3_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2IdHasher.digest(STR4_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2IdHasher.digest(STR5_BYTES, hexBinaryCodec).length)
+        assertEquals(144, Argon2IdHasher.digest(STR6_BYTES, hexBinaryCodec).length)
 
         // 96 Base64-Chars
-        assertEquals(96, Argon2idHashing.digest(STR1_BYTES, base64Codec).length)
-        assertEquals(96, Argon2idHashing.digest(STR2_BYTES, base64Codec).length)
-        assertEquals(96, Argon2idHashing.digest(STR3_BYTES, base64Codec).length)
-        assertEquals(96, Argon2idHashing.digest(STR4_BYTES, base64Codec).length)
-        assertEquals(96, Argon2idHashing.digest(STR5_BYTES, base64Codec).length)
-        assertEquals(96, Argon2idHashing.digest(STR6_BYTES, base64Codec).length)
+        assertEquals(96, Argon2IdHasher.digest(STR1_BYTES, base64Codec).length)
+        assertEquals(96, Argon2IdHasher.digest(STR2_BYTES, base64Codec).length)
+        assertEquals(96, Argon2IdHasher.digest(STR3_BYTES, base64Codec).length)
+        assertEquals(96, Argon2IdHasher.digest(STR4_BYTES, base64Codec).length)
+        assertEquals(96, Argon2IdHasher.digest(STR5_BYTES, base64Codec).length)
+        assertEquals(96, Argon2IdHasher.digest(STR6_BYTES, base64Codec).length)
 
         // 90 Z85-Chars
-        assertEquals(90, Argon2idHashing.digest(STR1_BYTES, z85BinaryCodec).length)
-        assertEquals(90, Argon2idHashing.digest(STR2_BYTES, z85BinaryCodec).length)
-        assertEquals(90, Argon2idHashing.digest(STR3_BYTES, z85BinaryCodec).length)
-        assertEquals(90, Argon2idHashing.digest(STR4_BYTES, z85BinaryCodec).length)
-        assertEquals(90, Argon2idHashing.digest(STR5_BYTES, z85BinaryCodec).length)
-        assertEquals(90, Argon2idHashing.digest(STR6_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2IdHasher.digest(STR1_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2IdHasher.digest(STR2_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2IdHasher.digest(STR3_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2IdHasher.digest(STR4_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2IdHasher.digest(STR5_BYTES, z85BinaryCodec).length)
+        assertEquals(90, Argon2IdHasher.digest(STR6_BYTES, z85BinaryCodec).length)
     }
 }

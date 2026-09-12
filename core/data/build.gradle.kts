@@ -30,6 +30,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:model"))
             implementation(project(":core:domain"))
             implementation(project(":passwordGenerator"))
             implementation(libs.multiplatform.settings)

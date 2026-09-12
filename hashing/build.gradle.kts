@@ -29,7 +29,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":codec"))
+            api(project(":codec"))
 
             // Coroutine
             implementation(libs.kotlinx.coroutines.core)

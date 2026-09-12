@@ -30,9 +30,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:model"))
             implementation(project(":log-core"))
-            implementation(project(":codec"))
-            implementation(project(":hashing"))
             implementation(project(":passwordGenerator"))
 
             implementation(libs.kotlinx.coroutines.core)

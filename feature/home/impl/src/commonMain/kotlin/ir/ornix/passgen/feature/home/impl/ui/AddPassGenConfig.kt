@@ -35,12 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.designsystem.component.NumberSlider
-import ir.ornix.passgen.feature.home.impl.ui.utils.HashingTypeSaver
+import ir.ornix.passgen.core.domain.PreprocessConfig
+import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.feature.home.impl.ui.utils.InputHasherSaver
 import ir.ornix.passgen.feature.home.impl.ui.utils.PassEncoderSaver
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
-import ir.ornix.passgen.passwordgenerator.model.HashingType
+import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
-import ir.ornix.passgen.passwordgenerator.model.PreprocessConfig
 
 @Composable
 fun AddPassGenConfig(
@@ -78,8 +78,8 @@ private fun AddPassGenConfigContent(
     var collapseSpaces by rememberSaveable { mutableStateOf(true) }
     var lowercase by rememberSaveable { mutableStateOf(false) }
 
-    var selectedHashing by rememberSaveable(stateSaver = HashingTypeSaver) {
-        mutableStateOf(HashingType.SHA256)
+    var selectedHashing by rememberSaveable(stateSaver = InputHasherSaver) {
+        mutableStateOf(InputHasher.SHA256)
     }
 
     var selectedEncoder by rememberSaveable(stateSaver = PassEncoderSaver) {
@@ -88,7 +88,7 @@ private fun AddPassGenConfigContent(
 
     val tokenUnitCount by remember(selectedHashing, selectedEncoder) {
         derivedStateOf {
-            selectedEncoder.getTokenLength(hashing = selectedHashing.createInstance())
+            selectedEncoder.getTokenLength(hasher = selectedHashing.hasher)
         }
     }
 
@@ -196,7 +196,7 @@ private fun AddPassGenConfigContent(
                                 collapseMultipleSpaces = collapseSpaces,
                                 convertToLowercase = lowercase
                             ),
-                            hashingType = selectedHashing
+                            inputHasher = selectedHashing
                         )
                     )
                 }

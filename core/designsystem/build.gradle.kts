@@ -36,6 +36,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:model"))
             api(libs.compose.runtime)
             api(libs.compose.foundation)
             api(libs.compose.material3)
@@ -44,7 +45,6 @@ kotlin {
             api(libs.compose.components.resources)
             api(libs.compose.icons)
             api(libs.compose.material3.adaptive)
-            implementation(project(":passwordGenerator"))
 
             api(libs.androidx.lifecycle.viewmodelCompose)
             api(libs.androidx.lifecycle.runtimeCompose)

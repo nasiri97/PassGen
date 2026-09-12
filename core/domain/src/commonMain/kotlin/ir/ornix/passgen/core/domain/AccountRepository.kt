@@ -1,6 +1,6 @@
 package ir.ornix.passgen.core.domain
 
-import ir.ornix.passgen.core.domain.model.Account
+import ir.ornix.passgen.core.model.Account
 import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {

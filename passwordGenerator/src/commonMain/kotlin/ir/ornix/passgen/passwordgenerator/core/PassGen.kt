@@ -1,6 +1,8 @@
 package ir.ornix.passgen.passwordgenerator.core
 
-interface PassGen {
+import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
-    val passGenConfig: PassGenConfig
+interface PassGen {
+    val passEncoder: PassEncoder
+    val passwordLength: Int
 }

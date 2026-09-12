@@ -1,5 +1,5 @@
 [versions]
-agp = "9.4.0"
+agp = "9.3.1"
 android-compileSdk = "37"
 android-minSdk = "26"
 android-targetSdk = "37"
@@ -10,12 +10,13 @@ androidx-espresso = "3.7.0"
 androidx-testExt = "1.3.0"
 
 junit = "4.13.2"
-kotlin = "2.4.10"
+
+# KMP 2.4.20    https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html#version-compatibility
+kotlin = "2.4.20"
 kotlin-wrappers = "2026.9.0"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 multiplatformSettings = "1.3.0"
-kotlinStdlib = "2.4.10"
 runner = "1.7.0"
 core = "1.7.0"
 bcprov = "1.85.2"
@@ -38,7 +39,7 @@ androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "an
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 

@@ -3,7 +3,7 @@ package ir.ornix.passgen.hashing.core
 import ir.ornix.passgen.codec.core.Decoder
 import ir.ornix.passgen.codec.core.Encoder
 
-interface Hashing {
+interface Hasher {
 
     val outputByteSize: Int
 

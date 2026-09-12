@@ -34,11 +34,9 @@ kotlin {
             implementation(project(":feature:home:api"))
             api(project(":core:designsystem"))
             implementation(project(":log-core"))
-            implementation(project(":codec"))
-            implementation(project(":hashing"))
-            implementation(project(":passwordGenerator"))
             implementation(project(":core:domain"))
-            implementation(project(":core:data"))
+            implementation(project(":core:model"))
+            implementation(project(":passwordGenerator"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodelCompose)

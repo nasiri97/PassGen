@@ -3,11 +3,10 @@ package ir.ornix.passgen.core.data
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import ir.ornix.passgen.core.domain.AccountRepository
-import ir.ornix.passgen.core.domain.model.Account
+import ir.ornix.passgen.core.model.Account
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class SettingsAccountRepository(private val settings: Settings) : AccountRepository {

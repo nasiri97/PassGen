@@ -11,7 +11,7 @@ abstract class KeyBasedType<T> {
 
     abstract val key: String
 
-    abstract fun createInstance(): T
+    protected abstract fun createInstance(): T
 
     override fun equals(other: Any?): Boolean {
         return if (this === other) true

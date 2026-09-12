@@ -2,24 +2,27 @@ package ir.ornix.passgen.feature.home.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.PassGenFeed
+import ir.ornix.passgen.core.domain.PassGenWrapper
+import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.GenerateRandomPasswordUseCase
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.masterkey.ClearMasterKeyUseCase
 import ir.ornix.passgen.core.domain.masterkey.RetrieveMasterKeyUseCase
 import ir.ornix.passgen.core.domain.masterkey.SaveMasterKeyUseCase
+import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
-import ir.ornix.passgen.feature.home.impl.model.PassGenWrapper
-import ir.ornix.passgen.core.domain.model.Account
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
-import ir.ornix.passgen.passwordgenerator.kdf.PassGenFeed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -65,8 +68,8 @@ class HomeViewModel(
             getAllPassGenConfigs().collect { configs ->
                 val currentWrappers = _passGenWrappers.value
                 _passGenWrappers.value = configs.map { config ->
-                    currentWrappers.find { it.passGen.passGenConfig.id == config.id }
-                        ?: PassGenWrapper(KDFPassGen(config))
+                    currentWrappers.find { it.passGenConfig.id == config.id }
+                        ?: PassGenWrapper(config)
                 }
             }
         }
@@ -78,7 +81,7 @@ class HomeViewModel(
                 feed to wrappers
             }.collect { (feed, wrappers) ->
                 wrappers.forEach { it.updateFeed(feed) }
-                
+
                 calculationJob?.cancelAndJoin()
                 calculationJob = launch(Dispatchers.Default) {
                     wrappers.forEach { wrapper ->
@@ -97,7 +100,7 @@ class HomeViewModel(
     }
 
     fun removeConfig(passGenWrapper: PassGenWrapper) = viewModelScope.launch {
-        removePassGenConfig(passGenWrapper.passGen.passGenConfig.id)
+        removePassGenConfig(passGenWrapper.passGenConfig.id)
     }
 
     fun inputChanged(newInput: String) {

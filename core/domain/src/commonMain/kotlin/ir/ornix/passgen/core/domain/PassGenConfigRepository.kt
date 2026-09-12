@@ -1,6 +1,6 @@
 package ir.ornix.passgen.core.domain
 
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
 import kotlinx.coroutines.flow.Flow
 
 interface PassGenConfigRepository {

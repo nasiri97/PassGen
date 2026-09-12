@@ -1,16 +1,25 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGenConfig
-import ir.ornix.passgen.passwordgenerator.model.PreprocessConfig
+import ir.ornix.passgen.core.domain.PreprocessConfig
+import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
 
 @Composable
 fun PassGenConfigDialog(
@@ -54,7 +63,7 @@ fun PassGenConfigDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                ConfigRow(label = "Hashing Algorithm", value = config.hashingType.key)
+                ConfigRow(label = "Hashing Algorithm", value = config.inputHasher.key)
                 ConfigRow(label = "Output Encoder Type", value = config.passEncoder.key)
 
                 HorizontalDivider()

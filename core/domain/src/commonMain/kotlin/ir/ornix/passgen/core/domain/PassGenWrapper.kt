@@ -1,16 +1,19 @@
-package ir.ornix.passgen.feature.home.impl.model
+package ir.ornix.passgen.core.domain
 
+
+import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
-import ir.ornix.passgen.passwordgenerator.kdf.PassGenFeed
-import ir.ornix.passgen.passwordgenerator.model.Password
-import ir.ornix.passgen.passwordgenerator.model.Password.Companion.toPassword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-data class PassGenWrapper(val passGen: KDFPassGen) {
+data class PassGenWrapper(val passGenConfig: KDFPassGenConfig) {
+
+    private val passGen: KDFPassGen = passGenConfig.createPassGen()
 
     override fun equals(other: Any?): Boolean {
         return if (this === other) true
@@ -38,7 +41,12 @@ data class PassGenWrapper(val passGen: KDFPassGen) {
                 if (lastCalculatedFeed != it) {
                     _password.value = null
                     lastCalculatedFeed = it
-                    _password.value = passGen.generate(feed = it)?.toPassword()
+
+                    val normalizedInput = it.masterKey +
+                            PreprocessConfig.SINGLE_SPACE +
+                            passGenConfig.preprocessConfig(it.input)
+
+                    _password.value = passGen.generate(normalizedInput)?.toPassword()
                 }
             }
 
