@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.designsystem.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.designsystem.component.PasswordAndActions
 import ir.ornix.passgen.core.designsystem.utils.strengthColor
-import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.strengthLabel

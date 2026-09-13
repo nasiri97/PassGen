@@ -18,8 +18,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.domain.PreprocessConfig
-import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 
 @Composable
 fun PassGenConfigDialog(

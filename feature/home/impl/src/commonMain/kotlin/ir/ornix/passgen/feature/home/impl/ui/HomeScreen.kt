@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.domain.PassGenWrapper
+import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 

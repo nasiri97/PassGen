@@ -3,7 +3,7 @@ package ir.ornix.passgen.core.data
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

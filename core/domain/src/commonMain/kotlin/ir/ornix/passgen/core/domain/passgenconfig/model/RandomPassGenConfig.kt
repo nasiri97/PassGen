@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.domain.core
+package ir.ornix.passgen.core.domain.passgenconfig.model
 
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.passwordgenerator.random.RandomPassGen

@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.designsystem.component.NumberSlider
-import ir.ornix.passgen.core.domain.PreprocessConfig
-import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.feature.home.impl.ui.utils.InputHasherSaver
 import ir.ornix.passgen.feature.home.impl.ui.utils.PassEncoderSaver
 import ir.ornix.passgen.passwordgenerator.model.InputHasher

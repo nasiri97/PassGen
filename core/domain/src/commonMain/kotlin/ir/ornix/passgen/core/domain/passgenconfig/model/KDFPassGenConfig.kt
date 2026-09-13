@@ -1,7 +1,6 @@
-package ir.ornix.passgen.core.domain.core
+package ir.ornix.passgen.core.domain.passgenconfig.model
 
 import ir.ornix.passgen.codec.Utf8TextCodec
-import ir.ornix.passgen.core.domain.PreprocessConfig
 import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
 import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder

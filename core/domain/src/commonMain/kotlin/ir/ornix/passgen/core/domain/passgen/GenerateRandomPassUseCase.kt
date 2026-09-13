@@ -1,10 +1,9 @@
-package ir.ornix.passgen.core.domain
+package ir.ornix.passgen.core.domain.passgen
 
-import ir.ornix.passgen.core.domain.core.RandomPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.RandomPassGenConfig
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
-
-class GenerateRandomPasswordUseCase() {
+class GenerateRandomPassUseCase() {
 
     operator fun invoke(passwordLength: Int) =
         RandomPassGenConfig(

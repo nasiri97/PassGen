@@ -5,13 +5,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.designsystem.component.getAdaptiveValue
-import ir.ornix.passgen.core.domain.PassGenWrapper
-import ir.ornix.passgen.core.domain.core.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
+import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Account
 
 @Composable
@@ -37,9 +41,9 @@ fun PasswordGeneratorList(
         contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
     ) {
         items(items = passGenWrappers, key = { it.passGenConfig.id }) { passGenWrapper ->
-            val password by passGenWrapper.password.collectAsStateWithLifecycle()
+            val password by passGenWrapper.password.collectAsStateWithLifecycle(initialValue = null)
             val isCalculating by passGenWrapper.isCalculating.collectAsStateWithLifecycle()
-            
+
             SwipeablePasswordGenerator(
                 passGenConfig = passGenWrapper.passGenConfig,
                 password = password,
