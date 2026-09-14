@@ -1,13 +1,14 @@
 package ir.ornix.passgen.core.domain.passgen
 
+import ir.ornix.passgen.core.domain.masterkey.RetrieveMasterKeyUseCase
 import ir.ornix.passgen.core.domain.passgen.model.PassGenFeed
 import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
-import ir.ornix.passgen.core.domain.masterkey.RetrieveMasterKeyUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 
 class GenerateKDFPassUseCase(
     private val getAllPassGenConfigs: GetAllPassGenConfigsUseCase,
@@ -18,6 +19,7 @@ class GenerateKDFPassUseCase(
 
     private var currentPassGenWrappers = mutableListOf<PassGenWrapper>()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(
         input: StateFlow<String>
     ): Flow<List<PassGenWrapper>> {
@@ -28,17 +30,18 @@ class GenerateKDFPassUseCase(
 
         val kdfPassGenConfigs = getAllPassGenConfigs()
 
-        val passGenWrappersFlow: Flow<List<PassGenWrapper>> = kdfPassGenConfigs.map { configs ->
-            val list = mutableListOf<PassGenWrapper>()
-            configs.forEach { config ->
-                list.add(
-                    currentPassGenWrappers.find { it.passGenConfig.id == config.id }
-                        ?: PassGenWrapper(config, feed)
-                )
+        val passGenWrappersFlow: Flow<List<PassGenWrapper>> =
+            kdfPassGenConfigs.mapLatest { configs ->
+                val list = mutableListOf<PassGenWrapper>()
+                configs.forEach { config ->
+                    list.add(
+                        currentPassGenWrappers.find { it.passGenConfig.id == config.id }
+                            ?: PassGenWrapper(config, feed)
+                    )
+                }
+                currentPassGenWrappers = list
+                list
             }
-            currentPassGenWrappers = list
-            list
-        }
 
         return passGenWrappersFlow
     }
