@@ -81,8 +81,10 @@ fun PinLockView(
                                     if (pinInput.isNotEmpty()) pinInput.dropLast(1)
                                 } else {
                                     pinInput += symbol
-                                    if (pinInput.length == 4) onPinCompleted(pinInput)
-                                    pinInput = ""
+                                    if (pinInput.length == 4) {
+                                        onPinCompleted(pinInput)
+                                        pinInput = ""
+                                    }
                                 }
                             },
                             modifier = Modifier.size(64.dp),
