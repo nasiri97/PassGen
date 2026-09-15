@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 data class KDFPassGenConfig(
     override val id: Int,
     override val name: String,
+    val masterKey: String,
     val preprocessConfig: PreprocessConfig,
     val inputHasher: InputHasher,
     override val passEncoder: PassEncoder,

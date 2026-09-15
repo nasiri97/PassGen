@@ -73,6 +73,7 @@ private fun AddPassGenConfigContent(
     onCancel: () -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
+    var masterKey by rememberSaveable { mutableStateOf("") }
 
     var trimSpaces by rememberSaveable { mutableStateOf(true) }
     var collapseSpaces by rememberSaveable { mutableStateOf(true) }
@@ -120,6 +121,14 @@ private fun AddPassGenConfigContent(
             value = name,
             onValueChange = { name = it },
             label = { Text("Configuration Name") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = masterKey,
+            onValueChange = { masterKey = it },
+            label = { Text("Master Key") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -183,12 +192,13 @@ private fun AddPassGenConfigContent(
             Spacer(Modifier.width(8.dp))
 
             Button(
-                enabled = name.isNotBlank(),
+                enabled = name.isNotBlank() && masterKey.isNotBlank(),
                 onClick = {
                     onSubmit(
                         KDFPassGenConfig(
                             id = 0, // ID will be handled by logic/DB
                             name = name.trim(),
+                            masterKey = masterKey.trim(),
                             passEncoder = selectedEncoder,
                             passwordLength = passLength,
                             preprocessConfig = PreprocessConfig(

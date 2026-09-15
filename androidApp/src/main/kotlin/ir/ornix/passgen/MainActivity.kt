@@ -8,11 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import ir.ornix.passgen.composeapp.App
+import ir.ornix.passgen.core.data.AppContextProvider
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        AppContextProvider.setActivity(this)
 
 
         /**
@@ -27,6 +29,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             App()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppContextProvider.setActivity(this)
     }
 }
 

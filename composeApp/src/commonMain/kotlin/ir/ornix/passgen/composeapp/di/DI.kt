@@ -2,22 +2,38 @@ package ir.ornix.passgen.composeapp.di
 
 import com.russhwolf.settings.Settings
 import ir.ornix.passgen.core.data.SettingsAccountRepository
+import ir.ornix.passgen.core.data.SettingsAppConfigRepository
+import ir.ornix.passgen.core.data.SettingsLocalAuthRepository
 import ir.ornix.passgen.core.data.SettingsMasterKeyRepository
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
+import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
 import ir.ornix.passgen.core.domain.AccountRepository
-import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
+import ir.ornix.passgen.core.domain.AppConfigRepository
+import ir.ornix.passgen.core.domain.BiometricAuthenticator
+import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.MasterKeyRepository
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
+import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
+import ir.ornix.passgen.core.domain.localauth.GetBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
+import ir.ornix.passgen.core.domain.localauth.IsSetupCompletedUseCase
+import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
+import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.SetSetupCompletedUseCase
+import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.masterkey.ClearMasterKeyUseCase
 import ir.ornix.passgen.core.domain.masterkey.RetrieveMasterKeyUseCase
 import ir.ornix.passgen.core.domain.masterkey.SaveMasterKeyUseCase
+import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
+import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
+import ir.ornix.passgen.feature.auth.impl.presentation.LocalAuthViewModel
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
-import ir.ornix.passgen.feature.setup.impl.presentation.SetupViewModel
+import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -27,9 +43,12 @@ import org.koin.dsl.module
 val appModule = module {
     single { Settings() }
 
+    singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class
     singleOf(::SettingsMasterKeyRepository) bind MasterKeyRepository::class
     singleOf(::SettingsPassGenConfigRepository) bind PassGenConfigRepository::class
     singleOf(::SettingsAccountRepository) bind AccountRepository::class
+    single { SettingsLocalAuthRepository(get()) } bind LocalAuthRepository::class
+    single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
 
     factoryOf(::GenerateKDFPassUseCase)
     factoryOf(::AddPassGenConfigUseCase)
@@ -42,6 +61,17 @@ val appModule = module {
     factoryOf(::RetrieveMasterKeyUseCase)
     factoryOf(::ClearMasterKeyUseCase)
 
+    factoryOf(::GetLocalAuthTypeUseCase)
+    factoryOf(::SaveLocalAuthSecretUseCase)
+    factoryOf(::ValidateLocalAuthSecretUseCase)
+    factoryOf(::GetBiometricEnabledUseCase)
+    factoryOf(::SetBiometricEnabledUseCase)
+    factoryOf(::IsSetupCompletedUseCase)
+    factoryOf(::SetSetupCompletedUseCase)
+    factoryOf(::IsFirstLaunchUseCase)
+    factoryOf(::SetFirstLaunchUseCase)
+
     viewModelOf(::HomeViewModel)
-    viewModelOf(::SetupViewModel)
+    viewModelOf(::LocalAuthViewModel)
+    viewModelOf(::SettingsViewModel)
 }

@@ -17,13 +17,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        google {
-            mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
-            }
-        }
+        google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
@@ -50,8 +44,8 @@ include(":core:domain")
 include(":core:data")
 include(":core:model")
 
+include(":feature:auth:api", ":feature:auth:impl")
 include(":feature:home:api", ":feature:home:impl")
 include(":feature:about:api", ":feature:about:impl")
 include(":feature:saved-passwords:api", ":feature:saved-passwords:impl")
 include(":feature:settings:api", ":feature:settings:impl")
-include(":feature:setup:api", ":feature:setup:impl")

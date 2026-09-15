@@ -48,6 +48,8 @@ kotlin {
             api(project(":core:designsystem"))
             implementation(project(":core:domain"))
             implementation(project(":core:data"))
+            implementation(project(":feature:auth:api"))
+            implementation(project(":feature:auth:impl"))
             implementation(project(":feature:home:api"))
             implementation(project(":feature:home:impl"))
             implementation(project(":feature:about:api"))
@@ -56,8 +58,6 @@ kotlin {
             implementation(project(":feature:saved-passwords:impl"))
             implementation(project(":feature:settings:api"))
             implementation(project(":feature:settings:impl"))
-            implementation(project(":feature:setup:api"))
-            implementation(project(":feature:setup:impl"))
 
             implementation(libs.compose.icons)
             implementation(libs.compose.navigation3.ui)

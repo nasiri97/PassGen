@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 
-data class PassGenWrapper(val passGenConfig: KDFPassGenConfig, val feed: Flow<PassGenFeed?>) {
+data class PassGenWrapper(val passGenConfig: KDFPassGenConfig, val feed: Flow<String>) {
 
     private val passGen: KDFPassGen = passGenConfig.createPassGen()
 
@@ -31,18 +31,16 @@ data class PassGenWrapper(val passGenConfig: KDFPassGenConfig, val feed: Flow<Pa
         field = MutableStateFlow(false)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val password: Flow<Password?> = feed.mapLatest {
-        it?.let {
-            isCalculating.value = true
-            val normalizedInput = it.masterKey +
-                    PreprocessConfig.SINGLE_SPACE +
-                    passGenConfig.preprocessConfig(it.input)
+    val password: Flow<Password?> = feed.mapLatest { input ->
+        isCalculating.value = true
+        val normalizedInput = passGenConfig.masterKey +
+                PreprocessConfig.SINGLE_SPACE +
+                passGenConfig.preprocessConfig(input)
 
-            val password = passGen.generate(normalizedInput)?.toPassword()
+        val password = passGen.generate(normalizedInput)?.toPassword()
 
-            currentCoroutineContext().ensureActive()
-            isCalculating.value = false
-            password
-        }
+        currentCoroutineContext().ensureActive()
+        isCalculating.value = false
+        password
     }.flowOn(Dispatchers.Default)
 }

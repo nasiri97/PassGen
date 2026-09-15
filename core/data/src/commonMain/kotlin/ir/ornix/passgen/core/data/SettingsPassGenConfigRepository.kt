@@ -18,10 +18,11 @@ class SettingsPassGenConfigRepository(private val settings: Settings) : PassGenC
     }
 
     private fun loadConfigs() {
-        val json = settings.getStringOrNull(KEY)
-        if (json != null) {
+        val storedValue = settings.getStringOrNull(KEY)
+        if (storedValue != null) {
             try {
-                _configs.value = Json.decodeFromString(json)
+                val decryptedJson = PlatformCrypto.decrypt(storedValue)
+                _configs.value = Json.decodeFromString(decryptedJson)
             } catch (e: Exception) {
                 _configs.value = emptyList()
             }
@@ -44,7 +45,8 @@ class SettingsPassGenConfigRepository(private val settings: Settings) : PassGenC
 
     private fun save(configs: List<KDFPassGenConfig>) {
         val json = Json.encodeToString(configs)
-        settings[KEY] = json
+        val encryptedJson = PlatformCrypto.encrypt(json)
+        settings[KEY] = encryptedJson
         _configs.value = configs
     }
 }

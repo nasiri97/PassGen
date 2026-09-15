@@ -26,8 +26,6 @@ class HomeViewModel(
     private val addPassGenConfig: AddPassGenConfigUseCase,
     private val removePassGenConfig: RemovePassGenConfigUseCase,
     private val generateRandomPassUseCase: GenerateRandomPassUseCase,
-    private val saveMasterKeyUseCase: SaveMasterKeyUseCase,
-    private val clearMasterKeyUseCase: ClearMasterKeyUseCase,
     private val saveAccountUseCase: SaveAccountUseCase
 ) : ViewModel() {
 
@@ -82,14 +80,6 @@ class HomeViewModel(
     }
 
     fun generateRandomPassword() = generateRandomPassUseCase(passwordLength = 24)
-
-    fun saveMasterKey(key: String) = viewModelScope.launch {
-        saveMasterKeyUseCase(key)
-    }
-
-    fun clearMasterKey() = viewModelScope.launch {
-        clearMasterKeyUseCase()
-    }
 
     fun saveAccount(account: Account) = viewModelScope.launch {
         saveAccountUseCase(account)
