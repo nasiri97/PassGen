@@ -1,12 +1,14 @@
 package ir.ornix.passgen.core.data
 
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class DefaultBiometricAuthenticator : BiometricAuthenticator {
 
     override val defaultDescription: String = "Use your fingerprint to continue"
 
-    override fun isBiometricAvailable(): Boolean = false
+    override fun isBiometricAvailable(): StateFlow<Boolean> = MutableStateFlow(false)
 
     override fun authenticate(
         title: String,

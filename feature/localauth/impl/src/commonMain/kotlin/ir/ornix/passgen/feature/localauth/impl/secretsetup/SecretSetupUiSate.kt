@@ -11,5 +11,7 @@ data class SetSecretUiSate(
 enum class SetupStage {
     CHOOSE_TYPE,
     ENTER_SECRET,
-    CONFIRM_SECRET
+    CONFIRM_SECRET,
+    COMPLETED,
+    CANCELLED
 }

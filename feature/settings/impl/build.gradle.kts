@@ -32,6 +32,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":feature:settings:api"))
+            implementation(project(":feature:localauth:impl"))
             implementation(project(":core:domain"))
             api(project(":core:designsystem"))
             implementation(libs.koin.compose.viewmodel)

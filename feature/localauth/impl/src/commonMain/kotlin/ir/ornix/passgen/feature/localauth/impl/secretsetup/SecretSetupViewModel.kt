@@ -10,7 +10,6 @@ class SecretSetupViewModel(
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase
 ) : ViewModel() {
 
-
     val uiState: StateFlow<SetSecretUiSate>
         field = MutableStateFlow<SetSecretUiSate>(
             SetSecretUiSate(
@@ -31,7 +30,6 @@ class SecretSetupViewModel(
         }
     }
 
-
     private var firstInputBuffer: String = ""
 
     fun handleSecretInput(secret: String) {
@@ -44,6 +42,10 @@ class SecretSetupViewModel(
         } else if (uiState.value.setupStage == SetupStage.CONFIRM_SECRET) {
             if (secret == firstInputBuffer) {
                 saveLocalAuthSecret(uiState.value.selectedSetupType, secret)
+                uiState.value = uiState.value.copy(
+                    setupStage = SetupStage.COMPLETED,
+                    errorMessage = null
+                )
             } else {
                 uiState.value = uiState.value.copy(
                     errorMessage = "Secrets do not match. Please try again.",
@@ -52,5 +54,13 @@ class SecretSetupViewModel(
             }
         }
 
+    }
+
+    fun cancelSetup() {
+        uiState.value = uiState.value.copy(
+            selectedSetupType = LocalAuthType.NONE,
+            setupStage = SetupStage.CANCELLED,
+            errorMessage = null
+        )
     }
 }

@@ -1,27 +1,52 @@
 package ir.ornix.passgen.feature.localauth.impl.unlocking
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 class UnlockingGateViewModel(
-    private val getLocalAuthType: GetLocalAuthTypeUseCase,
-    private val isBiometricEnabled: IsBiometricEnabledUseCase,
+    getLocalAuthType: GetLocalAuthTypeUseCase,
+    isBiometricEnabled: IsBiometricEnabledUseCase,
     private val biometricAuthenticator: BiometricAuthenticator,
     private val validateLocalAuthSecret: ValidateLocalAuthSecretUseCase
 ) : ViewModel() {
 
+    private val localAuthTypeStateFlow = getLocalAuthType()
+    private val isBiometricAvailableStateFlow = biometricAuthenticator.isBiometricAvailable()
+
+    private val isBiometricEnabledStateFlow = isBiometricEnabled()
+
     val uiState: StateFlow<UnlockingGateUiState>
-        field = MutableStateFlow<UnlockingGateUiState>(
+        field : MutableStateFlow<UnlockingGateUiState> = MutableStateFlow(
             UnlockingGateUiState(
-                localAuthType = getLocalAuthType(),
-                shouldShowBiometricOption = biometricAuthenticator.isBiometricAvailable() && isBiometricEnabled()
+                localAuthType = localAuthTypeStateFlow.value,
+                shouldShowBiometricOption = isBiometricAvailableStateFlow.value && isBiometricEnabledStateFlow.value
             )
         )
+
+    init {
+        viewModelScope.launch {
+            combine(
+                localAuthTypeStateFlow,
+                isBiometricAvailableStateFlow,
+                isBiometricEnabledStateFlow
+            ) { localAuthType, isBiometricAvailable, isBiometricEnabled ->
+                localAuthType to (isBiometricAvailable && isBiometricEnabled)
+            }.collect { (localAuthType, shouldShowBiometricOption) ->
+                uiState.value = uiState.value.copy(
+                    localAuthType = localAuthType,
+                    shouldShowBiometricOption = shouldShowBiometricOption
+                )
+            }
+        }
+    }
 
     fun onSecretSubmitted(secret: String) {
         val isValid = validateLocalAuthSecret(secret)
@@ -39,7 +64,7 @@ class UnlockingGateViewModel(
     }
 
     fun onBiometricClick() {
-        if (!biometricAuthenticator.isBiometricAvailable()) return
+        if (!isBiometricAvailableStateFlow.value) return
 
         biometricAuthenticator.authenticate(
             onSuccess = {

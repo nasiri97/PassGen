@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,12 +31,12 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SecretSetupScreen(
+    onFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     val viewModel: SecretSetupViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -86,7 +87,9 @@ fun SecretSetupScreen(
                         Text("Setup Pattern Lock")
                     }
                     Spacer(Modifier.height(32.dp))
-                    TextButton(onClick = { viewModel.selectSetupType(LocalAuthType.NONE) }) {
+                    TextButton(onClick = {
+                        viewModel.cancelSetup()
+                    }) {
                         Text("Skip")
                     }
                 }
@@ -148,6 +151,12 @@ fun SecretSetupScreen(
                                 })
                             }
                         }
+                    }
+                }
+
+                else -> {
+                    LaunchedEffect(Unit) {
+                        onFinished()
                     }
                 }
             }

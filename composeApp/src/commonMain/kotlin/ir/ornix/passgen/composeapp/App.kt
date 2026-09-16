@@ -35,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import ir.ornix.passgen.composeapp.di.appModule
 import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
@@ -79,31 +81,34 @@ fun App() {
         KoinContext {
             val backStack = remember { mutableStateListOf<NavKey>(HomeRoute) }
 
-            val isFirstLaunch: IsFirstLaunchUseCase = koinInject()
-            val isUnlockingRequired: IsUnlockingRequiredUseCase = koinInject()
+            val isFirstLaunchStateFlow: IsFirstLaunchUseCase = koinInject()
+            val isUnlockingRequiredFLow: IsUnlockingRequiredUseCase = koinInject()
+            val setFirstLaunchUseCase: SetFirstLaunchUseCase = koinInject()
 
-            var isSettingSecretRequired by remember {
-                mutableStateOf(isFirstLaunch())
-            }
+            val isFirstLaunch by isFirstLaunchStateFlow().collectAsStateWithLifecycle()
 
-            var isLocked by remember {
-                mutableStateOf(isUnlockingRequired())
-            }
+            val isUnlockingRequired by isUnlockingRequiredFLow().collectAsStateWithLifecycle(true)
 
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val scope = rememberCoroutineScope()
 
             val currentRoute = backStack.lastOrNull()
 
+            var isUnlockedSuccessfully by remember {
+                mutableStateOf(false)
+            }
+
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                if (isSettingSecretRequired) {
-                    SecretSetupScreen()
-                } else if (isLocked) {
-                    UnlockingGateScreen(onUnlocked = { isLocked = false })
+                if (isFirstLaunch) {
+                    SecretSetupScreen(onFinished = { setFirstLaunchUseCase(false) })
+                } else if (isUnlockingRequired && !isUnlockedSuccessfully) {
+                    UnlockingGateScreen(onUnlocked = { isUnlockedSuccessfully = true })
                 } else {
+                    isUnlockedSuccessfully = true
+
                     ModalNavigationDrawer(
                         drawerState = drawerState,
                         drawerContent = {

@@ -10,43 +10,41 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 
 class SettingsPassGenConfigRepository(private val settings: Settings) : PassGenConfigRepository {
-    private val KEY = "pass_gen_configs"
-    private val _configs = MutableStateFlow<List<KDFPassGenConfig>>(emptyList())
 
-    init {
-        loadConfigs()
+    companion object {
+        private const val KEY = "pass_gen_configs"
     }
 
-    private fun loadConfigs() {
+    private val configsStateFlow = MutableStateFlow<List<KDFPassGenConfig>>(run {
         val storedValue = settings.getStringOrNull(KEY)
         if (storedValue != null) {
             try {
                 val decryptedJson = PlatformCrypto.decrypt(storedValue)
-                _configs.value = Json.decodeFromString(decryptedJson)
+                Json.decodeFromString(decryptedJson)
             } catch (e: Exception) {
-                _configs.value = emptyList()
+                emptyList()
             }
-        }
-    }
+        } else emptyList()
+    })
 
     override suspend fun add(config: KDFPassGenConfig) {
-        val current = _configs.value.toMutableList()
+        val current = configsStateFlow.value.toMutableList()
         val newId = (current.maxOfOrNull { it.id } ?: -1) + 1
         current.add(config.copy(id = newId))
         save(current)
     }
 
     override suspend fun removeById(configId: Int) {
-        val current = _configs.value.filter { it.id != configId }
+        val current = configsStateFlow.value.filter { it.id != configId }
         save(current)
     }
 
-    override fun getAll(): Flow<List<KDFPassGenConfig>> = _configs.asStateFlow()
+    override fun getAll(): Flow<List<KDFPassGenConfig>> = configsStateFlow.asStateFlow()
 
     private fun save(configs: List<KDFPassGenConfig>) {
         val json = Json.encodeToString(configs)
         val encryptedJson = PlatformCrypto.encrypt(json)
         settings[KEY] = encryptedJson
-        _configs.value = configs
+        configsStateFlow.value = configs
     }
 }

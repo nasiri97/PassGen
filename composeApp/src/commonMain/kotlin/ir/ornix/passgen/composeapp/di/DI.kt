@@ -18,11 +18,9 @@ import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
-import ir.ornix.passgen.core.domain.localauth.IsSetupCompletedUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
-import ir.ornix.passgen.core.domain.localauth.SetSetupCompletedUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.masterkey.ClearMasterKeyUseCase
 import ir.ornix.passgen.core.domain.masterkey.RetrieveMasterKeyUseCase
@@ -68,8 +66,6 @@ val appModule = module {
     factoryOf(::ValidateLocalAuthSecretUseCase)
     factoryOf(::IsBiometricEnabledUseCase)
     factoryOf(::SetBiometricEnabledUseCase)
-    factoryOf(::IsSetupCompletedUseCase)
-    factoryOf(::SetSetupCompletedUseCase)
     factoryOf(::IsFirstLaunchUseCase)
     factoryOf(::SetFirstLaunchUseCase)
     factoryOf(::IsUnlockingRequiredUseCase)

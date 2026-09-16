@@ -4,26 +4,44 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.LocalAuthType
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
-class SettingsLocalAuthRepository(private val settings: Settings = Settings()) : LocalAuthRepository {
+class SettingsLocalAuthRepository(private val settings: Settings = Settings()) :
+    LocalAuthRepository {
+
     companion object {
         private const val KEY_AUTH_TYPE = "local_auth_type"
         private const val KEY_SECRET_HASH = "local_auth_secret_hash"
         private const val KEY_BIOMETRIC_ENABLED = "local_auth_biometric_enabled"
-        private const val KEY_SETUP_COMPLETED = "local_auth_setup_completed"
+
+        private const val DEFAULT_IS_BIOMETRIC_ENABLED = false
+        private val DEFAULT_LOCAL_AUTH_TYPE = LocalAuthType.NONE
     }
 
-    override fun getLocalAuthType(): LocalAuthType {
-        val name = settings.getStringOrNull(KEY_AUTH_TYPE) ?: return LocalAuthType.NONE
-        return try {
-            LocalAuthType.valueOf(name)
-        } catch (e: Exception) {
-            LocalAuthType.NONE
-        }
+
+    private val isBiometricEnabled =
+        MutableStateFlow<Boolean>(
+            settings.getBoolean(KEY_BIOMETRIC_ENABLED, DEFAULT_IS_BIOMETRIC_ENABLED)
+        )
+
+    private val localAuthType =
+        MutableStateFlow<LocalAuthType>(run {
+            val name = settings.getStringOrNull(KEY_AUTH_TYPE) ?: return@run DEFAULT_LOCAL_AUTH_TYPE
+            try {
+                LocalAuthType.valueOf(name)
+            } catch (e: Exception) {
+                DEFAULT_LOCAL_AUTH_TYPE
+            }
+        })
+
+    override fun getLocalAuthType(): StateFlow<LocalAuthType> {
+        return localAuthType
     }
 
     override fun setLocalAuthType(type: LocalAuthType) {
         settings[KEY_AUTH_TYPE] = type.name
+        localAuthType.value = type
     }
 
     override fun saveSecretHash(hash: String) {
@@ -37,26 +55,21 @@ class SettingsLocalAuthRepository(private val settings: Settings = Settings()) :
         return decrypted == hash
     }
 
-    override fun clearAuth() {
-        settings.remove(KEY_AUTH_TYPE)
-        settings.remove(KEY_SECRET_HASH)
-        settings.remove(KEY_BIOMETRIC_ENABLED)
-        settings.remove(KEY_SETUP_COMPLETED)
-    }
-
-    override fun isBiometricEnabled(): Boolean {
-        return settings.getBoolean(KEY_BIOMETRIC_ENABLED, false)
+    override fun isBiometricEnabled(): StateFlow<Boolean> {
+        return isBiometricEnabled
     }
 
     override fun setBiometricEnabled(enabled: Boolean) {
         settings[KEY_BIOMETRIC_ENABLED] = enabled
+        isBiometricEnabled.value = enabled
     }
 
-    override fun isSetupCompleted(): Boolean {
-        return settings.getBoolean(KEY_SETUP_COMPLETED, false)
-    }
+    override fun clearAuth() {
+        settings.remove(KEY_AUTH_TYPE)
+        settings.remove(KEY_SECRET_HASH)
+        settings.remove(KEY_BIOMETRIC_ENABLED)
 
-    override fun setSetupCompleted(completed: Boolean) {
-        settings[KEY_SETUP_COMPLETED] = completed
+        localAuthType.value = DEFAULT_LOCAL_AUTH_TYPE
+        isBiometricEnabled.value = DEFAULT_IS_BIOMETRIC_ENABLED
     }
 }
