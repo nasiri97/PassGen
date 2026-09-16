@@ -3,7 +3,7 @@ package ir.ornix.passgen.feature.settings.impl.presentation
 import androidx.lifecycle.ViewModel
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.LocalAuthType
-import ir.ornix.passgen.core.domain.localauth.GetBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class SettingsViewModel(
-    private val getBiometricEnabled: GetBiometricEnabledUseCase,
+    private val getBiometricEnabled: IsBiometricEnabledUseCase,
     private val setBiometricEnabled: SetBiometricEnabledUseCase,
     private val biometricAuthenticator: BiometricAuthenticator,
     private val getLocalAuthType: GetLocalAuthTypeUseCase,

@@ -44,7 +44,7 @@ include(":core:domain")
 include(":core:data")
 include(":core:model")
 
-include(":feature:auth:api", ":feature:auth:impl")
+include(":feature:localauth:api", ":feature:localauth:impl")
 include(":feature:home:api", ":feature:home:impl")
 include(":feature:about:api", ":feature:about:impl")
 include(":feature:saved-passwords:api", ":feature:saved-passwords:impl")

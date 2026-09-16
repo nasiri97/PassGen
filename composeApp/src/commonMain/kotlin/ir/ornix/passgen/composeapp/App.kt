@@ -39,11 +39,14 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import ir.ornix.passgen.composeapp.di.appModule
+import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
+import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
-import ir.ornix.passgen.feature.auth.impl.ui.LocalAuthScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
+import ir.ornix.passgen.feature.localauth.impl.secretsetup.SecretSetupScreen
+import ir.ornix.passgen.feature.localauth.impl.unlocking.UnlockingGateScreen
 import ir.ornix.passgen.feature.savedpasswords.api.SavedPasswordsRoute
 import ir.ornix.passgen.feature.savedpasswords.impl.ui.SavedPasswordsScreen
 import ir.ornix.passgen.feature.settings.api.SettingsRoute
@@ -51,6 +54,7 @@ import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinApplication
 import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
 
 sealed class NavItem(val route: NavKey, val label: String, val icon: ImageVector) {
     data object Home : NavItem(HomeRoute, "Home", Icons.Default.Home)
@@ -75,7 +79,16 @@ fun App() {
         KoinContext {
             val backStack = remember { mutableStateListOf<NavKey>(HomeRoute) }
 
-            var isUnlocked by remember { mutableStateOf(false) }
+            val isFirstLaunch: IsFirstLaunchUseCase = koinInject()
+            val isUnlockingRequired: IsUnlockingRequiredUseCase = koinInject()
+
+            var isSettingSecretRequired by remember {
+                mutableStateOf(isFirstLaunch())
+            }
+
+            var isLocked by remember {
+                mutableStateOf(isUnlockingRequired())
+            }
 
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val scope = rememberCoroutineScope()
@@ -86,8 +99,10 @@ fun App() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                if (!isUnlocked) {
-                    LocalAuthScreen(onAuthenticated = { isUnlocked = true })
+                if (isSettingSecretRequired) {
+                    SecretSetupScreen()
+                } else if (isLocked) {
+                    UnlockingGateScreen(onUnlocked = { isLocked = false })
                 } else {
                     ModalNavigationDrawer(
                         drawerState = drawerState,

@@ -1,9 +1,9 @@
 package ir.ornix.passgen.core.domain
 
-enum class LocalAuthType {
-    NONE,
-    PIN,
-    PASSWORD,
-    PATTERN
+enum class LocalAuthType(val value: String) {
+    NONE("None"),
+    PIN("PIN"),
+    PASSWORD("Password"),
+    PATTERN("Pattern")
 }
 
