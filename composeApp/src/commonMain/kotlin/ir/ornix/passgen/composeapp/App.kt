@@ -34,6 +34,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
@@ -99,7 +102,11 @@ fun App() {
             }
 
             Surface(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.clearAndSetSemantics {
+                    // Marks this field as sensitive to prevent accessibility extraction
+                    isSensitiveData = true
+                    contentDescription = "Secure app"
+                }.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
                 if (isFirstLaunch) {

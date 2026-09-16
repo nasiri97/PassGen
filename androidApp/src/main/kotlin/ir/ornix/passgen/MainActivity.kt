@@ -5,7 +5,13 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.tooling.preview.Preview
 import ir.ornix.passgen.composeapp.App
 import ir.ornix.passgen.core.data.AppContextProvider
@@ -27,7 +33,17 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
-            App()
+            Surface(
+                modifier = Modifier
+                    .clearAndSetSemantics {
+                        // Marks this field as sensitive to prevent accessibility extraction
+                        isSensitiveData = true
+                        contentDescription = "Secure app"
+                    }
+                    .fillMaxSize()
+            ) {
+                App()
+            }
         }
     }
 
