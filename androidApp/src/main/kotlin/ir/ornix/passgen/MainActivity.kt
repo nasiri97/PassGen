@@ -1,5 +1,6 @@
 package ir.ornix.passgen
 
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -30,6 +31,15 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
         )
+
+
+        /**
+         * prevents other apps' overlay windows (like "draw over other apps" permission overlays) from being shown on top of your activity.
+         * It's a security feature to block tapjacking/overlay attacks
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            window.setHideOverlayWindows(true)
+        }
 
 
         setContent {
