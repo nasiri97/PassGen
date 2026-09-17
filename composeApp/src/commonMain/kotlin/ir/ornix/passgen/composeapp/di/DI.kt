@@ -22,9 +22,6 @@ import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
-import ir.ornix.passgen.core.domain.masterkey.ClearMasterKeyUseCase
-import ir.ornix.passgen.core.domain.masterkey.RetrieveMasterKeyUseCase
-import ir.ornix.passgen.core.domain.masterkey.SaveMasterKeyUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
@@ -56,10 +53,6 @@ val appModule = module {
     factoryOf(::RemovePassGenConfigUseCase)
     factoryOf(::GenerateRandomPassUseCase)
     factoryOf(::SaveAccountUseCase)
-
-    factoryOf(::SaveMasterKeyUseCase)
-    factoryOf(::RetrieveMasterKeyUseCase)
-    factoryOf(::ClearMasterKeyUseCase)
 
     factoryOf(::GetLocalAuthTypeUseCase)
     factoryOf(::SaveLocalAuthSecretUseCase)
