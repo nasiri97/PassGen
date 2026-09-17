@@ -34,9 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import ir.ornix.passgen.core.designsystem.component.NumberSlider
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.ui.component.NumberSlider
+import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.ui.utils.InputHasherSaver
 import ir.ornix.passgen.feature.home.impl.ui.utils.PassEncoderSaver
 import ir.ornix.passgen.passwordgenerator.model.InputHasher
@@ -53,7 +54,7 @@ fun AddPassGenConfig(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = modifier
+            modifier = modifier.secureContent()
                 .fillMaxWidth(0.95f)
                 .padding(16.dp),
             shape = MaterialTheme.shapes.large,

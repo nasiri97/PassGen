@@ -20,12 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.localauth.impl.secretsetup.SecretSetupScreen
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(modifier: Modifier = Modifier) {
 
     val viewModel: SettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -33,10 +34,12 @@ fun SettingsScreen() {
     var settingPass: Boolean by remember { mutableStateOf(false) }
 
     if (settingPass) {
-        SecretSetupScreen(onFinished = { settingPass = false })
+        SecretSetupScreen(
+            modifier = modifier.secureContent(),
+            onFinished = { settingPass = false })
     } else {
         Column(
-            modifier = Modifier
+            modifier = modifier.secureContent()
                 .fillMaxSize()
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)

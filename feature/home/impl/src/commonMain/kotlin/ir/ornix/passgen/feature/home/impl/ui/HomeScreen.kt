@@ -23,6 +23,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
+import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -38,7 +39,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     val copy: (String) -> Unit = { clipboardManager.setText(AnnotatedString(it)) }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.secureContent().fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(onClick = { viewModel.showAddConfigDialog() }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Config")
@@ -79,6 +80,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     if (uiState.isAddConfigDialogVisible) {
         AddPassGenConfig(
+            modifier = modifier.secureContent(),
             onSubmit = { config ->
                 viewModel.addConfig(config)
                 viewModel.hideAddConfigDialog()

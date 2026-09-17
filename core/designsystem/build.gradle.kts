@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -28,15 +27,10 @@ kotlin {
         namespace = "ir.ornix.passgen.core.designsystem"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
-
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
-        }
     }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core:model"))
             api(libs.compose.runtime)
             api(libs.compose.foundation)
             api(libs.compose.material3)

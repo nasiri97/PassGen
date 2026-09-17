@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.localauth.impl.components.PasswordLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PatternLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PinLockView
@@ -39,7 +40,7 @@ fun SecretSetupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.secureContent().fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(

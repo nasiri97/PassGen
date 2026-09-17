@@ -32,7 +32,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":feature:saved-passwords:api"))
-            api(project(":core:designsystem"))
+            api(project(":core:ui"))
         }
     }
 }

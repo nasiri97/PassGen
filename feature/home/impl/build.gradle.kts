@@ -32,10 +32,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":feature:home:api"))
-            api(project(":core:designsystem"))
+            api(project(":core:ui"))
             implementation(project(":log-core"))
             implementation(project(":core:domain"))
-            implementation(project(":core:model"))
             implementation(project(":passwordGenerator"))
 
             implementation(libs.kotlinx.coroutines.core)

@@ -19,6 +19,7 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = xcfName
+            isStatic = true
         }
     }
 
@@ -41,13 +42,23 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }
+        androidResources {
+            enable = true
+        }
+        withHostTest {
+            isIncludeAndroidResources = true
+        }
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":core:designsystem"))
-            implementation(project(":core:domain"))
             implementation(project(":core:data"))
+            implementation(project(":core:domain"))
             implementation(project(":feature:localauth:api"))
             implementation(project(":feature:localauth:impl"))
             implementation(project(":feature:home:api"))

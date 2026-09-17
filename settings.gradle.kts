@@ -36,10 +36,10 @@ include(":passwordGenerator")
 include(":androidApp")
 include(":desktopApp")
 include(":webApp")
-include(":shared")
-
 include(":composeApp")
+
 include(":core:designsystem")
+include(":core:ui")
 include(":core:domain")
 include(":core:data")
 include(":core:model")

@@ -25,8 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import ir.ornix.passgen.core.designsystem.component.PasswordAndActions
 import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.ui.component.PasswordAndActions
+import ir.ornix.passgen.core.ui.security.secureContent
 
 
 @Composable
@@ -43,7 +44,7 @@ fun NewAccountDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = modifier
+            modifier = modifier.secureContent()
                 .fillMaxWidth(0.95f)
                 .padding(16.dp),
             shape = MaterialTheme.shapes.large,

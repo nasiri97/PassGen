@@ -34,18 +34,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import ir.ornix.passgen.composeapp.di.appModule
+import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
+import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
@@ -77,7 +76,7 @@ val drawerItems = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App() {
+fun App(modifier: Modifier = Modifier) {
     KoinApplication(application = {
         modules(appModule)
     }) {
@@ -101,75 +100,76 @@ fun App() {
                 mutableStateOf(false)
             }
 
-            Surface(
-                modifier = Modifier.clearAndSetSemantics {
-                    // Marks this field as sensitive to prevent accessibility extraction
-                    isSensitiveData = true
-                    contentDescription = "Secure app"
-                }.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                if (isFirstLaunch) {
-                    SecretSetupScreen(onFinished = { setFirstLaunchUseCase(false) })
-                } else if (isUnlockingRequired && !isUnlockedSuccessfully) {
-                    UnlockingGateScreen(onUnlocked = { isUnlockedSuccessfully = true })
-                } else {
-                    isUnlockedSuccessfully = true
+            PassGenTheme {
+                Surface(
+                    modifier = modifier.secureContent().fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    if (isFirstLaunch) {
+                        SecretSetupScreen(onFinished = { setFirstLaunchUseCase(false) })
+                    } else if (isUnlockingRequired && !isUnlockedSuccessfully) {
+                        UnlockingGateScreen(onUnlocked = { isUnlockedSuccessfully = true })
+                    } else {
+                        isUnlockedSuccessfully = true
 
-                    ModalNavigationDrawer(
-                        drawerState = drawerState,
-                        drawerContent = {
-                            ModalDrawerSheet {
-                                Spacer(Modifier.height(12.dp))
-                                drawerItems.forEach { item ->
-                                    NavigationDrawerItem(
-                                        label = { Text(item.label) },
-                                        selected = currentRoute == item.route,
-                                        onClick = {
-                                            scope.launch { drawerState.close() }
-                                            if (currentRoute != item.route) {
-                                                backStack.clear()
-                                                backStack.add(item.route)
-                                            }
-                                        },
-                                        icon = { Icon(item.icon, contentDescription = null) },
-                                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                                    )
+                        ModalNavigationDrawer(
+                            drawerState = drawerState,
+                            drawerContent = {
+                                ModalDrawerSheet {
+                                    Spacer(Modifier.height(12.dp))
+                                    drawerItems.forEach { item ->
+                                        NavigationDrawerItem(
+                                            label = { Text(item.label) },
+                                            selected = currentRoute == item.route,
+                                            onClick = {
+                                                scope.launch { drawerState.close() }
+                                                if (currentRoute != item.route) {
+                                                    backStack.clear()
+                                                    backStack.add(item.route)
+                                                }
+                                            },
+                                            icon = { Icon(item.icon, contentDescription = null) },
+                                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                                        )
+                                    }
                                 }
                             }
-                        }
-                    ) {
-                        Scaffold(
-                            topBar = {
-                                TopAppBar(
-                                    title = {
-                                        Text(
-                                            drawerItems.find { it.route == currentRoute }?.label
-                                                ?: "PassGen"
-                                        )
-                                    },
-                                    navigationIcon = {
-                                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        ) {
+                            Scaffold(
+                                topBar = {
+                                    TopAppBar(
+                                        title = {
+                                            Text(
+                                                drawerItems.find { it.route == currentRoute }?.label
+                                                    ?: "PassGen"
+                                            )
+                                        },
+                                        navigationIcon = {
+                                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                                Icon(
+                                                    Icons.Default.Menu,
+                                                    contentDescription = "Menu"
+                                                )
+                                            }
                                         }
-                                    }
-                                )
-                            }
-                        ) { innerPadding ->
-                            Box(modifier = Modifier.padding(innerPadding)) {
-                                NavDisplay(
-                                    backStack = backStack,
-                                    onBack = { if (backStack.size > 1) backStack.removeLast() },
-                                    entryProvider = { key ->
-                                        when (key) {
-                                            is HomeRoute -> NavEntry(key) { HomeScreen() }
-                                            is AboutRoute -> NavEntry(key) { AboutScreen() }
-                                            is SavedPasswordsRoute -> NavEntry(key) { SavedPasswordsScreen() }
-                                            is SettingsRoute -> NavEntry(key) { SettingsScreen() }
-                                            else -> NavEntry(key) { Text("Unknown Route") }
+                                    )
+                                }
+                            ) { innerPadding ->
+                                Box(modifier = Modifier.padding(innerPadding)) {
+                                    NavDisplay(
+                                        backStack = backStack,
+                                        onBack = { if (backStack.size > 1) backStack.removeLast() },
+                                        entryProvider = { key ->
+                                            when (key) {
+                                                is HomeRoute -> NavEntry(key) { HomeScreen() }
+                                                is AboutRoute -> NavEntry(key) { AboutScreen() }
+                                                is SavedPasswordsRoute -> NavEntry(key) { SavedPasswordsScreen() }
+                                                is SettingsRoute -> NavEntry(key) { SettingsScreen() }
+                                                else -> NavEntry(key) { Text("Unknown Route") }
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                     }

@@ -18,8 +18,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.ui.security.secureContent
 
 @Composable
 fun PassGenConfigDialog(
@@ -28,7 +29,7 @@ fun PassGenConfigDialog(
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
-        modifier = modifier,
+        modifier = modifier.secureContent(),
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onDismiss) {

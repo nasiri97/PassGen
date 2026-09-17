@@ -34,7 +34,7 @@ kotlin {
             implementation(project(":feature:settings:api"))
             implementation(project(":feature:localauth:impl"))
             implementation(project(":core:domain"))
-            api(project(":core:designsystem"))
+            api(project(":core:ui"))
             implementation(libs.koin.compose.viewmodel)
         }
     }

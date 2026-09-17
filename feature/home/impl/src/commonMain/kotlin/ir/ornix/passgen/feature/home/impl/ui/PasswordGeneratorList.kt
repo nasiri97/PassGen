@@ -13,10 +13,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.designsystem.component.getAdaptiveValue
 import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.ui.component.getAdaptiveValue
 
 @Composable
 fun PasswordGeneratorList(

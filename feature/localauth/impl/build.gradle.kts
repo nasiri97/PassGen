@@ -32,10 +32,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":feature:localauth:api"))
-            api(project(":core:designsystem"))
+            api(project(":core:ui"))
             implementation(project(":log-core"))
             implementation(project(":core:domain"))
-            implementation(project(":core:model"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
