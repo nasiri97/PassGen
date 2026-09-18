@@ -1,6 +1,5 @@
 package ir.ornix.passgen.core.domain.passgenconfig.model
 
-import ir.ornix.passgen.codec.Utf8TextCodec
 import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
 import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
@@ -10,7 +9,6 @@ import kotlinx.serialization.Serializable
 data class KDFPassGenConfig(
     override val id: Int,
     override val name: String,
-    val masterKey: String,
     val preprocessConfig: PreprocessConfig,
     val inputHasher: InputHasher,
     override val passEncoder: PassEncoder,
@@ -21,7 +19,6 @@ data class KDFPassGenConfig(
 
     override fun createPassGen(): KDFPassGen {
         return KDFPassGen(
-            inputDecoder = Utf8TextCodec(),
             inputHasher = inputHasher,
             passEncoder = passEncoder,
             passwordLength = passwordLength

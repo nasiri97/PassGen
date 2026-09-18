@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
+import ir.ornix.passgen.core.domain.passgen.PassGenWrapper
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -81,8 +81,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     if (uiState.isAddConfigDialogVisible) {
         AddPassGenConfig(
             modifier = modifier.secureContent(),
-            onSubmit = { config ->
-                viewModel.addConfig(config)
+            onSubmit = { config, rawKey ->
+                viewModel.addConfig(config, rawKey)
                 viewModel.hideAddConfigDialog()
             },
             onDismissRequest = { viewModel.hideAddConfigDialog() }

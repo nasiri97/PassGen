@@ -1,6 +1,7 @@
 package ir.ornix.passgen.composeapp.di
 
 import com.russhwolf.settings.Settings
+import ir.ornix.passgen.core.data.SecureHmacSigner
 import ir.ornix.passgen.core.data.SettingsAccountRepository
 import ir.ornix.passgen.core.data.SettingsAppConfigRepository
 import ir.ornix.passgen.core.data.SettingsLocalAuthRepository
@@ -9,6 +10,7 @@ import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
+import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
@@ -38,6 +40,7 @@ import org.koin.dsl.module
 val appModule = module {
     single { Settings() }
 
+    singleOf(::SecureHmacSigner) bind HmacSigner::class
     singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class
     singleOf(::SettingsPassGenConfigRepository) bind PassGenConfigRepository::class
     singleOf(::SettingsAccountRepository) bind AccountRepository::class

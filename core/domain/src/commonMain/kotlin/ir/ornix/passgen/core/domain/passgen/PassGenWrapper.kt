@@ -1,7 +1,7 @@
-package ir.ornix.passgen.core.domain.passgen.model
+package ir.ornix.passgen.core.domain.passgen
 
+import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
@@ -15,7 +15,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 
-data class PassGenWrapper(val passGenConfig: KDFPassGenConfig, val feed: Flow<String>) {
+data class PassGenWrapper(
+    val passGenConfig: KDFPassGenConfig,
+    val hmacSigner: HmacSigner,
+    val input: Flow<String>
+) {
 
     private val passGen: KDFPassGen = passGenConfig.createPassGen()
 
@@ -31,13 +35,12 @@ data class PassGenWrapper(val passGenConfig: KDFPassGenConfig, val feed: Flow<St
         field = MutableStateFlow(false)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val password: Flow<Password?> = feed.mapLatest { input ->
+    val password: Flow<Password?> = input.mapLatest { input ->
         isCalculating.value = true
-        val normalizedInput = passGenConfig.masterKey +
-                PreprocessConfig.SINGLE_SPACE +
-                passGenConfig.preprocessConfig(input)
+        val processedInput = passGenConfig.preprocessConfig(input)
 
-        val password = passGen.generate(normalizedInput)?.toPassword()
+        val result = hmacSigner.sign(keyId = "${passGenConfig.id}", processedInput)
+        val password = passGen.generate(result)?.toPassword()
 
         currentCoroutineContext().ensureActive()
         isCalculating.value = false

@@ -27,11 +27,12 @@ class SettingsPassGenConfigRepository(private val settings: Settings) : PassGenC
         } else emptyList()
     })
 
-    override suspend fun add(config: KDFPassGenConfig) {
+    override suspend fun add(config: KDFPassGenConfig): Int {
         val current = configsStateFlow.value.toMutableList()
         val newId = (current.maxOfOrNull { it.id } ?: -1) + 1
         current.add(config.copy(id = newId))
         save(current)
+        return newId
     }
 
     override suspend fun removeById(configId: Int) {

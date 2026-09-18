@@ -45,7 +45,7 @@ import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
 @Composable
 fun AddPassGenConfig(
-    onSubmit: (KDFPassGenConfig) -> Unit,
+    onSubmit: (KDFPassGenConfig, ByteArray) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +70,7 @@ fun AddPassGenConfig(
 
 @Composable
 private fun AddPassGenConfigContent(
-    onSubmit: (KDFPassGenConfig) -> Unit,
+    onSubmit: (KDFPassGenConfig, ByteArray) -> Unit,
     onCancel: () -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
@@ -199,7 +199,6 @@ private fun AddPassGenConfigContent(
                         KDFPassGenConfig(
                             id = 0, // ID will be handled by logic/DB
                             name = name.trim(),
-                            masterKey = masterKey.trim(),
                             passEncoder = selectedEncoder,
                             passwordLength = passLength,
                             preprocessConfig = PreprocessConfig(
@@ -208,7 +207,8 @@ private fun AddPassGenConfigContent(
                                 convertToLowercase = lowercase
                             ),
                             inputHasher = selectedInputHasher
-                        )
+                        ),
+                        masterKey.encodeToByteArray()
                     )
                 }
             ) {

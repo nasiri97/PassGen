@@ -92,7 +92,6 @@ class KDFPassGenTest {
 
                 assertFailsWith<IllegalArgumentException> {
                     KDFPassGen(
-                        inputDecoder = utf8Codec,
                         inputHasher = inputHasher,
                         passEncoder = passEncoder,
                         passwordLength = maxLength + 1
@@ -121,11 +120,10 @@ class KDFPassGenTest {
                     assertEquals(
                         expected,
                         KDFPassGen(
-                            inputDecoder = utf8Codec,
                             inputHasher = inputHasher,
                             passEncoder = passEncoder,
                             passwordLength = maxLength
-                        ).generate(testCase.input)
+                        ).generate(input = testCase.input, inputDecoder = utf8Codec)
                     )
                 }
             }
@@ -151,11 +149,10 @@ class KDFPassGenTest {
                         assertEquals(
                             expected,
                             KDFPassGen(
-                                inputDecoder = utf8Codec,
                                 inputHasher = inputHasher,
                                 passEncoder = passEncoder,
                                 passwordLength = length
-                            ).generate(testCase.input)
+                            ).generate(input = testCase.input, inputDecoder = utf8Codec)
                         )
                     }
                 }

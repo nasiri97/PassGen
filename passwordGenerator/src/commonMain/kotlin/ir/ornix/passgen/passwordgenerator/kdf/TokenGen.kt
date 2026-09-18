@@ -1,27 +1,24 @@
 package ir.ornix.passgen.passwordgenerator.kdf
 
-import ir.ornix.passgen.codec.core.Decoder
 import ir.ornix.passgen.logcore.Logger
 import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
 /**
- * Generates a deterministic token from a textual input using a hashing algorithm
+ * Generates a deterministic token from a byte array input using a hashing algorithm
  * and exposes it in a fixed-length encoded representation.
  *
  * The token is cached per input and regenerated only when the input changes.
  *
- * @param inputDecoder Decoder used to convert the input string into a byte array before hashing (e.g., UTF-8).
  * @param inputHasher The hashing algorithm used to generate the raw token bytes.
  * @param outputPassEncoder Encoder used to convert the generated token into the desired textual representation (e.g., Base64, Hex).
  */
 internal class TokenGen(
-    private val inputDecoder: Decoder,
     private val inputHasher: InputHasher,
     private val outputPassEncoder: PassEncoder
 ) {
 
-    private var input: String? = null
+    private var input: ByteArray? = null
     private var token: ByteArray? = null
 
 
@@ -31,15 +28,12 @@ internal class TokenGen(
      * This method performs hashing and should be called only when the input
      * changes or no cached token is available.
      *
-     * @param input The input string from which the token is generated.
+     * @param input The input byte array from which the token is generated.
      */
-    private suspend fun generate(input: String) {
+    private suspend fun generate(input: ByteArray) {
         try {
             this.input = input
-            token = inputHasher.digest(
-                input = input,
-                inputDecoder = inputDecoder
-            )
+            token = inputHasher.digest(input)
         } catch (e: Exception) {
             Logger.e("Failed to generate token!", e)
             token = null
@@ -56,11 +50,11 @@ internal class TokenGen(
      * The returned value is truncated to the maximum deterministic length
      * supported by the configured fixed-length encoder.
      *
-     * @param input The input string used to generate the token.
+     * @param input The input byte array used to generate the token.
      * @return The encoded token string, or null if token generation fails.
      */
-    suspend fun getToken(input: String): String? {
-        if (this.input != input || token == null) generate(input)
+    suspend fun getToken(input: ByteArray): String? {
+        if (!this.input.contentEquals(input) || token == null) generate(input)
 
         return token?.let {
             outputPassEncoder.encode(it)

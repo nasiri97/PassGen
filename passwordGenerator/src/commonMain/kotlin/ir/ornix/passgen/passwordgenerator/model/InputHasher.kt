@@ -20,11 +20,8 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(with = InputHasherSerializer::class)
 sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
 
-    suspend fun digest(
-        input: String,
-        inputDecoder: ir.ornix.passgen.codec.core.Decoder
-    ): ByteArray {
-        return instance.digest(input = input, inputDecoder = inputDecoder)
+    suspend fun digest(input: ByteArray): ByteArray {
+        return instance.digest(input)
     }
 
     val outputByteSize: Int

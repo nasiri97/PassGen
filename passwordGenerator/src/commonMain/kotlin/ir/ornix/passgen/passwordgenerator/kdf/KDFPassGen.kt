@@ -6,7 +6,6 @@ import ir.ornix.passgen.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.passwordgenerator.model.PassEncoder
 
 data class KDFPassGen(
-    val inputDecoder: Decoder,
     val inputHasher: InputHasher,
     override val passEncoder: PassEncoder,
     override val passwordLength: Int
@@ -17,12 +16,15 @@ data class KDFPassGen(
     }
 
     private val tokenGen = TokenGen(
-        inputDecoder = inputDecoder,
         inputHasher = inputHasher,
         outputPassEncoder = passEncoder
     )
 
-    suspend fun generate(input: String): String? {
+    suspend fun generate(input: String, inputDecoder: Decoder): String? {
+        return generate(inputDecoder.decode(input))
+    }
+
+    suspend fun generate(input: ByteArray): String? {
         val token = tokenGen.getToken(input)
         return token?.substring(0, passwordLength)
     }

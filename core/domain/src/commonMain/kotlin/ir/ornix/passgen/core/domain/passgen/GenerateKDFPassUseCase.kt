@@ -1,6 +1,6 @@
 package ir.ornix.passgen.core.domain.passgen
 
-import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
+import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.mapLatest
 
 class GenerateKDFPassUseCase(
     private val getAllPassGenConfigs: GetAllPassGenConfigsUseCase,
+    private val hmacSigner: HmacSigner
 ) {
 
     private var currentPassGenWrappers = mutableListOf<PassGenWrapper>()
@@ -26,7 +27,7 @@ class GenerateKDFPassUseCase(
                 configs.forEach { config ->
                     list.add(
                         currentPassGenWrappers.find { it.passGenConfig.id == config.id }
-                            ?: PassGenWrapper(config, input)
+                            ?: PassGenWrapper(config, hmacSigner, input)
                     )
                 }
                 currentPassGenWrappers = list

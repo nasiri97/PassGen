@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
-import ir.ornix.passgen.core.domain.passgen.model.PassGenWrapper
+import ir.ornix.passgen.core.domain.passgen.PassGenWrapper
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
@@ -57,8 +57,8 @@ class HomeViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
 
-    fun addConfig(config: KDFPassGenConfig) = viewModelScope.launch {
-        addPassGenConfig(config)
+    fun addConfig(config: KDFPassGenConfig, rawKey: ByteArray) = viewModelScope.launch {
+        addPassGenConfig(config, rawKey)
     }
 
     fun removeConfig(passGenWrapper: PassGenWrapper) = viewModelScope.launch {
