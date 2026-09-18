@@ -7,11 +7,11 @@ import kotlinx.coroutines.sync.withLock
 
 object Argon2IdHasher : Hasher {
 
-    // The generated password is 72 bytes (144 Hex-Chars) (96 Base64-Chars) (90 Z85-Chars)
-    override val outputByteSize = 72
+    // The generated password is 64 bytes (128 Hex-Chars) (80 Z85-Chars)
+    override val outputByteSize = 64
 
     private const val ITERATIONS = 4
-    private const val MEMORY_COST = 128 * 1024  // 131072 KB
+    private const val MEMORY_COST = 128 * 1024  // (128 MB) (131072 KB)
     private const val PARALLELISM_FACTOR = 1
 
     private val mutex = Mutex()

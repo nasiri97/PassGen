@@ -23,7 +23,7 @@ class KDFPassGenTest {
     private val testCase1 = TestCase(
         input = "",
         argon2id = base64Codec.decode(
-            "7nCeECf0DBRzNoB9W17t0fDl0jJqc3eaxUOJUB9F+791buZnTj0/ESoGJPT3kyoW66SQfOvoGPomQEe/erftchq5NMuKNP5r"
+            "SIccW0Qtg/lQJyg+5S5HaSe5hzUqpzlpT0FZHH24rpPHsvua5MjBldLxXVCGYztmsJtLiU7D7QZWzN/mlNKkvQ"
         ),
         bcrypt = bCryptCodec.decode("qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py"),
         sha512 = hexCodec.decode(
@@ -35,7 +35,7 @@ class KDFPassGenTest {
     private val testCase2 = TestCase(
         input = " ",
         argon2id = base64Codec.decode(
-            "x/RSe3X12/iJb19Bu3jO9FqQeMQodBavxjLn9j2V+ulQIcXY+nUeKda5TWjl5Tn2eH6CCy0JzrmTy000TyaSHtVBYGXxV27/"
+            "1vjyDAtqCH+KQPxO0mhBR4zbIoF2919kBVnLuECm8M8Kq+3vc9oyLS6InLO2whmP0CCgTcNd83yKBqZTfNpzYw"
         ),
         bcrypt = bCryptCodec.decode("Qj5eZokAr/VoyT/B81gVcigGkXjv9e."),
         sha512 = hexCodec.decode(
@@ -47,7 +47,7 @@ class KDFPassGenTest {
     private val testCase3 = TestCase(
         input = "\n\n  ",
         argon2id = base64Codec.decode(
-            "+M4dfUMD1zmOBga1IcV/NaDmdsxr22+K3HSGwGW+0WEqfzUoMeABZCf/xkpBwNxf0BAGwDCj+MRzGut1MdJUIQGTXVVj/6z8"
+            "jNwuBTBCAMjy3anuNFnZZqwhBB6BNpF+1BFFMX8xpVIzXVdPSOEp0/3nR00KuzAJivSpCGORKRlotWhqvnLVbw"
         ),
         bcrypt = bCryptCodec.decode("EmLve0j.AXy74JiSBFzVjpov6SCkJlK"),
         sha512 = hexCodec.decode(
@@ -59,7 +59,7 @@ class KDFPassGenTest {
     private val testCase4 = TestCase(
         input = "hello",
         argon2id = base64Codec.decode(
-            "w86NXvmXuVB4Y2qL0oUp6smnFj74fWLExLaw5bbXRPxo9i4ebgPo/Fn2W+MdHYWB5KOi5N6aLAPbX6IhfO5bu06F3HBUK1fY"
+            "Jomso/aWbL3bXqb0Y+WuQOdMiveFYCBBC9FClw5pAihWocz0xFhc+Qns2PJZ3PhBp8doN1Eb9dyx36q1B50lBg"
         ),
         bcrypt = bCryptCodec.decode("aWoo2BxGM0sAUbeJTsGdDCs24koovhq"),
         sha512 = hexCodec.decode(
@@ -71,7 +71,7 @@ class KDFPassGenTest {
     private val testCase5 = TestCase(
         input = "Hello World",
         argon2id = base64Codec.decode(
-            "0TZbIZYWkvG47xenS/+wrFmiYC6S5woPAvXorv4+vxgTEX5hakW0MI2v4IuXaNIOdadpXXYr8YWFiZVeDYxDEN1CjLB9WKgI"
+            "whbMNRoF5/S71AQakvFTqefPzAnppbAGVdGk3fKf9qselK/JGaY5fDawfqfVQ6hkTVWnMVoHzN7GiuwDz9a6/A"
         ),
         bcrypt = bCryptCodec.decode("OqWhN04gD3je48K05tPyPNL4w8snY0O"),
         sha512 = hexCodec.decode(
