@@ -4,14 +4,12 @@ import com.russhwolf.settings.Settings
 import ir.ornix.passgen.core.data.SettingsAccountRepository
 import ir.ornix.passgen.core.data.SettingsAppConfigRepository
 import ir.ornix.passgen.core.data.SettingsLocalAuthRepository
-import ir.ornix.passgen.core.data.SettingsMasterKeyRepository
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.MasterKeyRepository
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
@@ -41,7 +39,6 @@ val appModule = module {
     single { Settings() }
 
     singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class
-    singleOf(::SettingsMasterKeyRepository) bind MasterKeyRepository::class
     singleOf(::SettingsPassGenConfigRepository) bind PassGenConfigRepository::class
     singleOf(::SettingsAccountRepository) bind AccountRepository::class
     single { SettingsLocalAuthRepository(get()) } bind LocalAuthRepository::class
