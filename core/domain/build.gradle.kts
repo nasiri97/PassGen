@@ -39,6 +39,10 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.cryptography.core)
+            implementation(libs.cryptography.provider.optimal)
         }
     }
 }

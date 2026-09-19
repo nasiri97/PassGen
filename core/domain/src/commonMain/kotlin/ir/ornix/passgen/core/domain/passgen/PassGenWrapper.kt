@@ -41,6 +41,7 @@ data class PassGenWrapper(
 
         val result = hmacSigner.sign(keyId = "${passGenConfig.id}", processedInput)
         val password = passGen.generate(result)?.toPassword()
+        result.fill(0)
 
         currentCoroutineContext().ensureActive()
         isCalculating.value = false

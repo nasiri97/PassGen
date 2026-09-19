@@ -74,7 +74,7 @@ private fun AddPassGenConfigContent(
     onCancel: () -> Unit
 ) {
     var name by rememberSaveable { mutableStateOf("") }
-    var masterKey by rememberSaveable { mutableStateOf("") }
+    var masterKey by remember { mutableStateOf("") }
 
     var trimSpaces by rememberSaveable { mutableStateOf(true) }
     var collapseSpaces by rememberSaveable { mutableStateOf(true) }
