@@ -26,23 +26,23 @@ The core generation mechanism utilizes a highly secure, multi-stage key derivati
 
 ```mermaid
 flowchart TD
-    %% ─────────────────────────────────────────────
-    %% Key Derivation / Authentication
-    %% ─────────────────────────────────────────────
+%% ─────────────────────────────────────────────
+%% Key Derivation / Authentication
+%% ─────────────────────────────────────────────
 
     MK["Master Key"] -->|SHA-512| KD["Key Digest"]
 
-		subgraph HMAC_STAGE["HMAC"]
-    KD --> HMAC["HMAC-SHA-512"]
-    IN["Input"] --> HMAC
+    subgraph HMAC_STAGE["HMAC"]
+        KD --> HMAC["HMAC-SHA-512"]
+        IN["Input"] --> HMAC
 
-    HMAC -->|HMAC Output| HASH["Password Hash"]
+        HMAC -->|HMAC Output| HASH["Password Hash"]
     end
-    
 
-    %% ─────────────────────────────────────────────
-    %% Password Hashing / KDF
-    %% ─────────────────────────────────────────────
+
+%% ─────────────────────────────────────────────
+%% Password Hashing / KDF
+%% ─────────────────────────────────────────────
 
     HASH --> ALG{"Hashing"}
 
@@ -56,9 +56,9 @@ flowchart TD
     BCRYPT --> RAW
     ARGON --> RAW
 
-    %% ─────────────────────────────────────────────
-    %% Encoding
-    %% ─────────────────────────────────────────────
+%% ─────────────────────────────────────────────
+%% Encoding
+%% ─────────────────────────────────────────────
 
     RAW --> ENC{"Encoding"}
 
@@ -70,21 +70,21 @@ flowchart TD
     BASE64 --> STR
     Z85 --> STR
 
-    %% ─────────────────────────────────────────────
-    %% Final Output
-    %% ─────────────────────────────────────────────
+%% ─────────────────────────────────────────────
+%% Final Output
+%% ─────────────────────────────────────────────
 
     STR -->|The first n character| OUT["Final Password"]
 
-    %% ─────────────────────────────────────────────
-    %% Styling
-    %% ─────────────────────────────────────────────
+%% ─────────────────────────────────────────────
+%% Styling
+%% ─────────────────────────────────────────────
 
-    classDef input fill:#e8f4ff,stroke:#1976d2,stroke-width:2px
-    classDef crypto fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
-    classDef algorithm fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px
-    classDef encoding fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef input fill:#e8f4ff,stroke:#1976d2,stroke-width:2px,color:#0d47a1
+    classDef crypto fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#5d2f00
+    classDef algorithm fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#4a148c
+    classDef encoding fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+    classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
 
     class MK,IN input
     class KD,HMAC,HASH crypto
