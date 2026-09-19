@@ -27,6 +27,16 @@ kotlin {
         namespace = "ir.ornix.passgen.feature.home.impl"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+
+        androidResources {
+            enable = true
+        }
     }
 
     sourceSets {
@@ -42,6 +52,21 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+        }
+
+        val androidDeviceTest by getting {
+            dependencies {
+                implementation(libs.androidx.uitest.junit4)
+                implementation(libs.androidx.uitest.manifest)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.cryptography.core)
+                implementation(libs.cryptography.provider.optimal)
+                implementation(libs.koin.test)
+
+
+                // Force a newer espresso-core version to fix the InputManager crash on modern emulators
+                implementation(libs.androidx.espresso.core)
+            }
         }
     }
 }

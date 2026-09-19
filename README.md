@@ -1,46 +1,184 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM).
+# 🔐 PassGen — Kotlin Multiplatform Deterministic Password Generator
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.12.0-blue.svg?style=flat&logo=jetpackcompose)](https://github.com/JetBrains/compose-multiplatform)
+[![Platform Support](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop%20%7C%20Web%20(Wasm)-green.svg?style=flat)](#running-the-apps)
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
-
-### Running the apps
-
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
-
-- Android app: `./gradlew :androidApp:assembleDebug`
-- Desktop app:
-  - Hot reload: `./gradlew :desktopApp:hotRun --auto`
-  - Standard run: `./gradlew :desktopApp:run`
-- Web app:
-  - Wasm target (faster, modern browsers): `./gradlew :webApp:wasmJsBrowserDevelopmentRun`
-  - JS target (slower, supports older browsers): `./gradlew :webApp:jsBrowserDevelopmentRun`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
-
-### Running tests
-
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
-
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- Desktop tests: `./gradlew :shared:jvmTest`
-- Web tests:
-  - Wasm target: `./gradlew :shared:wasmJsTest`
-  - JS target: `./gradlew :shared:jsTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+**PassGen** is a modern, secure, and fully decentralized deterministic password generator built with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform**. It allows users to generate strong, cryptographically secure passwords deterministically across multiple platforms—Android, iOS, Desktop (JVM), and Web (Kotlin/Wasm & JS)—ensuring you can recreate your passwords anywhere without relying on cloud-synced credential vaults.
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+## 🚀 Key Features
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+*   **Deterministic Key Derivation (KDF):** Generate identical, ultra-secure passwords using a master key and specific input contexts (e.g., account name, service name).
+*   **Fully Decentralized & Stateless:** No cloud synchronization or database requirements to retrieve passwords; your master key and generation configs are everything you need.
+*   **Cross-Platform UI:** Beautiful, responsive UI built natively for Android, iOS, Desktop, and Web using **Compose Multiplatform** and Material 3 design systems.
+*   **Industry-Standard Cryptography:** Support for advanced modern hashing algorithms (Argon2id, BCrypt, SHA-512, SHA-256) and flexible encoding encoders (Z85, Base64, Hex).
+*   **Robust Modular Architecture:** Clean feature-based API/Implementation separation for high scalability, isolated testing, and codebase maintainability.
+*   **Local Vaulting Optionality:** Safe local storage capability for account identifiers and metadata configuration presets with top-tier security access controls.
+
+---
+
+## 🛠 Cryptographic Password Generation Flow
+
+The core generation mechanism utilizes a highly secure, multi-stage key derivation approach to map your master key and unique contextual input into a strong password string:
+
+
+```mermaid
+flowchart TD
+    %% ─────────────────────────────────────────────
+    %% Key Derivation / Authentication
+    %% ─────────────────────────────────────────────
+
+    MK["Master Key"] -->|SHA-512| KD["Key Digest"]
+
+		subgraph HMAC_STAGE["HMAC"]
+    KD --> HMAC["HMAC-SHA-512"]
+    IN["Input"] --> HMAC
+
+    HMAC -->|HMAC Output| HASH["Password Hash"]
+    end
+    
+
+    %% ─────────────────────────────────────────────
+    %% Password Hashing / KDF
+    %% ─────────────────────────────────────────────
+
+    HASH --> ALG{"Hashing"}
+
+    ALG -->|SHA-256| SHA256["SHA-256"]
+    ALG -->|SHA-512| SHA512["SHA-512"]
+    ALG -->|BCrypt| BCRYPT["BCrypt"]
+    ALG -->|Argon2id| ARGON["Argon2id"]
+
+    SHA256 --> RAW["Password<br/>Full-Size ByteArray"]
+    SHA512 --> RAW
+    BCRYPT --> RAW
+    ARGON --> RAW
+
+    %% ─────────────────────────────────────────────
+    %% Encoding
+    %% ─────────────────────────────────────────────
+
+    RAW --> ENC{"Encoding"}
+
+    ENC -->|Hex| HEX["Hex"]
+    ENC -->|Base64| BASE64["Base64"]
+    ENC -->|Z85| Z85["Z85"]
+
+    HEX --> STR["Password<br/>Full-Size String"]
+    BASE64 --> STR
+    Z85 --> STR
+
+    %% ─────────────────────────────────────────────
+    %% Final Output
+    %% ─────────────────────────────────────────────
+
+    STR -->|The first n character| OUT["Final Password"]
+
+    %% ─────────────────────────────────────────────
+    %% Styling
+    %% ─────────────────────────────────────────────
+
+    classDef input fill:#e8f4ff,stroke:#1976d2,stroke-width:2px
+    classDef crypto fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef algorithm fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px
+    classDef encoding fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    class MK,IN input
+    class KD,HMAC,HASH crypto
+    class ALG,SHA256,SHA512,BCRYPT,ARGON algorithm
+    class ENC,HEX,BASE64,Z85 encoding
+    class RAW,STR,OUT output
+```
+
+---
+
+## 🏗 Modular Architecture Breakdown
+
+PassGen is engineered with strict scalability rules following a feature-oriented and layered architecture pattern:
+
+### Module Matrix & Responsibility
+
+| Module / Component Layer | Description |
+| :--- | :--- |
+| **`:log-core`** | Central logging engine providing unified multi-platform logging hooks. |
+| **`:codec`** | Lower-level binary encoding utilities implementing fast Hex, Base64, and Z85 encoders. |
+| **`:hashing`** | Low-level cryptographic primitives isolating core implementations of SHA, BCrypt, and Argon2id. |
+| **`:passwordGenerator`** | Pure Kotlin core domain handling deterministic generation, `KDFPassGen`, `TokenGen`, and secure random fallbacks. |
+| **`:core:designsystem`** | Shared application theme, colors, fonts, shapes, and Atomic Design reusable design components. |
+| **`:core:ui`** | Reusable high-level Compose components, structures, widgets, and animation canvases. |
+| **`:core:domain`** | Framework-free layer containing rich use-cases (`GenerateKDFPassUseCase`, `SaveAccountUseCase`, etc.). |
+| **`:core:data`** | Aggregates repositories and local state engines for configuration management and account profiles. |
+| **`:core:model`** | Clean business and domain data model entities shared globally across features. |
+| **`:feature:*:api`** | Contract interface definitions for features, isolating cross-feature dependencies. |
+| **`:feature:*:impl`** | Concrete UI screens, ViewModels, business interaction workflows, and internal navigation rules. |
+| **`:composeApp`** | Aggregated shared application Compose UI configuration layer. |
+| **`:androidApp`** | Main entry-point launcher configuration and platform setup for Android. |
+| **`:desktopApp`**| Main entry-point launcher setup and window target wrappers for Desktop (JVM). |
+| **`:webApp`** | Compiled entry targets for both modern Wasm-JS browsers and heritage JS runtimes. |
+| **`iosApp`** | Native Swift wrapper/Xcode project setting up layout entry frames hosting Compose Multiplatform. |
+
+---
+
+## 💻 Technical Stack & Custom Components
+
+*   **Jetpack / Compose Multiplatform** (UI & layouts)
+*   **Kotlin Coroutines & Flow** (Asynchronous stream computations & state propagation)
+*   **Kotlinx Serialization** (Extensible binary and JSON serialization mechanics)
+*   **KDF Core Engine:** Custom state-caching generation pipe leveraging specialized variable block bit expansion.
+
+---
+
+## 🚀 Building & Running the Applications
+
+Ensure you have Android Studio Jellyfish (or newer), the Kotlin Multiplatform plugin, and Xcode installed (if compiling for iOS).
+
+### Compilation Targets
+
+Choose your target build platform via the IDE run widget configurations or use the native Gradle terminal tasks:
+
+*   **Android Application:**
+    ```bash
+    ./gradlew :androidApp:assembleDebug
+    ```
+*   **Desktop Application (JVM):**
+    *   *Hot Reload Dev Mode:* `./gradlew :desktopApp:hotRun --auto`
+    *   *Standard Execution:* `./gradlew :desktopApp:run`
+*   **Web Application:**
+    *   *Wasm Target (Fast, modern browsers):* `./gradlew :webApp:wasmJsBrowserDevelopmentRun`
+    *   *JS Target (Legacy browser support):* `./gradlew :webApp:jsBrowserDevelopmentRun`
+*   **iOS Application:**
+    *   Open the `/iosApp` directory folder inside **Xcode** and click the `Run` button or trigger via standard Xcode simulator command chains.
+
+---
+
+## 🧪 Testing Execution
+
+PassGen emphasizes extreme correctness with thorough test suites verifying cryptographic determinism and UI behavior:
+
+*   **All Local Unit Tests:** `./gradlew test`
+*   **Android Instrumental Tests:** `./gradlew connectedAndroidTest`
+*   **Desktop Unit Tests:** `./gradlew :passwordGenerator:jvmTest` (or target specific modules)
+*   **Web Testing:**
+    *   *Wasm Runtime:* `./gradlew :passwordGenerator:wasmJsTest`
+    *   *JS Runtime:* `./gradlew :passwordGenerator:jsTest`
+*   **iOS Simulation Tests:** `./gradlew :passwordGenerator:iosSimulatorArm64Test`
+
+---
+
+## 🔒 Security Principles & Compliance
+
+PassGen enforces a **Zero-Knowledge Architecture**:
+1.  **Memory Zeroing:** Raw master keys are stored only as long as necessary within transient memory blocks and are cleared immediately after background compute operations.
+2.  **Stateless Trust:** Because passwords are generated dynamically on demand, there is no master credential database that malicious actors could exploit or extract from storage.
+3.  **Local Encryption Only:** Any accessory configuration metadata (such as custom account tags or lengths) saved on device remains isolated in secure local vaults under platform-backed sandboxing frameworks.
+
+---
+
+## 📄 License & Contributions
+
+Contributions to PassGen are highly encouraged! Please open an issue or submit a comprehensive pull request for any performance tuning or extra algorithm extensions.
+
+*Licensed under the MIT License — see the project repository details.*
