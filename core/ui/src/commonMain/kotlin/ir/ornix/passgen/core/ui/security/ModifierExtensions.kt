@@ -4,10 +4,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isSensitiveData
+import ir.ornix.passgen.core.common.isDebugBuild
 
 
 /**
- *
  * clearAndSetSemantics clears the semantics of all descendant nodes in the actual UI tree — meaning every composable
  * that gets called (nested) inside Screen, no matter how deeply nested,
  * and regardless of whether you threaded a modifier parameter into those functions.
@@ -25,7 +25,9 @@ import androidx.compose.ui.semantics.isSensitiveData
  * you'd need to apply clearAndSetSemantics inside that dialog's own content too — the parent's clearing won't reach across the window boundary.
  */
 fun Modifier.secureContent() = this.clearAndSetSemantics {
-    // Marks this field as sensitive to prevent accessibility extraction
-    isSensitiveData = true
-    contentDescription = "Secure content"
+    if (!isDebugBuild) {
+        // Marks this field as sensitive to prevent accessibility extraction
+        isSensitiveData = true
+        contentDescription = "Secure content"
+    }
 }

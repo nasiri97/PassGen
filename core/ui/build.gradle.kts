@@ -34,6 +34,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:designsystem"))
             api(project(":core:model"))
+            api(project(":core:common"))
         }
     }
 }

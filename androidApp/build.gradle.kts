@@ -13,6 +13,7 @@ kotlin {
 dependencies {
     implementation(project(":composeApp"))
     implementation(project(":core:data"))
+    implementation(project(":core:common"))
     implementation(project(":core:ui"))
     implementation(libs.androidx.activity.compose)
 }
@@ -53,5 +54,6 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }

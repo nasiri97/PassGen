@@ -30,13 +30,13 @@ flowchart TD
 %% Key Derivation / Authentication
 %% ─────────────────────────────────────────────
 
-    MK["<b>MK</b> (Master Key)"] -->|SHA-512| MKD["<b>MKD</b> (Master Key Digest)<br/>(64 bytes)"]
+    MK(["<b>MK</b> (Master Key)"]) -->|SHA-512| MKD(["<b>MKD</b> (Master Key Digest)<br/>(64 bytes)"])
 
     subgraph HMAC_STAGE["HMAC"]
         MKD --> HMAC["HMAC-SHA-512"]
-        IN["<b>Input</b>"] --> HMAC
+        IN(["<b>Input</b>"]) --> HMAC
 
-        HMAC -->|64 bytes| HASH["<b>Password Seed</b>"]
+        HMAC -->|64 bytes| HASH(["<b>Password Seed</b>"])
     end
 
 
@@ -51,7 +51,7 @@ flowchart TD
     ALG --> BCRYPT["BCrypt"]
     ALG --> ARGON["Argon2id"]
 
-    SHA256 -->|32 bytes| RAW["<b>Raw Password</b>"]
+    SHA256 -->|32 bytes| RAW(["<b>Raw Password</b>"])
     SHA512 -->|64 bytes| RAW
     BCRYPT -->|23 bytes| RAW
     ARGON -->|64 bytes| RAW
@@ -66,7 +66,7 @@ flowchart TD
     ENC --> BASE64["Base64"]
     ENC --> Z85["Z85"]
 
-    HEX --> STR["<b>Full-Length Password</b><br/>(string)"]
+    HEX --> STR(["<b>Full-Length Password</b><br/>(string)"])
     BASE64 --> STR
     Z85 --> STR
 
@@ -74,7 +74,7 @@ flowchart TD
 %% Final Output
 %% ─────────────────────────────────────────────
 
-    STR -->|The first n character| OUT["<b>Password</b>"]
+    STR -->|The first n characters| OUT(["<b>Password</b>"])
 
 %% ─────────────────────────────────────────────
 %% Styling
@@ -86,11 +86,11 @@ flowchart TD
     classDef encoding fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
     classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
 
-    class MK,IN input
-    class MKD,HMAC,HASH crypto
-    class ALG,SHA256,SHA512,BCRYPT,ARGON algorithm
-    class ENC,HEX,BASE64,Z85 encoding
-    class RAW,STR,OUT output
+    class MK,MKD,IN input
+    class HMAC,HASH crypto
+    class ALG,SHA256,SHA512,BCRYPT,ARGON,RAW algorithm
+    class ENC,HEX,BASE64,Z85,STR encoding
+    class OUT output
 ```
 
 ---

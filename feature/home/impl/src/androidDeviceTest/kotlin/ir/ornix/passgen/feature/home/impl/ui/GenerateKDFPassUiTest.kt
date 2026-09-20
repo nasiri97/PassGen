@@ -6,17 +6,17 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
+import ir.ornix.passgen.core.domain.HmacSigner
+import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
-import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
-import ir.ornix.passgen.core.domain.AccountRepository
-import ir.ornix.passgen.core.domain.HmacSigner
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import kotlinx.coroutines.flow.Flow
@@ -42,12 +42,13 @@ class GenerateKDFPassUiTest : KoinTest {
     private val testModule = module {
         single { FakePassGenConfigRepository() } bind PassGenConfigRepository::class
         single { FakeHmacSigner() } bind HmacSigner::class
-        single { 
+        single {
             object : AccountRepository {
                 override suspend fun save(account: Account) {}
                 override suspend fun delete(accountId: Int) {
                     TODO("Not yet implemented")
                 }
+
                 override fun getAll(): Flow<List<Account>> = flowOf(emptyList())
             }
         } bind AccountRepository::class
@@ -89,8 +90,9 @@ class GenerateKDFPassUiTest : KoinTest {
 
         // 2. Fill the "Create Password Config" dialog
         composeTestRule.onNodeWithText("Configuration Name").performTextInput("Work")
-        composeTestRule.onNodeWithText("Master Key").performTextInput("12345678 12345678 12345678 12345678")
-        
+        composeTestRule.onNodeWithText("Master Key")
+            .performTextInput("12345678 12345678 12345678 12345678")
+
         // Click "Create" button
         composeTestRule.onNodeWithText("Create").performClick()
 
@@ -104,17 +106,18 @@ class GenerateKDFPassUiTest : KoinTest {
         // 5. Verify that the password generation started and the Copy button appeared
         // (The actual password value is obscured by default, but we can check for the action button)
         composeTestRule.onNodeWithContentDescription("Copy").assertIsDisplayed()
-        
+
         // We can also verify a specific deterministic password if we know it and it's visible in semantics
         // Since PasswordAndActions shows it as Text:
         // For SHA256/Hex, input="example.com", key="12345678 12345678 12345678 12345678"
         // The value should be "3eb97c87..." (if 16 chars) or 64 chars by default.
         // Wait, default length in dialog is 64.
         // SHA-256 Hex 64 chars is: "76f980c25c9e2e9ca2b8f2bb33200e4b0673bb892ed337491401ef163f544dca"
-        
+
         composeTestRule.waitUntil(5000) {
             try {
-                composeTestRule.onNodeWithText("76f980c25c9e2e9ca2b8f2bb33200e4b0673bb892ed337491401ef163f544dca").assertIsDisplayed()
+                composeTestRule.onNodeWithText("76f980c25c9e2e9ca2b8f2bb33200e4b0673bb892ed337491401ef163f544dca")
+                    .assertIsDisplayed()
                 true
             } catch (e: AssertionError) {
                 false

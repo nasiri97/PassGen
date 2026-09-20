@@ -29,24 +29,24 @@ kotlin {
     }
 
     sourceSets {
-		
-		commonMain {
+
+        commonMain {
             dependencies {
                 implementation(project(":log-core"))
                 implementation(libs.kotlin.stdlib)
 
                 // Kotlin Serialization
                 implementation(libs.kotlinx.serialization.json)
-				
-				
-				// Coroutine
-				implementation(libs.kotlinx.coroutines.core)
 
-				implementation(libs.cryptography.core)
-				implementation(libs.cryptography.provider.optimal)
+
+                // Coroutine
+                implementation(libs.kotlinx.coroutines.core)
+
+                implementation(libs.cryptography.core)
+                implementation(libs.cryptography.provider.optimal)
             }
         }
-	
+
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -56,7 +56,7 @@ kotlin {
         val jvmCommonMain = create("jvmCommonMain") {
             dependsOn(commonMain.get())
             dependencies {
-				implementation(libs.bcprov)
+                implementation(libs.bcprov)
             }
         }
 
