@@ -4,7 +4,7 @@ import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
+import ir.ornix.passgen.core.common.passwordgenerator.kdf.KDFPassGen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext

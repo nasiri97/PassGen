@@ -3,7 +3,7 @@ package ir.ornix.passgen.core.domain
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.HMAC
 import dev.whyoleg.cryptography.algorithms.SHA512
-import ir.ornix.passgen.hashing.Sha512Hasher
+import ir.ornix.passgen.core.common.hashing.Sha512Hasher
 import kotlinx.coroutines.runBlocking
 
 class FakeHmacSigner : HmacSigner {

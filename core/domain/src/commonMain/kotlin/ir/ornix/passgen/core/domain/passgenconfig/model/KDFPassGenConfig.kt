@@ -1,8 +1,8 @@
 package ir.ornix.passgen.core.domain.passgenconfig.model
 
-import ir.ornix.passgen.passwordgenerator.kdf.KDFPassGen
-import ir.ornix.passgen.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.kdf.KDFPassGen
+import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import kotlinx.serialization.Serializable
 
 @Serializable

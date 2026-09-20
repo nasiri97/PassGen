@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import ir.ornix.passgen.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 
 @Composable
 fun HashingTypeSelector(

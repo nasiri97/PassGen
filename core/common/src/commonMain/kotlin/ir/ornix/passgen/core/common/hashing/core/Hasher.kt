@@ -1,0 +1,39 @@
+package ir.ornix.passgen.core.common.hashing.core
+
+import ir.ornix.passgen.core.common.codec.core.Decoder
+import ir.ornix.passgen.core.common.codec.core.Encoder
+
+interface Hasher {
+
+    val outputByteSize: Int
+
+    suspend fun digest(input: ByteArray): ByteArray
+
+    suspend fun digest(
+        input: String,
+        inputDecoder: Decoder
+    ): ByteArray {
+        return digest(inputDecoder.decode(input))
+    }
+
+    suspend fun digest(
+        input: ByteArray,
+        outputEncoder: Encoder
+    ): String {
+        val result = digest(input)
+        return outputEncoder.encode(result)
+    }
+
+    suspend fun digest(
+        input: String,
+        inputDecoder: Decoder,
+        outputEncoder: Encoder
+    ): String {
+        val result = digest(input, inputDecoder)
+        return outputEncoder.encode(result)
+    }
+
+    suspend fun verify(input: ByteArray, digest: ByteArray): Boolean {
+        return digest(input).contentEquals(digest)
+    }
+}

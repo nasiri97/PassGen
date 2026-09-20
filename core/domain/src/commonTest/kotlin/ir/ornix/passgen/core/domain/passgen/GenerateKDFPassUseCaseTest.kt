@@ -1,17 +1,17 @@
 package ir.ornix.passgen.core.domain.passgen
 
-import ir.ornix.passgen.codec.BCryptBase64BinaryCodec
-import ir.ornix.passgen.codec.Base64BinaryCodec
-import ir.ornix.passgen.codec.HexBinaryCodec
-import ir.ornix.passgen.codec.Z85BinaryCodec
+import ir.ornix.passgen.core.common.codec.BCryptBase64BinaryCodec
+import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
+import ir.ornix.passgen.core.common.codec.HexBinaryCodec
+import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
-import ir.ornix.passgen.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull

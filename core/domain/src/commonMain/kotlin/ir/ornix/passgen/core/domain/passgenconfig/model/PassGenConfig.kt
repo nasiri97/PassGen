@@ -1,7 +1,7 @@
 package ir.ornix.passgen.core.domain.passgenconfig.model
 
-import ir.ornix.passgen.passwordgenerator.core.PassGen
-import ir.ornix.passgen.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.core.PassGen
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
 
 interface PassGenConfig {

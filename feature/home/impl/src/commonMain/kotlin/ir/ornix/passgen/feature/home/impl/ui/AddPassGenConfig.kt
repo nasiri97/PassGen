@@ -40,8 +40,8 @@ import ir.ornix.passgen.core.ui.component.NumberSlider
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.ui.utils.InputHasherSaver
 import ir.ornix.passgen.feature.home.impl.ui.utils.PassEncoderSaver
-import ir.ornix.passgen.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
 @Composable
 fun AddPassGenConfig(

@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import ir.ornix.passgen.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
 @Composable
 fun EncoderTypeSelector(

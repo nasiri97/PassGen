@@ -29,10 +29,6 @@ plugins {
 
 include(":log-core")
 
-include(":codec")
-include(":hashing")
-include(":passwordGenerator")
-
 include(":androidApp")
 include(":desktopApp")
 include(":webApp")
@@ -43,6 +39,7 @@ include(":core:ui")
 include(":core:domain")
 include(":core:data")
 include(":core:model")
+include(":core:common")
 
 include(":feature:localauth:api", ":feature:localauth:impl")
 include(":feature:home:api", ":feature:home:impl")

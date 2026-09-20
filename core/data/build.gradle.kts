@@ -31,7 +31,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:domain"))
-            implementation(project(":passwordGenerator"))
             implementation(libs.multiplatform.settings)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)

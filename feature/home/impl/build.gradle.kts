@@ -45,7 +45,6 @@ kotlin {
             api(project(":core:ui"))
             implementation(project(":log-core"))
             implementation(project(":core:domain"))
-            implementation(project(":passwordGenerator"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
