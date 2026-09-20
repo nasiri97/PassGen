@@ -30,13 +30,13 @@ flowchart TD
 %% Key Derivation / Authentication
 %% ─────────────────────────────────────────────
 
-    MK["Master Key"] -->|SHA-512| KD["Key Digest"]
+    MK["<b>MK</b> (Master Key)"] -->|SHA-512| MKD["<b>MKD</b> (Master Key Digest)<br/>(64 bytes)"]
 
     subgraph HMAC_STAGE["HMAC"]
-        KD --> HMAC["HMAC-SHA-512"]
-        IN["Input"] --> HMAC
+        MKD --> HMAC["HMAC-SHA-512"]
+        IN["<b>Input</b>"] --> HMAC
 
-        HMAC -->|HMAC Output| HASH["Password Hash"]
+        HMAC -->|64 bytes| HASH["<b>Password Seed</b>"]
     end
 
 
@@ -46,15 +46,15 @@ flowchart TD
 
     HASH --> ALG{"Hashing"}
 
-    ALG -->|SHA-256| SHA256["SHA-256"]
-    ALG -->|SHA-512| SHA512["SHA-512"]
-    ALG -->|BCrypt| BCRYPT["BCrypt"]
-    ALG -->|Argon2id| ARGON["Argon2id"]
+    ALG --> SHA256["SHA-256"]
+    ALG --> SHA512["SHA-512"]
+    ALG --> BCRYPT["BCrypt"]
+    ALG --> ARGON["Argon2id"]
 
-    SHA256 --> RAW["Password<br/>Full-Size ByteArray"]
-    SHA512 --> RAW
-    BCRYPT --> RAW
-    ARGON --> RAW
+    SHA256 -->|32 bytes| RAW["<b>Raw Password</b>"]
+    SHA512 -->|64 bytes| RAW
+    BCRYPT -->|23 bytes| RAW
+    ARGON -->|64 bytes| RAW
 
 %% ─────────────────────────────────────────────
 %% Encoding
@@ -62,11 +62,11 @@ flowchart TD
 
     RAW --> ENC{"Encoding"}
 
-    ENC -->|Hex| HEX["Hex"]
-    ENC -->|Base64| BASE64["Base64"]
-    ENC -->|Z85| Z85["Z85"]
+    ENC --> HEX["Hex"]
+    ENC --> BASE64["Base64"]
+    ENC --> Z85["Z85"]
 
-    HEX --> STR["Password<br/>Full-Size String"]
+    HEX --> STR["<b>Full-Length Password</b><br/>(string)"]
     BASE64 --> STR
     Z85 --> STR
 
@@ -74,7 +74,7 @@ flowchart TD
 %% Final Output
 %% ─────────────────────────────────────────────
 
-    STR -->|The first n character| OUT["Final Password"]
+    STR -->|The first n character| OUT["<b>Password</b>"]
 
 %% ─────────────────────────────────────────────
 %% Styling
@@ -87,7 +87,7 @@ flowchart TD
     classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
 
     class MK,IN input
-    class KD,HMAC,HASH crypto
+    class MKD,HMAC,HASH crypto
     class ALG,SHA256,SHA512,BCRYPT,ARGON algorithm
     class ENC,HEX,BASE64,Z85 encoding
     class RAW,STR,OUT output
