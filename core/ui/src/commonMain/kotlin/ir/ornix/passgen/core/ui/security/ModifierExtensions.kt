@@ -24,10 +24,12 @@ import ir.ornix.passgen.core.common.isDebugBuild
  * If you show sensitive content in a Dialog,
  * you'd need to apply clearAndSetSemantics inside that dialog's own content too — the parent's clearing won't reach across the window boundary.
  */
-fun Modifier.secureContent() = this.clearAndSetSemantics {
-    if (!isDebugBuild) {
-        // Marks this field as sensitive to prevent accessibility extraction
-        isSensitiveData = true
-        contentDescription = "Secure content"
-    }
+fun Modifier.secureContent(): Modifier {
+    return if (!isDebugBuild) {
+        this.clearAndSetSemantics {
+            // Marks this field as sensitive to prevent accessibility extraction
+            isSensitiveData = true
+            contentDescription = "Secure content"
+        }
+    } else this
 }

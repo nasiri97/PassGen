@@ -48,7 +48,7 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         const val KEY_SHA256 = "SHA256"
         const val KEY_SHA512 = "SHA512"
         const val KEY_BCRYPT = "BCRYPT"
-        const val KEY_ARGON2_ID = "ARGON2_ID"
+        const val KEY_ARGON2_ID = "ARGON2ID"
 
         val items by lazy {
             listOf(

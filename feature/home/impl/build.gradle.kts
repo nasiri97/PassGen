@@ -62,6 +62,8 @@ kotlin {
                 implementation(libs.cryptography.provider.optimal)
                 implementation(libs.koin.test)
 
+                implementation(project(":core:data"))
+                implementation(libs.multiplatform.settings)
 
                 // Force a newer espresso-core version to fix the InputManager crash on modern emulators
                 implementation(libs.androidx.espresso.core)

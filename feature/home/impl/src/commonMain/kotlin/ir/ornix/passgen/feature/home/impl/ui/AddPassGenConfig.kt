@@ -30,18 +30,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
 import ir.ornix.passgen.core.ui.component.NumberSlider
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.ui.utils.InputHasherSaver
 import ir.ornix.passgen.feature.home.impl.ui.utils.PassEncoderSaver
-import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
 @Composable
 fun AddPassGenConfig(
@@ -107,7 +108,7 @@ private fun AddPassGenConfigContent(
     }
 
     Column(
-        modifier = Modifier
+        modifier = Modifier.testTag("scroll_container")
             .padding(24.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -193,6 +194,7 @@ private fun AddPassGenConfigContent(
             Spacer(Modifier.width(8.dp))
 
             Button(
+                modifier = Modifier.testTag("submit_button"),
                 enabled = name.isNotBlank() && masterKey.isNotBlank(),
                 onClick = {
                     onSubmit(
