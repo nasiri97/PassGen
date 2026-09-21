@@ -28,6 +28,16 @@ package ir.ornix.passgen.core.domain
  * Implementations are responsible for minimizing the lifetime of sensitive material in application
  * memory. In particular, [rawMasterKey] and the derived MKD should not be retained after
  * [registerKey] completes and should be cleared from mutable memory when technically possible.
+ *
+ * Security requirements:
+ *
+ * - Use the most secure platform-native key storage available, preferably hardware-backed.
+ * - Keep the MKD isolated from application memory whenever possible.
+ * - Never persist or log the original Master Key (MK).
+ * - Derive the MKD using the most secure native cryptographic implementation available.
+ * - Minimize sensitive data lifetime and unnecessary memory copies; clear mutable buffers when possible.
+ * - Perform HMAC operations inside the secure cryptographic facility whenever supported.
+ * - Do not implement custom cryptography when a secure platform primitive is available.
  */
 interface HmacSigner {
 
