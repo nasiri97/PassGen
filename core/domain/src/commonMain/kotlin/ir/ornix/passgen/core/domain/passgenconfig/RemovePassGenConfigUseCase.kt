@@ -9,6 +9,6 @@ class RemovePassGenConfigUseCase(
 ) {
     suspend operator fun invoke(configId: Int) {
         repo.removeById(configId)
-        hmacSigner.deleteKey("$configId")
+        hmacSigner.deleteMasterKeyDigest("$configId")
     }
 }

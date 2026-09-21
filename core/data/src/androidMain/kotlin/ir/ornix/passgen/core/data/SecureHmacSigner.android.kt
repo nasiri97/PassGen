@@ -15,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec
 
 actual class SecureHmacSigner : HmacSigner {
 
-    private fun aliasFor(keyId: String) = "$ALIAS_PREFIX$keyId"
+    private fun aliasFor(mkdId: String) = "$ALIAS_PREFIX$mkdId"
 
     private companion object {
         const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -27,13 +27,13 @@ actual class SecureHmacSigner : HmacSigner {
         KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     }
 
-    actual override fun registerKey(keyId: String, rawKey: ByteArray) {
-        val alias = aliasFor(keyId)
+    actual override fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+        val alias = aliasFor(mkdId)
 
         // Hash the raw key to a fixed 64-byte (512-bit) value — this both
         // normalizes the size to something Keymaster reliably accepts, and
         // means the original rawKey bytes are never the value actually stored.
-        val hashedKey = MessageDigest.getInstance("SHA-512").digest(rawKey)
+        val hashedKey = MessageDigest.getInstance("SHA-512").digest(rawMasterKey)
 
         val secretKeySpec = SecretKeySpec(hashedKey, KeyProperties.KEY_ALGORITHM_HMAC_SHA512)
 
@@ -66,24 +66,24 @@ actual class SecureHmacSigner : HmacSigner {
                 )
             }
         } finally {
-            rawKey.fill(0)
+            rawMasterKey.fill(0)
             hashedKey.fill(0)
         }
     }
 
 
-    actual override fun hasKey(keyId: String): Boolean =
-        androidKeyStore.containsAlias(aliasFor(keyId))
+    actual override fun hasMasterKeyDigest(mkdId: String): Boolean =
+        androidKeyStore.containsAlias(aliasFor(mkdId))
 
-    actual override fun deleteKey(keyId: String) {
-        androidKeyStore.deleteEntry(aliasFor(keyId))
+    actual override fun deleteMasterKeyDigest(mkdId: String) {
+        androidKeyStore.deleteEntry(aliasFor(mkdId))
     }
 
 
-    actual override fun sign(keyId: String, input: String): ByteArray {
-        val alias = aliasFor(keyId)
+    actual override fun sign(mkdId: String, input: String): ByteArray {
+        val alias = aliasFor(mkdId)
         val key = androidKeyStore.getKey(alias, null) as? SecretKey
-            ?: throw SigningKeyNotFoundException(keyId)
+            ?: throw SigningKeyNotFoundException(mkdId)
 
         val mac = Mac.getInstance(HMAC_ALGORITHM)
         mac.init(key) // key stays in hardware — never enters app memory

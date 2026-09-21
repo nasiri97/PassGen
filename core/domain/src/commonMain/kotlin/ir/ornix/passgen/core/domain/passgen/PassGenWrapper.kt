@@ -39,7 +39,7 @@ data class PassGenWrapper(
         isCalculating.value = true
         val processedInput = passGenConfig.preprocessConfig(input)
 
-        val passwordSeed = hmacSigner.sign(keyId = "${passGenConfig.id}", processedInput)
+        val passwordSeed = hmacSigner.sign(mkdId = "${passGenConfig.id}", processedInput)
         val password = passGen.generate(passwordSeed)?.toPassword()
         passwordSeed.fill(0)
 

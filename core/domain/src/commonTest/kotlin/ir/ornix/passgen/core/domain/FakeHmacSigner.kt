@@ -12,18 +12,18 @@ import kotlinx.coroutines.test.runTest
  * and uses dev.whyoleg.cryptography for actual HMAC-SHA512 computations.
  */
 class FakeHmacSigner : HmacSigner {
-    private val keys = mutableMapOf<String, ByteArray>()
+    private val masterKeyDigests = mutableMapOf<String, ByteArray>()
     private val sha512Hasher = Sha512Hasher()
 
-    override fun registerKey(keyId: String, rawKey: ByteArray) = runTest {
+    override fun registerKey(mkdId: String, rawMasterKey: ByteArray) = runTest {
         runBlocking {
             // As per HmacSigner.kt doc: rawKey is hashed with SHA-512 and stored
-            keys[keyId] = sha512Hasher.digest(rawKey)
+            masterKeyDigests[mkdId] = sha512Hasher.digest(rawMasterKey)
         }
     }
 
-    override fun sign(keyId: String, input: String): ByteArray {
-        val hashedKey = keys[keyId] ?: throw IllegalArgumentException("Key not found for keyId: $keyId")
+    override fun sign(mkdId: String, input: String): ByteArray {
+        val hashedKey = masterKeyDigests[mkdId] ?: throw IllegalArgumentException("Key not found for keyId: $mkdId")
         return runBlocking {
             val hmacAlgorithm = CryptographyProvider.Default.get(HMAC)
             val keyDecoder = hmacAlgorithm.keyDecoder(SHA512)
@@ -32,9 +32,9 @@ class FakeHmacSigner : HmacSigner {
         }
     }
 
-    override fun hasKey(keyId: String): Boolean = keys.containsKey(keyId)
+    override fun hasMasterKeyDigest(mkdId: String): Boolean = masterKeyDigests.containsKey(mkdId)
 
-    override fun deleteKey(keyId: String) {
-        keys.remove(keyId)
+    override fun deleteMasterKeyDigest(mkdId: String) {
+        masterKeyDigests.remove(mkdId)
     }
 }

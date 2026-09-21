@@ -4,11 +4,11 @@ import ir.ornix.passgen.core.domain.HmacSigner
 
 expect class SecureHmacSigner : HmacSigner {
 
-    override fun registerKey(keyId: String, rawKey: ByteArray)
+    override fun registerKey(mkdId: String, rawMasterKey: ByteArray)
 
-    override fun sign(keyId: String, input: String): ByteArray
+    override fun sign(mkdId: String, input: String): ByteArray
 
-    override fun hasKey(keyId: String): Boolean
+    override fun hasMasterKeyDigest(mkdId: String): Boolean
 
-    override fun deleteKey(keyId: String)
+    override fun deleteMasterKeyDigest(mkdId: String)
 }

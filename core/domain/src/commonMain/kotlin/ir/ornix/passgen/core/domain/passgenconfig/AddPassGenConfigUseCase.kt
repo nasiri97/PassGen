@@ -6,11 +6,11 @@ import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 
 
 class AddPassGenConfigUseCase(
-    private val repo: PassGenConfigRepository,
+    private val passGenConfigRepo: PassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {
     suspend operator fun invoke(config: KDFPassGenConfig, rawKey: ByteArray) {
-        val configId = repo.add(config)
+        val configId = passGenConfigRepo.add(config)
         hmacSigner.registerKey("$configId", rawKey)
     }
 }
