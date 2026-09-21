@@ -9,7 +9,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
-import ir.ornix.passgen.core.common.isDebugBuild
+import com.russhwolf.settings.Settings
+import ir.ornix.passgen.core.common.isAndroidDebugBuild
 import ir.ornix.passgen.core.data.SecureHmacSigner
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.domain.AccountRepository
@@ -37,7 +38,6 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
-import com.russhwolf.settings.Settings
 
 class GenerateKDFPassUiTest : KoinTest {
 
@@ -85,7 +85,7 @@ class GenerateKDFPassUiTest : KoinTest {
     fun testGeneratePasswordFlow() {
         composeTestRule.setContent {
             KoinContext {
-                isDebugBuild = true
+                isAndroidDebugBuild = true
                 HomeScreen()
             }
         }

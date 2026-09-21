@@ -1,7 +1,7 @@
 package ir.ornix.passgen.core.common
 
 
-var isAndroidDebugBuild = false
+var isIosDebugBuild = false
 
 actual val isDebugBuild: Boolean
-    get() = isAndroidDebugBuild
+    get() = isIosDebugBuild

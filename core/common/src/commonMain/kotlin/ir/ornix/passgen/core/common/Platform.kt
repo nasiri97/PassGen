@@ -1,3 +1,3 @@
 package ir.ornix.passgen.core.common
 
-expect var isDebugBuild: Boolean
+expect val isDebugBuild: Boolean
