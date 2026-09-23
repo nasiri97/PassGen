@@ -14,11 +14,13 @@ kotlin {
 
     js {
         browser()
+        binaries.executable()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
+        binaries.executable()
     }
 
     jvm()
@@ -54,6 +56,19 @@ kotlin {
 
         wasmJsMain {
             dependsOn(webMain)
+        }
+
+
+        val iosMain = create("iosMain") {
+            dependsOn(commonMain.get())
+        }
+
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
         }
     }
 }

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import java.time.Duration
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,12 +13,26 @@ kotlin {
     iosSimulatorArm64()
 
     js {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+                timeout.set(Duration.ofMinutes(5))
+            }
+        }
     }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+                timeout.set(Duration.ofMinutes(5))
+            }
+        }
     }
 
     jvm()
@@ -82,6 +97,18 @@ kotlin {
 
         wasmJsMain {
             dependsOn(webMain)
+        }
+
+        val iosMain = create("iosMain") {
+            dependsOn(commonMain.get())
+        }
+
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
         }
     }
 }

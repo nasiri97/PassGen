@@ -1,5 +1,6 @@
 package ir.ornix.passgen.logcore
 
+
 actual object Logger {
     actual fun d(message: String) {
     }

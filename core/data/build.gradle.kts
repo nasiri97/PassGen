@@ -29,15 +29,52 @@ kotlin {
     }
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(project(":core:domain"))
-            implementation(libs.multiplatform.settings)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.coroutines.core)
+        commonMain {
+            dependencies {
+                implementation(project(":core:domain"))
+                implementation(libs.multiplatform.settings)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.cryptography.core)
+                implementation(libs.cryptography.provider.optimal)
+            }
         }
 
-        androidMain.dependencies {
-            implementation(libs.androidx.annotation)
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.annotation)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+
+        val webMain = create("webMain") {
+            dependsOn(commonMain.get())
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+        }
+
+        val iosMain = create("iosMain") {
+            dependsOn(commonMain.get())
+        }
+
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
         }
     }
 }

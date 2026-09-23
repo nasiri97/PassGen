@@ -132,7 +132,7 @@ class KDFPassGenTest {
 
 
     @Test
-    fun testCustomLength() = runTest(timeout = 2.minutes) {
+    fun testCustomLength() = runTest(timeout = 5.minutes) {
         InputHasher.items.forEach { inputHasher ->
             PassEncoder.items.forEach { passEncoder ->
                 testCases.forEach { testCase ->

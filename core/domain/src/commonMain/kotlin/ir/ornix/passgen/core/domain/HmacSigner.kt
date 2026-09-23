@@ -56,7 +56,7 @@ interface HmacSigner {
      * @param mkdId identifier used to reference the registered MKD.
      * @param rawMasterKey original Master-Key bytes from which the MKD is derived.
      */
-    fun registerKey(mkdId: String, rawMasterKey: ByteArray)
+    suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray)
 
     /**
      * Computes a Password Seed for [input] using the Master-Key-Digest registered under [mkdId].
@@ -73,7 +73,7 @@ interface HmacSigner {
      * @return the 64-byte Password Seed, which is the resulting HMAC-SHA512 MAC.
      * @throws SigningKeyNotFoundException if no MKD is registered under [mkdId].
      */
-    fun sign(mkdId: String, input: String): ByteArray
+    suspend fun sign(mkdId: String, input: String): ByteArray
 
     /**
      * Checks whether a Master-Key-Digest (MKD) is registered under [mkdId].
@@ -81,7 +81,7 @@ interface HmacSigner {
      * @param mkdId identifier of the MKD to check.
      * @return `true` if an MKD is registered under [mkdId]; `false` otherwise.
      */
-    fun hasMasterKeyDigest(mkdId: String): Boolean
+    suspend fun hasMasterKeyDigest(mkdId: String): Boolean
 
     /**
      * Removes the Master-Key-Digest (MKD) registered under [mkdId].
@@ -90,5 +90,5 @@ interface HmacSigner {
      *
      * @param mkdId identifier of the MKD to remove.
      */
-    fun deleteMasterKeyDigest(mkdId: String)
+    suspend fun deleteMasterKeyDigest(mkdId: String)
 }

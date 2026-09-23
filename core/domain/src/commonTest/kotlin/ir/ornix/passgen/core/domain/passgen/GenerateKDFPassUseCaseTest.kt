@@ -4,14 +4,14 @@ import ir.ornix.passgen.core.common.codec.BCryptBase64BinaryCodec
 import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
+import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
-import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -172,15 +172,19 @@ class GenerateKDFPassUseCaseTest {
                     val expected = hexCodec.encode(hexCodec.decode(expectedSha256Hex)).take(length)
                     assertEquals(expected, actual, "SHA256 mismatch for input '$input'")
                 }
+
                 "SHA512" -> {
-                    val expected = base64Codec.encode(hexCodec.decode(expectedSha512Hex)).take(length)
+                    val expected =
+                        base64Codec.encode(hexCodec.decode(expectedSha512Hex)).take(length)
                     assertEquals(expected, actual, "SHA512 mismatch for input '$input'")
                 }
+
                 "BCrypt" -> {
                     val rawHash = bCryptBase64Codec.decode(expectedBcryptBase64.substring(29))
                     val expected = z85Codec.encode(rawHash.copyOfRange(0, 20)).take(length)
                     assertEquals(expected, actual, "BCrypt mismatch for input '$input'")
                 }
+
                 "Argon2" -> {
                     val rawHash = base64Codec.decode(expectedArgon2Base64.substring(55))
                     val expected = z85Codec.encode(rawHash).take(length)

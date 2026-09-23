@@ -82,7 +82,7 @@ class BCryptHasher() : Hasher {
     }
 }
 
-expect internal suspend fun digest(
+internal expect suspend fun digest(
     input: ByteArray,
     salt: ByteArray,
     cost: Int,

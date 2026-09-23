@@ -27,7 +27,7 @@ actual class SecureHmacSigner : HmacSigner {
         KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     }
 
-    actual override fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
         val alias = aliasFor(mkdId)
 
         // Hash the raw key to a fixed 64-byte (512-bit) value — this both
@@ -72,15 +72,15 @@ actual class SecureHmacSigner : HmacSigner {
     }
 
 
-    actual override fun hasMasterKeyDigest(mkdId: String): Boolean =
+    actual override suspend fun hasMasterKeyDigest(mkdId: String): Boolean =
         androidKeyStore.containsAlias(aliasFor(mkdId))
 
-    actual override fun deleteMasterKeyDigest(mkdId: String) {
+    actual override suspend fun deleteMasterKeyDigest(mkdId: String) {
         androidKeyStore.deleteEntry(aliasFor(mkdId))
     }
 
 
-    actual override fun sign(mkdId: String, input: String): ByteArray {
+    actual override suspend fun sign(mkdId: String, input: String): ByteArray {
         val alias = aliasFor(mkdId)
         val key = androidKeyStore.getKey(alias, null) as? SecretKey
             ?: throw SigningKeyNotFoundException(mkdId)

@@ -64,10 +64,16 @@ kotlin {
             dependsOn(webMain)
         }
 
-        iosMain {
-            dependencies {
-            }
+		val iosMain = create("iosMain") {
+            dependsOn(commonMain.get())
+        }
+
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
         }
     }
-
 }

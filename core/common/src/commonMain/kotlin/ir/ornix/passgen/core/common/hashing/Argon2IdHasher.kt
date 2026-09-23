@@ -45,7 +45,7 @@ object Argon2IdHasher : Hasher {
     }
 }
 
-expect internal suspend fun digest(
+internal expect suspend fun digest(
     input: ByteArray,
     salt: ByteArray,
     iterations: Int,

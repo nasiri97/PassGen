@@ -117,18 +117,12 @@ kotlin {
     }
 }
 
-/*
- * Make web distribution/executable tasks generate build-config.js first.
- */
+// Ensure generated web resources exist before any resource-processing task consumes them.
 tasks.configureEach {
-    if (
-        name.contains("Browser", ignoreCase = true) &&
-        (
-                name.contains("Run", ignoreCase = true) ||
-                        name.contains("Distribution", ignoreCase = true) ||
-                        name.contains("Executable", ignoreCase = true)
-                )
-    ) {
+    if (name.endsWith("ProcessResources")) {
         dependsOn(generateWebBuildConfig)
+		// jsProcessResources
+		// wasmJsProcessResources
+		// metadataWebMainProcessResources
     }
 }

@@ -17,8 +17,12 @@ internal actual suspend fun digest(
     outputByteSize: Int
 ): ByteArray {
     val options = createArgon2Options()
-    options.password = input.toUint8Array()
-    options.salt = salt.toUint8Array()
+    if (input.size == 0) {
+        setupEmptyPasswordOption(options)
+    } else {
+        options.password = byteArrayToUint8Array(input)
+    }
+    options.salt = byteArrayToUint8Array(salt)
     options.iterations = iterations
     options.memorySize = memoryCost
     options.parallelism = parallelismFactor
