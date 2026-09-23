@@ -15,8 +15,8 @@ internal actual suspend fun digest(
     addTerminator: Boolean
 ): ByteArray {
     val options = createBcryptOptions()
-    options.password = input.toUint8Array()
-    options.salt = salt.toUint8Array()
+    options.password = byteArrayToUint8Array(input)
+    options.salt = byteArrayToUint8Array(salt)
     options.costFactor = cost
     options.outputType = "encoded"
 

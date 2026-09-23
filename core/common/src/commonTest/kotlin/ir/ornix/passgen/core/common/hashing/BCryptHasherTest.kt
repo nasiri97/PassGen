@@ -16,163 +16,177 @@ class BCryptHasherTest {
         private val utf8TextCodec = Utf8TextCodec()
         private val hexBinaryCodec = HexBinaryCodec(false)
 
-        private const val STR1 = ""
-        private val STR1_BYTES = utf8TextCodec.decode(STR1)
-        private const val STR1_SHA256 =
-            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        private val SALT1 = hexBinaryCodec.decode(STR1_SHA256.substring(0, 32))
-        private const val BCRYPT1 = $$"$2a$12$25BCOnh6F/QY89RGkU83H.qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py"
-        private val DIGEST1_BCRYPT_BASE64 = BCRYPT1.substring(29)
-        private val DIGEST1 = bCryptBase64Codec.decode(DIGEST1_BCRYPT_BASE64)
 
-        private const val STR2 = " "
-        private val STR2_BYTES = utf8TextCodec.decode(STR2)
-        private const val STR2_SHA256 =
-            "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
-        private val SALT2 = hexBinaryCodec.decode(STR2_SHA256.substring(0, 32))
-        private const val BCRYPT2 = $$"$2b$12$Loll6ajZet83jyNevaRMjOQj5eZokAr/VoyT/B81gVcigGkXjv9e."
-        private val DIGEST2_BCRYPT_BASE64 = BCRYPT2.substring(29)
-        private val DIGEST2 = bCryptBase64Codec.decode(DIGEST2_BCRYPT_BASE64)
+        private val testCase1 = TestCase(
+            inputBytes = utf8TextCodec.decode(""),
+            inputSha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            bcrypt = $$"$2a$12$25BCOnh6F/QY89RGkU83H.qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py"
+        )
 
-        private const val STR3 = "\n\n  "
-        private val STR3_BYTES = utf8TextCodec.decode(STR3)
-        private const val STR3_SHA256 =
-            "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb"
-        private val SALT3 = hexBinaryCodec.decode(STR3_SHA256.substring(0, 32))
-        private const val BCRYPT3 = $$"$2a$12$OuhtjoyMftLacTmVaeWDXOEmLve0j.AXy74JiSBFzVjpov6SCkJlK"
-        private val DIGEST3_BCRYPT_BASE64 = BCRYPT3.substring(29)
-        private val DIGEST3 = bCryptBase64Codec.decode(DIGEST3_BCRYPT_BASE64)
+        private val testCase2 = TestCase(
+            inputBytes = hexBinaryCodec.decode("00"),
+            inputSha256 = "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+            bcrypt = $$"$2b$12$ZhOJlN8xcnganSRks1eIJ.QyBT0dMyd4sYIeavoaacRnEUtpGy.M."
+        )
 
-        private const val STR4 = "hello"
-        private val STR4_BYTES = utf8TextCodec.decode(STR4)
-        private const val STR4_SHA256 =
-            "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
-        private val SALT4 = hexBinaryCodec.decode(STR4_SHA256.substring(0, 32))
-        private const val BCRYPT4 = $$"$2a$12$JNHLsj8umu2k4BqovZlgleaWoo2BxGM0sAUbeJTsGdDCs24koovhq"
-        private val DIGEST4_BCRYPT_BASE64 = BCRYPT4.substring(29)
-        private val DIGEST4 = bCryptBase64Codec.decode(DIGEST4_BCRYPT_BASE64)
+        private val testCase3 = TestCase(
+            inputBytes = hexBinaryCodec.decode("00000000"),
+            inputSha256 = "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+            bcrypt = $$"$2b$12$1x7fk.QnJ7r.TvirvB1VQ.jWwDU/Nlqb0p4f1cGdsNWP3aYqy9oui"
+        )
 
-        private const val STR5 = "Hello World"
-        private val STR5_BYTES = utf8TextCodec.decode(STR5)
-        private const val STR5_SHA256 =
-            "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
-        private val SALT5 = hexBinaryCodec.decode(STR5_SHA256.substring(0, 32))
-        private const val BCRYPT5 = $$"$2a$12$nXEkz.tyGC/I.Paxx5cvi.OqWhN04gD3je48K05tPyPNL4w8snY0O"
-        private val DIGEST5_BCRYPT_BASE64 = BCRYPT5.substring(29)
-        private val DIGEST5 = bCryptBase64Codec.decode(DIGEST5_BCRYPT_BASE64)
+        private val testCase4 = TestCase(
+            inputBytes = hexBinaryCodec.decode("00123456"),
+            inputSha256 = "a4f01a4e3fc21d8d47b4ebc53dbccbfaa8ac316da628768ef5296f8d8d58f378",
+            bcrypt = $$"$2b$12$nN.YRh9AFWzFrMtDNZxJ8e6WMqr0PHCC54DRx/8StFwpFA6NjYRUC"
+        )
 
-        private const val STR6 = "This is a simple test! We are using BCrypt.\nHave a good time."
-        private val STR6_BYTES = utf8TextCodec.decode(STR6)
-        private const val STR6_SHA256 =
-            "908a884659b292ce28c17f63fde86a1c9a9721e0f042a56cb22b6143bb7df96b"
-        private val SALT6 = hexBinaryCodec.decode(STR6_SHA256.substring(0, 32))
-        private const val BCRYPT6 = $$"$2b$12$iGoGPjkwiq2muV7h9cfoF.Pdh3Du1kcUNRkGtlOJZByLVCNTOn5cW"
-        private val DIGEST6_BCRYPT_BASE64 = BCRYPT6.substring(29)
-        private val DIGEST6 = bCryptBase64Codec.decode(DIGEST6_BCRYPT_BASE64)
+
+        private val testCase5 = TestCase(
+            inputBytes = hexBinaryCodec.decode("12340056"),
+            inputSha256 = "b77a38f1a4104338bb15867993c507bd2a4fd53565a06376c8960b0fdc06ea74",
+            bcrypt = $$"$2b$12$r1m26YOOOxg5DWX3i6SFtOzuVI8ysXMEzE38PYaQ133KPyYz2JhHi"
+        )
+
+
+        private val testCase6 = TestCase(
+            inputBytes = hexBinaryCodec.decode("1234567800"),
+            inputSha256 = "367119ea64bce8247631617b0f9fa9a3933aed64f0ef38e900c55d8c925c1e1b",
+            bcrypt = $$"$2b$12$LlCX4kQ64AP0KUD5B38nmuMVh3/69cyxJAQRIR2BIoIN9fwTT2Sla"
+        )
+
+
+        private val testCase7 = TestCase(
+            inputBytes = utf8TextCodec.decode(" "),
+            inputSha256 = "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+            bcrypt = $$"$2b$12$Loll6ajZet83jyNevaRMjOQj5eZokAr/VoyT/B81gVcigGkXjv9e."
+        )
+
+
+        private val testCase8 = TestCase(
+            inputBytes = utf8TextCodec.decode("\n\n  "),
+            inputSha256 = "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb",
+            bcrypt = $$"$2a$12$OuhtjoyMftLacTmVaeWDXOEmLve0j.AXy74JiSBFzVjpov6SCkJlK"
+        )
+
+
+        private val testCase9 = TestCase(
+            inputBytes = utf8TextCodec.decode("hello"),
+            inputSha256 = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+            bcrypt = $$"$2a$12$JNHLsj8umu2k4BqovZlgleaWoo2BxGM0sAUbeJTsGdDCs24koovhq"
+        )
+
+
+        private val testCase10 = TestCase(
+            inputBytes = utf8TextCodec.decode("Hello World"),
+            inputSha256 = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e",
+            bcrypt = $$"$2a$12$nXEkz.tyGC/I.Paxx5cvi.OqWhN04gD3je48K05tPyPNL4w8snY0O"
+        )
+
+
+        private val testCase11 = TestCase(
+            inputBytes = utf8TextCodec.decode("This is a simple test! We are using BCrypt.\nHave a good time."),
+            inputSha256 = "908a884659b292ce28c17f63fde86a1c9a9721e0f042a56cb22b6143bb7df96b",
+            bcrypt = $$"$2b$12$iGoGPjkwiq2muV7h9cfoF.Pdh3Du1kcUNRkGtlOJZByLVCNTOn5cW"
+        )
+
+
+        private val testCases = listOf(
+            testCase1,
+            testCase2,
+            testCase3,
+            testCase4,
+            testCase5,
+            testCase6,
+            testCase7,
+            testCase8,
+            testCase9,
+            testCase10,
+            testCase11
+        )
     }
 
 
     @Test
     fun testSalt() = runTest {
-        val saltSize = 16
 
         // Salt size should be 16 bytes
-        assertEquals(saltSize, SALT1.size)
-        assertEquals(saltSize, SALT2.size)
-        assertEquals(saltSize, SALT3.size)
-        assertEquals(saltSize, SALT4.size)
-        assertEquals(saltSize, SALT5.size)
-        assertEquals(saltSize, SALT6.size)
+        testCases.forEach { testCase ->
+            assertEquals(16, testCase.salt.size)
+        }
 
-        val salt1 = BCRYPT1.substring(BCRYPT1.lastIndexOf('$') + 1, 29)
-        val salt2 = BCRYPT2.substring(BCRYPT2.lastIndexOf('$') + 1, 29)
-        val salt3 = BCRYPT3.substring(BCRYPT3.lastIndexOf('$') + 1, 29)
-        val salt4 = BCRYPT4.substring(BCRYPT4.lastIndexOf('$') + 1, 29)
-        val salt5 = BCRYPT5.substring(BCRYPT5.lastIndexOf('$') + 1, 29)
-        val salt6 = BCRYPT6.substring(BCRYPT6.lastIndexOf('$') + 1, 29)
+        testCases.forEach { testCase ->
+            val salt = testCase.bcrypt.substring(testCase.bcrypt.lastIndexOf('$') + 1, 29)
 
-        // 22 BCrypt-Base64-Chars
-        assertEquals(22, salt1.length)
-        assertEquals(22, salt2.length)
-        assertEquals(22, salt3.length)
-        assertEquals(22, salt4.length)
-        assertEquals(22, salt5.length)
-        assertEquals(22, salt6.length)
+            // 22 BCrypt-Base64-Chars
+            assertEquals(22, salt.length)
 
-        assertContentEquals(SALT1, bCryptBase64Codec.decode(salt1))
-        assertContentEquals(SALT2, bCryptBase64Codec.decode(salt2))
-        assertContentEquals(SALT3, bCryptBase64Codec.decode(salt3))
-        assertContentEquals(SALT4, bCryptBase64Codec.decode(salt4))
-        assertContentEquals(SALT5, bCryptBase64Codec.decode(salt5))
-        assertContentEquals(SALT6, bCryptBase64Codec.decode(salt6))
+            assertContentEquals(testCase.salt, bCryptBase64Codec.decode(salt))
+        }
     }
 
     @Test
     fun testCustomSalt() = runTest {
         // Getting digest with custom salt, should return the same digest
-        assertContentEquals(DIGEST1, bCryptHashing.digest(STR1_BYTES, SALT1))
-        assertContentEquals(DIGEST2, bCryptHashing.digest(STR2_BYTES, SALT2))
-        assertContentEquals(DIGEST3, bCryptHashing.digest(STR3_BYTES, SALT3))
-        assertContentEquals(DIGEST4, bCryptHashing.digest(STR4_BYTES, SALT4))
-        assertContentEquals(DIGEST5, bCryptHashing.digest(STR5_BYTES, SALT5))
-        assertContentEquals(DIGEST6, bCryptHashing.digest(STR6_BYTES, SALT6))
+        testCases.forEach { testCase ->
+            assertContentEquals(
+                testCase.digest,
+                bCryptHashing.digest(testCase.inputBytes, testCase.salt)
+            )
+        }
     }
 
     @Test
     fun testLength() {
-        assertEquals(60, BCRYPT1.length)
-        assertEquals(60, BCRYPT2.length)
-        assertEquals(60, BCRYPT3.length)
-        assertEquals(60, BCRYPT4.length)
-        assertEquals(60, BCRYPT5.length)
-        assertEquals(60, BCRYPT6.length)
+        testCases.forEach { testCase ->
+            assertEquals(60, testCase.bcrypt.length)
+        }
     }
+
 
     @Test
     fun testDigest() = runTest {
         // Bytes
-        assertContentEquals(DIGEST1, bCryptHashing.digest(STR1_BYTES))
-        assertContentEquals(DIGEST2, bCryptHashing.digest(STR2_BYTES))
-        assertContentEquals(DIGEST3, bCryptHashing.digest(STR3_BYTES))
-        assertContentEquals(DIGEST4, bCryptHashing.digest(STR4_BYTES))
-        assertContentEquals(DIGEST5, bCryptHashing.digest(STR5_BYTES))
-        assertContentEquals(DIGEST6, bCryptHashing.digest(STR6_BYTES))
+        testCases.forEach { testCase ->
+            assertContentEquals(testCase.digest, bCryptHashing.digest(testCase.inputBytes))
+        }
 
         // BCrypt-Base64
-        assertEquals(DIGEST1_BCRYPT_BASE64, bCryptHashing.digest(STR1_BYTES, bCryptBase64Codec))
-        assertEquals(DIGEST2_BCRYPT_BASE64, bCryptHashing.digest(STR2_BYTES, bCryptBase64Codec))
-        assertEquals(DIGEST3_BCRYPT_BASE64, bCryptHashing.digest(STR3_BYTES, bCryptBase64Codec))
-        assertEquals(DIGEST4_BCRYPT_BASE64, bCryptHashing.digest(STR4_BYTES, bCryptBase64Codec))
-        assertEquals(DIGEST5_BCRYPT_BASE64, bCryptHashing.digest(STR5_BYTES, bCryptBase64Codec))
-        assertEquals(DIGEST6_BCRYPT_BASE64, bCryptHashing.digest(STR6_BYTES, bCryptBase64Codec))
+        testCases.forEach { testCase ->
+            assertEquals(
+                testCase.digestBcryptBase64,
+                bCryptHashing.digest(testCase.inputBytes, bCryptBase64Codec)
+            )
+        }
     }
 
 
     @Test
     fun testDigestLength() = runTest {
         // 23 bytes
-        assertEquals(23, bCryptHashing.digest(STR1_BYTES).size)
-        assertEquals(23, bCryptHashing.digest(STR2_BYTES).size)
-        assertEquals(23, bCryptHashing.digest(STR3_BYTES).size)
-        assertEquals(23, bCryptHashing.digest(STR4_BYTES).size)
-        assertEquals(23, bCryptHashing.digest(STR5_BYTES).size)
-        assertEquals(23, bCryptHashing.digest(STR6_BYTES).size)
+        testCases.forEach { testCase ->
+            assertEquals(23, bCryptHashing.digest(testCase.inputBytes).size)
+        }
 
         // 46 Hex-Chars
-        assertEquals(46, bCryptHashing.digest(STR1_BYTES, hexBinaryCodec).length)
-        assertEquals(46, bCryptHashing.digest(STR2_BYTES, hexBinaryCodec).length)
-        assertEquals(46, bCryptHashing.digest(STR3_BYTES, hexBinaryCodec).length)
-        assertEquals(46, bCryptHashing.digest(STR4_BYTES, hexBinaryCodec).length)
-        assertEquals(46, bCryptHashing.digest(STR5_BYTES, hexBinaryCodec).length)
-        assertEquals(46, bCryptHashing.digest(STR6_BYTES, hexBinaryCodec).length)
+        testCases.forEach { testCase ->
+            assertEquals(46, bCryptHashing.digest(testCase.inputBytes, hexBinaryCodec).length)
+        }
 
         // 31 BCrypt-Base64-Chars
-        assertEquals(31, bCryptHashing.digest(STR1_BYTES, bCryptBase64Codec).length)
-        assertEquals(31, bCryptHashing.digest(STR2_BYTES, bCryptBase64Codec).length)
-        assertEquals(31, bCryptHashing.digest(STR3_BYTES, bCryptBase64Codec).length)
-        assertEquals(31, bCryptHashing.digest(STR4_BYTES, bCryptBase64Codec).length)
-        assertEquals(31, bCryptHashing.digest(STR5_BYTES, bCryptBase64Codec).length)
-        assertEquals(31, bCryptHashing.digest(STR6_BYTES, bCryptBase64Codec).length)
+        testCases.forEach { testCase ->
+            assertEquals(31, bCryptHashing.digest(testCase.inputBytes, bCryptBase64Codec).length)
+        }
     }
 
+
+    private class TestCase(
+        val inputBytes: ByteArray,
+        val inputSha256: String,
+        val bcrypt: String,
+    ) {
+        val salt = hexBinaryCodec.decode(inputSha256.substring(0, 32))
+        val digestBcryptBase64 = bcrypt.substring(29)
+        val digest = bCryptBase64Codec.decode(digestBcryptBase64)
+    }
 }
