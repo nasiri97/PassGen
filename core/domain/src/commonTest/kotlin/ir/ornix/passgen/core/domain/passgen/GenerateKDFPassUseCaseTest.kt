@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
+import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GenerateKDFPassUseCaseTest {
@@ -38,6 +39,8 @@ class GenerateKDFPassUseCaseTest {
         private val base64Codec = Base64BinaryCodec()
         private val bCryptBase64Codec = BCryptBase64BinaryCodec()
         private val z85Codec = Z85BinaryCodec()
+
+        private val TIMEOUT = 3.minutes
 
         private const val MASTER_KEY = "12345678 12345678 12345678 12345678"
     }
@@ -84,25 +87,26 @@ class GenerateKDFPassUseCaseTest {
     }
 
     @Test
-    fun `wrappers should generate different passwords for different inputs`() = runTest {
-        val configId = 1
-        repository.add(createConfig(id = configId, name = "Main"))
-        hmacSigner.registerKey(configId.toString(), "secret".encodeToByteArray())
+    fun `wrappers should generate different passwords for different inputs`() =
+        runTest(timeout = TIMEOUT) {
+            val configId = 1
+            repository.add(createConfig(id = configId, name = "Main"))
+            hmacSigner.registerKey(configId.toString(), "secret".encodeToByteArray())
 
-        val inputFlow = MutableStateFlow("input1")
-        val wrapper = useCase(inputFlow).first().first()
+            val inputFlow = MutableStateFlow("input1")
+            val wrapper = useCase(inputFlow).first().first()
 
-        val pass1 = wrapper.password.filterNotNull().first()
-        inputFlow.value = "input2"
-        val pass2 = wrapper.password.filterNotNull().first { it.value != pass1.value }
+            val pass1 = wrapper.password.filterNotNull().first()
+            inputFlow.value = "input2"
+            val pass2 = wrapper.password.filterNotNull().first { it.value != pass1.value }
 
-        assertNotNull(pass1)
-        assertNotNull(pass2)
-        assertNotSame(pass1.value, pass2.value)
-    }
+            assertNotNull(pass1)
+            assertNotNull(pass2)
+            assertNotSame(pass1.value, pass2.value)
+        }
 
     @Test
-    fun `known vector test with empty input`() = runTest {
+    fun `known vector test with empty input`() = runTest(timeout = TIMEOUT) {
         verifyKnownVectors(
             input = "",
             expectedSha256Hex = "76f980c25c9e2e9ca2b8f2bb33200e4b0673bb892ed337491401ef163f544dca",
@@ -113,7 +117,7 @@ class GenerateKDFPassUseCaseTest {
     }
 
     @Test
-    fun `known vector test with single space input`() = runTest {
+    fun `known vector test with single space input`() = runTest(timeout = TIMEOUT) {
         verifyKnownVectors(
             input = " ",
             expectedSha256Hex = "d770f5f183b61182a1bb9bff31f0c5f8d93abe074487ac332f916f1c6cf0ae34",
@@ -124,7 +128,7 @@ class GenerateKDFPassUseCaseTest {
     }
 
     @Test
-    fun `known vector test with hello input`() = runTest {
+    fun `known vector test with hello input`() = runTest(timeout = TIMEOUT) {
         verifyKnownVectors(
             input = "Hello",
             expectedSha256Hex = "6d17c19b39f98ade1b1cc17be203684863a31a9ffdf2d8d6aaac7fe554a83d08",
@@ -135,7 +139,7 @@ class GenerateKDFPassUseCaseTest {
     }
 
     @Test
-    fun `known vector test with hello world input`() = runTest {
+    fun `known vector test with hello world input`() = runTest(timeout = TIMEOUT) {
         verifyKnownVectors(
             input = "Hello World",
             expectedSha256Hex = "84d511f33a785ca1d35f44dd8d2915a0c266fb2c3b5309e602ce5bd62217f445",

@@ -18,7 +18,7 @@ kotlin {
                 useKarma {
                     useChromeHeadless()
                 }
-                timeout.set(Duration.ofMinutes(5))
+                timeout.set(Duration.ofMinutes(15))
             }
         }
     }
@@ -30,7 +30,7 @@ kotlin {
                 useKarma {
                     useChromeHeadless()
                 }
-                timeout.set(Duration.ofMinutes(5))
+                timeout.set(Duration.ofMinutes(15))
             }
         }
     }

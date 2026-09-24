@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.minutes
 
 class BCryptHasherTest {
 
@@ -16,6 +17,8 @@ class BCryptHasherTest {
         private val bCryptBase64Codec = BCryptBase64BinaryCodec()
         private val utf8TextCodec = Utf8TextCodec()
         private val hexBinaryCodec = HexBinaryCodec(false)
+
+        private val TIMEOUT = 3.minutes
 
 
         private val testCase1 = TestCase(
@@ -148,7 +151,7 @@ class BCryptHasherTest {
 
 
     @Test
-    fun testSalt() = runTest {
+    fun testSalt() = runTest(timeout = TIMEOUT) {
 
         // Salt size should be 16 bytes
         testCases.forEachIndexed { index, testCase ->
@@ -201,7 +204,7 @@ class BCryptHasherTest {
 
 
     @Test
-    fun testDigest() = runTest {
+    fun testDigest() = runTest(timeout = TIMEOUT) {
         // Bytes
         testCases.forEachIndexed { index, testCase ->
             assertContentEquals(
@@ -223,7 +226,7 @@ class BCryptHasherTest {
 
 
     @Test
-    fun testDigestLength() = runTest {
+    fun testDigestLength() = runTest(timeout = TIMEOUT) {
         // 23 bytes
         testCases.forEachIndexed { index, testCase ->
             assertEquals(

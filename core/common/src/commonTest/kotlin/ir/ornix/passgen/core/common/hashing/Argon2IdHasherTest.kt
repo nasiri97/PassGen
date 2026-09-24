@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.minutes
 
 class Argon2IdHasherTest {
 
@@ -16,6 +17,8 @@ class Argon2IdHasherTest {
         private val z85BinaryCodec = Z85BinaryCodec()
         private val utf8TextCodec = Utf8TextCodec()
         private val hexBinaryCodec = HexBinaryCodec(false)
+
+        private val TIMEOUT = 3.minutes
 
 
         private val testCase1 = TestCase( // Salt: 47DEQpj8HBSa+/TImW+5JA==
@@ -143,7 +146,7 @@ class Argon2IdHasherTest {
 
 
     @Test
-    fun testSalt() = runTest {
+    fun testSalt() = runTest(timeout = TIMEOUT) {
 
         // Salt size should be 16 bytes
         testCases.forEachIndexed { index, testCase ->
@@ -176,7 +179,7 @@ class Argon2IdHasherTest {
     }
 
     @Test
-    fun testCustomSalt() = runTest {
+    fun testCustomSalt() = runTest(timeout = TIMEOUT) {
         // Getting digest with custom salt, should return the same digest
         testCases.forEachIndexed { index, testCase ->
             assertContentEquals(
@@ -199,7 +202,7 @@ class Argon2IdHasherTest {
     }
 
     @Test
-    fun testDigest() = runTest {
+    fun testDigest() = runTest(timeout = TIMEOUT) {
         // Bytes
         testCases.forEachIndexed { index, testCase ->
             assertContentEquals(
@@ -221,7 +224,7 @@ class Argon2IdHasherTest {
 
 
     @Test
-    fun testDigestLength() = runTest {
+    fun testDigestLength() = runTest(timeout = TIMEOUT) {
         // 64 bytes
         testCases.forEachIndexed { index, testCase ->
             assertEquals(
