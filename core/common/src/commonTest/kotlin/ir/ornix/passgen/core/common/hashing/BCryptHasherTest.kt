@@ -7,18 +7,19 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class BCryptHasherTest {
 
     companion object {
-        private val bCryptHashing = BCryptHasher()
+        private val bCryptHasher = BCryptHasher()
         private val bCryptBase64Codec = BCryptBase64BinaryCodec()
         private val utf8TextCodec = Utf8TextCodec()
         private val hexBinaryCodec = HexBinaryCodec(false)
 
 
         private val testCase1 = TestCase(
-            inputBytes = utf8TextCodec.decode(""),
+            inputBytes = ByteArray(0),
             inputSha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             bcrypt = $$"$2a$12$25BCOnh6F/QY89RGkU83H.qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py"
         )
@@ -83,11 +84,36 @@ class BCryptHasherTest {
             bcrypt = $$"$2a$12$nXEkz.tyGC/I.Paxx5cvi.OqWhN04gD3je48K05tPyPNL4w8snY0O"
         )
 
-
         private val testCase11 = TestCase(
             inputBytes = utf8TextCodec.decode("This is a simple test! We are using BCrypt.\nHave a good time."),
             inputSha256 = "908a884659b292ce28c17f63fde86a1c9a9721e0f042a56cb22b6143bb7df96b",
             bcrypt = $$"$2b$12$iGoGPjkwiq2muV7h9cfoF.Pdh3Du1kcUNRkGtlOJZByLVCNTOn5cW"
+        )
+
+        private val testCase12 = TestCase( // input: random 64 bytes
+            inputBytes = hexBinaryCodec.decode("c7d15d8dbd9248c783662d174711e7c581333e3e2806897ed80d23e3cb1e714c54dca45a7682fe37d2fdc260deb9ec7c6ffc20ca78864c6744e716005600447a"),
+            inputSha256 = "37f99c6a0caf27fbcd853101f5d8d42b1578318ba51b4992de53b6368d3f421e",
+            bcrypt = $$"$2b$12$L9kaYewtH9tLfRC/7bhSIu4SBA3BI.4rz3y/h.mK06Vj/9RL3mZzO"
+        )
+
+        private val testCase13 = TestCase( // input: random 64 bytes
+            inputBytes = hexBinaryCodec.decode("fcb75e8d004061c9fd9c948bd800d3caedea6b721bf475aed74a926b0fe41bf6bbafc9ab6109bdeb7ced9a5f21e1cc17d61c4fa7eb91ed18584f3511c273acc8"),
+            inputSha256 = "bd114a08fd3f36b43dcd7a6f13c4e005f7ecaf4cd7a8a21f598aa7017b8629ee",
+            bcrypt = $$"$2b$12$tPDIANy9LpO7xVntC6Re/Ohp4K0BL1jeiB0olkQ.s5sme/xp6i42K"
+        )
+
+
+        private val testCase14 = TestCase( // input: random 64 bytes
+            inputBytes = hexBinaryCodec.decode("1a8eb975709c30d365b67244966072eac6f8a369ef7029fcb9677c43e7c327d356e64ae15bc5c03ba96f5ff9b56d4bf92f73a10e87f510119f5949ec0c9feb89"),
+            inputSha256 = "49ba210e11118c0a712ab8e17dc19af5dc73c4b21d28be253a206410604a3373",
+            bcrypt = $$"$2b$12$QZmfBfCPh.nvIphfdaEY7O/dSESQHXx41eDPV7XpUZawCW3rFmOx6"
+        )
+
+
+        private val testCase15 = TestCase( // input: random 72 bytes
+            inputBytes = hexBinaryCodec.decode("8a23e897481aff2e8e07c98d6379bebb35c951f0b4d33d802eb66c39a9b39eab337e12674c4093ab48860d169916e1aaeea13006bcaacb45dc9e538e93965f2a7135fcf467fb94b8"),
+            inputSha256 = "2373bc1983fcbfed7bc938a731328b2f5c0f7df83b58e9bcbd3fefc68e83e5b1",
+            bcrypt = $$"$2b$12$G1M6EWN6t8z5wRglKRIJJuTPW.RwyqnprVbHB67/7HClKS9AbzDSC"
         )
 
 
@@ -102,8 +128,22 @@ class BCryptHasherTest {
             testCase8,
             testCase9,
             testCase10,
-            testCase11
+            testCase11,
+            testCase12,
+            testCase13,
+            testCase14,
+            testCase15
         )
+    }
+
+
+    @Test
+    fun `bcrypt should throw exception when input is larger than 72 bytes`() = runTest {
+        val input = "a".repeat(73).encodeToByteArray()
+
+        assertFailsWith<IllegalArgumentException> {
+            bCryptHasher.digest(input = input)
+        }
     }
 
 
@@ -111,35 +151,51 @@ class BCryptHasherTest {
     fun testSalt() = runTest {
 
         // Salt size should be 16 bytes
-        testCases.forEach { testCase ->
-            assertEquals(16, testCase.salt.size)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                16, testCase.salt.size,
+                "Test case $index failed. Salt size should be 16 bytes."
+            )
         }
 
-        testCases.forEach { testCase ->
+        testCases.forEachIndexed { index, testCase ->
             val salt = testCase.bcrypt.substring(testCase.bcrypt.lastIndexOf('$') + 1, 29)
 
             // 22 BCrypt-Base64-Chars
-            assertEquals(22, salt.length)
+            assertEquals(
+                22,
+                salt.length,
+                "Test case $index failed. Salt length should be 22 BCrypt-Base64-Chars."
+            )
 
-            assertContentEquals(testCase.salt, bCryptBase64Codec.decode(salt))
+            assertContentEquals(
+                testCase.salt,
+                bCryptBase64Codec.decode(salt),
+                "Test case $index failed. Salt should be the same."
+            )
         }
     }
 
     @Test
     fun testCustomSalt() = runTest {
         // Getting digest with custom salt, should return the same digest
-        testCases.forEach { testCase ->
+        testCases.forEachIndexed { index, testCase ->
             assertContentEquals(
                 testCase.digest,
-                bCryptHashing.digest(testCase.inputBytes, testCase.salt)
+                bCryptHasher.digest(testCase.inputBytes, testCase.salt),
+                "Test case $index failed. Custom salt should return the same digest."
             )
         }
     }
 
     @Test
     fun testLength() {
-        testCases.forEach { testCase ->
-            assertEquals(60, testCase.bcrypt.length)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                60,
+                testCase.bcrypt.length,
+                "Test case $index failed. BCrypt length should be 60 chars."
+            )
         }
     }
 
@@ -147,15 +203,20 @@ class BCryptHasherTest {
     @Test
     fun testDigest() = runTest {
         // Bytes
-        testCases.forEach { testCase ->
-            assertContentEquals(testCase.digest, bCryptHashing.digest(testCase.inputBytes))
+        testCases.forEachIndexed { index, testCase ->
+            assertContentEquals(
+                testCase.digest,
+                bCryptHasher.digest(testCase.inputBytes),
+                "Test case $index failed. Digest bytes should be the same."
+            )
         }
 
         // BCrypt-Base64
-        testCases.forEach { testCase ->
+        testCases.forEachIndexed { index, testCase ->
             assertEquals(
                 testCase.digestBcryptBase64,
-                bCryptHashing.digest(testCase.inputBytes, bCryptBase64Codec)
+                bCryptHasher.digest(testCase.inputBytes, bCryptBase64Codec),
+                "Test case $index failed. Digest should be the same."
             )
         }
     }
@@ -164,18 +225,30 @@ class BCryptHasherTest {
     @Test
     fun testDigestLength() = runTest {
         // 23 bytes
-        testCases.forEach { testCase ->
-            assertEquals(23, bCryptHashing.digest(testCase.inputBytes).size)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                23,
+                bCryptHasher.digest(testCase.inputBytes).size,
+                "Test case $index failed. Digest length should be 23 bytes."
+            )
         }
 
         // 46 Hex-Chars
-        testCases.forEach { testCase ->
-            assertEquals(46, bCryptHashing.digest(testCase.inputBytes, hexBinaryCodec).length)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                46,
+                bCryptHasher.digest(testCase.inputBytes, hexBinaryCodec).length,
+                "Test case $index failed. Digest length should be 46 Hex-Chars."
+            )
         }
 
         // 31 BCrypt-Base64-Chars
-        testCases.forEach { testCase ->
-            assertEquals(31, bCryptHashing.digest(testCase.inputBytes, bCryptBase64Codec).length)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                31,
+                bCryptHasher.digest(testCase.inputBytes, bCryptBase64Codec).length,
+                "Test case $index failed. Digest length should be 31 BCrypt-Base64-Chars."
+            )
         }
     }
 

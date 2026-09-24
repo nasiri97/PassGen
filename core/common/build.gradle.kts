@@ -87,7 +87,7 @@ kotlin {
             dependsOn(commonMain.get())
             dependencies {
                 implementation(libs.wrappers.browser)
-                implementation(npm("hash-wasm", "4.11.0"))
+                implementation(npm("hash-wasm", "4.12.0"))
             }
         }
 

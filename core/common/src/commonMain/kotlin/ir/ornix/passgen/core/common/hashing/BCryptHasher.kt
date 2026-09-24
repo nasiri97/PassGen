@@ -36,6 +36,8 @@ class BCryptHasher() : Hasher {
 
     companion object {
 
+        private const val MAX_PASSWORD_BYTES = 72
+
         private val sha256Hashing = Sha256Hasher()
 
         // BCrypt Work-Factor
@@ -73,6 +75,9 @@ class BCryptHasher() : Hasher {
 
 
     internal suspend fun digest(input: ByteArray, salt: ByteArray): ByteArray {
+        require(salt.size == 16) { "BCrypt salt must be 128 bits (16 bytes)" }
+        require(input.size <= MAX_PASSWORD_BYTES) { "BCrypt password must be <= 72 bytes" }
+
         return digest(
             input = input,
             salt = salt,

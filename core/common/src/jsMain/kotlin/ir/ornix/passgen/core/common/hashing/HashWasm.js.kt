@@ -10,14 +10,13 @@ import kotlin.js.Promise
 @JsNonModule
 actual external object HashWasm {
     actual fun argon2id(options: Argon2Options): Promise<JsString>
-    actual fun bcrypt(options: BcryptOptions): Promise<JsString>
 }
 
 internal actual fun createArgon2Options(): Argon2Options = js("({})").unsafeCast<Argon2Options>()
-internal actual fun createBcryptOptions(): BcryptOptions = js("({})").unsafeCast<BcryptOptions>()
 
 internal actual fun setupEmptyPasswordOption(options: Argon2Options) {
-    js("""
+    js(
+        """
         var realPassword = new Uint8Array(0);
         var dummyPassword = new Uint8Array(1);
         var accessCount = 0;
@@ -33,7 +32,8 @@ internal actual fun setupEmptyPasswordOption(options: Argon2Options) {
             configurable: true,
             enumerable: true
         });
-    """)
+    """
+    )
 }
 
 internal actual fun byteArrayToUint8Array(bytes: ByteArray): JsAny {

@@ -91,6 +91,37 @@ class Argon2IdHasherTest {
         )
 
 
+        private val testCase12 =
+            TestCase( // input: random 64 bytes    Salt: N/mcagyvJ/vNhTEB9djUKw==
+                inputBytes = hexBinaryCodec.decode("c7d15d8dbd9248c783662d174711e7c581333e3e2806897ed80d23e3cb1e714c54dca45a7682fe37d2fdc260deb9ec7c6ffc20ca78864c6744e716005600447a"),
+                inputSha256 = "37f99c6a0caf27fbcd853101f5d8d42b1578318ba51b4992de53b6368d3f421e",
+                phcEncoded = $$"$argon2id$v=19$m=131072,t=4,p=1$N/mcagyvJ/vNhTEB9djUKw$iqcZbIvWdBlgfcsMqqMPokrig0oCuMz7XR6eYzCi2S2F4nos50HADyMkq5d5TcLC0+XM997OiU0EWH6CbzqJeg"
+            )
+
+        private val testCase13 =
+            TestCase( // input: random 64 bytes    Salt: vRFKCP0/NrQ9zXpvE8TgBQ==
+                inputBytes = hexBinaryCodec.decode("fcb75e8d004061c9fd9c948bd800d3caedea6b721bf475aed74a926b0fe41bf6bbafc9ab6109bdeb7ced9a5f21e1cc17d61c4fa7eb91ed18584f3511c273acc8"),
+                inputSha256 = "bd114a08fd3f36b43dcd7a6f13c4e005f7ecaf4cd7a8a21f598aa7017b8629ee",
+                phcEncoded = $$"$argon2id$v=19$m=131072,t=4,p=1$vRFKCP0/NrQ9zXpvE8TgBQ$QeZ32H9jV613SUXHBJcS07Er2ejcCAHCqdT3R572ixu4XROKbrrnw27Xlg+Q92LDWeclLRJB5RvMoE+nrF1CoQ"
+            )
+
+
+        private val testCase14 =
+            TestCase( // input: random 64 bytes    Salt: SbohDhERjApxKrjhfcGa9Q==
+                inputBytes = hexBinaryCodec.decode("1a8eb975709c30d365b67244966072eac6f8a369ef7029fcb9677c43e7c327d356e64ae15bc5c03ba96f5ff9b56d4bf92f73a10e87f510119f5949ec0c9feb89"),
+                inputSha256 = "49ba210e11118c0a712ab8e17dc19af5dc73c4b21d28be253a206410604a3373",
+                phcEncoded = $$"$argon2id$v=19$m=131072,t=4,p=1$SbohDhERjApxKrjhfcGa9Q$9QEiT577XaMzqlwPHfrIfcukmzj/7qv1h7iaORRpncoylLziXax0j5B0gjOiTYH+TGUO8qkv1cDSznhm6cGBZQ"
+            )
+
+
+        private val testCase15 =
+            TestCase( // input: random 72 bytes    Salt: I3O8GYP8v+17yTinMTKLLw==
+                inputBytes = hexBinaryCodec.decode("8a23e897481aff2e8e07c98d6379bebb35c951f0b4d33d802eb66c39a9b39eab337e12674c4093ab48860d169916e1aaeea13006bcaacb45dc9e538e93965f2a7135fcf467fb94b8"),
+                inputSha256 = "2373bc1983fcbfed7bc938a731328b2f5c0f7df83b58e9bcbd3fefc68e83e5b1",
+                phcEncoded = $$"$argon2id$v=19$m=131072,t=4,p=1$I3O8GYP8v+17yTinMTKLLw$b8Z5kxebd6zoqTEPPBX7sP0gPGbuNTmOc+y2JFrhucj+snBXNvsWCTkrSqqOHsH8xVw5tUEYjI7L/FMMP6RKRQ"
+            )
+
+
         private val testCases = listOf(
             testCase1,
             testCase2,
@@ -102,7 +133,11 @@ class Argon2IdHasherTest {
             testCase8,
             testCase9,
             testCase10,
-            testCase11
+            testCase11,
+            testCase12,
+            testCase13,
+            testCase14,
+            testCase15
         )
     }
 
@@ -111,53 +146,75 @@ class Argon2IdHasherTest {
     fun testSalt() = runTest {
 
         // Salt size should be 16 bytes
-        testCases.forEach { testCase ->
-            assertEquals(16, testCase.salt.size)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                16,
+                testCase.salt.size,
+                "Test case $index failed. Salt size should be 16 bytes."
+            )
         }
 
-        testCases.forEach { testCase ->
+        testCases.forEachIndexed { index, testCase ->
             val salt = testCase.phcEncoded.substring(
                 testCase.phcEncoded.indexOf('$', 15) + 1,
                 testCase.phcEncoded.lastIndexOf('$')
             )
 
             // 22 Base64-Chars
-            assertEquals(22, salt.length)
+            assertEquals(
+                22,
+                salt.length,
+                "Test case $index failed. Salt should be 22 Base64-Chars."
+            )
 
-            assertContentEquals(testCase.salt, base64Codec.decode(salt))
+            assertContentEquals(
+                testCase.salt,
+                base64Codec.decode(salt),
+                "Test case $index failed. Salt should be the same."
+            )
         }
     }
 
     @Test
     fun testCustomSalt() = runTest {
         // Getting digest with custom salt, should return the same digest
-        testCases.forEach { testCase ->
+        testCases.forEachIndexed { index, testCase ->
             assertContentEquals(
                 testCase.digest,
-                Argon2IdHasher.digest(testCase.inputBytes, testCase.salt)
+                Argon2IdHasher.digest(testCase.inputBytes, testCase.salt),
+                "Test case $index failed. Custom salt should return the same digest."
             )
         }
     }
 
     @Test
     fun testArgonBase64Length() {
-        testCases.forEach { testCase ->
-            assertEquals(141, testCase.phcEncoded.length)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                141,
+                testCase.phcEncoded.length,
+                "Test case $index failed. Argon2id should be 141 chars."
+            )
         }
     }
 
     @Test
     fun testDigest() = runTest {
         // Bytes
-        testCases.forEach { testCase ->
-            assertContentEquals(testCase.digest, Argon2IdHasher.digest(testCase.inputBytes))
+        testCases.forEachIndexed { index, testCase ->
+            assertContentEquals(
+                testCase.digest,
+                Argon2IdHasher.digest(testCase.inputBytes),
+                "Test case $index failed. Digest bytes should be the same."
+            )
         }
 
         // Base64
-        testCases.forEach { testCase ->
+        testCases.forEachIndexed { index, testCase ->
             assertEquals(
                 "${testCase.digestBase64}==",
-                Argon2IdHasher.digest(testCase.inputBytes, base64Codec)
+                Argon2IdHasher.digest(testCase.inputBytes, base64Codec),
+                "Test case $index failed. Digest should be the same."
             )
         }
     }
@@ -165,24 +222,40 @@ class Argon2IdHasherTest {
 
     @Test
     fun testDigestLength() = runTest {
-        // 72 bytes
-        testCases.forEach { testCase ->
-            assertEquals(64, Argon2IdHasher.digest(testCase.inputBytes).size)
+        // 64 bytes
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                64,
+                Argon2IdHasher.digest(testCase.inputBytes).size,
+                "Test case $index failed. Digest should be 64 bytes."
+            )
         }
 
-        // 144 Hex-Chars
-        testCases.forEach { testCase ->
-            assertEquals(128, Argon2IdHasher.digest(testCase.inputBytes, hexBinaryCodec).length)
+        // 128 Hex-Chars
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                128,
+                Argon2IdHasher.digest(testCase.inputBytes, hexBinaryCodec).length,
+                "Test case $index failed. Digest should be 128 Hex-Chars."
+            )
         }
 
         // 88 Base64-Chars
-        testCases.forEach { testCase ->
-            assertEquals(88, Argon2IdHasher.digest(testCase.inputBytes, base64Codec).length)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                88,
+                Argon2IdHasher.digest(testCase.inputBytes, base64Codec).length,
+                "Test case $index failed. Digest should be 88 Base64-Chars."
+            )
         }
 
         // 80 Z85-Chars
-        testCases.forEach { testCase ->
-            assertEquals(80, Argon2IdHasher.digest(testCase.inputBytes, z85BinaryCodec).length)
+        testCases.forEachIndexed { index, testCase ->
+            assertEquals(
+                80,
+                Argon2IdHasher.digest(testCase.inputBytes, z85BinaryCodec).length,
+                "Test case $index failed. Digest should be 80 Z85-Chars."
+            )
         }
     }
 
