@@ -62,9 +62,12 @@ flowchart TD
 
     RAW --> ENC{"Encoding"}
 
-    ENC --> HEX["Hex"]
-    ENC --> BASE64["Base64"]
-    ENC --> Z85["Z85"]
+    subgraph InvisibleGroup
+        ENC --> HEX["Hex"]
+        ENC --> BASE64["Base64"]
+        ENC --> Z85["Z85"]
+        ENC --> BIP39["BIP39"]
+    end
 
     HEX --> STR(["<b>Full-Length Password</b><br/>(string)"])
     BASE64 --> STR
@@ -75,6 +78,7 @@ flowchart TD
 %% ─────────────────────────────────────────────
 
     STR -->|The first n characters| OUT(["<b>Password</b>"])
+    BIP39 --> OUT
 
 %% ─────────────────────────────────────────────
 %% Styling
@@ -89,8 +93,10 @@ flowchart TD
     class MK,MKD,IN input
     class HMAC,HASH crypto
     class ALG,SHA256,SHA512,BCRYPT,ARGON,RAW algorithm
-    class ENC,HEX,BASE64,Z85,STR encoding
+    class ENC,HEX,BASE64,Z85,STR,BIP39 encoding
     class OUT output
+
+    style InvisibleGroup fill:transparent,stroke:transparent,color:transparent
 ```
 
 ---
