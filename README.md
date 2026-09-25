@@ -66,7 +66,7 @@ flowchart TD
         ENC --> HEX["Hex"]
         ENC --> BASE64["Base64"]
         ENC --> Z85["Z85"]
-        ENC --> BIP39["BIP39"]
+        ENC -->|The first N required bytes| BIP39["BIP39"]
     end
 
     HEX --> STR(["<b>Full-Length Password</b><br/>(string)"])
@@ -77,7 +77,7 @@ flowchart TD
 %% Final Output
 %% ─────────────────────────────────────────────
 
-    STR -->|The first n characters| OUT(["<b>Password</b>"])
+    STR -->|The first N required characters| OUT(["<b>Password</b>"])
     BIP39 --> OUT
 
 %% ─────────────────────────────────────────────
