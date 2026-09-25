@@ -110,9 +110,7 @@ PassGen is engineered with strict scalability rules following a feature-oriented
 | Module / Component Layer | Description |
 | :--- | :--- |
 | **`:log-core`** | Central logging engine providing unified multi-platform logging hooks. |
-| **`:codec`** | Lower-level binary encoding utilities implementing fast Hex, Base64, and Z85 encoders. |
-| **`:hashing`** | Low-level cryptographic primitives isolating core implementations of SHA, BCrypt, and Argon2id. |
-| **`:passwordGenerator`** | Pure Kotlin core domain handling deterministic generation, `KDFPassGen`, `TokenGen`, and secure random fallbacks. |
+| **`core:common`** | Lower-level binary encoding, hashing and passwordgenerator utilities|
 | **`:core:designsystem`** | Shared application theme, colors, fonts, shapes, and Atomic Design reusable design components. |
 | **`:core:ui`** | Reusable high-level Compose components, structures, widgets, and animation canvases. |
 | **`:core:domain`** | Framework-free layer containing rich use-cases (`GenerateKDFPassUseCase`, `SaveAccountUseCase`, etc.). |
