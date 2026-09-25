@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.passwordgenerator.model
 
+import ir.ornix.passgen.core.common.codec.Bip39Codec
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip39L12PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip39L15PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip39L18PassEncoder
@@ -37,7 +38,7 @@ sealed class PassEncoder : KeyBasedType<ir.ornix.passgen.core.common.codec.core.
         const val KEY_BIP39_L21_PASS_ENCODER = "BIP39L21"
         const val KEY_BIP39_L24_PASS_ENCODER = "BIP39L24"
 
-        val items by lazy {
+        internal val allItems by lazy {
             listOf(
                 HexPassEncoder,
                 Base64PassEncoder,
@@ -48,6 +49,26 @@ sealed class PassEncoder : KeyBasedType<ir.ornix.passgen.core.common.codec.core.
                 Bip39L21PassEncoder,
                 Bip39L24PassEncoder
             )
+        }
+
+
+        fun getValidItems(inputHasher: InputHasher): List<PassEncoder> {
+            return getValidItems(inputHasher.outputByteSize)
+        }
+
+
+        fun getValidItems(entropyByteSize: Int): List<PassEncoder> {
+            return allItems.filter { passEncoder ->
+                when (passEncoder) {
+                    is SeedPassEncoder -> {
+                        entropyByteSize >= (passEncoder.instance as Bip39Codec).strength.entropyBytes
+                    }
+
+                    is StringPassEncoder -> {
+                        true
+                    }
+                }
+            }
         }
 
         fun fromKey(key: String): PassEncoder = when (key) {

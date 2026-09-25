@@ -20,7 +20,7 @@ fun HashingTypeSelector(
 ) {
 
     Column(modifier) {
-        InputHasher.items.forEach { config ->
+        InputHasher.allItems.forEach { config ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

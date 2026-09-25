@@ -11,16 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 
 @Composable
 fun EncoderTypeSelector(
-    selected: PassEncoder?,
+    encoders: List<PassEncoder>,
+    selectedEncoder: PassEncoder,
     onSelected: (PassEncoder) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Column(modifier) {
-        PassEncoder.items.forEach { encoder ->
+        encoders.forEach { encoder ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -28,7 +29,7 @@ fun EncoderTypeSelector(
                     .clickable { onSelected(encoder) }
             ) {
                 RadioButton(
-                    selected = selected == encoder,
+                    selected = selectedEncoder == encoder,
                     onClick = { onSelected(encoder) }
                 )
                 Text(encoder.key)
@@ -42,7 +43,8 @@ fun EncoderTypeSelector(
 @Preview
 fun EncoderTypeSelectorPreview() {
     EncoderTypeSelector(
-        selected = null,
+        encoders = PassEncoder.getValidItems(64),
+        selectedEncoder = StringPassEncoder.Z85PassEncoder,
         onSelected = {},
     )
 }

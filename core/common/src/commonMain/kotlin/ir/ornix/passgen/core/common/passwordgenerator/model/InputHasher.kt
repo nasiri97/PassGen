@@ -50,7 +50,7 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         const val KEY_BCRYPT = "BCRYPT"
         const val KEY_ARGON2_ID = "ARGON2ID"
 
-        val items by lazy {
+        val allItems by lazy {
             listOf(
                 SHA256,
                 SHA512,

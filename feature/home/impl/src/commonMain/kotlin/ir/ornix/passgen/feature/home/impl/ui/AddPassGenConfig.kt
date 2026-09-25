@@ -84,22 +84,31 @@ private fun AddPassGenConfigContent(
     var collapseSpaces by rememberSaveable { mutableStateOf(true) }
     var lowercase by rememberSaveable { mutableStateOf(false) }
 
-    var selectedInputHasher by rememberSaveable(stateSaver = InputHasherSaver) {
+    var selectedHasher by rememberSaveable(stateSaver = InputHasherSaver) {
         mutableStateOf(InputHasher.SHA256)
     }
+
+
+    val encoders = PassEncoder.getValidItems(selectedHasher)
 
     var selectedEncoder by rememberSaveable(stateSaver = PassEncoderSaver) {
         mutableStateOf<PassEncoder>(StringPassEncoder.HexPassEncoder)
     }
 
-    val tokenUnitCount by remember(selectedInputHasher, selectedEncoder) {
+    LaunchedEffect(encoders) {
+        if (!encoders.contains(selectedEncoder))
+            selectedEncoder = encoders.first()
+    }
+
+    val tokenUnitCount by remember(selectedHasher, selectedEncoder) {
         derivedStateOf {
             when (selectedEncoder) {
                 is SeedPassEncoder -> null
-                is StringPassEncoder -> getTokenLength(inputHasher = selectedInputHasher)
+                is StringPassEncoder -> getTokenLength(inputHasher = selectedHasher)
             }
         }
     }
+
 
     var passLength by rememberSaveable { mutableStateOf(64) }
 
@@ -171,8 +180,8 @@ private fun AddPassGenConfigContent(
         )
 
         HashingTypeSelector(
-            selected = selectedInputHasher,
-            onSelected = { selectedInputHasher = it }
+            selected = selectedHasher,
+            onSelected = { selectedHasher = it }
         )
 
         HorizontalDivider()
@@ -184,7 +193,8 @@ private fun AddPassGenConfigContent(
         )
 
         EncoderTypeSelector(
-            selected = selectedEncoder,
+            encoders = encoders,
+            selectedEncoder = selectedEncoder,
             onSelected = { selectedEncoder = it }
         )
 
@@ -228,7 +238,7 @@ private fun AddPassGenConfigContent(
                                 collapseMultipleSpaces = collapseSpaces,
                                 convertToLowercase = lowercase
                             ),
-                            inputHasher = selectedInputHasher
+                            inputHasher = selectedHasher
                         ),
                         masterKey.encodeToByteArray()
                     )

@@ -85,7 +85,7 @@ class KDFPassGenTest {
 
     @Test
     fun testIllegalPasswordLength() = runTest {
-        InputHasher.items.forEach { inputHasher ->
+        InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.items.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
@@ -104,7 +104,7 @@ class KDFPassGenTest {
 
     @Test
     fun testFullLength() = runTest {
-        InputHasher.items.forEach { inputHasher ->
+        InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.items.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
@@ -133,7 +133,7 @@ class KDFPassGenTest {
 
     @Test
     fun testCustomLength() = runTest(timeout = 5.minutes) {
-        InputHasher.items.forEach { inputHasher ->
+        InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.items.forEach { passEncoder ->
                 testCases.forEach { testCase ->
                     val maxLength =
