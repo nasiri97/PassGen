@@ -108,21 +108,21 @@ PassGen is engineered with strict scalability rules following a feature-oriented
 ### Module Matrix & Responsibility
 
 | Module / Component Layer | Description |
-| :--- | :--- |
-| **`:log-core`** | Central logging engine providing unified multi-platform logging hooks. |
-| **`core:common`** | Lower-level binary encoding, hashing and passwordgenerator utilities|
+|:-------------------------| :--- |
+| **`:log-core`**          | Central logging engine providing unified multi-platform logging hooks. |
+| **`:core:common`**       | Lower-level binary encoding, hashing and passwordgenerator utilities|
 | **`:core:designsystem`** | Shared application theme, colors, fonts, shapes, and Atomic Design reusable design components. |
-| **`:core:ui`** | Reusable high-level Compose components, structures, widgets, and animation canvases. |
-| **`:core:domain`** | Framework-free layer containing rich use-cases (`GenerateKDFPassUseCase`, `SaveAccountUseCase`, etc.). |
-| **`:core:data`** | Aggregates repositories and local state engines for configuration management and account profiles. |
-| **`:core:model`** | Clean business and domain data model entities shared globally across features. |
-| **`:feature:*:api`** | Contract interface definitions for features, isolating cross-feature dependencies. |
-| **`:feature:*:impl`** | Concrete UI screens, ViewModels, business interaction workflows, and internal navigation rules. |
-| **`:composeApp`** | Aggregated shared application Compose UI configuration layer. |
-| **`:androidApp`** | Main entry-point launcher configuration and platform setup for Android. |
-| **`:desktopApp`**| Main entry-point launcher setup and window target wrappers for Desktop (JVM). |
-| **`:webApp`** | Compiled entry targets for both modern Wasm-JS browsers and heritage JS runtimes. |
-| **`iosApp`** | Native Swift wrapper/Xcode project setting up layout entry frames hosting Compose Multiplatform. |
+| **`:core:ui`**           | Reusable high-level Compose components, structures, widgets, and animation canvases. |
+| **`:core:domain`**       | Framework-free layer containing rich use-cases (`GenerateKDFPassUseCase`, `SaveAccountUseCase`, etc.). |
+| **`:core:data`**         | Aggregates repositories and local state engines for configuration management and account profiles. |
+| **`:core:model`**        | Clean business and domain data model entities shared globally across features. |
+| **`:feature:*:api`**     | Contract interface definitions for features, isolating cross-feature dependencies. |
+| **`:feature:*:impl`**    | Concrete UI screens, ViewModels, business interaction workflows, and internal navigation rules. |
+| **`:composeApp`**        | Aggregated shared application Compose UI configuration layer. |
+| **`:androidApp`**        | Main entry-point launcher configuration and platform setup for Android. |
+| **`:desktopApp`**        | Main entry-point launcher setup and window target wrappers for Desktop (JVM). |
+| **`:webApp`**            | Compiled entry targets for both modern Wasm-JS browsers and heritage JS runtimes. |
+| **`iosApp`**             | Native Swift wrapper/Xcode project setting up layout entry frames hosting Compose Multiplatform. |
 
 ---
 
