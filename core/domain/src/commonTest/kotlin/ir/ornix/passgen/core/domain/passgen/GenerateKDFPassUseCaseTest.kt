@@ -5,7 +5,7 @@ import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
@@ -157,10 +157,10 @@ class GenerateKDFPassUseCaseTest {
         expectedArgon2Base64: String
     ) {
         val configs = listOf(
-            createConfig(1, "SHA256", InputHasher.SHA256, PassEncoder.HexPassEncoder, 24),
-            createConfig(2, "SHA512", InputHasher.SHA512, PassEncoder.Base64PassEncoder, 24),
-            createConfig(3, "BCrypt", InputHasher.BCrypt, PassEncoder.Z85PassEncoder, 24),
-            createConfig(4, "Argon2", InputHasher.ARGON2ID, PassEncoder.Z85PassEncoder, 24)
+            createConfig(1, "SHA256", InputHasher.SHA256, StringPassEncoder.HexPassEncoder, 24),
+            createConfig(2, "SHA512", InputHasher.SHA512, StringPassEncoder.Base64PassEncoder, 24),
+            createConfig(3, "BCrypt", InputHasher.BCrypt, StringPassEncoder.Z85PassEncoder, 24),
+            createConfig(4, "Argon2", InputHasher.ARGON2ID, StringPassEncoder.Z85PassEncoder, 24)
         )
 
         configs.forEach { addPassGenConfigUseCase(it, MASTER_KEY.encodeToByteArray()) }
@@ -202,7 +202,7 @@ class GenerateKDFPassUseCaseTest {
         id: Int,
         name: String,
         inputHasher: InputHasher = InputHasher.SHA256,
-        passEncoder: PassEncoder = PassEncoder.HexPassEncoder,
+        passEncoder: StringPassEncoder = StringPassEncoder.HexPassEncoder,
         length: Int = 16
     ) = KDFPassGenConfig(
         id = id,

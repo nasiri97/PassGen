@@ -1,8 +1,8 @@
 package ir.ornix.passgen.core.common.passwordgenerator.kdf
 
-import ir.ornix.passgen.logcore.Logger
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.logcore.Logger
 
 /**
  * Generates a deterministic token from a byte array input using a hashing algorithm

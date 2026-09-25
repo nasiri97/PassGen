@@ -20,6 +20,10 @@ class Sha256Hasher : Hasher {
      * Base64 representation (standard, padded): 44 characters (ends with ==)
      */
     override suspend fun digest(input: ByteArray): ByteArray {
-        return sha256.hash(input)
+        return digestBlocking(input)
+    }
+
+    fun digestBlocking(input: ByteArray): ByteArray {
+        return sha256.hashBlocking(input)
     }
 }

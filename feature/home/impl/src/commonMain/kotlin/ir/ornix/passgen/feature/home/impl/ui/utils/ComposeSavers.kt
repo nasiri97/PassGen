@@ -2,10 +2,10 @@ package ir.ornix.passgen.feature.home.impl.ui.utils
 
 
 import androidx.compose.runtime.saveable.Saver
-import ir.ornix.passgen.core.model.Password
-import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.model.Password.Companion.toPassword
 
 internal val InputHasherSaver: Saver<InputHasher, String> = Saver(
     save = { it.key },

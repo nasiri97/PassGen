@@ -5,7 +5,7 @@ import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Utf8TextCodec
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
-import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -86,7 +86,7 @@ class KDFPassGenTest {
     @Test
     fun testIllegalPasswordLength() = runTest {
         InputHasher.items.forEach { inputHasher ->
-            PassEncoder.items.forEach { passEncoder ->
+            StringPassEncoder.items.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
@@ -105,7 +105,7 @@ class KDFPassGenTest {
     @Test
     fun testFullLength() = runTest {
         InputHasher.items.forEach { inputHasher ->
-            PassEncoder.items.forEach { passEncoder ->
+            StringPassEncoder.items.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
@@ -134,7 +134,7 @@ class KDFPassGenTest {
     @Test
     fun testCustomLength() = runTest(timeout = 5.minutes) {
         InputHasher.items.forEach { inputHasher ->
-            PassEncoder.items.forEach { passEncoder ->
+            StringPassEncoder.items.forEach { passEncoder ->
                 testCases.forEach { testCase ->
                     val maxLength =
                         (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
@@ -172,7 +172,7 @@ class KDFPassGenTest {
         /**
          * @param length Set null for full-length
          */
-        fun getDigest(inputHasher: InputHasher, length: Int?, passEncoder: PassEncoder): String {
+        fun getDigest(inputHasher: InputHasher, length: Int?, passEncoder: StringPassEncoder): String {
             val binaryBlockSize: Int
             val encodedBlockSize: Int
 
@@ -184,17 +184,17 @@ class KDFPassGenTest {
             }
 
             when (passEncoder) {
-                is PassEncoder.HexPassEncoder -> {
+                is StringPassEncoder.HexPassEncoder -> {
                     binaryBlockSize = 1
                     encodedBlockSize = 2
                 }
 
-                is PassEncoder.Base64PassEncoder -> {
+                is StringPassEncoder.Base64PassEncoder -> {
                     binaryBlockSize = 3
                     encodedBlockSize = 4
                 }
 
-                is PassEncoder.Z85PassEncoder -> {
+                is StringPassEncoder.Z85PassEncoder -> {
                     binaryBlockSize = 4
                     encodedBlockSize = 5
                 }

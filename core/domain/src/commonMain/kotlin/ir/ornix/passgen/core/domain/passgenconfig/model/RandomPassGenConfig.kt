@@ -1,6 +1,8 @@
 package ir.ornix.passgen.core.domain.passgenconfig.model
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
 import kotlinx.serialization.Serializable
 
@@ -12,7 +14,15 @@ data class RandomPassGenConfig(
     override val passwordLength: Int
 ) : PassGenConfig {
 
-    override val typeBrief = "RANDOM-${passEncoder.key}-${passwordLength}"
+    init {
+        validatePasswordLength()
+    }
+
+    override val typeBrief = "RANDOM-${passEncoder.key}" +
+            when (passEncoder) {
+                is SeedPassEncoder -> ""
+                is StringPassEncoder -> "-${passwordLength}"
+            }
 
     override fun createPassGen(): RandomPassGen {
         return RandomPassGen(

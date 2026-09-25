@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +36,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Base64PassEncoder.approximateDecodedSize
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Base64PassEncoder.getTokenLength
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
 import ir.ornix.passgen.core.ui.component.NumberSlider
@@ -86,24 +89,37 @@ private fun AddPassGenConfigContent(
     }
 
     var selectedEncoder by rememberSaveable(stateSaver = PassEncoderSaver) {
-        mutableStateOf(PassEncoder.HexPassEncoder)
+        mutableStateOf<PassEncoder>(StringPassEncoder.HexPassEncoder)
     }
 
     val tokenUnitCount by remember(selectedInputHasher, selectedEncoder) {
         derivedStateOf {
-            selectedEncoder.getTokenLength(inputHasher = selectedInputHasher)
+            when (selectedEncoder) {
+                is SeedPassEncoder -> null
+                is StringPassEncoder -> getTokenLength(inputHasher = selectedInputHasher)
+            }
         }
     }
 
-    var passLength by rememberSaveable { mutableIntStateOf(64) }
+    var passLength by rememberSaveable { mutableStateOf(64) }
 
-    LaunchedEffect(tokenUnitCount) {
-        if (passLength > tokenUnitCount) passLength = tokenUnitCount
+    LaunchedEffect(selectedEncoder, tokenUnitCount) {
+        when (selectedEncoder) {
+            is SeedPassEncoder -> {}
+            is StringPassEncoder -> {
+                tokenUnitCount?.let {
+                    if (tokenUnitCount != 0 && passLength > it) passLength = it
+                }
+            }
+        }
     }
 
     val approximateByteCount by remember(selectedEncoder, passLength) {
         derivedStateOf {
-            selectedEncoder.approximateDecodedSize(passLength)
+            when (selectedEncoder) {
+                is SeedPassEncoder -> 0
+                is StringPassEncoder -> approximateDecodedSize(passLength)
+            }
         }
     }
 
@@ -174,12 +190,13 @@ private fun AddPassGenConfigContent(
 
         HorizontalDivider()
 
-        PassLengthSection(
-            passLength = passLength,
-            approximateByteCount = approximateByteCount,
-            tokenUnitCount = tokenUnitCount,
-            onPassLengthChange = { passLength = it }
-        )
+        if (selectedEncoder is StringPassEncoder)
+            PassLengthSection(
+                passLength = passLength,
+                approximateByteCount = approximateByteCount,
+                tokenUnitCount = tokenUnitCount!!,
+                onPassLengthChange = { passLength = it }
+            )
 
         Spacer(Modifier.height(24.dp))
 
@@ -202,7 +219,10 @@ private fun AddPassGenConfigContent(
                             id = 0, // ID will be handled by logic/DB
                             name = name.trim(),
                             passEncoder = selectedEncoder,
-                            passwordLength = passLength,
+                            passwordLength = when (selectedEncoder) {
+                                is SeedPassEncoder -> null
+                                is StringPassEncoder -> passLength
+                            },
                             preprocessConfig = PreprocessConfig(
                                 trimLeadingAndTrailingSpaces = trimSpaces,
                                 collapseMultipleSpaces = collapseSpaces,
