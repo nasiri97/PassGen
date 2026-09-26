@@ -13,24 +13,24 @@ import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun InputSection(
-    value: String,
-    onValueChange: (String) -> Unit,
+    input: String,
+    onInputChange: (String) -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
-        value = value,
+        value = input,
         onValueChange = {
-            if (!it.contains('\n')) onValueChange(it)
+            if (!it.contains('\n')) onInputChange(it)
         },
-        label = { Text("Secret Phrase") },
+        label = { Text("Input Phrase") },
         leadingIcon = {
             Icon(Icons.Rounded.Key, contentDescription = null)
         },
         trailingIcon = {
-            if (value.isNotEmpty()) {
-                IconButton(onClick = { onValueChange("") }) {
+            if (input.isNotEmpty()) {
+                IconButton(onClick = { onInputChange("") }) {
                     Icon(
                         Icons.Default.Clear,
                         contentDescription = "Clear"

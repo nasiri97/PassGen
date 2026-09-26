@@ -4,82 +4,132 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
-import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
-import ir.ornix.passgen.core.domain.passgen.PassGenWrapper
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.model.Account
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    private val generateKDFPassUseCase: GenerateKDFPassUseCase,
+    private val getAllPassGenConfigs: GetAllPassGenConfigsUseCase,
+    private val generateKDFPass: GenerateKDFPassUseCase,
     private val addPassGenConfig: AddPassGenConfigUseCase,
     private val removePassGenConfig: RemovePassGenConfigUseCase,
-    private val generateRandomPassUseCase: GenerateRandomPassUseCase,
     private val saveAccountUseCase: SaveAccountUseCase
 ) : ViewModel() {
 
-    val input: StateFlow<String>
-        field = MutableStateFlow("")
+    private val intents = Channel<HomeIntent>()
+
+    val uiState: StateFlow<HomeUiState>
+        field : MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
+
+    private val configsFlow: Flow<List<KDFPassGenConfig>> = getAllPassGenConfigs()
+
+    private val jobs = HashMap<Int, Job>()
 
 
-    val isAddConfigDialogVisible: StateFlow<Boolean>
-        field = MutableStateFlow(false)
+    private fun calculate(config: KDFPassGenConfig, input: String) {
+        jobs[config.id]?.cancel()
 
+        jobs[config.id] = viewModelScope.launch {
+            apply(HomePartialState.PasswordIsCalculating(config.id))
 
-    private val passGenWrappers: Flow<List<PassGenWrapper>> = generateKDFPassUseCase(input = input)
+            val password = withContext(Dispatchers.Default) {
+                generateKDFPass(config, input)
+            }
 
-    init {
-        viewModelScope.launch {
-            passGenWrappers.collect()
+            currentCoroutineContext().ensureActive()
+
+            apply(
+                HomePartialState.PasswordGenerated(
+                    configId = config.id,
+                    password = password
+                )
+            )
         }
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(
-        input,
-        isAddConfigDialogVisible,
-        passGenWrappers
-    ) { input, isAddVisible, wrappers ->
-        HomeUiState(
-            input = input,
-            isAddConfigDialogVisible = isAddVisible,
-            passGenWrappers = wrappers,
-            isMasterKeySet = true
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
+    init {
 
-    fun addConfig(config: KDFPassGenConfig, rawKey: ByteArray) = viewModelScope.launch {
-        addPassGenConfig(config, rawKey)
+        viewModelScope.launch {
+            configsFlow.collect { configs ->
+                val currentPasswordItems = uiState.value.passwordItems
+                val passwordItems = mutableListOf<PasswordItem>()
+
+                configs.forEach { config ->
+                    passwordItems.add(
+                        currentPasswordItems.find {
+                            it.config.id == config.id
+                        } ?: PasswordItem(
+                            config = config,
+                            password = null,
+                            isCalculating = true
+                        ).apply {
+                            calculate(config, uiState.value.input)
+                        }
+                    )
+                }
+
+                apply(HomePartialState.PasswordItemsLoaded(passwordItems))
+            }
+        }
+
+        viewModelScope.launch {
+            for (intent in intents) {
+                when (intent) {
+                    is HomeIntent.InputChanged -> {
+                        uiState.value.passwordItems.forEach { passwordItem ->
+                            calculate(passwordItem.config, intent.input)
+                        }
+
+                        apply(HomePartialState.InputChanged(intent.input))
+                    }
+
+                    is HomeIntent.AddNewConfigClicked -> {
+                        apply(HomePartialState.ShowAddConfigDialog)
+                    }
+
+                    is HomeIntent.CreateConfig -> {
+                        addPassGenConfig(intent.config, intent.rawKey)
+                        apply(HomePartialState.ConfigCreated)
+                    }
+
+                    is HomeIntent.CancelCreatingNewConfigClicked -> {
+                        apply(HomePartialState.HideAddConfigDialog)
+                    }
+
+                    is HomeIntent.RemoveConfig -> {
+                        removePassGenConfig(intent.passGenConfig.id)
+                    }
+
+                    is HomeIntent.SaveAccount -> {
+                        saveAccountUseCase(intent.account)
+                    }
+                }
+            }
+        }
     }
 
-    fun removeConfig(passGenWrapper: PassGenWrapper) = viewModelScope.launch {
-        removePassGenConfig(passGenWrapper.passGenConfig.id)
+
+    /** Send new intent */
+    fun dispatch(intent: HomeIntent) = viewModelScope.launch {
+        intents.send(intent)
     }
 
-    fun inputChanged(newInput: String) {
-        input.value = newInput
-    }
-
-    fun showAddConfigDialog() {
-        isAddConfigDialogVisible.value = true
-    }
-
-    fun hideAddConfigDialog() {
-        isAddConfigDialogVisible.value = false
-    }
-
-    fun generateRandomPassword() = generateRandomPassUseCase(passwordLength = 24)
-
-    fun saveAccount(account: Account) = viewModelScope.launch {
-        saveAccountUseCase(account)
+    private fun apply(change: HomePartialState) {
+        uiState.update {
+            reduce(oldState = it, change = change)
+        }
     }
 }

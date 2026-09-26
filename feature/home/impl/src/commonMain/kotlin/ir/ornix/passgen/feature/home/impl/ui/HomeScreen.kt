@@ -3,6 +3,7 @@ package ir.ornix.passgen.feature.home.impl.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,8 +23,8 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.domain.passgen.PassGenWrapper
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.feature.home.impl.presentation.HomeIntent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -33,23 +34,22 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val clipboardManager = LocalClipboardManager.current
-
-    val inputChanged: (input: String) -> Unit = { viewModel.inputChanged(it) }
-    val removeConfig: (PassGenWrapper) -> Unit = { viewModel.removeConfig(it) }
     val copy: (String) -> Unit = { clipboardManager.setText(AnnotatedString(it)) }
 
     Scaffold(
         modifier = modifier.secureContent().fillMaxSize(),
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.showAddConfigDialog() }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Config")
-            }
-        }
+            if (uiState.passwordItems.isNotEmpty())
+                FloatingActionButton(onClick = { viewModel.dispatch(HomeIntent.AddNewConfigClicked) }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Config")
+                }
+        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        if (uiState.passGenWrappers.isEmpty()) {
+        if (uiState.passwordItems.isEmpty()) {
             EmptyHomeContent(
                 modifier = Modifier.padding(innerPadding),
-                onAddClick = { viewModel.showAddConfigDialog() }
+                onAddClick = { viewModel.dispatch(HomeIntent.AddNewConfigClicked) }
             )
         } else {
             Column(
@@ -58,10 +58,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .fillMaxSize()
             ) {
                 InputSection(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    value = uiState.input,
-                    onValueChange = inputChanged,
+                    modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp),
+                    input = uiState.input,
+                    onInputChange = {
+                        viewModel.dispatch(HomeIntent.InputChanged(it))
+                    },
                     onDone = { }
                 )
 
@@ -69,9 +70,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp),
-                    passGenWrappers = uiState.passGenWrappers,
-                    removeConfig = removeConfig,
-                    addNewAccount = { viewModel.saveAccount(it) },
+                    passwordItems = uiState.passwordItems,
+                    removePasswordItem = {
+                        viewModel.dispatch(HomeIntent.RemoveConfig(it.config))
+                    },
+                    addNewAccount = { viewModel.dispatch(HomeIntent.SaveAccount(it)) },
                     copy = copy
                 )
             }
@@ -82,10 +85,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         AddPassGenConfig(
             modifier = modifier.secureContent(),
             onSubmit = { config, rawKey ->
-                viewModel.addConfig(config, rawKey)
-                viewModel.hideAddConfigDialog()
+                viewModel.dispatch(HomeIntent.CreateConfig(config, rawKey))
             },
-            onDismissRequest = { viewModel.hideAddConfigDialog() }
+            onDismissRequest = { viewModel.dispatch(HomeIntent.CancelCreatingNewConfigClicked) }
         )
     }
 }

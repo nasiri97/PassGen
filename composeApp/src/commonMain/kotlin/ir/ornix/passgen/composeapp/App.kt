@@ -49,8 +49,8 @@ import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
-import ir.ornix.passgen.feature.localauth.impl.secretsetup.SecretSetupScreen
-import ir.ornix.passgen.feature.localauth.impl.unlocking.UnlockingGateScreen
+import ir.ornix.passgen.feature.localauth.impl.secretsetup.ui.SecretSetupScreen
+import ir.ornix.passgen.feature.localauth.impl.unlocking.ui.UnlockingGateScreen
 import ir.ornix.passgen.feature.savedpasswords.api.SavedPasswordsRoute
 import ir.ornix.passgen.feature.savedpasswords.impl.ui.SavedPasswordsScreen
 import ir.ornix.passgen.feature.settings.api.SettingsRoute

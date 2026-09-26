@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.localauth.impl.unlocking
+package ir.ornix.passgen.feature.localauth.impl.unlocking.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +29,8 @@ import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.localauth.impl.components.PasswordLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PatternLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PinLockView
+import ir.ornix.passgen.feature.localauth.impl.unlocking.presentation.UnlockingGateIntent
+import ir.ornix.passgen.feature.localauth.impl.unlocking.presentation.UnlockingGateViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -48,7 +50,7 @@ fun UnlockingGateScreen(
 
     LaunchedEffect(Unit) {
         if (uiState.shouldShowBiometricOption) {
-            viewModel.onBiometricClick()
+            viewModel.dispatch(UnlockingGateIntent.BiometricClicked)
         }
     }
 
@@ -77,7 +79,7 @@ fun UnlockingGateScreen(
                 LocalAuthType.PIN -> {
                     PinLockView(
                         onPinCompleted = { secret ->
-                            viewModel.onSecretSubmitted(secret = secret)
+                            viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
                         },
                     )
                 }
@@ -85,7 +87,7 @@ fun UnlockingGateScreen(
                 LocalAuthType.PASSWORD -> {
                     PasswordLockView(
                         onPasswordSubmitted = { secret ->
-                            viewModel.onSecretSubmitted(secret = secret)
+                            viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
                         },
                     )
                 }
@@ -96,7 +98,7 @@ fun UnlockingGateScreen(
                     ) {
                         PatternLockView(
                             onPatternCompleted = { secret ->
-                                viewModel.onSecretSubmitted(secret = secret)
+                                viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
                             },
                         )
                     }
@@ -111,7 +113,7 @@ fun UnlockingGateScreen(
                 Column(
                     modifier = Modifier
                         .clickable(onClick = {
-                            viewModel.onBiometricClick()
+                            viewModel.dispatch(UnlockingGateIntent.BiometricClicked)
                         })
                         .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

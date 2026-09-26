@@ -12,16 +12,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.domain.passgen.PassGenWrapper
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.ui.component.getAdaptiveValue
+import ir.ornix.passgen.feature.home.impl.presentation.PasswordItem
 
 @Composable
 fun PasswordGeneratorList(
-    passGenWrappers: List<PassGenWrapper>,
-    removeConfig: (PassGenWrapper) -> Unit,
+    passwordItems: List<PasswordItem>,
+    removePasswordItem: (PasswordItem) -> Unit,
     addNewAccount: (account: Account) -> Unit,
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -40,15 +39,10 @@ fun PasswordGeneratorList(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
     ) {
-        items(items = passGenWrappers, key = { it.passGenConfig.id }) { passGenWrapper ->
-            val password by passGenWrapper.password.collectAsStateWithLifecycle(initialValue = null)
-            val isCalculating by passGenWrapper.isCalculating.collectAsStateWithLifecycle()
-
+        items(items = passwordItems, key = { it.config.id }) { passwordItem ->
             SwipeablePasswordGenerator(
-                passGenConfig = passGenWrapper.passGenConfig,
-                password = password,
-                isLoading = isCalculating,
-                onRemove = { removeConfig(passGenWrapper) },
+                passwordItem = passwordItem,
+                onRemove = { removePasswordItem(passwordItem) },
                 addNewAccount = addNewAccount,
                 showPassGenInfoDialog = { passGenConfig = it },
                 copy = copy

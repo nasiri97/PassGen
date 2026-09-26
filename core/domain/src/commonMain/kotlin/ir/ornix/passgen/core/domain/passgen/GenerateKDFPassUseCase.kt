@@ -1,39 +1,20 @@
 package ir.ornix.passgen.core.domain.passgen
 
 import ir.ornix.passgen.core.domain.HmacSigner
-import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.mapLatest
+import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
+import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.model.Password.Companion.toPassword
 
-class GenerateKDFPassUseCase(
-    private val getAllPassGenConfigs: GetAllPassGenConfigsUseCase,
-    private val hmacSigner: HmacSigner
-) {
+class GenerateKDFPassUseCase(private val hmacSigner: HmacSigner) {
 
-    private var currentPassGenWrappers = mutableListOf<PassGenWrapper>()
+    suspend operator fun invoke(config: KDFPassGenConfig, input: String): Password? {
+        val passGen = config.createPassGen()
+        val processedInput = config.preprocessConfig(input)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(
-        input: StateFlow<String>
-    ): Flow<List<PassGenWrapper>> {
+        val passwordSeed = hmacSigner.sign(mkdId = "${config.id}", processedInput)
+        val password = passGen.generate(passwordSeed)?.toPassword()
+        passwordSeed.fill(0)
 
-        val kdfPassGenConfigs = getAllPassGenConfigs()
-
-        val passGenWrappersFlow: Flow<List<PassGenWrapper>> =
-            kdfPassGenConfigs.mapLatest { configs ->
-                val list = mutableListOf<PassGenWrapper>()
-                configs.forEach { config ->
-                    list.add(
-                        currentPassGenWrappers.find { it.passGenConfig.id == config.id }
-                            ?: PassGenWrapper(config, hmacSigner, input)
-                    )
-                }
-                currentPassGenWrappers = list
-                list
-            }
-
-        return passGenWrappersFlow
+        return password
     }
 }

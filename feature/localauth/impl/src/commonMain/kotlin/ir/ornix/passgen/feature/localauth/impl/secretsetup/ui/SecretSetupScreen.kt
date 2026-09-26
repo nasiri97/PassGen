@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.localauth.impl.secretsetup
+package ir.ornix.passgen.feature.localauth.impl.secretsetup.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +27,8 @@ import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.localauth.impl.components.PasswordLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PatternLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PinLockView
+import ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation.SecretSetupViewModel
+import ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation.SetupStage
 import org.koin.compose.viewmodel.koinViewModel
 
 

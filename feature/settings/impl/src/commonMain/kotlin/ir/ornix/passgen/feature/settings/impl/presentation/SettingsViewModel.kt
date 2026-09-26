@@ -8,10 +8,11 @@ import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val isBiometricEnabled: IsBiometricEnabledUseCase,
@@ -21,44 +22,75 @@ class SettingsViewModel(
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase
 ) : ViewModel() {
 
+    private val intents = Channel<SettingsIntent>()
 
-    private val isBiometricAvailableStateFlow =
-        biometricAuthenticator.isBiometricAvailable()
-
-    private val isBiometricEnabledStateFlow =
-        isBiometricEnabled()
-
-    private val localAuthTypeStateFlow =
-        getLocalAuthType()
-
-    val uiState: StateFlow<SettingsUiState> =
-        combine(
-            isBiometricAvailableStateFlow,
-            isBiometricEnabledStateFlow,
-            localAuthTypeStateFlow
-        ) { isAvailable, isEnabled, authType ->
+    val uiState: StateFlow<SettingsUiState>
+        field : MutableStateFlow<SettingsUiState> = MutableStateFlow(
             SettingsUiState(
-                isBiometricAvailable = isAvailable,
-                isBiometricEnabled = isEnabled,
-                currentLocalAuthType = authType
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = SettingsUiState(
-                isBiometricAvailable = isBiometricAvailableStateFlow.value,
-                isBiometricEnabled = isBiometricEnabledStateFlow.value,
-                currentLocalAuthType = localAuthTypeStateFlow.value
+                isBiometricAvailable = biometricAuthenticator.isBiometricAvailable().value,
+                isBiometricEnabled = isBiometricEnabled().value,
+                currentLocalAuthType = getLocalAuthType().value,
+                isSettingPassInProgress = false
             )
         )
 
-    fun toggleBiometricSetting(enabled: Boolean) {
-        setBiometricEnabled(enabled)
+
+    init {
+
+        viewModelScope.launch {
+            biometricAuthenticator.isBiometricAvailable().collect {
+                apply(SettingsPartialState.FingerprintAvailabilityChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
+            isBiometricEnabled().collect {
+                apply(SettingsPartialState.FingerprintEnabledChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
+            getLocalAuthType().collect {
+                apply(SettingsPartialState.LocalAuthenticationChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
+            for (intent in intents) {
+                when (intent) {
+                    is SettingsIntent.SetFingerprintEnabled -> {
+                        setBiometricEnabled(intent.enabled)
+                    }
+
+                    is SettingsIntent.SetLocalAuthenticationEnabled -> {
+                        if (!intent.enabled) {
+                            saveLocalAuthSecret(LocalAuthType.NONE, "")
+                        } else {
+                            apply(SettingsPartialState.NavigateToSetPassword)
+                        }
+                    }
+
+                    SettingsIntent.NavigateToSetPassword -> {
+                        apply(SettingsPartialState.NavigateToSetPassword)
+                    }
+
+                    SettingsIntent.SettingPasswordCompleted -> {
+                        apply(SettingsPartialState.SettingPasswordCompleted)
+                    }
+                }
+            }
+        }
     }
 
-    fun toggleLocalAuthSetting(enabled: Boolean) {
-        if (!enabled) {
-            saveLocalAuthSecret(LocalAuthType.NONE, "")
+
+    /** Send new intent */
+    fun dispatch(intent: SettingsIntent) = viewModelScope.launch {
+        intents.send(intent)
+    }
+
+    private fun apply(change: SettingsPartialState) {
+        uiState.update {
+            reduce(oldState = it, change = change)
         }
     }
 }

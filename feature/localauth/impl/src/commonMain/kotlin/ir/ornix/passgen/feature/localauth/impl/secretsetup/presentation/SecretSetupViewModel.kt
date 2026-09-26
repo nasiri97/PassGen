@@ -1,22 +1,40 @@
-package ir.ornix.passgen.feature.localauth.impl.secretsetup
+package ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class SecretSetupViewModel(
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase
 ) : ViewModel() {
 
-    val uiState: StateFlow<SetSecretUiSate>
-        field = MutableStateFlow<SetSecretUiSate>(
-            SetSecretUiSate(
+
+    private val intents = Channel<SecretSetupIntent>()
+
+    val uiState: StateFlow<SecretSetupUiState>
+        field = MutableStateFlow<SecretSetupUiState>(
+            SecretSetupUiState(
                 selectedSetupType = LocalAuthType.NONE,
                 setupStage = SetupStage.CHOOSE_TYPE
             )
         )
+
+
+    init {
+        viewModelScope.launch {
+            for (intent in intents) {
+                when (intent) {
+
+                }
+            }
+        }
+    }
 
     fun selectSetupType(type: LocalAuthType) {
         if (type == LocalAuthType.NONE) {
@@ -62,5 +80,17 @@ class SecretSetupViewModel(
             setupStage = SetupStage.CANCELLED,
             errorMessage = null
         )
+    }
+
+
+    /** Send new intent */
+    fun dispatch(intent: SecretSetupIntent) = viewModelScope.launch {
+        intents.send(intent)
+    }
+
+    private fun apply(change: SecretSetupPartialState) {
+        uiState.update {
+            reduce(oldState = it, change = change)
+        }
     }
 }

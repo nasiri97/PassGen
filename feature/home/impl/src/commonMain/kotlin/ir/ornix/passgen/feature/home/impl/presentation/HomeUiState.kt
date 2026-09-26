@@ -1,10 +1,8 @@
 package ir.ornix.passgen.feature.home.impl.presentation
 
-import ir.ornix.passgen.core.domain.passgen.PassGenWrapper
-
 data class HomeUiState(
+    val isLoading: Boolean = true,
     val input: String = "",
-    val passGenWrappers: List<PassGenWrapper> = emptyList(),
-    val isAddConfigDialogVisible: Boolean = false,
-    val isMasterKeySet: Boolean = false
+    val passwordItems: List<PasswordItem> = emptyList(),
+    val isAddConfigDialogVisible: Boolean = false
 )

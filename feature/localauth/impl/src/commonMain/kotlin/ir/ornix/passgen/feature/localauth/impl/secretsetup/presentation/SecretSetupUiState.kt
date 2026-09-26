@@ -1,8 +1,8 @@
-package ir.ornix.passgen.feature.localauth.impl.secretsetup
+package ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation
 
 import ir.ornix.passgen.core.domain.LocalAuthType
 
-data class SetSecretUiSate(
+data class SecretSetupUiState(
     val selectedSetupType: LocalAuthType,
     val setupStage: SetupStage,
     val errorMessage: String? = null

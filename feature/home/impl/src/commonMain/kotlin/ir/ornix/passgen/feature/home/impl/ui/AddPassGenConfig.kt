@@ -38,8 +38,6 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
-import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Base64PassEncoder.approximateDecodedSize
-import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Base64PassEncoder.getTokenLength
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
 import ir.ornix.passgen.core.ui.component.NumberSlider
@@ -104,7 +102,8 @@ private fun AddPassGenConfigContent(
         derivedStateOf {
             when (selectedEncoder) {
                 is SeedPassEncoder -> null
-                is StringPassEncoder -> getTokenLength(inputHasher = selectedHasher)
+                is StringPassEncoder ->
+                    (selectedEncoder as StringPassEncoder).getTokenLength(inputHasher = selectedHasher)
             }
         }
     }
@@ -127,7 +126,8 @@ private fun AddPassGenConfigContent(
         derivedStateOf {
             when (selectedEncoder) {
                 is SeedPassEncoder -> 0
-                is StringPassEncoder -> approximateDecodedSize(passLength)
+                is StringPassEncoder ->
+                    (selectedEncoder as StringPassEncoder).approximateDecodedSize(passLength)
             }
         }
     }

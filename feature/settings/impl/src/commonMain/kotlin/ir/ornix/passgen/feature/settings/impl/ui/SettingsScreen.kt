@@ -12,16 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.ui.security.secureContent
-import ir.ornix.passgen.feature.localauth.impl.secretsetup.SecretSetupScreen
+import ir.ornix.passgen.feature.localauth.impl.secretsetup.ui.SecretSetupScreen
+import ir.ornix.passgen.feature.settings.impl.presentation.SettingsIntent
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -31,12 +29,11 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
     val viewModel: SettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var settingPass: Boolean by remember { mutableStateOf(false) }
-
-    if (settingPass) {
+    if (uiState.isSettingPassInProgress) {
         SecretSetupScreen(
             modifier = modifier.secureContent(),
-            onFinished = { settingPass = false })
+            onFinished = { viewModel.dispatch(SettingsIntent.SettingPasswordCompleted) }
+        )
     } else {
         Column(
             modifier = modifier.secureContent()
@@ -55,7 +52,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 subtitle = if (uiState.isBiometricAvailable) "Unlock application with biometric recognition" else "Biometrics not available on this device",
                 enabled = uiState.isBiometricAvailable,
                 checked = uiState.isBiometricEnabled,
-                onCheckedChange = { viewModel.toggleBiometricSetting(it) }
+                onCheckedChange = { viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(it)) }
             )
 
             VerificationMethodRow(
@@ -69,14 +66,16 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 enabled = true,
                 checked = uiState.currentLocalAuthType != LocalAuthType.NONE,
                 onCheckedChange = {
-                    if (uiState.currentLocalAuthType == LocalAuthType.NONE) settingPass = true
-                    else viewModel.toggleLocalAuthSetting(it)
+                    if (uiState.currentLocalAuthType == LocalAuthType.NONE)
+                        viewModel.dispatch(SettingsIntent.NavigateToSetPassword)
+                    else
+                        viewModel.dispatch(SettingsIntent.SetLocalAuthenticationEnabled(false))
                 }
             )
 
             if (uiState.currentLocalAuthType != LocalAuthType.NONE) {
                 TextButton(
-                    onClick = { settingPass = true }
+                    onClick = { viewModel.dispatch(SettingsIntent.NavigateToSetPassword) }
                 ) {
                     Text("Change local lock method")
                 }

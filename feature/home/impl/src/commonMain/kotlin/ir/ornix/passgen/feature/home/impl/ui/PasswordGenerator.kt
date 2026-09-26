@@ -40,11 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Account
-import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.strengthLabel
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
 import ir.ornix.passgen.core.ui.utils.strengthColor
+import ir.ornix.passgen.feature.home.impl.presentation.PasswordItem
 import kotlinx.coroutines.launch
 
 private val passCardCornerRadius = 16.dp
@@ -52,9 +52,7 @@ private val passCardCornerRadius = 16.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeablePasswordGenerator(
-    passGenConfig: KDFPassGenConfig,
-    password: Password?,
-    isLoading: Boolean,
+    passwordItem: PasswordItem,
     onRemove: () -> Unit,
     addNewAccount: (account: Account) -> Unit,
     showPassGenInfoDialog: (KDFPassGenConfig) -> Unit,
@@ -64,9 +62,11 @@ fun SwipeablePasswordGenerator(
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     var showNewAccountDialog by remember { mutableStateOf(false) }
 
+    val password = passwordItem.password
+
     if (showConfirmDeleteDialog) {
         ConfirmDeleteDialog(
-            itemLabel = passGenConfig.name,
+            itemLabel = passwordItem.config.name,
             onConfirmDelete = {
                 onRemove()
                 showConfirmDeleteDialog = false
@@ -131,10 +131,8 @@ fun SwipeablePasswordGenerator(
         }
     ) {
         PasswordGenerator(
-            passGenConfig = passGenConfig,
-            password = password,
-            isLoading = isLoading,
-            showPassGenInfoDialog = { showPassGenInfoDialog(passGenConfig) },
+            passwordItem = passwordItem,
+            showPassGenInfoDialog = { showPassGenInfoDialog(passwordItem.config) },
             copy = copy
         )
     }
@@ -142,9 +140,7 @@ fun SwipeablePasswordGenerator(
 
 @Composable
 private fun PasswordGenerator(
-    passGenConfig: KDFPassGenConfig,
-    password: Password?,
-    isLoading: Boolean,
+    passwordItem: PasswordItem,
     showPassGenInfoDialog: () -> Unit,
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -169,21 +165,21 @@ private fun PasswordGenerator(
             ) {
                 Column {
                     Text(
-                        text = passGenConfig.name,
+                        text = passwordItem.config.name,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = passGenConfig.typeBrief,
+                        text = passwordItem.config.typeBrief,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
-                if (!isLoading && password != null) {
+                if (!passwordItem.isCalculating && passwordItem.password != null) {
                     Text(
-                        text = password.strengthLabel(),
+                        text = passwordItem.password.strengthLabel(),
                         style = MaterialTheme.typography.labelMedium,
-                        color = password.strengthColor(),
+                        color = passwordItem.password.strengthColor(),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -192,18 +188,18 @@ private fun PasswordGenerator(
             Spacer(modifier = Modifier.height(12.dp))
 
             PasswordAndActions(
-                password = password?.value,
+                password = passwordItem.password?.value,
                 copy = copy,
-                isLoading = isLoading,
+                isLoading = passwordItem.isCalculating,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            if (password != null && !isLoading) {
+            if (passwordItem.password != null && !passwordItem.isCalculating) {
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
-                    progress = { password.strengthRatio },
+                    progress = { passwordItem.password.strengthRatio },
                     modifier = Modifier.fillMaxWidth(),
-                    color = password.strengthColor()
+                    color = passwordItem.password.strengthColor()
                 )
             }
         }
