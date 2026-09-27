@@ -29,6 +29,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -86,7 +87,7 @@ fun App(modifier: Modifier = Modifier) {
             val isFirstLaunch = isFirstLaunchUseCase()
             val isUnlockingRequired = isUnlockingRequiredUseCase()
 
-            val backStack = remember {
+            val backStack = rememberSaveable {
                 val initialRoute = when {
                     isFirstLaunch -> LocalAuthRoute()
                     isUnlockingRequired -> UnlockRoute
@@ -95,7 +96,7 @@ fun App(modifier: Modifier = Modifier) {
                 mutableStateListOf<NavKey>(initialRoute)
             }
 
-            val vmStores = remember { mutableMapOf<Any, ViewModelStore>() }
+            val vmStores = rememberSaveable { mutableMapOf<Any, ViewModelStore>() }
 
             PassGenTheme {
                 Surface(
