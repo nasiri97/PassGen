@@ -30,56 +30,44 @@ class SecretSetupViewModel(
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
+                    is SecretSetupIntent.LocalAuthTypeSelected -> {
+                        apply(SecretSetupPartialState.LocalAuthTypeSelected(intent.localAuthType))
+                    }
 
+                    is SecretSetupIntent.SecretInserted -> {
+                        handleSecretInput(intent.secret)
+                    }
+
+                    SecretSetupIntent.SetupCancelled -> {
+                        apply(SecretSetupPartialState.SetupCancelled)
+                    }
                 }
             }
         }
     }
 
-    fun selectSetupType(type: LocalAuthType) {
-        if (type == LocalAuthType.NONE) {
-            //
-        } else {
-            uiState.value = uiState.value.copy(
-                selectedSetupType = type,
-                setupStage = SetupStage.ENTER_SECRET,
-                errorMessage = null
-            )
-        }
-    }
 
     private var firstInputBuffer: String = ""
 
-    fun handleSecretInput(secret: String) {
-        if (uiState.value.setupStage == SetupStage.ENTER_SECRET) {
-            firstInputBuffer = secret
-            uiState.value = uiState.value.copy(
-                setupStage = SetupStage.CONFIRM_SECRET,
-                errorMessage = null
-            )
-        } else if (uiState.value.setupStage == SetupStage.CONFIRM_SECRET) {
-            if (secret == firstInputBuffer) {
-                saveLocalAuthSecret(uiState.value.selectedSetupType, secret)
-                uiState.value = uiState.value.copy(
-                    setupStage = SetupStage.COMPLETED,
-                    errorMessage = null
-                )
-            } else {
-                uiState.value = uiState.value.copy(
-                    errorMessage = "Secrets do not match. Please try again.",
-                    setupStage = SetupStage.ENTER_SECRET
-                )
+    private fun handleSecretInput(secret: String) {
+
+        when (uiState.value.setupStage) {
+            SetupStage.ENTER_SECRET -> {
+                firstInputBuffer = secret
+                apply(SecretSetupPartialState.SecretEntered)
             }
+
+            SetupStage.CONFIRM_SECRET -> {
+                if (secret == firstInputBuffer) {
+                    saveLocalAuthSecret(uiState.value.selectedSetupType, secret)
+                    apply(SecretSetupPartialState.ConfirmSecretMatched)
+                } else {
+                    apply(SecretSetupPartialState.ConfirmSecretMismatch)
+                }
+            }
+
+            else -> {}
         }
-
-    }
-
-    fun cancelSetup() {
-        uiState.value = uiState.value.copy(
-            selectedSetupType = LocalAuthType.NONE,
-            setupStage = SetupStage.CANCELLED,
-            errorMessage = null
-        )
     }
 
 

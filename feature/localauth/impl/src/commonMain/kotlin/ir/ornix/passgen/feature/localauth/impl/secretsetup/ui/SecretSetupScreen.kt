@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -27,6 +28,7 @@ import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.localauth.impl.components.PasswordLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PatternLockView
 import ir.ornix.passgen.feature.localauth.impl.components.PinLockView
+import ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation.SecretSetupIntent
 import ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation.SecretSetupViewModel
 import ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation.SetupStage
 import org.koin.compose.viewmodel.koinViewModel
@@ -70,90 +72,51 @@ fun SecretSetupScreen(
                     )
                     Spacer(Modifier.height(32.dp))
                     Button(
-                        onClick = { viewModel.selectSetupType(LocalAuthType.PIN) },
+                        onClick = {
+                            viewModel.dispatch(
+                                SecretSetupIntent.LocalAuthTypeSelected(LocalAuthType.PIN)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text("Setup PIN")
                     }
                     Spacer(Modifier.height(16.dp))
                     Button(
-                        onClick = { viewModel.selectSetupType(LocalAuthType.PASSWORD) },
+                        onClick = {
+                            viewModel.dispatch(
+                                SecretSetupIntent.LocalAuthTypeSelected(LocalAuthType.PASSWORD)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text("Setup Text Password")
                     }
                     Spacer(Modifier.height(16.dp))
                     Button(
-                        onClick = { viewModel.selectSetupType(LocalAuthType.PATTERN) },
+                        onClick = {
+                            viewModel.dispatch(
+                                SecretSetupIntent.LocalAuthTypeSelected(LocalAuthType.PATTERN)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         Text("Setup Pattern Lock")
                     }
                     Spacer(Modifier.height(32.dp))
                     TextButton(onClick = {
-                        viewModel.cancelSetup()
+                        viewModel.dispatch(SecretSetupIntent.SetupCancelled)
                     }) {
                         Text("Skip")
                     }
                 }
 
-                SetupStage.ENTER_SECRET -> {
-                    val label = when (uiState.selectedSetupType) {
-                        LocalAuthType.PIN -> "Enter new 4-digit PIN"
-                        LocalAuthType.PASSWORD -> "Enter new Text Password"
-                        else -> "Draw your secret pattern"
-                    }
-                    Text(text = label, style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(24.dp))
-
-                    when (uiState.selectedSetupType) {
-                        LocalAuthType.PIN -> {
-                            PinLockView(onPinCompleted = { viewModel.handleSecretInput(it) })
-                        }
-
-                        LocalAuthType.PASSWORD -> {
-                            PasswordLockView(
-                                onPasswordSubmitted = { viewModel.handleSecretInput(it) }
-                            )
-                        }
-
-                        else -> {
-                            Box(Modifier.size(300.dp)) {
-                                PatternLockView(
-                                    onPatternCompleted = { viewModel.handleSecretInput(it) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                SetupStage.CONFIRM_SECRET -> {
-                    val label = when (uiState.selectedSetupType) {
-                        LocalAuthType.PIN -> "Confirm your 4-digit PIN"
-                        LocalAuthType.PASSWORD -> "Confirm your Text Password"
-                        else -> "Draw pattern again to confirm"
-                    }
-                    Text(text = label, style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(24.dp))
-
-                    when (uiState.selectedSetupType) {
-                        LocalAuthType.PIN -> {
-                            PinLockView(onPinCompleted = { viewModel.handleSecretInput(it) })
-                        }
-
-                        LocalAuthType.PASSWORD -> {
-                            PasswordLockView(onPasswordSubmitted = { viewModel.handleSecretInput(it) })
-                        }
-
-                        else -> {
-                            Box(Modifier.size(300.dp)) {
-                                PatternLockView(onPatternCompleted = {
-                                    viewModel.handleSecretInput(
-                                        it
-                                    )
-                                })
-                            }
-                        }
+                SetupStage.ENTER_SECRET, SetupStage.CONFIRM_SECRET -> {
+                    InsertPassword(
+                        localAuthType = uiState.selectedSetupType,
+                        isConfirming = uiState.setupStage == SetupStage.CONFIRM_SECRET
+                    ) {
+                        viewModel.dispatch(SecretSetupIntent.SecretInserted(it))
                     }
                 }
 
@@ -175,6 +138,57 @@ fun SecretSetupScreen(
                 )
             }
 
+        }
+    }
+}
+
+
+@Composable
+private fun InsertPassword(
+    localAuthType: LocalAuthType,
+    isConfirming: Boolean,
+    modifier: Modifier = Modifier,
+    onSecretSubmitter: (String) -> Unit
+) {
+
+    val label = if (isConfirming) {
+        when (localAuthType) {
+            LocalAuthType.PIN -> "Confirm your 4-digit PIN"
+            LocalAuthType.PASSWORD -> "Confirm your Text Password"
+            else -> "Draw pattern again to confirm"
+        }
+    } else {
+        when (localAuthType) {
+            LocalAuthType.PIN -> "Enter new 4-digit PIN"
+            LocalAuthType.PASSWORD -> "Enter new Text Password"
+            else -> "Draw your secret pattern"
+        }
+    }
+
+    Column(
+        modifier = modifier.wrapContentSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = label, style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(24.dp))
+
+        when (localAuthType) {
+            LocalAuthType.PIN -> {
+                PinLockView(onPinCompleted = { onSecretSubmitter(it) })
+            }
+
+            LocalAuthType.PASSWORD -> {
+                PasswordLockView(onPasswordSubmitted = { onSecretSubmitter(it) })
+            }
+
+            LocalAuthType.PATTERN -> {
+                Box(Modifier.size(300.dp)) {
+                    PatternLockView(onPatternCompleted = { onSecretSubmitter(it) })
+                }
+            }
+
+            else -> {}
         }
     }
 }
