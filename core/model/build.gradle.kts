@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(project(":core:logging"))
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.kotlinx.serialization.json)
             }

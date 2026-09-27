@@ -27,22 +27,14 @@ class SettingsViewModel(
     val uiState: StateFlow<SettingsUiState>
         field : MutableStateFlow<SettingsUiState> = MutableStateFlow(
             SettingsUiState(
-                isBiometricAvailable = biometricAuthenticator.isBiometricAvailable().value,
+                isBiometricAvailable = biometricAuthenticator.isBiometricAvailable(),
                 isBiometricEnabled = isBiometricEnabled().value,
-                currentLocalAuthType = getLocalAuthType().value,
-                isSettingPassInProgress = false
+                currentLocalAuthType = getLocalAuthType().value
             )
         )
 
 
     init {
-
-        viewModelScope.launch {
-            biometricAuthenticator.isBiometricAvailable().collect {
-                apply(SettingsPartialState.FingerprintAvailabilityChanged(it))
-            }
-        }
-
         viewModelScope.launch {
             isBiometricEnabled().collect {
                 apply(SettingsPartialState.FingerprintEnabledChanged(it))
@@ -62,20 +54,8 @@ class SettingsViewModel(
                         setBiometricEnabled(intent.enabled)
                     }
 
-                    is SettingsIntent.SetLocalAuthenticationEnabled -> {
-                        if (!intent.enabled) {
-                            saveLocalAuthSecret(LocalAuthType.NONE, "")
-                        } else {
-                            apply(SettingsPartialState.NavigateToSetPassword)
-                        }
-                    }
-
-                    SettingsIntent.NavigateToSetPassword -> {
-                        apply(SettingsPartialState.NavigateToSetPassword)
-                    }
-
-                    SettingsIntent.SettingPasswordCompleted -> {
-                        apply(SettingsPartialState.SettingPasswordCompleted)
+                    is SettingsIntent.LocalAuthenticationDisabled -> {
+                        saveLocalAuthSecret(LocalAuthType.NONE, "")
                     }
                 }
             }

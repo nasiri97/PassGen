@@ -23,7 +23,7 @@ kotlin {
     jvm()
 
     android {
-        namespace = "ir.ornix.passgen.feature.auth.api"
+        namespace = "ir.ornix.passgen.feature.localauth.api"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
     }

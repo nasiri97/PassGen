@@ -22,17 +22,5 @@ internal fun reduce(
                 isBiometricAvailable = change.available
             )
         }
-
-        is SettingsPartialState.NavigateToSetPassword -> {
-            oldState.copy(
-                isSettingPassInProgress = true
-            )
-        }
-
-        is SettingsPartialState.SettingPasswordCompleted -> {
-            oldState.copy(
-                isSettingPassInProgress = false
-            )
-        }
     }
 }

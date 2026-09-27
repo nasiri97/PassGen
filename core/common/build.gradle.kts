@@ -62,7 +62,7 @@ kotlin {
 
         commonMain {
             dependencies {
-                implementation(project(":log-core"))
+                api(project(":core:logging"))
                 implementation(libs.kotlin.stdlib)
 
                 // Kotlin Serialization

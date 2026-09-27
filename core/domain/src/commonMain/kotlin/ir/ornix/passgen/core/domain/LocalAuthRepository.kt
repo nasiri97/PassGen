@@ -8,7 +8,7 @@ interface LocalAuthRepository {
 
     fun saveSecretHash(hash: String)
     fun validateSecretHash(hash: String): Boolean
-    
+
     fun isBiometricEnabled(): StateFlow<Boolean>
     fun setBiometricEnabled(enabled: Boolean)
 

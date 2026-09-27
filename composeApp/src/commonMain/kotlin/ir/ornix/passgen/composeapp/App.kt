@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,16 +25,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
@@ -49,12 +48,14 @@ import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
-import ir.ornix.passgen.feature.localauth.impl.secretsetup.ui.SecretSetupScreen
-import ir.ornix.passgen.feature.localauth.impl.unlocking.ui.UnlockingGateScreen
+import ir.ornix.passgen.feature.localauth.api.LocalAuthRoute
+import ir.ornix.passgen.feature.localauth.impl.ui.SecretSetupScreen
 import ir.ornix.passgen.feature.savedpasswords.api.SavedPasswordsRoute
 import ir.ornix.passgen.feature.savedpasswords.impl.ui.SavedPasswordsScreen
 import ir.ornix.passgen.feature.settings.api.SettingsRoute
 import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
+import ir.ornix.passgen.feature.unlock.api.UnlockRoute
+import ir.ornix.passgen.feature.unlock.impl.ui.UnlockingGateScreen
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinApplication
 import org.koin.compose.KoinContext
@@ -67,112 +68,187 @@ sealed class NavItem(val route: NavKey, val label: String, val icon: ImageVector
     data object About : NavItem(AboutRoute, "About", Icons.Default.Info)
 }
 
-val drawerItems = listOf(
+private val drawerItems = listOf(
     NavItem.Home,
     NavItem.SavedPasswords,
     NavItem.Settings,
     NavItem.About
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(modifier: Modifier = Modifier) {
-    KoinApplication(application = {
-        modules(appModule)
-    }) {
+    KoinApplication(application = { modules(appModule) }) {
         KoinContext {
-            val backStack = remember { mutableStateListOf<NavKey>(HomeRoute) }
+            val isFirstLaunchUseCase: IsFirstLaunchUseCase = koinInject()
+            val setFirstLaunch: SetFirstLaunchUseCase = koinInject()
+            val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
 
-            val isFirstLaunchStateFlow: IsFirstLaunchUseCase = koinInject()
-            val isUnlockingRequiredFLow: IsUnlockingRequiredUseCase = koinInject()
-            val setFirstLaunchUseCase: SetFirstLaunchUseCase = koinInject()
+            val isFirstLaunch = isFirstLaunchUseCase()
+            val isUnlockingRequired = isUnlockingRequiredUseCase()
 
-            val isFirstLaunch by isFirstLaunchStateFlow().collectAsStateWithLifecycle()
-
-            val isUnlockingRequired by isUnlockingRequiredFLow().collectAsStateWithLifecycle(true)
-
-            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-            val scope = rememberCoroutineScope()
-
-            val currentRoute = backStack.lastOrNull()
-
-            var isUnlockedSuccessfully by remember {
-                mutableStateOf(false)
+            val backStack = remember {
+                val initialRoute = when {
+                    isFirstLaunch -> LocalAuthRoute()
+                    isUnlockingRequired -> UnlockRoute
+                    else -> HomeRoute
+                }
+                mutableStateListOf<NavKey>(initialRoute)
             }
+
+            val vmStores = remember { mutableMapOf<Any, ViewModelStore>() }
 
             PassGenTheme {
                 Surface(
                     modifier = modifier.secureContent().fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (isFirstLaunch) {
-                        SecretSetupScreen(onFinished = { setFirstLaunchUseCase(false) })
-                    } else if (isUnlockingRequired && !isUnlockedSuccessfully) {
-                        UnlockingGateScreen(onUnlocked = { isUnlockedSuccessfully = true })
-                    } else {
-                        isUnlockedSuccessfully = true
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = {
+                            if (backStack.size > 1) {
+                                // backStack.removeLast()
 
-                        ModalNavigationDrawer(
-                            drawerState = drawerState,
-                            drawerContent = {
-                                ModalDrawerSheet {
-                                    Spacer(Modifier.height(12.dp))
-                                    drawerItems.forEach { item ->
-                                        NavigationDrawerItem(
-                                            label = { Text(item.label) },
-                                            selected = currentRoute == item.route,
-                                            onClick = {
-                                                scope.launch { drawerState.close() }
-                                                if (currentRoute != item.route) {
-                                                    backStack.clear()
-                                                    backStack.add(item.route)
-                                                }
-                                            },
-                                            icon = { Icon(item.icon, contentDescription = null) },
-                                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                                val removed = backStack.removeLastOrNull()
+                                (removed as? LocalAuthRoute)?.let { vmStores.remove(it)?.clear() }
+                            }
+                        },
+                        entryProvider = { key ->
+                            when (key) {
+                                is LocalAuthRoute -> NavEntry(key) {
+                                    val store =
+                                        remember(key) { vmStores.getOrPut(key) { ViewModelStore() } }
+                                    CompositionLocalProvider(
+                                        LocalViewModelStoreOwner provides remember(
+                                            store
+                                        ) {
+                                            object : ViewModelStoreOwner {
+                                                override val viewModelStore = store
+                                            }
+                                        }) {
+                                        SecretSetupScreen(
+                                            onFinished = {
+                                                setFirstLaunch(false)
+                                                backStack.removeLastOrNull()
+                                                if (backStack.isEmpty()) backStack.add(HomeRoute)
+                                            }
                                         )
                                     }
                                 }
-                            }
-                        ) {
-                            Scaffold(
-                                topBar = {
-                                    TopAppBar(
-                                        title = {
-                                            Text(
-                                                drawerItems.find { it.route == currentRoute }?.label
-                                                    ?: "PassGen"
-                                            )
-                                        },
-                                        navigationIcon = {
-                                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                                Icon(
-                                                    Icons.Default.Menu,
-                                                    contentDescription = "Menu"
-                                                )
+
+                                is UnlockRoute -> NavEntry(key) {
+                                    UnlockingGateScreen(
+                                        onUnlocked = {
+                                            backStack.clear()
+                                            backStack.add(HomeRoute)
+                                        }
+                                    )
+                                }
+
+                                is HomeRoute,
+                                is SavedPasswordsRoute,
+                                is SettingsRoute,
+                                is AboutRoute -> NavEntry(key) {
+                                    MainAppContent(
+                                        currentRoute = key,
+                                        onNavigate = { route, clearBackStack ->
+                                            if (key != route) {
+                                                if (clearBackStack) backStack.clear()
+                                                backStack.add(route)
                                             }
                                         }
                                     )
                                 }
-                            ) { innerPadding ->
-                                Box(modifier = Modifier.padding(innerPadding)) {
-                                    NavDisplay(
-                                        backStack = backStack,
-                                        onBack = { if (backStack.size > 1) backStack.removeLast() },
-                                        entryProvider = { key ->
-                                            when (key) {
-                                                is HomeRoute -> NavEntry(key) { HomeScreen() }
-                                                is AboutRoute -> NavEntry(key) { AboutScreen() }
-                                                is SavedPasswordsRoute -> NavEntry(key) { SavedPasswordsScreen() }
-                                                is SettingsRoute -> NavEntry(key) { SettingsScreen() }
-                                                else -> NavEntry(key) { Text("Unknown Route") }
-                                            }
-                                        }
-                                    )
-                                }
+
+                                else -> NavEntry(key) { Text("Unknown Route") }
                             }
                         }
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun MainAppContent(
+    currentRoute: NavKey,
+    onNavigate: (destination: NavKey, clearBackStack: Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val drawerState = rememberDrawerState(
+        initialValue = DrawerValue.Closed
+    )
+
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        modifier = modifier,
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                drawerItems.forEach { item ->
+                    NavigationDrawerItem(
+                        label = { Text(item.label) },
+                        selected = currentRoute == item.route,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            onNavigate(item.route, true)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
+            }
+        },
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = drawerItems
+                                .find { it.route == currentRoute }
+                                ?.label
+                                ?: "PassGen"
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Menu"
+                            )
+                        }
                     }
+                )
+            },
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                when (currentRoute) {
+                    HomeRoute -> HomeScreen()
+                    SavedPasswordsRoute -> SavedPasswordsScreen()
+                    SettingsRoute -> SettingsScreen(
+                        onNavigateToSecretSetupClick = {
+                            scope.launch { drawerState.close() }
+                            onNavigate(LocalAuthRoute(), false)
+                        }
+                    )
+
+                    AboutRoute -> AboutScreen()
                 }
             }
         }

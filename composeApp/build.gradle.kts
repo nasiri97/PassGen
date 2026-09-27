@@ -61,6 +61,8 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core:data"))
             implementation(project(":core:domain"))
+            implementation(project(":feature:unlock:api"))
+            implementation(project(":feature:unlock:impl"))
             implementation(project(":feature:localauth:api"))
             implementation(project(":feature:localauth:impl"))
             implementation(project(":feature:home:api"))

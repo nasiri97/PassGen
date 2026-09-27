@@ -7,8 +7,6 @@ import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
 import android.os.CancellationSignal
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.Executor
 
 class AndroidBiometricAuthenticator : BiometricAuthenticator {
@@ -17,7 +15,7 @@ class AndroidBiometricAuthenticator : BiometricAuthenticator {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "Use your fingerprint or screen lock to continue"
         else "Use your fingerprint to continue"
 
-    override fun isBiometricAvailable(): StateFlow<Boolean> = MutableStateFlow(isAvailable())
+    override fun isBiometricAvailable(): Boolean = isAvailable()
 
     private fun isAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false

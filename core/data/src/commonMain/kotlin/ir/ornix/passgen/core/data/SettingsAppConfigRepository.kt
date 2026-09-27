@@ -3,8 +3,6 @@ package ir.ornix.passgen.core.data
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import ir.ornix.passgen.core.domain.AppConfigRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 class SettingsAppConfigRepository(private val settings: Settings = Settings()) :
     AppConfigRepository {
@@ -14,15 +12,12 @@ class SettingsAppConfigRepository(private val settings: Settings = Settings()) :
         private const val DEFAULT_IS_FIRST_LAUNCH = true
     }
 
-    private val isFirstLaunchStateFlow =
-        MutableStateFlow<Boolean>(settings.getBoolean(KEY, DEFAULT_IS_FIRST_LAUNCH))
 
-    override fun isFirstLaunch(): StateFlow<Boolean> {
-        return isFirstLaunchStateFlow
+    override fun isFirstLaunch(): Boolean {
+        return settings.getBoolean(KEY, DEFAULT_IS_FIRST_LAUNCH)
     }
 
     override fun setFirstLaunch(isFirstLaunch: Boolean) {
         settings[KEY] = isFirstLaunch
-        isFirstLaunchStateFlow.value = isFirstLaunch
     }
 }

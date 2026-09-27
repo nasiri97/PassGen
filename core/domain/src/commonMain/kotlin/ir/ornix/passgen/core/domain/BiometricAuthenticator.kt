@@ -1,12 +1,10 @@
 package ir.ornix.passgen.core.domain
 
-import kotlinx.coroutines.flow.StateFlow
-
 interface BiometricAuthenticator {
 
     val defaultDescription: String
 
-    fun isBiometricAvailable(): StateFlow<Boolean>
+    fun isBiometricAvailable(): Boolean
 
     fun authenticate(
         title: String = "Verify it's you",

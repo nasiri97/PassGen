@@ -28,9 +28,9 @@ import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
-import ir.ornix.passgen.feature.localauth.impl.secretsetup.presentation.SecretSetupViewModel
-import ir.ornix.passgen.feature.localauth.impl.unlocking.presentation.UnlockingGateViewModel
+import ir.ornix.passgen.feature.localauth.impl.presentation.SecretSetupViewModel
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
+import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf

@@ -27,8 +27,6 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-include(":log-core")
-
 include(":androidApp")
 include(":desktopApp")
 include(":webApp")
@@ -40,8 +38,10 @@ include(":core:domain")
 include(":core:data")
 include(":core:model")
 include(":core:common")
+include(":core:logging")
 
 include(":feature:localauth:api", ":feature:localauth:impl")
+include(":feature:unlock:api", ":feature:unlock:impl")
 include(":feature:home:api", ":feature:home:impl")
 include(":feature:about:api", ":feature:about:impl")
 include(":feature:saved-passwords:api", ":feature:saved-passwords:impl")

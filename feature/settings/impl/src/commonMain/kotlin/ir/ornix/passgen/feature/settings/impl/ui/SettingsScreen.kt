@@ -18,67 +18,64 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.ui.security.secureContent
-import ir.ornix.passgen.feature.localauth.impl.secretsetup.ui.SecretSetupScreen
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsIntent
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    onNavigateToSecretSetupClick: () -> Unit
+) {
 
     val viewModel: SettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.isSettingPassInProgress) {
-        SecretSetupScreen(
-            modifier = modifier.secureContent(),
-            onFinished = { viewModel.dispatch(SettingsIntent.SettingPasswordCompleted) }
+    Column(
+        modifier = modifier.secureContent()
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        Text(
+            text = "Verification methods",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
         )
-    } else {
-        Column(
-            modifier = modifier.secureContent()
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            Text(
-                text = "Verification methods",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
 
-            VerificationMethodRow(
-                title = "Fingerprints",
-                subtitle = if (uiState.isBiometricAvailable) "Unlock application with biometric recognition" else "Biometrics not available on this device",
-                enabled = uiState.isBiometricAvailable,
-                checked = uiState.isBiometricEnabled,
-                onCheckedChange = { viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(it)) }
-            )
+        VerificationMethodRow(
+            title = "Fingerprints",
+            subtitle = if (uiState.isBiometricAvailable) "Unlock application with biometric recognition" else "Biometrics not available on this device",
+            enabled = uiState.isBiometricAvailable,
+            checked = uiState.isBiometricEnabled,
+            onCheckedChange = { viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(it)) }
+        )
 
-            VerificationMethodRow(
-                title = "PIN, password, or pattern",
-                subtitle = when (uiState.currentLocalAuthType) {
-                    LocalAuthType.PIN -> "PIN lock is active"
-                    LocalAuthType.PASSWORD -> "Password lock is active"
-                    LocalAuthType.PATTERN -> "Pattern lock is active"
-                    else -> "No local lock configured"
-                },
-                enabled = true,
-                checked = uiState.currentLocalAuthType != LocalAuthType.NONE,
-                onCheckedChange = {
-                    if (uiState.currentLocalAuthType == LocalAuthType.NONE)
-                        viewModel.dispatch(SettingsIntent.NavigateToSetPassword)
-                    else
-                        viewModel.dispatch(SettingsIntent.SetLocalAuthenticationEnabled(false))
+        VerificationMethodRow(
+            title = "PIN, password, or pattern",
+            subtitle = when (uiState.currentLocalAuthType) {
+                LocalAuthType.PIN -> "PIN lock is active"
+                LocalAuthType.PASSWORD -> "Password lock is active"
+                LocalAuthType.PATTERN -> "Pattern lock is active"
+                else -> "No local lock configured"
+            },
+            enabled = true,
+            checked = uiState.currentLocalAuthType != LocalAuthType.NONE,
+            onCheckedChange = {
+                if (uiState.currentLocalAuthType == LocalAuthType.NONE)
+                    onNavigateToSecretSetupClick()
+                else
+                    viewModel.dispatch(SettingsIntent.LocalAuthenticationDisabled)
+            }
+        )
+
+        if (uiState.currentLocalAuthType != LocalAuthType.NONE) {
+            TextButton(
+                onClick = {
+                    onNavigateToSecretSetupClick()
                 }
-            )
-
-            if (uiState.currentLocalAuthType != LocalAuthType.NONE) {
-                TextButton(
-                    onClick = { viewModel.dispatch(SettingsIntent.NavigateToSetPassword) }
-                ) {
-                    Text("Change local lock method")
-                }
+            ) {
+                Text("Change local lock method")
             }
         }
     }

@@ -35,7 +35,6 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":feature:localauth:api"))
             api(project(":core:ui"))
-            implementation(project(":log-core"))
             implementation(project(":core:domain"))
 
             implementation(libs.kotlinx.coroutines.core)

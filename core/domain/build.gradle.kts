@@ -34,7 +34,6 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:model"))
             api(project(":core:common"))
-            implementation(project(":log-core"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
