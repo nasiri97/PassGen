@@ -25,7 +25,10 @@ class GenerateKDFPassUseCase(
 
             password
         } catch (e: SigningKeyNotFoundException) {
-            Logger.e("There is no registered MKD for mkdId = ${config.id}.\n${e.printStackTrace()}")
+            Logger.e(
+                "Failed to generate KDF password: no MKD is registered for mkdId = ${config.id}.",
+                e
+            )
             configRepo.removeById(config.id)
             null
         }
