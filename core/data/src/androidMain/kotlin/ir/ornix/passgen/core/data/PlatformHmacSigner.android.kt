@@ -13,15 +13,13 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
 
-actual class SecureHmacSigner : HmacSigner {
+actual object PlatformHmacSigner : HmacSigner {
 
     private fun aliasFor(mkdId: String) = "$ALIAS_PREFIX$mkdId"
 
-    private companion object {
-        const val ANDROID_KEYSTORE = "AndroidKeyStore"
-        const val HMAC_ALGORITHM = "HmacSHA512"
-        const val ALIAS_PREFIX = "hmac_sha512_"
-    }
+    private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+    private const val HMAC_ALGORITHM = "HmacSHA512"
+    private const val ALIAS_PREFIX = "hmac_sha512_"
 
     private val androidKeyStore: KeyStore by lazy {
         KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }

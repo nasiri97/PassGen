@@ -6,8 +6,8 @@ interface LocalAuthRepository {
     fun getLocalAuthType(): StateFlow<LocalAuthType>
     fun setLocalAuthType(type: LocalAuthType)
 
-    fun saveSecretHash(hash: String)
-    fun validateSecretHash(hash: String): Boolean
+    fun saveEncryptedSecret(encryptedSecret: ByteArray)
+    fun getEncryptedSecret(): ByteArray
 
     fun isBiometricEnabled(): StateFlow<Boolean>
     fun setBiometricEnabled(enabled: Boolean)

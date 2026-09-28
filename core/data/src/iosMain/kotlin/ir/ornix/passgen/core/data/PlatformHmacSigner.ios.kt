@@ -42,11 +42,9 @@ import platform.Security.kSecValueData
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-actual class SecureHmacSigner : HmacSigner {
+actual object PlatformHmacSigner : HmacSigner {
 
-    private companion object {
-        const val KEYCHAIN_SERVICE = "ir.ornix.passgen.hmac"
-    }
+    private const val KEYCHAIN_SERVICE = "ir.ornix.passgen.hmac"
 
     actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
         val mkd = ByteArray(CC_SHA512_DIGEST_LENGTH)

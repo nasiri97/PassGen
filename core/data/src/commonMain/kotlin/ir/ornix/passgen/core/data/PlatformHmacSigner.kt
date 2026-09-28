@@ -2,7 +2,7 @@ package ir.ornix.passgen.core.data
 
 import ir.ornix.passgen.core.domain.HmacSigner
 
-expect class SecureHmacSigner() : HmacSigner {
+expect object PlatformHmacSigner : HmacSigner {
 
     override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray)
 

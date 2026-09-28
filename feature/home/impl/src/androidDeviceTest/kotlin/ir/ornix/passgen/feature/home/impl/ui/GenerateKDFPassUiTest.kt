@@ -11,7 +11,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import com.russhwolf.settings.Settings
 import ir.ornix.passgen.core.common.isAndroidDebugBuild
-import ir.ornix.passgen.core.data.SecureHmacSigner
+import ir.ornix.passgen.core.data.PlatformHmacSigner
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.HmacSigner
@@ -46,7 +46,7 @@ class GenerateKDFPassUiTest : KoinTest {
 
     private val testModule = module {
         single { SettingsPassGenConfigRepository(Settings()) } bind PassGenConfigRepository::class
-        single { SecureHmacSigner() } bind HmacSigner::class
+        single { PlatformHmacSigner() } bind HmacSigner::class
         single {
             object : AccountRepository {
                 override suspend fun save(account: Account) {}

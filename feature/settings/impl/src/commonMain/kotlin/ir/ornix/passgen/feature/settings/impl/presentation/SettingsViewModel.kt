@@ -55,7 +55,7 @@ class SettingsViewModel(
                     }
 
                     is SettingsIntent.LocalAuthenticationDisabled -> {
-                        saveLocalAuthSecret(LocalAuthType.NONE, "")
+                        saveLocalAuthSecret(LocalAuthType.NONE, ByteArray(0))
                     }
                 }
             }

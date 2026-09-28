@@ -59,7 +59,7 @@ class SecretSetupViewModel(
 
             SetupStage.CONFIRM_SECRET -> {
                 if (secret == firstInputBuffer) {
-                    saveLocalAuthSecret(uiState.value.selectedSetupType, secret)
+                    saveLocalAuthSecret(uiState.value.selectedSetupType, secret.encodeToByteArray())
                     apply(SecretSetupPartialState.ConfirmSecretMatched)
                 } else {
                     apply(SecretSetupPartialState.ConfirmSecretMismatch)

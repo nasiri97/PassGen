@@ -8,12 +8,10 @@ import javax.crypto.Mac
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
-actual class SecureHmacSigner : HmacSigner {
+actual object PlatformHmacSigner : HmacSigner {
 
-    private companion object {
-        const val HMAC_ALGORITHM = "HmacSHA512"
-        const val DIGEST_ALGORITHM = "SHA-512"
-    }
+    private const val HMAC_ALGORITHM = "HmacSHA512"
+    private const val DIGEST_ALGORITHM = "SHA-512"
 
     private val keys = ConcurrentHashMap<String, SecretKey>()
 

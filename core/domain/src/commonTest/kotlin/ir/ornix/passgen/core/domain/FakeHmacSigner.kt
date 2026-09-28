@@ -19,8 +19,7 @@ class FakeHmacSigner : HmacSigner {
     }
 
     override suspend fun sign(mkdId: String, input: String): ByteArray {
-        val hashedKey = masterKeyDigests[mkdId]
-            ?: throw IllegalArgumentException("Key not found for keyId: $mkdId")
+        val hashedKey = masterKeyDigests[mkdId] ?: throw SigningKeyNotFoundException(mkdId)
 
         val hmacAlgorithm = CryptographyProvider.Default.get(HMAC)
         val keyDecoder = hmacAlgorithm.keyDecoder(SHA512)

@@ -1,20 +1,33 @@
 package ir.ornix.passgen.core.domain.passgen
 
 import ir.ornix.passgen.core.domain.HmacSigner
+import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
+import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
 
-class GenerateKDFPassUseCase(private val hmacSigner: HmacSigner) {
+class GenerateKDFPassUseCase(
+    private val configRepo: PassGenConfigRepository,
+    private val hmacSigner: HmacSigner
+) {
 
     suspend operator fun invoke(config: KDFPassGenConfig, input: String): Password? {
         val passGen = config.createPassGen()
         val processedInput = config.preprocessConfig(input)
 
-        val passwordSeed = hmacSigner.sign(mkdId = "${config.id}", processedInput)
-        val password = passGen.generate(passwordSeed)?.toPassword()
-        passwordSeed.fill(0)
+        return try {
+            val passwordSeed = hmacSigner.sign(mkdId = "${config.id}", processedInput)
 
-        return password
+            val password = passGen.generate(passwordSeed)?.toPassword()
+            passwordSeed.fill(0)
+
+            password
+        } catch (e: SigningKeyNotFoundException) {
+            Logger.e("There is no registered MKD for mkdId = ${config.id}.\n${e.printStackTrace()}")
+            configRepo.removeById(config.id)
+            null
+        }
     }
 }

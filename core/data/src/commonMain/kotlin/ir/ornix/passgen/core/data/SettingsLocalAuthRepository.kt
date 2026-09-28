@@ -6,13 +6,14 @@ import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.LocalAuthType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.io.encoding.Base64
 
 class SettingsLocalAuthRepository(private val settings: Settings = Settings()) :
     LocalAuthRepository {
 
     companion object {
         private const val KEY_AUTH_TYPE = "local_auth_type"
-        private const val KEY_SECRET_HASH = "local_auth_secret_hash"
+        private const val KEY_ENCRYPTED_SECRET = "local_auth_encrypted_secret"
         private const val KEY_BIOMETRIC_ENABLED = "local_auth_biometric_enabled"
 
         private const val DEFAULT_IS_BIOMETRIC_ENABLED = false
@@ -44,15 +45,12 @@ class SettingsLocalAuthRepository(private val settings: Settings = Settings()) :
         localAuthType.value = type
     }
 
-    override fun saveSecretHash(hash: String) {
-        val encrypted = PlatformCrypto.encrypt(hash)
-        settings[KEY_SECRET_HASH] = encrypted
+    override fun saveEncryptedSecret(encryptedSecret: ByteArray) {
+        settings[KEY_ENCRYPTED_SECRET] = Base64.encode(encryptedSecret)
     }
 
-    override fun validateSecretHash(hash: String): Boolean {
-        val stored = settings.getStringOrNull(KEY_SECRET_HASH) ?: return false
-        val decrypted = PlatformCrypto.decrypt(stored)
-        return decrypted == hash
+    override fun getEncryptedSecret(): ByteArray {
+        return settings.getString(KEY_ENCRYPTED_SECRET, "").let(Base64::decode)
     }
 
     override fun isBiometricEnabled(): StateFlow<Boolean> {
@@ -66,7 +64,7 @@ class SettingsLocalAuthRepository(private val settings: Settings = Settings()) :
 
     override fun clearAuth() {
         settings.remove(KEY_AUTH_TYPE)
-        settings.remove(KEY_SECRET_HASH)
+        settings.remove(KEY_ENCRYPTED_SECRET)
         settings.remove(KEY_BIOMETRIC_ENABLED)
 
         localAuthType.value = DEFAULT_LOCAL_AUTH_TYPE

@@ -69,7 +69,7 @@ class UnlockingGateViewModel(
     }
 
     private fun secretSubmitted(secret: String) {
-        val isValid = validateLocalAuthSecret(secret)
+        val isValid = validateLocalAuthSecret(secret.encodeToByteArray())
 
         if (isValid) {
             apply(UnlockingGatePartialState.AuthenticationSucceeded)

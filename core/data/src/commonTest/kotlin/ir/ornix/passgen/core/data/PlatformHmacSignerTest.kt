@@ -9,11 +9,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class SecureHmacSignerTest {
+class PlatformHmacSignerTest {
+
+    private val signer = PlatformHmacSigner
 
     @Test
     fun testRegisterSignHasAndDeleteKey() = runTest {
-        val signer = SecureHmacSigner()
         val keyId = "test_key_1"
         val rawMasterKey = "my_secret_master_key_12345".encodeToByteArray()
 
