@@ -141,7 +141,7 @@ class Bip39Codec(val strength: Strength = Strength.WORDS_24) : Codec {
      * @throws IllegalArgumentException if the entropy size does not
      * match the configured [strength].
      */
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         require(input.size == strength.entropyBytes) {
             "BIP-39 ${strength.wordCount}-word mnemonic requires " +
                     "${strength.entropyBytes} bytes of entropy, " +
@@ -154,7 +154,7 @@ class Bip39Codec(val strength: Strength = Strength.WORDS_24) : Codec {
         val checksumBits = entropyBits / 32
 
         // SHA-256 provides the checksum bits.
-        val checksum = sha256.digestBlocking(input)[0]
+        val checksum = sha256.digest(input)[0]
             .toInt()
             .and(0xFF)
             .toString(2)
@@ -195,7 +195,7 @@ class Bip39Codec(val strength: Strength = Strength.WORDS_24) : Codec {
      * @throws IllegalArgumentException if the word count is incorrect,
      * a word is not present in the word list, or the checksum is invalid.
      */
-    override fun decode(input: String): ByteArray {
+    override suspend fun decode(input: String): ByteArray {
         val words = input.trim().split(Regex("\\s+"))
 
         require(words.size == strength.wordCount) {
@@ -250,7 +250,7 @@ class Bip39Codec(val strength: Strength = Strength.WORDS_24) : Codec {
          * Recalculate the checksum from the recovered entropy.
          */
         val actualChecksum = sha256
-            .digestBlocking(entropy)[0]
+            .digest(entropy)[0]
             .toInt()
             .and(0xFF)
             .toString(2)

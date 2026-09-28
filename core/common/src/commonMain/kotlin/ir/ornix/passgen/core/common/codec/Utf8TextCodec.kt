@@ -33,11 +33,11 @@ import ir.ornix.passgen.core.common.codec.core.Codec
  */
 class Utf8TextCodec : Codec {
 
-    override fun decode(input: String): ByteArray {
+    override suspend fun decode(input: String): ByteArray {
         return input.encodeToByteArray()
     }
 
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         return input.decodeToString()
     }
 }

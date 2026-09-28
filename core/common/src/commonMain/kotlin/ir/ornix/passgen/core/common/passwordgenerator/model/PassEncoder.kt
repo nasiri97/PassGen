@@ -25,7 +25,7 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(with = PassEncoderSerializer::class)
 sealed class PassEncoder : KeyBasedType<ir.ornix.passgen.core.common.codec.core.Encoder>() {
 
-    abstract fun encode(input: ByteArray): String
+    abstract suspend fun encode(input: ByteArray): String
 
     companion object {
 

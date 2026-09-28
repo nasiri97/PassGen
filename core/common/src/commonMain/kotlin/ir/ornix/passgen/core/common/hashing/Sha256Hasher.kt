@@ -22,8 +22,4 @@ class Sha256Hasher : Hasher {
     override suspend fun digest(input: ByteArray): ByteArray {
         return sha256.hash(input)
     }
-
-    fun digestBlocking(input: ByteArray): ByteArray {
-        return sha256.hashBlocking(input)
-    }
 }

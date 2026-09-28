@@ -28,7 +28,7 @@ sealed class SeedPassEncoder(
     }
 
 
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         val binaryBlockSize = (instance as Bip39Codec).strength.entropyBytes
         return instance.encode(input.copyOfRange(0, binaryBlockSize))
     }

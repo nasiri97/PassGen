@@ -23,12 +23,12 @@ sealed class StringPassEncoder(
     }
 
 
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         val size = input.size - (input.size % binaryBlockSize)
         return instance.encode(input.copyOfRange(0, size))
     }
 
-    fun encodeAllBytes(input: ByteArray): String {
+    suspend fun encodeAllBytes(input: ByteArray): String {
         return instance.encode(input)
     }
 

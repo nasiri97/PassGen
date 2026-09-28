@@ -38,7 +38,7 @@ data class RandomPassGen(
      *
      * @return The generated password.
      */
-    fun generate(): String {
+    suspend fun generate(): String {
         val token = passEncoder.encode(secureRandomBytes(maxEntropyByteSize))
 
         return when (passEncoder) {

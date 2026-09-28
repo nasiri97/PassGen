@@ -57,11 +57,11 @@ import kotlin.io.encoding.Base64
  */
 class Base64BinaryCodec : Codec {
 
-    override fun decode(input: String): ByteArray {
+    override suspend fun decode(input: String): ByteArray {
         return Base64.withPadding(Base64.PaddingOption.PRESENT_OPTIONAL).decode(input)
     }
 
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         return Base64.encode(input)
     }
 }

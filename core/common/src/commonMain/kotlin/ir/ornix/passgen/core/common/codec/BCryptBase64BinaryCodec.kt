@@ -69,7 +69,7 @@ class BCryptBase64BinaryCodec : Codec {
     }
 
 
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         val length: Int = input.size
         val result = StringBuilder()
 
@@ -119,7 +119,7 @@ class BCryptBase64BinaryCodec : Codec {
         return result.toString()
     }
 
-    override fun decode(input: String): ByteArray {
+    override suspend fun decode(input: String): ByteArray {
         val length: Int = input.length
         val result = ByteArray(length * 3 / 4 + 1)
 

@@ -36,7 +36,7 @@ class HexBinaryCodec(val uppercaseOutput: Boolean) : Codec {
         private val HEX_ARRAY = "0123456789ABCDEF".toCharArray()
     }
 
-    override fun decode(input: String): ByteArray {
+    override suspend fun decode(input: String): ByteArray {
         require(input.length % ENCODED_BLOCK_SIZE == 0) {
             "Input length (${input.length}) must be a multiple of encoded block size ($ENCODED_BLOCK_SIZE)"
         }
@@ -47,7 +47,7 @@ class HexBinaryCodec(val uppercaseOutput: Boolean) : Codec {
         }
     }
 
-    override fun encode(input: ByteArray): String {
+    override suspend fun encode(input: ByteArray): String {
         require(input.size % BLOCK_SIZE == 0) {
             "Input size (${input.size}) must be a multiple of block size ($BLOCK_SIZE)"
         }
