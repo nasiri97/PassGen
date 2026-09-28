@@ -7,11 +7,29 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 
+/**
+ * Generates passwords by deriving entropy from an input using a key
+ * derivation function.
+ *
+ * The maximum entropy size is determined by [inputHasher]'s output size.
+ * The derived bytes are encoded using [passEncoder].
+ *
+ * For [SeedPassEncoder], the complete encoded token is returned. For
+ * [StringPassEncoder], the encoded token is truncated to [passwordLength].
+ */
 data class KDFPassGen(
     val inputHasher: InputHasher,
     override val passEncoder: PassEncoder,
     override val passwordLength: Int?
 ) : PassGen {
+
+    /**
+     * Maximum number of entropy bytes produced by [inputHasher].
+     *
+     * This value is determined by the configured hashing/KDF algorithm and
+     * is independent of [passEncoder] and [passwordLength].
+     */
+    override val maxEntropyByteSize = inputHasher.outputByteSize
 
     init {
         validatePasswordLength()
@@ -22,44 +40,30 @@ data class KDFPassGen(
         outputPassEncoder = passEncoder
     )
 
+    /**
+     * Generates a password by decoding the string input and deriving
+     * entropy from the resulting bytes.
+     *
+     * @param input Input string to derive the password from.
+     * @param inputDecoder Decoder used to convert [input] into bytes.
+     * @return The generated password, or `null` if token generation fails.
+     */
     suspend fun generate(input: String, inputDecoder: Decoder): String? {
         return generate(inputDecoder.decode(input))
     }
 
+    /**
+     * Generates a password by deriving entropy from the given input bytes.
+     *
+     * @param input Input bytes used by the key derivation function.
+     * @return The generated password, or `null` if token generation fails.
+     */
     suspend fun generate(input: ByteArray): String? {
         val token = tokenGen.getToken(input)
 
         return when (passEncoder) {
             is SeedPassEncoder -> token
             is StringPassEncoder -> token?.substring(0, passwordLength!!)
-        }
-    }
-
-    /**
-     * Validates that the requested password length is within allowed bounds
-     * and does not exceed the size of the generated token.
-     *
-     * @throws IllegalArgumentException if the password length is invalid or too large for the token.
-     */
-    private fun validatePasswordLength() {
-        when (passEncoder) {
-            is SeedPassEncoder -> {
-                require(passwordLength == null) {
-                    "Password must be null for SeedPassEncoder!"
-                }
-            }
-
-            is StringPassEncoder -> {
-                val tokenLength = passEncoder.getTokenLength(inputHasher)
-                require(passwordLength != null) {
-                    "Password must not be null for StringPassEncoder!"
-                }
-
-                require(passwordLength > 0) { "Password length must be a positive number (greater than 0)!" }
-                require(passwordLength <= tokenLength) {
-                    "Requested Password length must not exceed $tokenLength, which is the length of the Token!"
-                }
-            }
         }
     }
 }

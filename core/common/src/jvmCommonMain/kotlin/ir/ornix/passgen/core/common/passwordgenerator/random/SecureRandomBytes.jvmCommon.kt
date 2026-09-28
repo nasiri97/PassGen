@@ -4,9 +4,9 @@ import java.security.SecureRandom
 
 private val secureRandom = SecureRandom()
 
-internal actual fun secureRandomBytes(size: Int): ByteArray {
-    require(size >= 0) { "size must be >= 0" }
-    val bytes = ByteArray(size)
+internal actual fun secureRandomBytes(outputByteSize: Int): ByteArray {
+    require(outputByteSize > 0) { "Random output byte size must be greater than 0." }
+    val bytes = ByteArray(outputByteSize)
     secureRandom.nextBytes(bytes)
     return bytes
 }

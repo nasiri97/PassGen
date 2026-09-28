@@ -2,11 +2,11 @@ package ir.ornix.passgen.core.common.passwordgenerator.random
 
 import kotlin.js.JsAny
 
-internal actual fun secureRandomBytes(size: Int): ByteArray {
-    require(size >= 0) { "size must be >= 0" }
-    val result = createUint8Array(size)
+internal actual fun secureRandomBytes(outputByteSize: Int): ByteArray {
+    require(outputByteSize > 0) { "Random output byte size must be greater than 0." }
+    val result = createUint8Array(outputByteSize)
     getRandomValues(result)
-    return ByteArray(size) { getUint8ArrayValue(result, it).toByte() }
+    return ByteArray(outputByteSize) { getUint8ArrayValue(result, it).toByte() }
 }
 
 @JsFun("(size) => new Uint8Array(size)")

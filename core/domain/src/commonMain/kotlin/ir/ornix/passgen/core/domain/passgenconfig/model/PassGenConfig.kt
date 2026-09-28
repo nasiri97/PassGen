@@ -2,8 +2,7 @@ package ir.ornix.passgen.core.domain.passgenconfig.model
 
 import ir.ornix.passgen.core.common.passwordgenerator.core.PassGen
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
-import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
-import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
 
 
 interface PassGenConfig {
@@ -17,28 +16,19 @@ interface PassGenConfig {
 
 
     /**
-     * Validates that the requested password length is within allowed bounds
+     * Validates the password-length configuration for the selected encoder.
      *
-     * @throws IllegalArgumentException if the password length is invalid
+     * @throws IllegalArgumentException if the configuration is invalid.
      */
     fun validatePasswordLength() {
-        when (passEncoder) {
-            is SeedPassEncoder -> {
-                require(passwordLength == null) {
-                    "Password must be null for SeedPassEncoder!"
-                }
-            }
-
-            is StringPassEncoder -> {
-                require(passwordLength != null) {
-                    "Password must not be null for StringPassEncoder!"
-                }
-
-                passwordLength?.let { passwordLength ->
-                    require(passwordLength >= 4) { "Password length must be at least 4 characters!" }
-                    require(passwordLength <= 64) { "Password length must be at most 64 characters!" }
-                }
-            }
-        }
+        PassGen.validatePasswordLength(
+            passEncoder = passEncoder,
+            maxEntropyByteSize = when (this) {
+                is KDFPassGenConfig -> this.inputHasher.outputByteSize
+                is RandomPassGenConfig -> RandomPassGen.RANDOM_PASS_GEN_MAX_ENTROPY_BYTE_SIZE
+                else -> 0
+            },
+            passwordLength = passwordLength
+        )
     }
 }

@@ -33,27 +33,21 @@ sealed class StringPassEncoder(
     }
 
     /**
-     * The number of encoded units required to represent
-     * the output of the given [inputHasher] algorithm after applying this PassEncoder
+     * Returns the number of encoded units required to represent the given number
+     * of input bytes using this encoder.
      *
-     * The hash output size is fixed and defined by the hashing algorithm itself.
-     * This method delegates the size calculation to the encoder, which may
-     * introduce expansion or padding depending on its encoding granularity.
+     * The calculation is based on the encoder's binary block size and encoded
+     * block size. Each binary block of [binaryBlockSize] bytes is represented by
+     * [encodedBlockSize] encoded units.
      *
-     * @param inputHasher Hashing algorithm that produces a fixed-length byte output.
-     * encoded representation.
-     * @return Number of encoded units needed for the encoded hash output.
+     * @param byteSize Number of input bytes to encode.
+     * @return Number of encoded units required to represent the input.
      */
-    fun getTokenLength(inputHasher: InputHasher): Int {
-
-        /** Size of the raw hash output produced by the hashing algorithm, in bytes.*/
-        val tokenByteSize = inputHasher.outputByteSize
-
-        return (tokenByteSize / binaryBlockSize) * encodedBlockSize
+    fun getTokenLength(byteSize: Int): Int {
+        return (byteSize / binaryBlockSize) * encodedBlockSize
     }
 
-
-    // decodedApproximateByteCount
+    /** decodedApproximateByteCount */
     fun approximateDecodedSize(encodedLength: Int): Int {
         return (encodedLength * binaryBlockSize) / encodedBlockSize
     }

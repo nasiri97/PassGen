@@ -103,7 +103,7 @@ private fun AddPassGenConfigContent(
             when (selectedEncoder) {
                 is SeedPassEncoder -> null
                 is StringPassEncoder ->
-                    (selectedEncoder as StringPassEncoder).getTokenLength(inputHasher = selectedHasher)
+                    (selectedEncoder as StringPassEncoder).getTokenLength(byteSize = selectedHasher.outputByteSize)
             }
         }
     }
