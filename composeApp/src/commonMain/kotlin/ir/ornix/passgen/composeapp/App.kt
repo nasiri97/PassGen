@@ -26,10 +26,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -38,7 +36,9 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
 import ir.ornix.passgen.composeapp.di.appModule
 import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
@@ -58,6 +58,8 @@ import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
 import ir.ornix.passgen.feature.unlock.api.UnlockRoute
 import ir.ornix.passgen.feature.unlock.impl.ui.UnlockingGateScreen
 import kotlinx.coroutines.launch
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.KoinApplication
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
@@ -87,16 +89,29 @@ fun App(modifier: Modifier = Modifier) {
             val isFirstLaunch = isFirstLaunchUseCase()
             val isUnlockingRequired = isUnlockingRequiredUseCase()
 
-            val backStack = rememberSaveable {
-                val initialRoute = when {
-                    isFirstLaunch -> LocalAuthRoute()
-                    isUnlockingRequired -> UnlockRoute
-                    else -> HomeRoute
-                }
-                mutableStateListOf<NavKey>(initialRoute)
+            val initialRoute = when {
+                isFirstLaunch -> LocalAuthRoute()
+                isUnlockingRequired -> UnlockRoute
+                else -> HomeRoute
             }
 
-            val vmStores = rememberSaveable { mutableMapOf<Any, ViewModelStore>() }
+            val backStack = rememberNavBackStack(
+                SavedStateConfiguration {
+                    serializersModule = SerializersModule {
+                        polymorphic(NavKey::class) {
+                            subclass(HomeRoute::class, HomeRoute.serializer())
+                            subclass(SavedPasswordsRoute::class, SavedPasswordsRoute.serializer())
+                            subclass(SettingsRoute::class, SettingsRoute.serializer())
+                            subclass(AboutRoute::class, AboutRoute.serializer())
+                            subclass(LocalAuthRoute::class, LocalAuthRoute.serializer())
+                            subclass(UnlockRoute::class, UnlockRoute.serializer())
+                        }
+                    }
+                },
+                initialRoute
+            )
+
+            val vmStores = remember { mutableMapOf<NavKey, ViewModelStore>() }
 
             PassGenTheme {
                 Surface(
