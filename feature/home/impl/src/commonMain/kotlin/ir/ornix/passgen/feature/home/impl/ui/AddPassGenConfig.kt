@@ -80,17 +80,17 @@ private fun AddPassGenConfigContent(
 
     var trimSpaces by rememberSaveable { mutableStateOf(true) }
     var collapseSpaces by rememberSaveable { mutableStateOf(true) }
-    var lowercase by rememberSaveable { mutableStateOf(false) }
+    var lowercase by rememberSaveable { mutableStateOf(true) }
 
     var selectedHasher by rememberSaveable(stateSaver = InputHasherSaver) {
-        mutableStateOf(InputHasher.SHA256)
+        mutableStateOf(InputHasher.ARGON2ID)
     }
 
 
     val encoders = PassEncoder.getValidItems(selectedHasher)
 
     var selectedEncoder by rememberSaveable(stateSaver = PassEncoderSaver) {
-        mutableStateOf<PassEncoder>(StringPassEncoder.HexPassEncoder)
+        mutableStateOf<PassEncoder>(StringPassEncoder.Z85PassEncoder)
     }
 
     LaunchedEffect(encoders) {
