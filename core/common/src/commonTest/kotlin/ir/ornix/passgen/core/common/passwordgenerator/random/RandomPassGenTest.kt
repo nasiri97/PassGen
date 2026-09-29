@@ -137,8 +137,9 @@ class RandomPassGenTest {
                 passwordLength = 129
             )
         }
-        assertTrue(
-            exception.message?.contains("Requested Password length must not exceed 128") == true,
+        assertEquals(
+            exception.message?.contains("Requested Password length must not exceed 128"),
+            true,
             "Expected exception message to contain token length limit error, got: ${exception.message}"
         )
     }
@@ -151,8 +152,9 @@ class RandomPassGenTest {
                 passwordLength = 85
             )
         }
-        assertTrue(
-            exception.message?.contains("Requested Password length must not exceed 84") == true,
+        assertEquals(
+            exception.message?.contains("Requested Password length must not exceed 84"),
+            true,
             "Expected exception message to contain token length limit error, got: ${exception.message}"
         )
     }
@@ -165,8 +167,9 @@ class RandomPassGenTest {
                 passwordLength = 81
             )
         }
-        assertTrue(
-            exception.message?.contains("Requested Password length must not exceed 80") == true,
+        assertEquals(
+            exception.message?.contains("Requested Password length must not exceed 80"),
+            true,
             "Expected exception message to contain token length limit error, got: ${exception.message}"
         )
     }

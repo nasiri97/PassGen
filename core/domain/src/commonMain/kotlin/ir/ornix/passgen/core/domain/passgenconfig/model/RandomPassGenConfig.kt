@@ -11,7 +11,7 @@ data class RandomPassGenConfig(
     override val id: Int,
     override val name: String,
     override val passEncoder: PassEncoder,
-    override val passwordLength: Int
+    override val passwordLength: Int?
 ) : PassGenConfig {
 
     init {

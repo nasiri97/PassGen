@@ -1,15 +1,9 @@
 package ir.ornix.passgen.core.domain.passgen
 
-import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.passgenconfig.model.RandomPassGenConfig
 
 class GenerateRandomPassUseCase() {
 
-    suspend operator fun invoke(passwordLength: Int) =
-        RandomPassGenConfig(
-            id = 0,
-            name = "Random Password Generator",
-            passEncoder = StringPassEncoder.Base64PassEncoder,
-            passwordLength = passwordLength
-        ).createPassGen().generate()
+    suspend operator fun invoke(config: RandomPassGenConfig) =
+        config.createPassGen().generate()
 }
