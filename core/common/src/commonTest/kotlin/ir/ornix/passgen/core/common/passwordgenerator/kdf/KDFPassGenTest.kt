@@ -20,7 +20,7 @@ class KDFPassGenTest {
     private val hexCodec = HexBinaryCodec(false)
 
 
-    private val testCase1 = TestCase(
+    private suspend fun testCase1() = TestCase(
         input = "",
         argon2id = base64Codec.decode(
             "SIccW0Qtg/lQJyg+5S5HaSe5hzUqpzlpT0FZHH24rpPHsvua5MjBldLxXVCGYztmsJtLiU7D7QZWzN/mlNKkvQ"
@@ -32,7 +32,7 @@ class KDFPassGenTest {
         sha256 = hexCodec.decode("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
     )
 
-    private val testCase2 = TestCase(
+    private suspend fun testCase2() = TestCase(
         input = " ",
         argon2id = base64Codec.decode(
             "1vjyDAtqCH+KQPxO0mhBR4zbIoF2919kBVnLuECm8M8Kq+3vc9oyLS6InLO2whmP0CCgTcNd83yKBqZTfNpzYw"
@@ -44,7 +44,7 @@ class KDFPassGenTest {
         sha256 = hexCodec.decode("36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068")
     )
 
-    private val testCase3 = TestCase(
+    private suspend fun testCase3() = TestCase(
         input = "\n\n  ",
         argon2id = base64Codec.decode(
             "jNwuBTBCAMjy3anuNFnZZqwhBB6BNpF+1BFFMX8xpVIzXVdPSOEp0/3nR00KuzAJivSpCGORKRlotWhqvnLVbw"
@@ -56,7 +56,7 @@ class KDFPassGenTest {
         sha256 = hexCodec.decode("4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb")
     )
 
-    private val testCase4 = TestCase(
+    private suspend fun testCase4() = TestCase(
         input = "hello",
         argon2id = base64Codec.decode(
             "Jomso/aWbL3bXqb0Y+WuQOdMiveFYCBBC9FClw5pAihWocz0xFhc+Qns2PJZ3PhBp8doN1Eb9dyx36q1B50lBg"
@@ -68,7 +68,7 @@ class KDFPassGenTest {
         sha256 = hexCodec.decode("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
     )
 
-    private val testCase5 = TestCase(
+    private suspend fun testCase5() = TestCase(
         input = "Hello World",
         argon2id = base64Codec.decode(
             "whbMNRoF5/S71AQakvFTqefPzAnppbAGVdGk3fKf9qselK/JGaY5fDawfqfVQ6hkTVWnMVoHzN7GiuwDz9a6/A"
@@ -80,13 +80,19 @@ class KDFPassGenTest {
         sha256 = hexCodec.decode("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e")
     )
 
-    private val testCases = listOf(testCase1, testCase2, testCase3, testCase4, testCase5)
+    private suspend fun testCases() = listOf(
+        testCase1(),
+        testCase2(),
+        testCase3(),
+        testCase4(),
+        testCase5()
+    )
 
 
     @Test
     fun testIllegalPasswordLength() = runTest {
         InputHasher.allItems.forEach { inputHasher ->
-            StringPassEncoder.items.forEach { passEncoder ->
+            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
@@ -105,11 +111,11 @@ class KDFPassGenTest {
     @Test
     fun testFullLength() = runTest {
         InputHasher.allItems.forEach { inputHasher ->
-            StringPassEncoder.items.forEach { passEncoder ->
+            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
-                testCases.forEach { testCase ->
+                testCases().forEach { testCase ->
 
                     val expected = testCase.getDigest(
                         inputHasher = inputHasher,
@@ -134,8 +140,8 @@ class KDFPassGenTest {
     @Test
     fun testCustomLength() = runTest(timeout = 5.minutes) {
         InputHasher.allItems.forEach { inputHasher ->
-            StringPassEncoder.items.forEach { passEncoder ->
-                testCases.forEach { testCase ->
+            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
+                testCases().forEach { testCase ->
                     val maxLength =
                         (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
@@ -172,7 +178,11 @@ class KDFPassGenTest {
         /**
          * @param length Set null for full-length
          */
-        fun getDigest(inputHasher: InputHasher, length: Int?, passEncoder: StringPassEncoder): String {
+        suspend fun getDigest(
+            inputHasher: InputHasher,
+            length: Int?,
+            passEncoder: StringPassEncoder
+        ): String {
             val binaryBlockSize: Int
             val encodedBlockSize: Int
 

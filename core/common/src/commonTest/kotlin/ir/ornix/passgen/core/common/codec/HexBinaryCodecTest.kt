@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.codec
 
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -16,25 +17,25 @@ class HexBinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode produces uppercase hex when configured`() {
+    fun `encode produces uppercase hex when configured`() = runTest {
         val input = byteArrayOf(0x01, 0x0A, 0xFF.toByte())
         assertEquals("010AFF", uppercaseCodec.encode(input))
     }
 
     @Test
-    fun `encode produces lowercase hex when configured`() {
+    fun `encode produces lowercase hex when configured`() = runTest {
         val input = byteArrayOf(0x01, 0x0A, 0xFF.toByte())
         assertEquals("010aff", lowercaseCodec.encode(input))
     }
 
     @Test
-    fun `encode empty byte array returns empty string`() {
+    fun `encode empty byte array returns empty string`() = runTest {
         assertEquals("", uppercaseCodec.encode(ByteArray(0)))
         assertEquals("", lowercaseCodec.encode(ByteArray(0)))
     }
 
     @Test
-    fun `encode does not throw for any input size`() {
+    fun `encode does not throw for any input size`() = runTest {
         // blockSize is 1, so there is no partial-block case to worry about.
         uppercaseCodec.encode(byteArrayOf())
         uppercaseCodec.encode(byteArrayOf(1))
@@ -54,19 +55,19 @@ class HexBinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `decode uppercase hex produces expected bytes`() {
+    fun `decode uppercase hex produces expected bytes`() = runTest {
         val expected = byteArrayOf(0x01, 0x0A, 0xFF.toByte())
         assertContentEquals(expected, uppercaseCodec.decode("010AFF"))
     }
 
     @Test
-    fun `decode lowercase hex produces expected bytes`() {
+    fun `decode lowercase hex produces expected bytes`() = runTest {
         val expected = byteArrayOf(0x01, 0x0A, 0xFF.toByte())
         assertContentEquals(expected, uppercaseCodec.decode("010aff"))
     }
 
     @Test
-    fun `decode mixed case hex produces expected bytes`() {
+    fun `decode mixed case hex produces expected bytes`() = runTest {
         // Decoding should be case-insensitive regardless of the codec's
         // own uppercaseOutput setting, since that flag only affects encode.
         val expected = byteArrayOf(0x01, 0x0A, 0xFF.toByte())
@@ -75,13 +76,13 @@ class HexBinaryCodecTest {
     }
 
     @Test
-    fun `decode empty string returns empty byte array`() {
+    fun `decode empty string returns empty byte array`() = runTest {
         assertContentEquals(ByteArray(0), uppercaseCodec.decode(""))
         assertContentEquals(ByteArray(0), lowercaseCodec.decode(""))
     }
 
     @Test
-    fun `decode throws on odd length input`() {
+    fun `decode throws on odd length input`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             uppercaseCodec.decode("ABC")
         }
@@ -92,7 +93,7 @@ class HexBinaryCodecTest {
     }
 
     @Test
-    fun `decode throws on non-hex characters`() {
+    fun `decode throws on non-hex characters`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             uppercaseCodec.decode("ZZ")
         }
@@ -103,7 +104,7 @@ class HexBinaryCodecTest {
     }
 
     @Test
-    fun `decode throws on non-hex characters mixed with valid ones`() {
+    fun `decode throws on non-hex characters mixed with valid ones`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             uppercaseCodec.decode("0G")
         }
@@ -118,7 +119,7 @@ class HexBinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode and decode known string vectors`() {
+    fun `encode and decode known string vectors`() = runTest {
         val cases = listOf(
             "" to "",
             " " to "20",
@@ -157,7 +158,7 @@ class HexBinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `round trip for every input length from 0 to 16`() {
+    fun `round trip for every input length from 0 to 16`() = runTest {
         for (length in 0..16) {
             val input = ByteArray(length) { it.toByte() }
             assertContentEquals(input, uppercaseCodec.decode(uppercaseCodec.encode(input)))
@@ -166,7 +167,7 @@ class HexBinaryCodecTest {
     }
 
     @Test
-    fun `round trip for random binary data of varying sizes`() {
+    fun `round trip for random binary data of varying sizes`() = runTest {
         val random = Random(seed = 7)
         repeat(50) {
             val length = random.nextInt(0, 128)

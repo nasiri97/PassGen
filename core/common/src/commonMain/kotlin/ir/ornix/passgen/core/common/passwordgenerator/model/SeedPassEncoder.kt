@@ -7,6 +7,18 @@ sealed class SeedPassEncoder(
     override val key: String
 ) : PassEncoder() {
 
+    companion object {
+        internal val allSeedPassEncoders by lazy {
+            listOf(
+                Bip39L12PassEncoder,
+                Bip39L15PassEncoder,
+                Bip39L18PassEncoder,
+                Bip39L21PassEncoder,
+                Bip39L24PassEncoder
+            )
+        }
+    }
+
     object Bip39L12PassEncoder : SeedPassEncoder(KEY_BIP39_L12_PASS_ENCODER) {
         override val instance = Bip39Codec(Strength.WORDS_12)
     }

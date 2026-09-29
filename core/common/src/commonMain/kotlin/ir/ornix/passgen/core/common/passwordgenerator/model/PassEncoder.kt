@@ -6,7 +6,9 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip3
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip39L18PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip39L21PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Bip39L24PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder.Companion.allSeedPassEncoders
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Base64PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Companion.allStringPassEncoders
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.HexPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder.Z85PassEncoder
 import kotlinx.serialization.KSerializer
@@ -39,18 +41,8 @@ sealed class PassEncoder : KeyBasedType<ir.ornix.passgen.core.common.codec.core.
         const val KEY_BIP39_L24_PASS_ENCODER = "BIP39L24"
 
         internal val allItems by lazy {
-            listOf(
-                HexPassEncoder,
-                Base64PassEncoder,
-                Z85PassEncoder,
-                Bip39L12PassEncoder,
-                Bip39L15PassEncoder,
-                Bip39L18PassEncoder,
-                Bip39L21PassEncoder,
-                Bip39L24PassEncoder
-            )
+            allStringPassEncoders + allSeedPassEncoders
         }
-
 
         fun getValidItems(inputHasher: InputHasher): List<PassEncoder> {
             return getValidItems(inputHasher.outputByteSize)

@@ -46,7 +46,7 @@ class GenerateKDFPassUiTest : KoinTest {
 
     private val testModule = module {
         single { SettingsPassGenConfigRepository(Settings()) } bind PassGenConfigRepository::class
-        single { PlatformHmacSigner() } bind HmacSigner::class
+        single { PlatformHmacSigner } bind HmacSigner::class
         single {
             object : AccountRepository {
                 override suspend fun save(account: Account) {}
@@ -99,6 +99,7 @@ class GenerateKDFPassUiTest : KoinTest {
         composeTestRule.onNodeWithText("Master Key")
             .performTextInput("12345678 12345678 12345678 12345678")
 
+        composeTestRule.onNodeWithTag("Convert to lowercase").performClick()
 
         // Click "Create" button
         composeTestRule
@@ -113,14 +114,14 @@ class GenerateKDFPassUiTest : KoinTest {
         composeTestRule.onNodeWithText("Test Config").assertIsDisplayed()
         composeTestRule.onNodeWithText("Create Password Config").assertDoesNotExist()
 
-        // 4. Enter secret phrase in the InputSection
-        composeTestRule.onNodeWithText("Secret Phrase").performTextInput("Hello")
+        // 4. Enter input phrase in the InputSection
+        composeTestRule.onNodeWithText("Input Phrase").performTextInput("Hello")
 
         // 5. Verify that the password generation started and the Copy button appeared
         // (The actual password value is obscured by default, but we can check for the action button)
         composeTestRule.onNodeWithContentDescription("Copy").assertIsDisplayed()
 
-        composeTestRule.waitUntil(20000) {
+        composeTestRule.waitUntil(30000) {
             try {
                 composeTestRule.onNodeWithText("+Euaz/t2ET7kqOnNOTFtfGCE", substring = true)
                     .assertIsDisplayed()

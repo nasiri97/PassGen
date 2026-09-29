@@ -10,6 +10,16 @@ sealed class StringPassEncoder(
     val encodedBlockSize: Int
 ) : PassEncoder() {
 
+    companion object {
+        internal val allStringPassEncoders by lazy {
+            listOf(
+                HexPassEncoder,
+                Base64PassEncoder,
+                Z85PassEncoder
+            )
+        }
+    }
+
     object HexPassEncoder : StringPassEncoder(KEY_HEX_PASS_ENCODER, 1, 2) {
         override val instance = HexBinaryCodec(false)
     }

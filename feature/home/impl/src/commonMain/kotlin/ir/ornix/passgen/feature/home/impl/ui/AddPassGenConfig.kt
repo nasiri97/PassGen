@@ -334,6 +334,7 @@ private fun LabeledCheckbox(
             .clickable(onClick = { onCheckedChange(!checked) })
     ) {
         Checkbox(
+            modifier = Modifier.testTag(label),
             checked = checked,
             onCheckedChange = onCheckedChange
         )

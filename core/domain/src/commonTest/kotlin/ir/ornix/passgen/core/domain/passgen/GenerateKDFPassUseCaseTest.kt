@@ -5,6 +5,7 @@ import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakeHmacSigner
@@ -17,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -137,50 +139,199 @@ class GenerateKDFPassUseCaseTest {
         }
 
     @Test
-    fun `invoke applies preprocess config to input before generating password`() =
+    fun `invoke with convertToLowercase only transforms uppercase characters`() =
         runTest(timeout = TIMEOUT) {
-            val preprocessConfig = PreprocessConfig(
-                trimLeadingAndTrailingSpaces = true,
-                collapseMultipleSpaces = true,
-                convertToLowercase = true,
+            val config = createTestConfig(
+                id = 301,
+                preprocessConfig = PreprocessConfig(
+                    trimLeadingAndTrailingSpaces = false,
+                    collapseMultipleSpaces = false,
+                    convertToLowercase = true,
+                )
             )
-            val config = KDFPassGenConfig(
-                id = 300,
-                name = "Preprocess Config",
-                preprocessConfig = preprocessConfig,
-                inputHasher = InputHasher.SHA256,
-                passEncoder = StringPassEncoder.HexPassEncoder,
-                passwordLength = 32,
-            )
-            configRepo.add(config)
-            hmacSigner.registerKey("300", masterKey)
+            hmacSigner.registerKey("301", masterKey)
 
-            val result1 = useCase(config, "  HELLO    WORLD  ")
-            val result2 = useCase(config, "hello world")
+            val sameResult1 = useCase(config, "My Secret Pass")
+            val sameResult2 = useCase(config, "my secret pass")
+            val differentResult1 = useCase(config, " my secret pass")
+            val differentResult2 = useCase(config, "my  secret pass")
 
-            assertNotNull(result1)
-            assertNotNull(result2)
-            assertEquals(result2.value, result1.value)
+            assertNotNull(sameResult1)
+            assertNotNull(sameResult2)
+            assertNotNull(differentResult1)
+            assertNotNull(differentResult2)
+
+            assertEquals(sameResult1.value, sameResult2.value)
+            assertNotEquals(sameResult1.value, differentResult1.value)
+            assertNotEquals(sameResult1.value, differentResult2.value)
+            assertNotEquals(differentResult1.value, differentResult2.value)
         }
 
     @Test
-    fun `invoke supports SeedPassEncoder with null password length`() = runTest(timeout = TIMEOUT) {
-        val config = KDFPassGenConfig(
-            id = 400,
-            name = "Bip39 Config",
-            preprocessConfig = rawPreprocessConfig,
-            inputHasher = InputHasher.SHA512,
+    fun `invoke with collapseMultipleSpaces only collapses consecutive spaces`() =
+        runTest(timeout = TIMEOUT) {
+            val config = createTestConfig(
+                id = 302,
+                preprocessConfig = PreprocessConfig(
+                    trimLeadingAndTrailingSpaces = false,
+                    collapseMultipleSpaces = true,
+                    convertToLowercase = false,
+                )
+            )
+            hmacSigner.registerKey("302", masterKey)
+
+            val sameResult1 = useCase(config, "hello    world")
+            val sameResult2 = useCase(config, "hello world")
+            val differentResult1 = useCase(config, "Hello World")
+            val differentResult2 = useCase(config, " hello world")
+
+            assertNotNull(sameResult1)
+            assertNotNull(sameResult2)
+            assertNotNull(differentResult1)
+            assertNotNull(differentResult2)
+
+            assertEquals(sameResult1.value, sameResult2.value)
+            assertNotEquals(sameResult1.value, differentResult1.value)
+            assertNotEquals(sameResult1.value, differentResult2.value)
+            assertNotEquals(differentResult1.value, differentResult2.value)
+        }
+
+    @Test
+    fun `invoke with trimLeadingAndTrailingSpaces only trims outer spaces`() =
+        runTest(timeout = TIMEOUT) {
+            val config = createTestConfig(
+                id = 303,
+                preprocessConfig = PreprocessConfig(
+                    trimLeadingAndTrailingSpaces = true,
+                    collapseMultipleSpaces = false,
+                    convertToLowercase = false,
+                )
+            )
+            hmacSigner.registerKey("303", masterKey)
+
+            val sameResult1 = useCase(config, "   hello world   ")
+            val sameResult2 = useCase(config, "hello world")
+            val differentResult1 = useCase(config, "Hello world")
+            val differentResult2 = useCase(config, "hello  world")
+
+            assertNotNull(sameResult1)
+            assertNotNull(sameResult2)
+            assertNotNull(differentResult1)
+            assertNotNull(differentResult2)
+
+            assertEquals(sameResult2.value, sameResult1.value)
+            assertNotEquals(sameResult1.value, differentResult1.value)
+            assertNotEquals(sameResult1.value, differentResult2.value)
+            assertNotEquals(differentResult1.value, differentResult2.value)
+        }
+
+    @Test
+    fun `invoke with no preprocessing preserves original spaces and casing`() =
+        runTest(timeout = TIMEOUT) {
+            val config = createTestConfig(id = 304, preprocessConfig = rawPreprocessConfig)
+            hmacSigner.registerKey("304", masterKey)
+
+            val result = useCase(config, "Hello World")
+            val differentResult1 = useCase(config, "hello world")
+            val differentResult2 = useCase(config, "Hello  World")
+            val differentResult3 = useCase(config, " Hello World")
+            val differentResult4 = useCase(config, "Hello World ")
+
+            assertNotNull(result)
+            assertNotNull(differentResult1)
+            assertNotNull(differentResult2)
+            assertNotNull(differentResult3)
+            assertNotNull(differentResult4)
+
+            assertNotEquals(result.value, differentResult1.value)
+            assertNotEquals(result.value, differentResult2.value)
+            assertNotEquals(result.value, differentResult3.value)
+            assertNotEquals(result.value, differentResult4.value)
+            assertNotEquals(differentResult1.value, differentResult2.value)
+            assertNotEquals(differentResult1.value, differentResult3.value)
+            assertNotEquals(differentResult1.value, differentResult4.value)
+            assertNotEquals(differentResult2.value, differentResult3.value)
+            assertNotEquals(differentResult2.value, differentResult4.value)
+            assertNotEquals(differentResult3.value, differentResult4.value)
+        }
+
+    @Test
+    fun `invoke with all preprocessing flags enabled normalizes spaces and case`() =
+        runTest(timeout = TIMEOUT) {
+            val config = createTestConfig(
+                id = 305,
+                preprocessConfig = PreprocessConfig(
+                    trimLeadingAndTrailingSpaces = true,
+                    collapseMultipleSpaces = true,
+                    convertToLowercase = true,
+                )
+            )
+            hmacSigner.registerKey("305", masterKey)
+
+            val sameResult1 = useCase(config, "Hello World")
+            val sameResult2 = useCase(config, "hello world")
+            val sameResult3 = useCase(config, "Hello  World")
+            val sameResult4 = useCase(config, " Hello World")
+            val sameResult5 = useCase(config, "   hello  world   ")
+            val differentResult = useCase(config, "H ello World")
+
+            assertNotNull(sameResult1)
+            assertNotNull(sameResult2)
+            assertNotNull(sameResult3)
+            assertNotNull(sameResult4)
+            assertNotNull(sameResult5)
+            assertNotNull(differentResult)
+
+            assertEquals(sameResult1.value, sameResult2.value)
+            assertEquals(sameResult1.value, sameResult3.value)
+            assertEquals(sameResult1.value, sameResult4.value)
+            assertEquals(sameResult1.value, sameResult5.value)
+            assertNotEquals(sameResult1.value, differentResult.value)
+        }
+
+    @Test
+    fun `invoke supports Bip39 12 words seed encoder`() = runTest(timeout = TIMEOUT) {
+        verifyBip39SeedEncoder(
+            configId = 401,
             passEncoder = SeedPassEncoder.Bip39L12PassEncoder,
-            passwordLength = null,
+            expectedWordCount = 12
         )
-        configRepo.add(config)
-        hmacSigner.registerKey("400", masterKey)
+    }
 
-        val result = useCase(config, "bip39_input")
+    @Test
+    fun `invoke supports Bip39 15 words seed encoder`() = runTest(timeout = TIMEOUT) {
+        verifyBip39SeedEncoder(
+            configId = 402,
+            passEncoder = SeedPassEncoder.Bip39L15PassEncoder,
+            expectedWordCount = 15
+        )
+    }
 
-        assertNotNull(result)
-        val words = result.value.trim().split("\\s+".toRegex())
-        assertEquals(12, words.size)
+    @Test
+    fun `invoke supports Bip39 18 words seed encoder`() = runTest(timeout = TIMEOUT) {
+        verifyBip39SeedEncoder(
+            configId = 403,
+            passEncoder = SeedPassEncoder.Bip39L18PassEncoder,
+            expectedWordCount = 18
+        )
+    }
+
+    @Test
+    fun `invoke supports Bip39 21 words seed encoder`() = runTest(timeout = TIMEOUT) {
+        verifyBip39SeedEncoder(
+            configId = 404,
+            passEncoder = SeedPassEncoder.Bip39L21PassEncoder,
+            expectedWordCount = 21
+        )
+    }
+
+    @Test
+    fun `invoke supports Bip39 24 words seed encoder`() = runTest(timeout = TIMEOUT) {
+        verifyBip39SeedEncoder(
+            configId = 405,
+            passEncoder = SeedPassEncoder.Bip39L24PassEncoder,
+            expectedWordCount = 24
+        )
     }
 
     @Test
@@ -202,6 +353,131 @@ class GenerateKDFPassUseCaseTest {
         assertEquals(40, result.value.length)
     }
 
+    @Test
+    fun `invoke with all valid combinations of InputHasher and StringPassEncoder`() =
+        runTest(timeout = TIMEOUT) {
+            hmacSigner.registerKey("600", masterKey)
+
+            for (hasher in InputHasher.allItems) {
+                for (encoder in PassEncoder.getValidItems(hasher)) {
+                    if (encoder is StringPassEncoder) {
+                        val tokenLen = encoder.getTokenLength(hasher.outputByteSize)
+                        val config = KDFPassGenConfig(
+                            id = 600,
+                            name = "Combo Config ${hasher.key}-${encoder.key}",
+                            preprocessConfig = rawPreprocessConfig,
+                            inputHasher = hasher,
+                            passEncoder = encoder,
+                            passwordLength = tokenLen,
+                        )
+
+                        val result = useCase(config, "combo_test_input")
+
+                        assertNotNull(
+                            result,
+                            "Failed for hasher ${hasher.key} and encoder ${encoder.key}"
+                        )
+                        assertEquals(
+                            tokenLen,
+                            result.value.length,
+                            "Length mismatch for hasher ${hasher.key} and encoder ${encoder.key}"
+                        )
+                    }
+                }
+            }
+        }
+
+    @Test
+    fun `invoke produces different passwords for different master keys`() =
+        runTest(timeout = TIMEOUT) {
+            val masterKey1 = "key_one_1234567890".encodeToByteArray()
+            val masterKey2 = "key_two_0987654321".encodeToByteArray()
+
+            val config1 = createTestConfig(id = 701)
+            val config2 = createTestConfig(id = 702)
+
+            hmacSigner.registerKey("701", masterKey1)
+            hmacSigner.registerKey("702", masterKey2)
+
+            val result1 = useCase(config1, "same_input")
+            val result2 = useCase(config2, "same_input")
+
+            assertNotNull(result1)
+            assertNotNull(result2)
+            assertNotEquals(result1.value, result2.value)
+        }
+
+    @Test
+    fun `invoke produces different passwords for different config IDs`() =
+        runTest(timeout = TIMEOUT) {
+            val config1 = createTestConfig(id = 801)
+            val config2 = createTestConfig(id = 802)
+
+            hmacSigner.registerKey("801", ByteArray(1))
+            hmacSigner.registerKey("802", ByteArray(2))
+
+            val result1 = useCase(config1, "same_input")
+            val result2 = useCase(config2, "same_input")
+
+            assertNotNull(result1)
+            assertNotNull(result2)
+            assertNotEquals(result1.value, result2.value)
+        }
+
+    @Test
+    fun `invoke handles very long input strings`() = runTest(timeout = TIMEOUT) {
+        val longInput = "a".repeat(10_000)
+        val config = createTestConfig(id = 900)
+        hmacSigner.registerKey("900", masterKey)
+
+        val result = useCase(config, longInput)
+
+        assertNotNull(result)
+        assertEquals(32, result.value.length)
+    }
+
+    private suspend fun verifyBip39SeedEncoder(
+        configId: Int,
+        passEncoder: SeedPassEncoder,
+        expectedWordCount: Int
+    ) {
+        val config = KDFPassGenConfig(
+            id = configId,
+            name = "Bip39 ${passEncoder.key} Config",
+            preprocessConfig = rawPreprocessConfig,
+            inputHasher = InputHasher.SHA512,
+            passEncoder = passEncoder,
+            passwordLength = null,
+        )
+        configRepo.add(config)
+        hmacSigner.registerKey("$configId", masterKey)
+
+        val result = useCase(config, "bip39_seed_input")
+
+        assertNotNull(result)
+        val words = result.value.trim().split("\\s+".toRegex())
+        assertEquals(
+            expectedWordCount,
+            words.size,
+            "Expected $expectedWordCount words for ${passEncoder.key}"
+        )
+    }
+
+    private fun createTestConfig(
+        id: Int,
+        preprocessConfig: PreprocessConfig = rawPreprocessConfig,
+        passwordLength: Int = 32
+    ): KDFPassGenConfig {
+        return KDFPassGenConfig(
+            id = id,
+            name = "Test Config $id",
+            preprocessConfig = preprocessConfig,
+            inputHasher = InputHasher.SHA256,
+            passEncoder = StringPassEncoder.HexPassEncoder,
+            passwordLength = passwordLength,
+        )
+    }
+
     private suspend fun verifyKnownVectors(
         input: String,
         expectedSha256Hex: String,
@@ -215,7 +491,7 @@ class GenerateKDFPassUseCaseTest {
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA256,
             passEncoder = StringPassEncoder.HexPassEncoder,
-            passwordLength = 64,
+            passwordLength = expectedSha256Hex.length,
         )
 
         val sha512Config = KDFPassGenConfig(
@@ -224,7 +500,7 @@ class GenerateKDFPassUseCaseTest {
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA512,
             passEncoder = StringPassEncoder.Base64PassEncoder,
-            passwordLength = 24,
+            passwordLength = 16,
         )
 
         val bcryptConfig = KDFPassGenConfig(
@@ -264,7 +540,7 @@ class GenerateKDFPassUseCaseTest {
         assertEquals(expectedSha256Hex, sha256Result.value, "SHA256 failed for input '$input'")
 
         // Sha512
-        val sExpected = base64Codec.encode(hexCodec.decode(expectedSha512Hex)).take(24)
+        val sExpected = base64Codec.encode(hexCodec.decode(expectedSha512Hex)).take(16)
         assertEquals(sExpected, sha512Result.value, "SHA512 failed for input '$input'")
 
         // BCrypt

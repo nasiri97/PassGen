@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.codec
 
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -15,12 +16,12 @@ class Z85BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode empty byte array returns empty string`() {
+    fun `encode empty byte array returns empty string`() = runTest {
         assertEquals("", codec.encode(ByteArray(0)))
     }
 
     @Test
-    fun `decode empty string returns empty byte array`() {
+    fun `decode empty string returns empty byte array`() = runTest {
         assertContentEquals(ByteArray(0), codec.decode(""))
     }
 
@@ -29,7 +30,7 @@ class Z85BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode official spec vector produces HelloWorld`() {
+    fun `encode official spec vector produces HelloWorld`() = runTest {
         val input = byteArrayOf(
             0x86.toByte(), 0x4F, 0xD2.toByte(), 0x6F,
             0xB5.toByte(), 0x59, 0xF7.toByte(), 0x5B
@@ -38,7 +39,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `decode HelloWorld produces official spec vector bytes`() {
+    fun `decode HelloWorld produces official spec vector bytes`() = runTest {
         val expected = byteArrayOf(
             0x86.toByte(), 0x4F, 0xD2.toByte(), 0x6F,
             0xB5.toByte(), 0x59, 0xF7.toByte(), 0x5B
@@ -47,7 +48,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `encode and decode known string vectors`() {
+    fun `encode and decode known string vectors`() = runTest {
         val cases = listOf(
             "" to "",
             "    " to "arR^H",
@@ -64,7 +65,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `encode and decode simple byte vectors`() {
+    fun `encode and decode simple byte vectors`() = runTest {
         val cases = listOf(
             byteArrayOf(0, 0, 0, 0) to "00000",
             byteArrayOf(0, 0, 0, 1) to "00001",
@@ -92,7 +93,7 @@ class Z85BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encoded size follows 4 bytes to 5 chars ratio`() {
+    fun `encoded size follows 4 bytes to 5 chars ratio`() = runTest {
         for (blocks in 0..5) {
             val input = ByteArray(blocks * 4)
             assertEquals(blocks * 5, codec.encode(input).length)
@@ -100,7 +101,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `decoded size follows 5 chars to 4 bytes ratio`() {
+    fun `decoded size follows 5 chars to 4 bytes ratio`() = runTest {
         val random = Random(seed = 11)
         for (blocks in 0..5) {
             val input = random.nextBytes(blocks * 4)
@@ -114,7 +115,7 @@ class Z85BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `round trip for block-aligned lengths from 0 to 100`() {
+    fun `round trip for block-aligned lengths from 0 to 100`() = runTest {
         val random = Random(42)
 
         for (length in 0..100 step 4) {
@@ -126,7 +127,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `round trip for random block-aligned binary data`() {
+    fun `round trip for random block-aligned binary data`() = runTest {
         val random = Random(seed = 5)
         repeat(50) {
             val length = random.nextInt(0, 20) * 4
@@ -142,7 +143,7 @@ class Z85BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode uses only characters from the Z85 alphabet`() {
+    fun `encode uses only characters from the Z85 alphabet`() = runTest {
         val alphabet =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#".toSet()
         val random = Random(seed = 17)
@@ -157,7 +158,7 @@ class Z85BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode throws when input length is not a multiple of 4`() {
+    fun `encode throws when input length is not a multiple of 4`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             codec.encode(byteArrayOf(1))
         }
@@ -172,7 +173,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `decode throws when input length is not a multiple of 5`() {
+    fun `decode throws when input length is not a multiple of 5`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             codec.decode("a")
         }
@@ -191,7 +192,7 @@ class Z85BinaryCodecTest {
     }
 
     @Test
-    fun `decode throws on character outside the Z85 alphabet`() {
+    fun `decode throws on character outside the Z85 alphabet`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             codec.decode("abc\"d")
         }

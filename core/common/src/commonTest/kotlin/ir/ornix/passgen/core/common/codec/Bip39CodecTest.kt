@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.codec
 
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -107,7 +108,7 @@ class Bip39CodecTest {
 
 
     @Test
-    fun encode_returnsExpectedMnemonic_forEachKnownVectorAndStrength() {
+    fun encode_returnsExpectedMnemonic_forEachKnownVectorAndStrength() = runTest {
         vectors.forEach { vector ->
             val codec = Bip39Codec(vector.strength)
             val entropy = vector.entropyHex.hexToByteArray()
@@ -123,7 +124,7 @@ class Bip39CodecTest {
     }
 
     @Test
-    fun encode_producesTheExpectedWordCount_forEachStrength() {
+    fun encode_producesTheExpectedWordCount_forEachStrength() = runTest {
         Bip39Codec.Strength.entries.forEach { strength ->
             val codec = Bip39Codec(strength)
             val entropy = ByteArray(strength.entropyBytes) { 0x42 }
@@ -135,7 +136,7 @@ class Bip39CodecTest {
     }
 
     @Test
-    fun encode_throws_whenEntropySizeDoesNotMatchStrength() {
+    fun encode_throws_whenEntropySizeDoesNotMatchStrength() = runTest {
         val codec = Bip39Codec(Bip39Codec.Strength.WORDS_12)
 
         assertFailsWith<IllegalArgumentException> {
@@ -145,7 +146,7 @@ class Bip39CodecTest {
 
 
     @Test
-    fun decode_recoversOriginalEntropy_forEachKnownVectorAndStrength() {
+    fun decode_recoversOriginalEntropy_forEachKnownVectorAndStrength() = runTest {
         vectors.forEach { vector ->
             val codec = Bip39Codec(vector.strength)
             val expectedEntropy = vector.entropyHex.hexToByteArray()
@@ -161,7 +162,7 @@ class Bip39CodecTest {
     }
 
     @Test
-    fun decode_ignoresExtraWhitespace() {
+    fun decode_ignoresExtraWhitespace() = runTest {
         val codec = Bip39Codec(Bip39Codec.Strength.WORDS_12)
         val messy = "  abandon  abandon abandon abandon abandon abandon abandon abandon " +
                 "abandon abandon abandon about  "
@@ -172,7 +173,7 @@ class Bip39CodecTest {
     }
 
     @Test
-    fun decode_throws_whenWordCountDoesNotMatchStrength() {
+    fun decode_throws_whenWordCountDoesNotMatchStrength() = runTest {
         val codec = Bip39Codec(Bip39Codec.Strength.WORDS_12)
 
         assertFailsWith<IllegalArgumentException> {
@@ -181,7 +182,7 @@ class Bip39CodecTest {
     }
 
     @Test
-    fun decode_throws_whenMnemonicContainsAnUnknownWord() {
+    fun decode_throws_whenMnemonicContainsAnUnknownWord() = runTest {
         val codec = Bip39Codec(Bip39Codec.Strength.WORDS_12)
 
         assertFailsWith<IllegalArgumentException> {
@@ -193,7 +194,7 @@ class Bip39CodecTest {
     }
 
     @Test
-    fun decode_throws_whenChecksumIsInvalid() {
+    fun decode_throws_whenChecksumIsInvalid() = runTest {
         val codec = Bip39Codec(Bip39Codec.Strength.WORDS_12)
         // Valid words, but "ability" as the last word breaks the checksum
         // that was computed for the all-zero entropy ("...about" is correct).
@@ -207,7 +208,7 @@ class Bip39CodecTest {
 
 
     @Test
-    fun encodeThenDecode_returnsOriginalEntropy_forEachStrength() {
+    fun encodeThenDecode_returnsOriginalEntropy_forEachStrength() = runTest {
         Bip39Codec.Strength.entries.forEach { strength ->
             val codec = Bip39Codec(strength)
             val originalEntropy = ByteArray(strength.entropyBytes) { i -> (i * 31 + 7).toByte() }

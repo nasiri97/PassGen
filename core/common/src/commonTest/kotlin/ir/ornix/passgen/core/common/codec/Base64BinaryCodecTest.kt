@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.codec
 
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -15,12 +16,12 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode empty byte array returns empty string`() {
+    fun `encode empty byte array returns empty string`() = runTest {
         assertEquals("", codec.encode(ByteArray(0)))
     }
 
     @Test
-    fun `decode empty string returns empty byte array`() {
+    fun `decode empty string returns empty byte array`() = runTest {
         assertContentEquals(ByteArray(0), codec.decode(""))
     }
 
@@ -29,51 +30,51 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode single block produces expected string`() {
+    fun `encode single block produces expected string`() = runTest {
         val input = byteArrayOf(77, 97, 110) // "Man"
         val expected = "TWFu"
         assertEquals(expected, codec.encode(input))
     }
 
     @Test
-    fun `encode multiple blocks produces expected string`() {
+    fun `encode multiple blocks produces expected string`() = runTest {
         val input = "ManMan".encodeToByteArray()
         val expected = "TWFuTWFu"
         assertEquals(expected, codec.encode(input))
     }
 
     @Test
-    fun `encode f produces Zg with padding`() {
+    fun `encode f produces Zg with padding`() = runTest {
         assertEquals("Zg==", codec.encode("f".encodeToByteArray()))
     }
 
     @Test
-    fun `encode fo produces Zm8 with padding`() {
+    fun `encode fo produces Zm8 with padding`() = runTest {
         assertEquals("Zm8=", codec.encode("fo".encodeToByteArray()))
     }
 
     @Test
-    fun `encode foo produces Zm9v with no padding`() {
+    fun `encode foo produces Zm9v with no padding`() = runTest {
         assertEquals("Zm9v", codec.encode("foo".encodeToByteArray()))
     }
 
     @Test
-    fun `encode foob produces Zm9vYg with padding`() {
+    fun `encode foob produces Zm9vYg with padding`() = runTest {
         assertEquals("Zm9vYg==", codec.encode("foob".encodeToByteArray()))
     }
 
     @Test
-    fun `encode fooba produces Zm9vYmE with padding`() {
+    fun `encode fooba produces Zm9vYmE with padding`() = runTest {
         assertEquals("Zm9vYmE=", codec.encode("fooba".encodeToByteArray()))
     }
 
     @Test
-    fun `encode foobar produces Zm9vYmFy with no padding`() {
+    fun `encode foobar produces Zm9vYmFy with no padding`() = runTest {
         assertEquals("Zm9vYmFy", codec.encode("foobar".encodeToByteArray()))
     }
 
     @Test
-    fun `decode single block produces expected bytes`() {
+    fun `decode single block produces expected bytes`() = runTest {
         val input = "TWFu"
         val expected = byteArrayOf(77, 97, 110) // "Man"
         val actual = codec.decode(input)
@@ -81,7 +82,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `decode multiple blocks produces expected bytes`() {
+    fun `decode multiple blocks produces expected bytes`() = runTest {
         val input = "TWFuTWFu"
         val expected = "ManMan".encodeToByteArray()
         assertContentEquals(expected, codec.decode(input))
@@ -89,18 +90,18 @@ class Base64BinaryCodecTest {
 
 
     @Test
-    fun `decode Zg produces f`() {
+    fun `decode Zg produces f`() = runTest {
         assertEquals("f", codec.decode("Zg==").decodeToString())
         assertEquals("f", codec.decode("Zg").decodeToString())
     }
 
     @Test
-    fun `decode Zm9v produces foo`() {
+    fun `decode Zm9v produces foo`() = runTest {
         assertEquals("foo", codec.decode("Zm9v").decodeToString())
     }
 
     @Test
-    fun `decode Zm9vYmFy produces foobar`() {
+    fun `decode Zm9vYmFy produces foobar`() = runTest {
         assertEquals("foobar", codec.decode("Zm9vYmFy").decodeToString())
     }
 
@@ -109,7 +110,7 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encoded length is always a multiple of 4`() {
+    fun `encoded length is always a multiple of 4`() = runTest {
         for (length in 0..12) {
             val encoded = codec.encode(ByteArray(length))
             assertEquals(0, encoded.length % 4, "Length $length produced non-multiple-of-4 output")
@@ -117,20 +118,20 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `one trailing byte produces two padding characters`() {
+    fun `one trailing byte produces two padding characters`() = runTest {
         val encoded = codec.encode(ByteArray(1))
         assertEquals("==", encoded.takeLast(2))
     }
 
     @Test
-    fun `two trailing bytes produce one padding character`() {
+    fun `two trailing bytes produce one padding character`() = runTest {
         val encoded = codec.encode(ByteArray(2))
         assertEquals('=', encoded.last())
         assertEquals(false, encoded.dropLast(1).endsWith("="))
     }
 
     @Test
-    fun `three bytes produce no padding`() {
+    fun `three bytes produce no padding`() = runTest {
         val encoded = codec.encode(ByteArray(3))
         assertEquals(false, encoded.contains('='))
     }
@@ -140,7 +141,7 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `round trip for every input length from 0 to 16`() {
+    fun `round trip for every input length from 0 to 16`() = runTest {
         for (length in 0..16) {
             val input = ByteArray(length) { it.toByte() }
             val decoded = codec.decode(codec.encode(input))
@@ -149,7 +150,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `round trip for random binary data of varying sizes`() {
+    fun `round trip for random binary data of varying sizes`() = runTest {
         val random = Random(seed = 7)
         repeat(50) {
             val length = random.nextInt(0, 128)
@@ -160,21 +161,21 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `round trip for string with multi-byte UTF-8 characters`() {
+    fun `round trip for string with multi-byte UTF-8 characters`() = runTest {
         val original = "pässwörd-日本語-🔒"
         val decoded = codec.decode(codec.encode(original.encodeToByteArray())).decodeToString()
         assertEquals(original, decoded)
     }
 
     @Test
-    fun `round trip for string with multiple spaces`() {
+    fun `round trip for string with multiple spaces`() = runTest {
         val original = "   multiple   spaces   between   words   "
         val decoded = codec.decode(codec.encode(original.encodeToByteArray())).decodeToString()
         assertEquals(original, decoded)
     }
 
     @Test
-    fun `round trip for a full sentence`() {
+    fun `round trip for a full sentence`() = runTest {
         val original = "The quick brown fox jumps over the lazy dog, again and again!"
         val decoded = codec.decode(codec.encode(original.encodeToByteArray())).decodeToString()
         assertEquals(original, decoded)
@@ -185,7 +186,7 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `encode uses only characters from the standard base64 alphabet`() {
+    fun `encode uses only characters from the standard base64 alphabet`() = runTest {
         val alphabet = ('A'..'Z') + ('a'..'z') + ('0'..'9') + '+' + '/' + '='
         val random = Random(seed = 99)
         repeat(50) {
@@ -199,7 +200,7 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `decode succeeds with or without optional padding`() {
+    fun `decode succeeds with or without optional padding`() = runTest {
         // 2-char group (1 byte payload) — last char must be multiple of 16
         assertContentEquals(codec.decode("AA"), codec.decode("AA=="))
         assertContentEquals(codec.decode("AQ"), codec.decode("AQ=="))
@@ -220,21 +221,21 @@ class Base64BinaryCodecTest {
     // ---------------------------------------------------------------------
 
     @Test
-    fun `decode throws on invalid character`() {
+    fun `decode throws on invalid character`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             codec.decode("!!!!")
         }
     }
 
     @Test
-    fun `decode throws when input length with padding is not a multiple of 4`() {
+    fun `decode throws when input length with padding is not a multiple of 4`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             codec.decode("Zg=")
         }
     }
 
     @Test
-    fun `decode throws when padding bits are non-zero`() {
+    fun `decode throws when padding bits are non-zero`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             codec.decode("Zm7=")
         }
@@ -245,7 +246,7 @@ class Base64BinaryCodecTest {
 // ---------------------------------------------------------------------
 
     @Test
-    fun `encoded size follows base64 formula for 0 to 12 bytes`() {
+    fun `encoded size follows base64 formula for 0 to 12 bytes`() = runTest {
         // encoded length = ceil(n / 3) * 4
         for (length in 0..12) {
             val input = ByteArray(length)
@@ -259,7 +260,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `encoded size for 3-byte multiples has no padding overhead`() {
+    fun `encoded size for 3-byte multiples has no padding overhead`() = runTest {
         // For inputs that are exact multiples of 3, encoded size is exactly n/3*4
         for (multiple in 0..5) {
             val length = multiple * 3
@@ -269,7 +270,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `encoded size grows by 4 characters for every 3 additional bytes`() {
+    fun `encoded size grows by 4 characters for every 3 additional bytes`() = runTest {
         val random = Random(seed = 3)
         var previousSize = codec.encode(random.nextBytes(0)).length
         for (length in 3..30 step 3) {
@@ -285,7 +286,7 @@ class Base64BinaryCodecTest {
 // ---------------------------------------------------------------------
 
     @Test
-    fun `decoded size matches original input size for 0 to 12 bytes`() {
+    fun `decoded size matches original input size for 0 to 12 bytes`() = runTest {
         for (length in 0..12) {
             val input = ByteArray(length) { it.toByte() }
             val encoded = codec.encode(input)
@@ -298,7 +299,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `decoded size for random data of varying lengths matches input size`() {
+    fun `decoded size for random data of varying lengths matches input size`() = runTest {
         val random = Random(seed = 21)
         repeat(30) {
             val length = random.nextInt(0, 100)
@@ -309,7 +310,7 @@ class Base64BinaryCodecTest {
     }
 
     @Test
-    fun `decoded size accounts for padding characters correctly`() {
+    fun `decoded size accounts for padding characters correctly`() = runTest {
         // 1 padding char '=' -> 2 real bytes encoded; 2 padding chars '==' -> 1 real byte
         assertEquals(1, codec.decode("Zg==").size)   // "f"
         assertEquals(2, codec.decode("Zm8=").size)   // "fo"
