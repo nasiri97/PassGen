@@ -1,10 +1,12 @@
-package ir.ornix.passgen.core.domain.passgenconfig.model
+package ir.ornix.passgen.core.model.passgenconfig
 
 import ir.ornix.passgen.core.common.passwordgenerator.core.PassGen
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
+import ir.ornix.passgen.core.model.PasswordStrengthLevel
+import ir.ornix.passgen.core.model.PasswordStrengthLevel.Companion.entropyByteSizeToPasswordStrengthLevel
 
 
 interface PassGenConfig {
@@ -26,6 +28,9 @@ interface PassGenConfig {
                 (passEncoder as StringPassEncoder).getEntropyByteSize(passwordLength!!)
         }
 
+
+    val strengthLevel: PasswordStrengthLevel
+        get() = entropyByteSizeToPasswordStrengthLevel(entropyByteSize)
 
     /**
      * Validates the password-length configuration for the selected encoder.

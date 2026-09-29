@@ -7,7 +7,7 @@ import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel

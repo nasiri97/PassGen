@@ -2,7 +2,7 @@ package ir.ornix.passgen.core.domain.passgenconfig
 
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
 
 
 class AddPassGenConfigUseCase(

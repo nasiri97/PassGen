@@ -1,10 +1,10 @@
 package ir.ornix.passgen.core.ui.utils
 
 import androidx.compose.ui.graphics.Color
-import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.PasswordStrengthLevel
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 
-fun Password.strengthColor(): Color = when (strengthLevel) {
+fun PassGenConfig.strengthColor(): Color = when (strengthLevel) {
     PasswordStrengthLevel.Fragile -> Color.Red
     PasswordStrengthLevel.Weak -> Color(0xFFFFA500)
     PasswordStrengthLevel.Fair -> Color.Yellow

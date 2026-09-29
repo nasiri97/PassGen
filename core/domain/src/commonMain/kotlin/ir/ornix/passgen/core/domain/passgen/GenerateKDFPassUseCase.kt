@@ -3,10 +3,10 @@ package ir.ornix.passgen.core.domain.passgen
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
 
 class GenerateKDFPassUseCase(
     private val configRepo: PassGenConfigRepository,

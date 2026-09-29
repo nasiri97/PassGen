@@ -38,8 +38,8 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import ir.ornix.passgen.core.ui.component.NumberSlider
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.ui.utils.InputHasherSaver

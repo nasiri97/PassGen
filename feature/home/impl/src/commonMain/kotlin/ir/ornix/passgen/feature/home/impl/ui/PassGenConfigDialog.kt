@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import ir.ornix.passgen.core.ui.security.secureContent
 
 @Composable

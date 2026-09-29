@@ -1,7 +1,7 @@
 package ir.ornix.passgen.feature.home.impl.presentation
 
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.domain.passgenconfig.model.PassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.Account
 
 sealed interface HomeIntent {

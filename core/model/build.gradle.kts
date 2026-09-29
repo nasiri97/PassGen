@@ -32,6 +32,8 @@ kotlin {
         commonMain {
             dependencies {
                 api(project(":core:logging"))
+                api(project(":core:common"))
+
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.kotlinx.serialization.json)
             }

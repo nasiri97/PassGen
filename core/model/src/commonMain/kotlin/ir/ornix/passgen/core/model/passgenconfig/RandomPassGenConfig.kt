@@ -1,4 +1,5 @@
-package ir.ornix.passgen.core.domain.passgenconfig.model
+package ir.ornix.passgen.core.model.passgenconfig
+
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder

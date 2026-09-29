@@ -3,8 +3,8 @@ package ir.ornix.passgen.core.domain.passgenconfig
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest

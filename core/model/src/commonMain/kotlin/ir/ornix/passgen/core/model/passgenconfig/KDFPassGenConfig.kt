@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.domain.passgenconfig.model
+package ir.ornix.passgen.core.model.passgenconfig
 
 import ir.ornix.passgen.core.common.passwordgenerator.kdf.KDFPassGen
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
@@ -14,7 +14,7 @@ data class KDFPassGenConfig(
     val preprocessConfig: PreprocessConfig,
     val inputHasher: InputHasher,
     override val passEncoder: PassEncoder,
-    override val passwordLength: Int?,
+    override val passwordLength: Int?
 ) : PassGenConfig {
 
     init {

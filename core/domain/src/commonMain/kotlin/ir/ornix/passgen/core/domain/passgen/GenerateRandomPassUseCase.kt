@@ -1,6 +1,6 @@
 package ir.ornix.passgen.core.domain.passgen
 
-import ir.ornix.passgen.core.domain.passgenconfig.model.RandomPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 
 class GenerateRandomPassUseCase() {
 

@@ -2,7 +2,7 @@ package ir.ornix.passgen.core.domain.passgen
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
-import ir.ornix.passgen.core.domain.passgenconfig.model.RandomPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

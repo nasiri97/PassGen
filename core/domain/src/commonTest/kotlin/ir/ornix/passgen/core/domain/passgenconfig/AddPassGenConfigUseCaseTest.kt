@@ -6,8 +6,8 @@ import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
-import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

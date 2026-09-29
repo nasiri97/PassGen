@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.domain.passgenconfig.model
+package ir.ornix.passgen.core.model.passgenconfig
 
 import kotlinx.serialization.Serializable
 
