@@ -35,12 +35,14 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         override val instance = Sha512Hasher()
     }
 
-    object BCrypt : InputHasher(KEY_INPUT_HASHER_BCRYPT_COST_12) {
+    object BCrypt : InputHasher(KEY_INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT) {
         override val instance = BCryptHasher()
     }
 
     object ARGON2ID :
-        InputHasher(KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B) {
+        InputHasher(
+            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT
+        ) {
         override val instance = Argon2IdHasher
     }
 
@@ -49,8 +51,8 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         get() = when (key) {
             KEY_INPUT_HASHER_SHA256 -> "SHA256"
             KEY_INPUT_HASHER_SHA512 -> "SHA512"
-            KEY_INPUT_HASHER_BCRYPT_COST_12 -> "BCRYPT"
-            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B -> "ARGON2ID"
+            KEY_INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT -> "BCRYPT"
+            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT -> "ARGON2ID"
             else -> throw IllegalArgumentException("Unknown InputHasher key: $key")
         }
 
@@ -58,8 +60,8 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         get() = when (key) {
             KEY_INPUT_HASHER_SHA256 -> "SHA-256"
             KEY_INPUT_HASHER_SHA512 -> "SHA-512"
-            KEY_INPUT_HASHER_BCRYPT_COST_12 -> "Bcrypt"
-            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B -> "Argon2id"
+            KEY_INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT -> "Bcrypt"
+            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT -> "Argon2id"
             else -> throw IllegalArgumentException("Unknown InputHasher key: $key")
         }
 
@@ -67,8 +69,12 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         get() = when (key) {
             KEY_INPUT_HASHER_SHA256 -> null
             KEY_INPUT_HASHER_SHA512 -> null
-            KEY_INPUT_HASHER_BCRYPT_COST_12 -> "(Cost 12, Salt: First 16 bytes of the SHA-256 hash of the input)"
-            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B -> "(4 iterations, 128 MB memory, parallelism 1, 64-byte output, Salt: First 16 bytes of the SHA-256 hash of the input)"
+            KEY_INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT ->
+                "(Cost 12, Salt: First 16 bytes of the SHA-256 output of the input)"
+
+            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT ->
+                "(4 iterations, 128 MB memory, parallelism 1, 64-byte output, Salt: First 16 bytes of the SHA-256 output of the input)"
+
             else -> throw IllegalArgumentException("Unknown InputHasher key: $key")
         }
 
@@ -76,9 +82,10 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
 
         const val KEY_INPUT_HASHER_SHA256 = "INPUT_HASHER_SHA256"
         const val KEY_INPUT_HASHER_SHA512 = "INPUT_HASHER_SHA512"
-        const val KEY_INPUT_HASHER_BCRYPT_COST_12 = "INPUT_HASHER_BCRYPT_COST_12"
-        const val KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B =
-            "INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B"
+        const val KEY_INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT =
+            "INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT"
+        const val KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT =
+            "INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT"
 
         val allItems by lazy {
             listOf(
@@ -92,8 +99,8 @@ sealed class InputHasher(override val key: String) : KeyBasedType<Hasher>() {
         fun fromKey(key: String): InputHasher = when (key) {
             KEY_INPUT_HASHER_SHA256 -> SHA256
             KEY_INPUT_HASHER_SHA512 -> SHA512
-            KEY_INPUT_HASHER_BCRYPT_COST_12 -> BCrypt
-            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B -> ARGON2ID
+            KEY_INPUT_HASHER_BCRYPT_COST_12_SALT_FIRST_16B_OF_SHA256_OF_INPUT -> BCrypt
+            KEY_INPUT_HASHER_ARGON2ID_ITERATIONS_4_MEMORY_128MB_PARALLELISM_1_OUTPUT_64B_SALT_FIRST_16B_OF_SHA256_OF_INPUT -> ARGON2ID
             else -> throw IllegalArgumentException("Unknown InputHasher key: $key")
         }
     }
