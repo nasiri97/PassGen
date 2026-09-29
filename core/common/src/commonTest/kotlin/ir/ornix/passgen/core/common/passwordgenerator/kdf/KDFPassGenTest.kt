@@ -5,11 +5,15 @@ import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Utf8TextCodec
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.minutes
 
 class KDFPassGenTest {
@@ -161,6 +165,280 @@ class KDFPassGenTest {
                             ).generate(input = testCase.input, inputDecoder = utf8Codec)
                         )
                     }
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Property Tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testMaxEntropyByteSizeMatchesInputHasherOutputByteSize() {
+        InputHasher.allItems.forEach { inputHasher ->
+            val passGen = KDFPassGen(
+                inputHasher = inputHasher,
+                passEncoder = StringPassEncoder.HexPassEncoder,
+                passwordLength = 10
+            )
+            assertEquals(
+                inputHasher.outputByteSize,
+                passGen.maxEntropyByteSize,
+                "maxEntropyByteSize should equal inputHasher.outputByteSize for ${inputHasher.key}"
+            )
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // StringPassEncoder Validation Tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testStringPassEncoderWithNullPasswordLengthThrowsException() {
+        InputHasher.allItems.forEach { inputHasher ->
+            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
+                val exception = assertFailsWith<IllegalArgumentException> {
+                    KDFPassGen(
+                        inputHasher = inputHasher,
+                        passEncoder = passEncoder,
+                        passwordLength = null
+                    )
+                }
+                assertEquals("Password must not be null for StringPassEncoder.", exception.message)
+            }
+        }
+    }
+
+    @Test
+    fun testStringPassEncoderWithZeroPasswordLengthThrowsException() {
+        InputHasher.allItems.forEach { inputHasher ->
+            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
+                val exception = assertFailsWith<IllegalArgumentException> {
+                    KDFPassGen(
+                        inputHasher = inputHasher,
+                        passEncoder = passEncoder,
+                        passwordLength = 0
+                    )
+                }
+                assertEquals("Password length must be greater than 0.", exception.message)
+            }
+        }
+    }
+
+    @Test
+    fun testStringPassEncoderWithNegativePasswordLengthThrowsException() {
+        InputHasher.allItems.forEach { inputHasher ->
+            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
+                val exception = assertFailsWith<IllegalArgumentException> {
+                    KDFPassGen(
+                        inputHasher = inputHasher,
+                        passEncoder = passEncoder,
+                        passwordLength = -5
+                    )
+                }
+                assertEquals("Password length must be greater than 0.", exception.message)
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // SeedPassEncoder Validation Tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testSeedPassEncoderWithNonNullPasswordLengthThrowsException() {
+        InputHasher.allItems.forEach { inputHasher ->
+            val validSeedEncoders = PassEncoder.getValidItems(inputHasher.outputByteSize)
+                .filterIsInstance<SeedPassEncoder>()
+
+            validSeedEncoders.forEach { seedEncoder ->
+                val exception = assertFailsWith<IllegalArgumentException> {
+                    KDFPassGen(
+                        inputHasher = inputHasher,
+                        passEncoder = seedEncoder,
+                        passwordLength = 12
+                    )
+                }
+                assertEquals("Password must be null for SeedPassEncoder.", exception.message)
+            }
+        }
+    }
+
+    @Test
+    fun testSeedPassEncoderWithNullPasswordLengthInitializesSuccessfully() {
+        val validSeedEncoders = PassEncoder.getValidItems(InputHasher.SHA512.outputByteSize)
+            .filterIsInstance<SeedPassEncoder>()
+
+        validSeedEncoders.forEach { seedEncoder ->
+            val passGen = KDFPassGen(
+                inputHasher = InputHasher.SHA512,
+                passEncoder = seedEncoder,
+                passwordLength = null
+            )
+            assertEquals(seedEncoder, passGen.passEncoder)
+            assertEquals(null, passGen.passwordLength)
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // SeedPassEncoder Password Generation Tests (BIP-39)
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testSeedPassEncoderGenerationProducesDeterministicBip39Mnemonics() = runTest {
+        val seedEncodersAndWordCounts = listOf(
+            SeedPassEncoder.Bip39L12PassEncoder to 12,
+            SeedPassEncoder.Bip39L15PassEncoder to 15,
+            SeedPassEncoder.Bip39L18PassEncoder to 18,
+            SeedPassEncoder.Bip39L21PassEncoder to 21,
+            SeedPassEncoder.Bip39L24PassEncoder to 24
+        )
+
+        for ((seedEncoder, expectedWordCount) in seedEncodersAndWordCounts) {
+            val passGen = KDFPassGen(
+                inputHasher = InputHasher.SHA512,
+                passEncoder = seedEncoder,
+                passwordLength = null
+            )
+
+            // Generate with String + Decoder
+            val resultString1 = passGen.generate("my_secret_seed_phrase_input", utf8Codec)
+            val resultString2 = passGen.generate("my_secret_seed_phrase_input", utf8Codec)
+
+            assertNotNull(resultString1)
+            assertEquals(resultString1, resultString2, "Generation should be deterministic")
+
+            val words = resultString1.trim().split(Regex("\\s+"))
+            assertEquals(
+                expectedWordCount,
+                words.size,
+                "Expected $expectedWordCount words for ${seedEncoder.key}"
+            )
+
+            // Generate with ByteArray directly
+            val byteArrayInput = utf8Codec.decode("my_secret_seed_phrase_input")
+            val resultBytes = passGen.generate(byteArrayInput)
+
+            assertEquals(
+                resultString1,
+                resultBytes,
+                "ByteArray generate should match String generate"
+            )
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Direct ByteArray Input & Decoder Parity Tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testGenerateWithByteArrayInputMatchesGenerateWithDecoder() = runTest {
+        val passGen = KDFPassGen(
+            inputHasher = InputHasher.SHA256,
+            passEncoder = StringPassEncoder.HexPassEncoder,
+            passwordLength = 32
+        )
+
+        val inputStr = "Test Input String 123!"
+        val inputBytes = utf8Codec.decode(inputStr)
+
+        val passFromStr = passGen.generate(inputStr, utf8Codec)
+        val passFromBytes = passGen.generate(inputBytes)
+
+        assertNotNull(passFromStr)
+        assertEquals(passFromStr, passFromBytes, "Result from String+Decoder must match ByteArray")
+    }
+
+    @Test
+    fun testGenerateWithEmptyByteArrayInput() = runTest {
+        val passGen = KDFPassGen(
+            inputHasher = InputHasher.SHA256,
+            passEncoder = StringPassEncoder.Base64PassEncoder,
+            passwordLength = 16
+        )
+
+        val emptyBytes = ByteArray(0)
+        val pass1 = passGen.generate(emptyBytes)
+        val pass2 = passGen.generate(emptyBytes)
+
+        assertNotNull(pass1)
+        assertEquals(16, pass1.length)
+        assertEquals(pass1, pass2, "Empty byte array generation should be deterministic")
+    }
+
+    // -------------------------------------------------------------------------
+    // Caching & Input Sensitivity Tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testDeterminismAndInputSensitivity() = runTest {
+        val passGen = KDFPassGen(
+            inputHasher = InputHasher.SHA256,
+            passEncoder = StringPassEncoder.HexPassEncoder,
+            passwordLength = 32
+        )
+
+        val input1 = "secret_password_1".encodeToByteArray()
+        val input2 = "secret_password_2".encodeToByteArray()
+
+        val result1a = passGen.generate(input1)
+        val result1b = passGen.generate(input1) // Cached / repeated
+        val result2 = passGen.generate(input2)  // Different input
+        val result1c = passGen.generate(input1) // Switched back
+
+        assertNotNull(result1a)
+        assertNotNull(result1b)
+        assertNotNull(result2)
+        assertNotNull(result1c)
+
+        assertEquals(
+            result1a,
+            result1b,
+            "Repeated calls with same input should return identical password"
+        )
+        assertNotEquals(result1a, result2, "Different inputs must produce different passwords")
+        assertEquals(
+            result1a,
+            result1c,
+            "Switching back to original input should return original password"
+        )
+    }
+
+    // -------------------------------------------------------------------------
+    // Valid Combinations Tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun testAllValidHasherAndEncoderCombinations() = runTest {
+        for (hasher in InputHasher.allItems) {
+            val validEncoders = PassEncoder.getValidItems(hasher)
+
+            for (encoder in validEncoders) {
+                val passLen = when (encoder) {
+                    is StringPassEncoder -> encoder.getTokenLength(hasher.outputByteSize)
+                    else -> null
+                }
+
+                val passGen = KDFPassGen(
+                    inputHasher = hasher,
+                    passEncoder = encoder,
+                    passwordLength = passLen
+                )
+
+                val result = passGen.generate("valid_combo_test_input", utf8Codec)
+
+                assertNotNull(
+                    result,
+                    "Failed to generate password for ${hasher.key} and ${encoder.key}"
+                )
+
+                if (passLen != null) {
+                    assertEquals(
+                        passLen,
+                        result.length,
+                        "Length mismatch for ${hasher.key} and ${encoder.key}"
+                    )
                 }
             }
         }
