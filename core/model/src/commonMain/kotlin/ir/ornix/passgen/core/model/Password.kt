@@ -1,80 +1,89 @@
 package ir.ornix.passgen.core.model
 
-import kotlin.text.iterator
+import ir.ornix.passgen.core.model.PasswordStrengthLevel.Companion.entropyByteSizeToPasswordStrengthLevel
 
 data class Password(
     val value: String,
-    val hasUpper: Boolean,
-    val hasLower: Boolean,
-    val hasDigit: Boolean,
-    val hasSpecialChar: Boolean
+    val entropyByteSize: Int
 ) {
 
     val length = value.length
 
-    val strengthScore: Int by lazy {
-        var score = 0
-        if (hasUpper) score++
-        if (hasLower) score++
-        if (hasDigit) score++
-        if (hasSpecialChar) score++
+    val strengthLevel: PasswordStrengthLevel =
+        entropyByteSizeToPasswordStrengthLevel(entropyByteSize)
 
-        score += when (length) {
-            in 8..15 -> 1
-            in 16..Int.MAX_VALUE -> 2
-            else -> 0
+
+    var hasUpper: Boolean = false
+        private set
+    var hasLower: Boolean = false
+        private set
+    var hasDigit: Boolean = false
+        private set
+    var hasSpecialChar: Boolean = false
+        private set
+
+    init {
+        for (c in value) {
+            when {
+                c.isUpperCase() -> hasUpper = true
+                c.isLowerCase() -> hasLower = true
+                c.isDigit() -> hasDigit = true
+                else -> hasSpecialChar = true
+            }
         }
-
-        score
-    }
-
-    val strengthRatio: Float by lazy {
-        strengthScore.toFloat() / MAX_STRENGTH_SCORE
-    }
-
-    val strengthLevel: PasswordStrengthLevel = when {
-        strengthRatio <= (1f / MAX_STRENGTH_SCORE) -> PasswordStrengthLevel.Fragile
-        strengthRatio <= (2f / MAX_STRENGTH_SCORE) -> PasswordStrengthLevel.Weak
-        strengthRatio <= (3f / MAX_STRENGTH_SCORE) -> PasswordStrengthLevel.Fair
-        strengthRatio <= (4f / MAX_STRENGTH_SCORE) -> PasswordStrengthLevel.Good
-        strengthRatio <= (5f / MAX_STRENGTH_SCORE) -> PasswordStrengthLevel.Strong
-        else -> PasswordStrengthLevel.Robust
     }
 
     companion object {
-
-        private const val MAX_STRENGTH_SCORE = 6f
-
-        val EmptyPassword = "".toPassword()
-
-        fun String.toPassword(): Password {
-            var upper = false
-            var lower = false
-            var digit = false
-            var special = false
-
-            for (c in this) {
-                when {
-                    c.isUpperCase() -> upper = true
-                    c.isLowerCase() -> lower = true
-                    c.isDigit() -> digit = true
-                    else -> special = true
-                }
-            }
-
+        fun String.toPassword(entropyByteSize: Int): Password {
             return Password(
                 value = this,
-                hasUpper = upper,
-                hasLower = lower,
-                hasDigit = digit,
-                hasSpecialChar = special
+                entropyByteSize = entropyByteSize
             )
         }
     }
 }
 
-enum class PasswordStrengthLevel {
-    Fragile, Weak, Fair, Good, Strong, Robust
-}
 
-fun Password.strengthLabel(): String = strengthLevel.name
+enum class PasswordStrengthLevel(
+    val label: String,
+    val ratio: Float
+) {
+    Fragile(label = "Fragile", ratio = 0.1F),
+    Weak(label = "Weak", ratio = 0.28F),
+    Fair(label = "Fair", ratio = 0.46F),
+    Good(label = "Good", ratio = 0.64F),
+    Strong(label = "Strong", ratio = 0.82F),
+    Robust(label = "Robust", ratio = 1F);
+
+    companion object {
+        /**
+         * Maps entropy size to a password strength level:
+         *
+         * 0–7 bytes   → Fragile
+         *
+         * 8–11 bytes  → Weak
+         *
+         * 12–15 bytes → Fair
+         *
+         * 16–19 bytes → Good
+         *
+         * 20–23 bytes → Strong
+         *
+         * 24+ bytes   → Robust
+         */
+        fun entropyByteSizeToPasswordStrengthLevel(entropyByteSize: Int): PasswordStrengthLevel {
+            require(entropyByteSize >= 0) {
+                "entropyByteSize must not be negative."
+            }
+
+            return when (entropyByteSize * Byte.SIZE_BITS) {
+                in 0..63 -> Fragile
+                in 64..95 -> Weak
+                in 96..127 -> Fair
+                in 128..159 -> Good
+                in 160..191 -> Strong
+                else -> Robust
+            }
+        }
+    }
+}

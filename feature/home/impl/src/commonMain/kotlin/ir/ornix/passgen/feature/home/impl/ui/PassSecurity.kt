@@ -146,7 +146,7 @@ private fun TraitChip(
 private fun PasswordCardPreview() {
     PassGenTheme {
         PassSecurity(
-            password = "1aA$".toPassword()
+            password = "1aA$".toPassword(3)
         )
     }
 }

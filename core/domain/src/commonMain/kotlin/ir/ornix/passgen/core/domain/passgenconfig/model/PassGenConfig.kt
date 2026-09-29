@@ -2,6 +2,8 @@ package ir.ornix.passgen.core.domain.passgenconfig.model
 
 import ir.ornix.passgen.core.common.passwordgenerator.core.PassGen
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
 
 
@@ -13,6 +15,16 @@ interface PassGenConfig {
     val typeBrief: String
 
     fun createPassGen(): PassGen
+
+
+    val entropyByteSize: Int
+        get() = when (passEncoder) {
+            is SeedPassEncoder ->
+                (passEncoder as SeedPassEncoder).entropyByteSize
+
+            is StringPassEncoder ->
+                (passEncoder as StringPassEncoder).getEntropyByteSize(passwordLength!!)
+        }
 
 
     /**

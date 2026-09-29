@@ -40,7 +40,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.model.Account
-import ir.ornix.passgen.core.model.strengthLabel
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
 import ir.ornix.passgen.core.ui.utils.strengthColor
@@ -177,7 +176,7 @@ private fun PasswordGenerator(
                 }
                 if (!passwordItem.isCalculating && passwordItem.password != null) {
                     Text(
-                        text = passwordItem.password.strengthLabel(),
+                        text = passwordItem.password.strengthLevel.label,
                         style = MaterialTheme.typography.labelMedium,
                         color = passwordItem.password.strengthColor(),
                         fontWeight = FontWeight.Bold
@@ -197,7 +196,7 @@ private fun PasswordGenerator(
             if (passwordItem.password != null && !passwordItem.isCalculating) {
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
-                    progress = { passwordItem.password.strengthRatio },
+                    progress = { passwordItem.password.strengthLevel.ratio },
                     modifier = Modifier.fillMaxWidth(),
                     color = passwordItem.password.strengthColor()
                 )

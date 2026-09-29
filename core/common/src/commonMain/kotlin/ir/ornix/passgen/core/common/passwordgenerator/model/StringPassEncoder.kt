@@ -3,33 +3,43 @@ package ir.ornix.passgen.core.common.passwordgenerator.model
 import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
+import ir.ornix.passgen.core.common.codec.core.Encoder
 
 sealed class StringPassEncoder(
-    override val key: String,
+    key: String,
+    instance: Encoder,
     val binaryBlockSize: Int,
     val encodedBlockSize: Int
-) : PassEncoder() {
+) : PassEncoder(key, instance) {
+
+    object HexPassEncoder : StringPassEncoder(
+        key = KEY_PASS_ENCODER_BASE16_HEXADECIMAL,
+        instance = HexBinaryCodec(false),
+        binaryBlockSize = 1,
+        encodedBlockSize = 2
+    )
+
+    object Base64PassEncoder : StringPassEncoder(
+        key = KEY_PASS_ENCODER_BASE64_STANDARD,
+        instance = Base64BinaryCodec(),
+        binaryBlockSize = 3,
+        encodedBlockSize = 4
+    )
+
+    object Z85PassEncoder : StringPassEncoder(
+        key = KEY_PASS_ENCODER_BASE85_Z85,
+        instance = Z85BinaryCodec(),
+        binaryBlockSize = 4,
+        encodedBlockSize = 5
+    )
+
 
     companion object {
-        internal val allStringPassEncoders by lazy {
-            listOf(
-                HexPassEncoder,
-                Base64PassEncoder,
-                Z85PassEncoder
-            )
-        }
-    }
-
-    object HexPassEncoder : StringPassEncoder(KEY_PASS_ENCODER_BASE16_HEXADECIMAL, 1, 2) {
-        override val instance = HexBinaryCodec(false)
-    }
-
-    object Base64PassEncoder : StringPassEncoder(KEY_PASS_ENCODER_BASE64_STANDARD, 3, 4) {
-        override val instance = Base64BinaryCodec()
-    }
-
-    object Z85PassEncoder : StringPassEncoder(KEY_PASS_ENCODER_BASE85_Z85, 4, 5) {
-        override val instance = Z85BinaryCodec()
+        internal val allStringPassEncoders = listOf(
+            HexPassEncoder,
+            Base64PassEncoder,
+            Z85PassEncoder
+        )
     }
 
 
@@ -57,8 +67,10 @@ sealed class StringPassEncoder(
         return (byteSize / binaryBlockSize) * encodedBlockSize
     }
 
-    /** decodedApproximateByteCount */
-    fun approximateDecodedSize(encodedLength: Int): Int {
-        return (encodedLength * binaryBlockSize) / encodedBlockSize
+    /**
+     * @param passwordLength Encoded string length
+     */
+    fun getEntropyByteSize(passwordLength: Int): Int {
+        return (passwordLength * binaryBlockSize) / encodedBlockSize
     }
 }

@@ -2,10 +2,10 @@ package ir.ornix.passgen.feature.home.impl.ui.utils
 
 
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.model.Password
-import ir.ornix.passgen.core.model.Password.Companion.toPassword
 
 internal val InputHasherSaver: Saver<InputHasher, String> = Saver(
     save = { it.key },
@@ -19,7 +19,17 @@ internal val PassEncoderSaver: Saver<PassEncoder, String> = Saver(
 )
 
 
-internal val PasswordSaver: Saver<Password, String> = Saver(
-    save = { it.value },
-    restore = { it.toPassword() }
+internal val PasswordSaver = listSaver<Password, Any>(
+    save = {
+        listOf(
+            it.value,
+            it.entropyByteSize
+        )
+    },
+    restore = {
+        Password(
+            value = it[0] as String,
+            entropyByteSize = it[1] as Int
+        )
+    }
 )

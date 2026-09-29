@@ -20,9 +20,10 @@ class GenerateKDFPassUseCase(
         return try {
             val passwordSeed = hmacSigner.sign(mkdId = "${config.id}", processedInput)
 
-            val password = passGen.generate(passwordSeed)?.toPassword()
-            passwordSeed.fill(0)
+            val password =
+                passGen.generate(passwordSeed)?.toPassword(entropyByteSize = config.entropyByteSize)
 
+            passwordSeed.fill(0)
             password
         } catch (e: SigningKeyNotFoundException) {
             Logger.e(

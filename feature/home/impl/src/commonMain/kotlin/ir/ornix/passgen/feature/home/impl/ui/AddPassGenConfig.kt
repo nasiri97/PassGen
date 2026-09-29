@@ -127,7 +127,7 @@ private fun AddPassGenConfigContent(
             when (selectedEncoder) {
                 is SeedPassEncoder -> 0
                 is StringPassEncoder ->
-                    (selectedEncoder as StringPassEncoder).approximateDecodedSize(passLength)
+                    (selectedEncoder as StringPassEncoder).getEntropyByteSize(passLength)
             }
         }
     }
