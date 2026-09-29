@@ -18,7 +18,7 @@ data class RandomPassGenConfig(
         validatePasswordLength()
     }
 
-    override val typeBrief = "RANDOM-${passEncoder.key}" +
+    override val typeBrief = "RANDOM-${passEncoder.shortName}" +
             when (passEncoder) {
                 is SeedPassEncoder -> ""
                 is StringPassEncoder -> "-${passwordLength}"

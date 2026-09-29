@@ -9,6 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 
@@ -20,18 +25,30 @@ fun HashingTypeSelector(
 ) {
 
     Column(modifier) {
-        InputHasher.allItems.forEach { config ->
+        InputHasher.allItems.forEach { inputHasher ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onSelected(config) }
+                    .clickable { onSelected(inputHasher) }
             ) {
                 RadioButton(
-                    selected = selected == config,
-                    onClick = { onSelected(config) }
+                    selected = selected == inputHasher,
+                    onClick = { onSelected(inputHasher) }
                 )
-                Text(config.key)
+                Text(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(inputHasher.fullName)
+                        }
+
+                        inputHasher.description?.let {
+                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                                append(" $it")
+                            }
+                        }
+                    }
+                )
             }
         }
     }

@@ -17,6 +17,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.domain.passgenconfig.model.KDFPassGenConfig
 import ir.ornix.passgen.core.domain.passgenconfig.model.PreprocessConfig
@@ -64,8 +69,16 @@ fun PassGenConfigDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                ConfigRow(label = "Hashing Algorithm", value = config.inputHasher.key)
-                ConfigRow(label = "Output Encoder Type", value = config.passEncoder.key)
+                ConfigColumn(
+                    label = "Hashing Algorithm",
+                    name = config.inputHasher.fullName,
+                    description = config.inputHasher.description
+                )
+                ConfigColumn(
+                    label = "Output Encoder Type",
+                    name = config.passEncoder.fullName,
+                    description = null
+                )
 
                 HorizontalDivider()
 
@@ -83,6 +96,36 @@ fun PassGenConfigDialog(
         },
         shape = RoundedCornerShape(16.dp)
     )
+}
+
+
+@Composable
+private fun ConfigColumn(label: String, name: String, description: String?) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Text(
+            style = MaterialTheme.typography.bodyMedium,
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(name)
+                }
+
+                description?.let {
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                        append(" $it")
+                    }
+                }
+            }
+        )
+    }
 }
 
 @Composable

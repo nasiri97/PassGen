@@ -20,15 +20,15 @@ sealed class StringPassEncoder(
         }
     }
 
-    object HexPassEncoder : StringPassEncoder(KEY_HEX_PASS_ENCODER, 1, 2) {
+    object HexPassEncoder : StringPassEncoder(KEY_PASS_ENCODER_BASE16_HEXADECIMAL, 1, 2) {
         override val instance = HexBinaryCodec(false)
     }
 
-    object Base64PassEncoder : StringPassEncoder(KEY_BASE64_PASS_ENCODER, 3, 4) {
+    object Base64PassEncoder : StringPassEncoder(KEY_PASS_ENCODER_BASE64_STANDARD, 3, 4) {
         override val instance = Base64BinaryCodec()
     }
 
-    object Z85PassEncoder : StringPassEncoder(KEY_Z85_PASS_ENCODER, 4, 5) {
+    object Z85PassEncoder : StringPassEncoder(KEY_PASS_ENCODER_BASE85_Z85, 4, 5) {
         override val instance = Z85BinaryCodec()
     }
 

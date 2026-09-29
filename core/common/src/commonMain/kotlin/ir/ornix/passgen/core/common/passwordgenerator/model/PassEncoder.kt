@@ -29,16 +29,42 @@ sealed class PassEncoder : KeyBasedType<ir.ornix.passgen.core.common.codec.core.
 
     abstract suspend fun encode(input: ByteArray): String
 
+    val shortName
+        get() = when (key) {
+            KEY_PASS_ENCODER_BASE16_HEXADECIMAL -> "HEX"
+            KEY_PASS_ENCODER_BASE64_STANDARD -> "BASE64"
+            KEY_PASS_ENCODER_BASE85_Z85 -> "Z85"
+            KEY_PASS_ENCODER_BIP39_12_WORDS -> "BIP39L12"
+            KEY_PASS_ENCODER_BIP39_15_WORDS -> "BIP39L15"
+            KEY_PASS_ENCODER_BIP39_18_WORDS -> "BIP39L18"
+            KEY_PASS_ENCODER_BIP39_21_WORDS -> "BIP39L21"
+            KEY_PASS_ENCODER_BIP39_24_WORDS -> "BIP39L24"
+            else -> throw IllegalArgumentException("Unknown encoder key: $key")
+        }
+
+    val fullName
+        get() = when (key) {
+            KEY_PASS_ENCODER_BASE16_HEXADECIMAL -> "Base16 (Hexadecimal)"
+            KEY_PASS_ENCODER_BASE64_STANDARD -> "Base64 (Standard)"
+            KEY_PASS_ENCODER_BASE85_Z85 -> "Base85 (Z85)"
+            KEY_PASS_ENCODER_BIP39_12_WORDS -> "BIP39 (12 words)"
+            KEY_PASS_ENCODER_BIP39_15_WORDS -> "BIP39 (15 words)"
+            KEY_PASS_ENCODER_BIP39_18_WORDS -> "BIP39 (18 words)"
+            KEY_PASS_ENCODER_BIP39_21_WORDS -> "BIP39 (21 words)"
+            KEY_PASS_ENCODER_BIP39_24_WORDS -> "BIP39 (24 words)"
+            else -> throw IllegalArgumentException("Unknown encoder key: $key")
+        }
+
     companion object {
 
-        const val KEY_HEX_PASS_ENCODER = "HEX"
-        const val KEY_BASE64_PASS_ENCODER = "BASE64"
-        const val KEY_Z85_PASS_ENCODER = "Z85"
-        const val KEY_BIP39_L12_PASS_ENCODER = "BIP39L12"
-        const val KEY_BIP39_L15_PASS_ENCODER = "BIP39L15"
-        const val KEY_BIP39_L18_PASS_ENCODER = "BIP39L18"
-        const val KEY_BIP39_L21_PASS_ENCODER = "BIP39L21"
-        const val KEY_BIP39_L24_PASS_ENCODER = "BIP39L24"
+        const val KEY_PASS_ENCODER_BASE16_HEXADECIMAL = "PASS_ENCODER_BASE16_HEXADECIMAL"
+        const val KEY_PASS_ENCODER_BASE64_STANDARD = "PASS_ENCODER_BASE64_STANDARD"
+        const val KEY_PASS_ENCODER_BASE85_Z85 = "PASS_ENCODER_BASE85_Z85"
+        const val KEY_PASS_ENCODER_BIP39_12_WORDS = "PASS_ENCODER_BIP39_12_WORDS"
+        const val KEY_PASS_ENCODER_BIP39_15_WORDS = "PASS_ENCODER_BIP39_15_WORDS"
+        const val KEY_PASS_ENCODER_BIP39_18_WORDS = "PASS_ENCODER_BIP39_18_WORDS"
+        const val KEY_PASS_ENCODER_BIP39_21_WORDS = "PASS_ENCODER_BIP39_21_WORDS"
+        const val KEY_PASS_ENCODER_BIP39_24_WORDS = "PASS_ENCODER_BIP39_24_WORDS"
 
         internal val allItems by lazy {
             allStringPassEncoders + allSeedPassEncoders
@@ -64,14 +90,14 @@ sealed class PassEncoder : KeyBasedType<ir.ornix.passgen.core.common.codec.core.
         }
 
         fun fromKey(key: String): PassEncoder = when (key) {
-            KEY_HEX_PASS_ENCODER -> HexPassEncoder
-            KEY_BASE64_PASS_ENCODER -> Base64PassEncoder
-            KEY_Z85_PASS_ENCODER -> Z85PassEncoder
-            KEY_BIP39_L12_PASS_ENCODER -> Bip39L12PassEncoder
-            KEY_BIP39_L15_PASS_ENCODER -> Bip39L15PassEncoder
-            KEY_BIP39_L18_PASS_ENCODER -> Bip39L18PassEncoder
-            KEY_BIP39_L21_PASS_ENCODER -> Bip39L21PassEncoder
-            KEY_BIP39_L24_PASS_ENCODER -> Bip39L24PassEncoder
+            KEY_PASS_ENCODER_BASE16_HEXADECIMAL -> HexPassEncoder
+            KEY_PASS_ENCODER_BASE64_STANDARD -> Base64PassEncoder
+            KEY_PASS_ENCODER_BASE85_Z85 -> Z85PassEncoder
+            KEY_PASS_ENCODER_BIP39_12_WORDS -> Bip39L12PassEncoder
+            KEY_PASS_ENCODER_BIP39_15_WORDS -> Bip39L15PassEncoder
+            KEY_PASS_ENCODER_BIP39_18_WORDS -> Bip39L18PassEncoder
+            KEY_PASS_ENCODER_BIP39_21_WORDS -> Bip39L21PassEncoder
+            KEY_PASS_ENCODER_BIP39_24_WORDS -> Bip39L24PassEncoder
             else -> throw IllegalArgumentException("Unknown encoder key: $key")
         }
     }

@@ -22,7 +22,7 @@ data class KDFPassGenConfig(
     }
 
     override val typeBrief =
-        "${inputHasher.key}-${passEncoder.key}" +
+        "${inputHasher.shortName}-${passEncoder.shortName}" +
                 when (passEncoder) {
                     is SeedPassEncoder -> ""
                     is StringPassEncoder -> "-${passwordLength}"

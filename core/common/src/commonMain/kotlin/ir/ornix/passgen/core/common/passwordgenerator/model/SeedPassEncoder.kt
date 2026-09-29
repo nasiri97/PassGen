@@ -19,23 +19,23 @@ sealed class SeedPassEncoder(
         }
     }
 
-    object Bip39L12PassEncoder : SeedPassEncoder(KEY_BIP39_L12_PASS_ENCODER) {
+    object Bip39L12PassEncoder : SeedPassEncoder(KEY_PASS_ENCODER_BIP39_12_WORDS) {
         override val instance = Bip39Codec(Strength.WORDS_12)
     }
 
-    object Bip39L15PassEncoder : SeedPassEncoder(KEY_BIP39_L15_PASS_ENCODER) {
+    object Bip39L15PassEncoder : SeedPassEncoder(KEY_PASS_ENCODER_BIP39_15_WORDS) {
         override val instance = Bip39Codec(Strength.WORDS_15)
     }
 
-    object Bip39L18PassEncoder : SeedPassEncoder(KEY_BIP39_L18_PASS_ENCODER) {
+    object Bip39L18PassEncoder : SeedPassEncoder(KEY_PASS_ENCODER_BIP39_18_WORDS) {
         override val instance = Bip39Codec(Strength.WORDS_18)
     }
 
-    object Bip39L21PassEncoder : SeedPassEncoder(KEY_BIP39_L21_PASS_ENCODER) {
+    object Bip39L21PassEncoder : SeedPassEncoder(KEY_PASS_ENCODER_BIP39_21_WORDS) {
         override val instance = Bip39Codec(Strength.WORDS_21)
     }
 
-    object Bip39L24PassEncoder : SeedPassEncoder(KEY_BIP39_L24_PASS_ENCODER) {
+    object Bip39L24PassEncoder : SeedPassEncoder(KEY_PASS_ENCODER_BIP39_24_WORDS) {
         override val instance = Bip39Codec(Strength.WORDS_24)
     }
 
