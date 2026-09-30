@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
 import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
@@ -23,7 +22,6 @@ import kotlinx.coroutines.withContext
 class HomeViewModel(
     private val getAllPassGenConfigs: GetAllPassGenConfigsUseCase,
     private val generateKDFPass: GenerateKDFPassUseCase,
-    private val addPassGenConfig: AddPassGenConfigUseCase,
     private val removePassGenConfig: RemovePassGenConfigUseCase,
     private val saveAccountUseCase: SaveAccountUseCase
 ) : ViewModel() {
@@ -36,7 +34,6 @@ class HomeViewModel(
     private val configsFlow: Flow<List<KDFPassGenConfig>> = getAllPassGenConfigs()
 
     private val jobs = HashMap<Int, Job>()
-
 
     private fun calculate(config: KDFPassGenConfig, input: String) {
         jobs[config.id]?.cancel()
@@ -59,9 +56,7 @@ class HomeViewModel(
         }
     }
 
-
     init {
-
         viewModelScope.launch {
             configsFlow.collect { configs ->
                 val currentPasswordItems = uiState.value.passwordItems
@@ -96,19 +91,6 @@ class HomeViewModel(
                         apply(HomePartialState.InputChanged(intent.input))
                     }
 
-                    is HomeIntent.AddNewConfigClicked -> {
-                        apply(HomePartialState.ShowAddConfigDialog)
-                    }
-
-                    is HomeIntent.CreateConfig -> {
-                        addPassGenConfig(intent.config, intent.rawKey)
-                        apply(HomePartialState.ConfigCreated)
-                    }
-
-                    is HomeIntent.CancelCreatingNewConfigClicked -> {
-                        apply(HomePartialState.HideAddConfigDialog)
-                    }
-
                     is HomeIntent.RemoveConfig -> {
                         removePassGenConfig(intent.passGenConfig.id)
                     }
@@ -120,7 +102,6 @@ class HomeViewModel(
             }
         }
     }
-
 
     /** Send new intent */
     fun dispatch(intent: HomeIntent) = viewModelScope.launch {

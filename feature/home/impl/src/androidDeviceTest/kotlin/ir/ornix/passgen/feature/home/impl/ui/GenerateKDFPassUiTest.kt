@@ -86,7 +86,7 @@ class GenerateKDFPassUiTest : KoinTest {
         composeTestRule.setContent {
             KoinContext {
                 isAndroidDebugBuild = true
-                HomeScreen()
+                HomeScreen(onNavigateToCreateConfig = {})
             }
         }
 
@@ -94,11 +94,14 @@ class GenerateKDFPassUiTest : KoinTest {
         composeTestRule.onNodeWithText("No password configurations yet.").assertIsDisplayed()
         composeTestRule.onNodeWithText("Add your first config").performClick()
 
-        // 2. Fill the "Create Password Config" dialog
-        composeTestRule.onNodeWithText("Configuration Name").performTextInput("Test Config")
-        composeTestRule.onNodeWithText("Master Key")
-            .performTextInput("12345678 12345678 12345678 12345678")
+        // 2. Step 1: Master Key setup
+        val validMasterKey = "12345678aA!12345678aA!12345678aA!"
+        composeTestRule.onNodeWithTag("master_key_input").performTextInput(validMasterKey)
+        composeTestRule.onNodeWithTag("confirm_master_key_input").performTextInput(validMasterKey)
+        composeTestRule.onNodeWithTag("next_button").performClick()
 
+        // 3. Step 2: Configuration details
+        composeTestRule.onNodeWithTag("config_name_input").performTextInput("Test Config")
         composeTestRule.onNodeWithTag("Convert to lowercase").performClick()
 
         // Click "Create" button
@@ -106,15 +109,13 @@ class GenerateKDFPassUiTest : KoinTest {
             .onNodeWithTag("scroll_container")
             .performScrollToNode(hasTestTag("submit_button"))
 
-        composeTestRule.onNodeWithText("ARGON2ID").performClick()
-        composeTestRule.onNodeWithText("BASE64").performClick()
         composeTestRule.onNodeWithTag("submit_button").performClick()
 
-        // 3. Verify config is added to the list and dialog is gone
+        // 4. Verify config is added to the list and screen is gone
         composeTestRule.onNodeWithText("Test Config").assertIsDisplayed()
         composeTestRule.onNodeWithText("Create Password Config").assertDoesNotExist()
 
-        // 4. Enter input phrase in the InputSection
+        // 5. Enter input phrase in the InputSection
         composeTestRule.onNodeWithText("Input Phrase").performTextInput("Hello")
 
         // 5. Verify that the password generation started and the Copy button appeared

@@ -47,6 +47,8 @@ import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
+import ir.ornix.passgen.feature.config.api.AddConfigRoute
+import ir.ornix.passgen.feature.config.impl.ui.AddConfigScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
 import ir.ornix.passgen.feature.localauth.api.LocalAuthRoute
@@ -105,6 +107,7 @@ fun App(modifier: Modifier = Modifier) {
                             subclass(AboutRoute::class, AboutRoute.serializer())
                             subclass(LocalAuthRoute::class, LocalAuthRoute.serializer())
                             subclass(UnlockRoute::class, UnlockRoute.serializer())
+                            subclass(AddConfigRoute::class, AddConfigRoute.serializer())
                         }
                     }
                 },
@@ -122,8 +125,6 @@ fun App(modifier: Modifier = Modifier) {
                         backStack = backStack,
                         onBack = {
                             if (backStack.size > 1) {
-                                // backStack.removeLast()
-
                                 val removed = backStack.removeLastOrNull()
                                 (removed as? LocalAuthRoute)?.let { vmStores.remove(it)?.clear() }
                             }
@@ -160,6 +161,17 @@ fun App(modifier: Modifier = Modifier) {
                                     )
                                 }
 
+                                is AddConfigRoute -> NavEntry(key) {
+                                    AddConfigScreen(
+                                        onNavigateBack = {
+                                            backStack.removeLastOrNull()
+                                        },
+                                        onConfigCreated = {
+                                            backStack.removeLastOrNull()
+                                        }
+                                    )
+                                }
+
                                 is HomeRoute,
                                 is SavedPasswordsRoute,
                                 is SettingsRoute,
@@ -171,6 +183,9 @@ fun App(modifier: Modifier = Modifier) {
                                                 if (clearBackStack) backStack.clear()
                                                 backStack.add(route)
                                             }
+                                        },
+                                        onNavigateToCreateConfig = {
+                                            backStack.add(AddConfigRoute)
                                         }
                                     )
                                 }
@@ -185,11 +200,11 @@ fun App(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
 private fun MainAppContent(
     currentRoute: NavKey,
     onNavigate: (destination: NavKey, clearBackStack: Boolean) -> Unit,
+    onNavigateToCreateConfig: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val drawerState = rememberDrawerState(
@@ -255,7 +270,7 @@ private fun MainAppContent(
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                 when (currentRoute) {
-                    HomeRoute -> HomeScreen()
+                    HomeRoute -> HomeScreen(onNavigateToCreateConfig = onNavigateToCreateConfig)
                     SavedPasswordsRoute -> SavedPasswordsScreen()
                     SettingsRoute -> SettingsScreen(
                         onNavigateToSecretSetupClick = {

@@ -29,7 +29,10 @@ import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    onNavigateToCreateConfig: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -40,7 +43,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         modifier = modifier.secureContent().fillMaxSize(),
         floatingActionButton = {
             if (uiState.passwordItems.isNotEmpty())
-                FloatingActionButton(onClick = { viewModel.dispatch(HomeIntent.AddNewConfigClicked) }) {
+                FloatingActionButton(onClick = onNavigateToCreateConfig) {
                     Icon(Icons.Default.Add, contentDescription = "Add Config")
                 }
         },
@@ -49,7 +52,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         if (uiState.passwordItems.isEmpty()) {
             EmptyHomeContent(
                 modifier = Modifier.padding(innerPadding),
-                onAddClick = { viewModel.dispatch(HomeIntent.AddNewConfigClicked) }
+                onAddClick = onNavigateToCreateConfig
             )
         } else {
             Column(
@@ -79,16 +82,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
-    }
-
-    if (uiState.isAddConfigDialogVisible) {
-        AddPassGenConfig(
-            modifier = modifier.secureContent(),
-            onSubmit = { config, rawKey ->
-                viewModel.dispatch(HomeIntent.CreateConfig(config, rawKey))
-            },
-            onDismissRequest = { viewModel.dispatch(HomeIntent.CancelCreatingNewConfigClicked) }
-        )
     }
 }
 

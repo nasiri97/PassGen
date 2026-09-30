@@ -29,6 +29,7 @@ import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
+import ir.ornix.passgen.feature.config.impl.di.configModule
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import ir.ornix.passgen.feature.localauth.impl.presentation.SecretSetupViewModel
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
@@ -40,6 +41,8 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
+    includes(configModule)
+
     single { Settings() }
 
     singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class

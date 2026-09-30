@@ -73,6 +73,8 @@ kotlin {
             implementation(project(":feature:saved-passwords:impl"))
             implementation(project(":feature:settings:api"))
             implementation(project(":feature:settings:impl"))
+            implementation(project(":feature:config:api"))
+            implementation(project(":feature:config:impl"))
 
             implementation(libs.compose.icons)
             implementation(libs.compose.navigation3.ui)

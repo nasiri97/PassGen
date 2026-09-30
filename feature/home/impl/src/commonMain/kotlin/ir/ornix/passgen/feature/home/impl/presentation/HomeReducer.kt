@@ -5,21 +5,12 @@ internal fun reduce(
     change: HomePartialState
 ): HomeUiState {
     return when (change) {
-
         is HomePartialState.InputChanged -> {
             oldState.copy(input = change.input)
         }
 
         is HomePartialState.Loading -> {
             oldState.copy(isLoading = false)
-        }
-
-        is HomePartialState.ShowAddConfigDialog -> {
-            oldState.copy(isAddConfigDialogVisible = true)
-        }
-
-        is HomePartialState.HideAddConfigDialog, HomePartialState.ConfigCreated -> {
-            oldState.copy(isAddConfigDialogVisible = false)
         }
 
         is HomePartialState.PasswordItemsLoaded -> {
