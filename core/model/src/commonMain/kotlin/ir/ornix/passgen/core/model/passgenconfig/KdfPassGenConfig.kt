@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("kdf_pass_gen_config")
-data class KDFPassGenConfig(
+data class KdfPassGenConfig(
     override val id: Int,
     override val name: String,
     val preprocessConfig: PreprocessConfig,

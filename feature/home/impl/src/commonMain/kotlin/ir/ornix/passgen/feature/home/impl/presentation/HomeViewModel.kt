@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.GetAllKDFPassGenConfigsUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.RemoveKDFPassGenConfigUseCase
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -20,9 +20,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    private val getAllPassGenConfigs: GetAllKDFPassGenConfigsUseCase,
+    private val getAllPassGenConfigs: GetAllKdfPassGenConfigsUseCase,
     private val generateKDFPass: GenerateKDFPassUseCase,
-    private val removePassGenConfig: RemoveKDFPassGenConfigUseCase,
+    private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
     private val saveAccountUseCase: SaveAccountUseCase
 ) : ViewModel() {
 
@@ -31,11 +31,11 @@ class HomeViewModel(
     val uiState: StateFlow<HomeUiState>
         field : MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
 
-    private val configsFlow: Flow<List<KDFPassGenConfig>> = getAllPassGenConfigs()
+    private val configsFlow: Flow<List<KdfPassGenConfig>> = getAllPassGenConfigs()
 
     private val jobs = HashMap<Int, Job>()
 
-    private fun calculate(config: KDFPassGenConfig, input: String) {
+    private fun calculate(config: KdfPassGenConfig, input: String) {
         jobs[config.id]?.cancel()
 
         jobs[config.id] = viewModelScope.launch {

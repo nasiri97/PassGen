@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.domain.passgenconfig
+package ir.ornix.passgen.core.domain.passgenconfig.kdf
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
@@ -7,7 +7,7 @@ import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.Flow
@@ -20,16 +20,16 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class RemoveKDFPassGenConfigUseCaseTest {
+class RemoveKdfPassGenConfigUseCaseTest {
 
     private lateinit var repository: FakePassGenConfigRepository
     private lateinit var hmacSigner: FakeHmacSigner
-    private lateinit var useCase: RemoveKDFPassGenConfigUseCase
+    private lateinit var useCase: RemoveKdfPassGenConfigUseCase
 
     private val masterKey1 = "master_key_1".encodeToByteArray()
     private val masterKey2 = "master_key_2".encodeToByteArray()
 
-    private val testConfig1 = KDFPassGenConfig(
+    private val testConfig1 = KdfPassGenConfig(
         id = 100,
         name = "Config 100",
         preprocessConfig = PreprocessConfig(
@@ -42,7 +42,7 @@ class RemoveKDFPassGenConfigUseCaseTest {
         passwordLength = 32
     )
 
-    private val testConfig2 = KDFPassGenConfig(
+    private val testConfig2 = KdfPassGenConfig(
         id = 200,
         name = "Config 200",
         preprocessConfig = PreprocessConfig(
@@ -59,7 +59,7 @@ class RemoveKDFPassGenConfigUseCaseTest {
     fun setup() {
         repository = FakePassGenConfigRepository()
         hmacSigner = FakeHmacSigner()
-        useCase = RemoveKDFPassGenConfigUseCase(repository, hmacSigner)
+        useCase = RemoveKdfPassGenConfigUseCase(repository, hmacSigner)
     }
 
     @Test
@@ -141,7 +141,7 @@ class RemoveKDFPassGenConfigUseCaseTest {
                 override fun getAll(): Flow<List<PassGenConfig>> = repository.getAll()
             }
 
-            val failingUseCase = RemoveKDFPassGenConfigUseCase(failingRepo, hmacSigner)
+            val failingUseCase = RemoveKdfPassGenConfigUseCase(failingRepo, hmacSigner)
 
             val exception = assertFailsWith<IllegalStateException> {
                 failingUseCase(testConfig1.id)
@@ -168,7 +168,7 @@ class RemoveKDFPassGenConfigUseCaseTest {
                 }
             }
 
-            val failingUseCase = RemoveKDFPassGenConfigUseCase(repository, failingSigner)
+            val failingUseCase = RemoveKdfPassGenConfigUseCase(repository, failingSigner)
 
             val exception = assertFailsWith<IllegalArgumentException> {
                 failingUseCase(testConfig1.id)

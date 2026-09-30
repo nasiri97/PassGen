@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.home.impl.ui
+package ir.ornix.passgen.feature.random.impl.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -39,11 +39,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
-import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
 import ir.ornix.passgen.core.ui.utils.strengthColor
-import ir.ornix.passgen.feature.home.impl.presentation.PasswordItem
+import ir.ornix.passgen.feature.random.impl.presentation.PasswordItem
 import kotlinx.coroutines.launch
 
 private val passCardCornerRadius = 16.dp
@@ -54,7 +54,7 @@ fun SwipeablePasswordGenerator(
     passwordItem: PasswordItem,
     onRemove: () -> Unit,
     addNewAccount: (account: Account) -> Unit,
-    showPassGenInfoDialog: (KdfPassGenConfig) -> Unit,
+    showPassGenInfoDialog: (RandomPassGenConfig) -> Unit,
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -188,7 +188,6 @@ private fun PasswordGenerator(
             PasswordAndActions(
                 password = passwordItem.password?.value,
                 copy = copy,
-                isLoading = passwordItem.isCalculating,
                 modifier = Modifier.fillMaxWidth()
             )
 

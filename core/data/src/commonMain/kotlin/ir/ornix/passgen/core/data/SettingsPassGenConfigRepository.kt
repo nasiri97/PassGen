@@ -3,7 +3,7 @@ package ir.ornix.passgen.core.data
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +33,7 @@ class SettingsPassGenConfigRepository(private val settings: Settings) : PassGenC
         val newId = (current.maxOfOrNull { it.id } ?: -1) + 1
 
         val newConfig = when (config) {
-            is KDFPassGenConfig -> config.copy(id = newId)
+            is KdfPassGenConfig -> config.copy(id = newId)
             is RandomPassGenConfig -> config.copy(id = newId)
         }
 

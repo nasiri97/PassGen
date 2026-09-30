@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.home.impl.ui
+package ir.ornix.passgen.feature.random.impl.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,10 +12,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import ir.ornix.passgen.core.ui.component.getAdaptiveValue
-import ir.ornix.passgen.feature.home.impl.presentation.PasswordItem
+import ir.ornix.passgen.feature.random.impl.presentation.PasswordItem
 
 @Composable
 fun PasswordGeneratorList(
@@ -25,7 +25,7 @@ fun PasswordGeneratorList(
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var passGenConfig by remember { mutableStateOf<KdfPassGenConfig?>(null) }
+    var passGenConfig by remember { mutableStateOf<RandomPassGenConfig?>(null) }
 
     val columnsCount = getAdaptiveValue<Int>(
         compact = { 1 },

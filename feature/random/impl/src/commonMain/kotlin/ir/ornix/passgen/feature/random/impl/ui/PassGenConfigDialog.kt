@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.home.impl.ui
+package ir.ornix.passgen.feature.random.impl.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,13 +23,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
-import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import ir.ornix.passgen.core.ui.security.secureContent
 
 @Composable
 fun PassGenConfigDialog(
-    config: KdfPassGenConfig,
+    config: RandomPassGenConfig,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -54,14 +53,6 @@ fun PassGenConfigDialog(
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "Preprocess Settings",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                PreprocessSettings(config.preprocessConfig)
-
-                HorizontalDivider()
 
                 Text(
                     text = "Generating Settings",
@@ -69,11 +60,6 @@ fun PassGenConfigDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                ConfigColumn(
-                    label = "Hashing Algorithm",
-                    name = config.inputHasher.fullName,
-                    description = config.inputHasher.description
-                )
                 ConfigColumn(
                     label = "Output Encoder Type",
                     name = config.passEncoder.fullName,
@@ -143,15 +129,6 @@ private fun ConfigRow(label: String, value: String) {
             text = value,
             style = MaterialTheme.typography.bodyMedium
         )
-    }
-}
-
-@Composable
-private fun PreprocessSettings(config: PreprocessConfig) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SettingItem("Trim Spaces", config.trimLeadingAndTrailingSpaces)
-        SettingItem("Collapse Spaces", config.collapseMultipleSpaces)
-        SettingItem("To Lowercase", config.convertToLowercase)
     }
 }
 

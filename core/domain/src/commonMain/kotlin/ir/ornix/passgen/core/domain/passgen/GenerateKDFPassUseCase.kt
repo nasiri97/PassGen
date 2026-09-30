@@ -6,14 +6,14 @@ import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 
 class GenerateKDFPassUseCase(
     private val configRepo: PassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {
 
-    suspend operator fun invoke(config: KDFPassGenConfig, input: String): Password? {
+    suspend operator fun invoke(config: KdfPassGenConfig, input: String): Password? {
         val passGen = config.createPassGen()
         val processedInput = config.preprocessConfig(input)
 

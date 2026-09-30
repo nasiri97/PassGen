@@ -10,7 +10,7 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -101,7 +101,7 @@ class GenerateKDFPassUseCaseTest {
 
     @Test
     fun `invoke returns password when key is registered`() = runTest(timeout = TIMEOUT) {
-        val config = KDFPassGenConfig(
+        val config = KdfPassGenConfig(
             id = 100,
             name = "Test Config",
             preprocessConfig = rawPreprocessConfig,
@@ -121,7 +121,7 @@ class GenerateKDFPassUseCaseTest {
     @Test
     fun `invoke removes config and returns null when signing key is missing`() =
         runTest(timeout = TIMEOUT) {
-            val config = KDFPassGenConfig(
+            val config = KdfPassGenConfig(
                 id = 200,
                 name = "Missing Key Config",
                 preprocessConfig = rawPreprocessConfig,
@@ -336,7 +336,7 @@ class GenerateKDFPassUseCaseTest {
 
     @Test
     fun `invoke supports Z85PassEncoder`() = runTest(timeout = TIMEOUT) {
-        val config = KDFPassGenConfig(
+        val config = KdfPassGenConfig(
             id = 500,
             name = "Z85 Config",
             preprocessConfig = rawPreprocessConfig,
@@ -362,7 +362,7 @@ class GenerateKDFPassUseCaseTest {
                 for (encoder in PassEncoder.getValidItems(hasher)) {
                     if (encoder is StringPassEncoder) {
                         val tokenLen = encoder.getTokenLength(hasher.outputByteSize)
-                        val config = KDFPassGenConfig(
+                        val config = KdfPassGenConfig(
                             id = 600,
                             name = "Combo Config ${hasher.key}-${encoder.key}",
                             preprocessConfig = rawPreprocessConfig,
@@ -441,7 +441,7 @@ class GenerateKDFPassUseCaseTest {
         passEncoder: SeedPassEncoder,
         expectedWordCount: Int
     ) {
-        val config = KDFPassGenConfig(
+        val config = KdfPassGenConfig(
             id = configId,
             name = "Bip39 ${passEncoder.key} Config",
             preprocessConfig = rawPreprocessConfig,
@@ -467,8 +467,8 @@ class GenerateKDFPassUseCaseTest {
         id: Int,
         preprocessConfig: PreprocessConfig = rawPreprocessConfig,
         passwordLength: Int = 32
-    ): KDFPassGenConfig {
-        return KDFPassGenConfig(
+    ): KdfPassGenConfig {
+        return KdfPassGenConfig(
             id = id,
             name = "Test Config $id",
             preprocessConfig = preprocessConfig,
@@ -485,7 +485,7 @@ class GenerateKDFPassUseCaseTest {
         expectedBcryptBase64: String,
         expectedArgon2Base64: String,
     ) {
-        val sha256Config = KDFPassGenConfig(
+        val sha256Config = KdfPassGenConfig(
             id = 1,
             name = "SHA256 Config",
             preprocessConfig = rawPreprocessConfig,
@@ -494,7 +494,7 @@ class GenerateKDFPassUseCaseTest {
             passwordLength = expectedSha256Hex.length,
         )
 
-        val sha512Config = KDFPassGenConfig(
+        val sha512Config = KdfPassGenConfig(
             id = 2,
             name = "SHA512 Config",
             preprocessConfig = rawPreprocessConfig,
@@ -503,7 +503,7 @@ class GenerateKDFPassUseCaseTest {
             passwordLength = 16,
         )
 
-        val bcryptConfig = KDFPassGenConfig(
+        val bcryptConfig = KdfPassGenConfig(
             id = 3,
             name = "BCrypt Config",
             preprocessConfig = rawPreprocessConfig,
@@ -512,7 +512,7 @@ class GenerateKDFPassUseCaseTest {
             passwordLength = 25,
         )
 
-        val argon2Config = KDFPassGenConfig(
+        val argon2Config = KdfPassGenConfig(
             id = 4,
             name = "Argon2 Config",
             preprocessConfig = rawPreprocessConfig,

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +54,8 @@ import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
 import ir.ornix.passgen.feature.localauth.api.LocalAuthRoute
 import ir.ornix.passgen.feature.localauth.impl.ui.SecretSetupScreen
+import ir.ornix.passgen.feature.random.api.RandomRoute
+import ir.ornix.passgen.feature.random.impl.ui.RandomScreen
 import ir.ornix.passgen.feature.savedpasswords.api.SavedPasswordsRoute
 import ir.ornix.passgen.feature.savedpasswords.impl.ui.SavedPasswordsScreen
 import ir.ornix.passgen.feature.settings.api.SettingsRoute
@@ -68,6 +71,7 @@ import org.koin.compose.koinInject
 
 sealed class NavItem(val route: NavKey, val label: String, val icon: ImageVector) {
     data object Home : NavItem(HomeRoute, "Home", Icons.Default.Home)
+    data object Random : NavItem(RandomRoute, "Random", Icons.Default.Shuffle)
     data object SavedPasswords : NavItem(SavedPasswordsRoute, "Saved Passwords", Icons.Default.Lock)
     data object Settings : NavItem(SettingsRoute, "Settings", Icons.Default.Settings)
     data object About : NavItem(AboutRoute, "About", Icons.Default.Info)
@@ -75,6 +79,7 @@ sealed class NavItem(val route: NavKey, val label: String, val icon: ImageVector
 
 private val drawerItems = listOf(
     NavItem.Home,
+    NavItem.Random,
     NavItem.SavedPasswords,
     NavItem.Settings,
     NavItem.About
@@ -173,6 +178,7 @@ fun App(modifier: Modifier = Modifier) {
                                 }
 
                                 is HomeRoute,
+                                is RandomRoute,
                                 is SavedPasswordsRoute,
                                 is SettingsRoute,
                                 is AboutRoute -> NavEntry(key) {
@@ -271,6 +277,7 @@ private fun MainAppContent(
             Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                 when (currentRoute) {
                     HomeRoute -> HomeScreen(onNavigateToCreateConfig = onNavigateToCreateConfig)
+                    RandomRoute -> RandomScreen(onNavigateToCreateConfig = onNavigateToCreateConfig)
                     SavedPasswordsRoute -> SavedPasswordsScreen()
                     SettingsRoute -> SettingsScreen(
                         onNavigateToSecretSetupClick = {

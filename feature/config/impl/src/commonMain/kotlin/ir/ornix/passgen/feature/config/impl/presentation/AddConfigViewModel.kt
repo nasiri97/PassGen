@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
-import ir.ornix.passgen.core.domain.passgenconfig.AddKDFPassGenConfigUseCase
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddConfigViewModel(
-    private val addKDFPassGenConfigUseCase: AddKDFPassGenConfigUseCase
+    private val addKDFPassGenConfigUseCase: AddKdfPassGenConfigUseCase
 ) : ViewModel() {
 
     private val intents = Channel<AddConfigIntent>()
@@ -80,7 +80,7 @@ class AddConfigViewModel(
         viewModelScope.launch {
             apply(AddConfigPartialState.Submitting)
             try {
-                val config = KDFPassGenConfig(
+                val config = KdfPassGenConfig(
                     id = 0,
                     name = state.name.trim(),
                     passEncoder = state.selectedEncoder,

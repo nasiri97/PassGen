@@ -19,9 +19,9 @@ import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.AddKDFPassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.GetAllKDFPassGenConfigsUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.RemoveKDFPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import kotlinx.coroutines.flow.Flow
@@ -59,9 +59,9 @@ class GenerateKDFPassUiTest : KoinTest {
         } bind AccountRepository::class
 
         factoryOf(::GenerateKDFPassUseCase)
-        factoryOf(::AddKDFPassGenConfigUseCase)
-        factoryOf(::GetAllKDFPassGenConfigsUseCase)
-        factoryOf(::RemoveKDFPassGenConfigUseCase)
+        factoryOf(::AddKdfPassGenConfigUseCase)
+        factoryOf(::GetAllKdfPassGenConfigsUseCase)
+        factoryOf(::RemoveKdfPassGenConfigUseCase)
         factoryOf(::SaveAccountUseCase)
         factory { GenerateRandomPassUseCase() }
 

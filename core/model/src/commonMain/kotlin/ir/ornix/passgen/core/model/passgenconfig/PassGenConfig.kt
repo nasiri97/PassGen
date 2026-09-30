@@ -43,9 +43,8 @@ sealed interface PassGenConfig {
         PassGen.validatePasswordLength(
             passEncoder = passEncoder,
             maxEntropyByteSize = when (this) {
-                is KDFPassGenConfig -> this.inputHasher.outputByteSize
+                is KdfPassGenConfig -> this.inputHasher.outputByteSize
                 is RandomPassGenConfig -> RandomPassGen.RANDOM_PASS_GEN_MAX_ENTROPY_BYTE_SIZE
-                else -> 0
             },
             passwordLength = passwordLength
         )

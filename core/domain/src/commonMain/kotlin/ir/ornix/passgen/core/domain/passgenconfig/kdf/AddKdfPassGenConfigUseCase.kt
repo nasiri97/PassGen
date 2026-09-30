@@ -1,15 +1,15 @@
-package ir.ornix.passgen.core.domain.passgenconfig
+package ir.ornix.passgen.core.domain.passgenconfig.kdf
 
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 
 
-class AddKDFPassGenConfigUseCase(
+class AddKdfPassGenConfigUseCase(
     private val passGenConfigRepo: PassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {
-    suspend operator fun invoke(config: KDFPassGenConfig, rawKey: ByteArray) {
+    suspend operator fun invoke(config: KdfPassGenConfig, rawKey: ByteArray) {
         val configId = passGenConfigRepo.add(config)
         hmacSigner.registerKey("$configId", rawKey)
     }

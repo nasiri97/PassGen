@@ -1,9 +1,9 @@
-package ir.ornix.passgen.core.domain.passgenconfig
+package ir.ornix.passgen.core.domain.passgenconfig.kdf
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
-import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -12,12 +12,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class GetAllKDFPassGenConfigsUseCaseTest {
+class GetAllKdfPassGenConfigsUseCaseTest {
 
     private lateinit var repository: FakePassGenConfigRepository
-    private lateinit var useCase: GetAllKDFPassGenConfigsUseCase
+    private lateinit var useCase: GetAllKdfPassGenConfigsUseCase
 
-    private val defaultConfig1 = KDFPassGenConfig(
+    private val defaultConfig1 = KdfPassGenConfig(
         id = 1,
         name = "Config 1",
         preprocessConfig = PreprocessConfig(
@@ -30,7 +30,7 @@ class GetAllKDFPassGenConfigsUseCaseTest {
         passwordLength = 32
     )
 
-    private val defaultConfig2 = KDFPassGenConfig(
+    private val defaultConfig2 = KdfPassGenConfig(
         id = 2,
         name = "Config 2",
         preprocessConfig = PreprocessConfig(
@@ -46,7 +46,7 @@ class GetAllKDFPassGenConfigsUseCaseTest {
     @BeforeTest
     fun setup() {
         repository = FakePassGenConfigRepository()
-        useCase = GetAllKDFPassGenConfigsUseCase(repository)
+        useCase = GetAllKdfPassGenConfigsUseCase(repository)
     }
 
     @Test
@@ -109,7 +109,7 @@ class GetAllKDFPassGenConfigsUseCaseTest {
 
     @Test
     fun `invoke should preserve all config properties intact`() = runTest {
-        val customConfig = KDFPassGenConfig(
+        val customConfig = KdfPassGenConfig(
             id = 100,
             name = "Custom Config Name",
             preprocessConfig = PreprocessConfig(

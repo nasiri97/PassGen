@@ -1,9 +1,9 @@
-package ir.ornix.passgen.core.domain.passgenconfig
+package ir.ornix.passgen.core.domain.passgenconfig.kdf
 
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 
-class RemoveKDFPassGenConfigUseCase(
+class RemoveKdfPassGenConfigUseCase(
     private val configRepo: PassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {

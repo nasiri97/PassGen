@@ -67,6 +67,8 @@ kotlin {
             implementation(project(":feature:localauth:impl"))
             implementation(project(":feature:home:api"))
             implementation(project(":feature:home:impl"))
+            implementation(project(":feature:random:api"))
+            implementation(project(":feature:random:impl"))
             implementation(project(":feature:about:api"))
             implementation(project(":feature:about:impl"))
             implementation(project(":feature:saved-passwords:api"))

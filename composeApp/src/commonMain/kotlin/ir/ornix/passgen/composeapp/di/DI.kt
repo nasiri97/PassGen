@@ -26,15 +26,16 @@ import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.AddKDFPassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.AddRandomPassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.GetAllKDFPassGenConfigsUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.GetAllRandomPassGenConfigsUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.RemoveKDFPassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.RemoveRandomPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.random.AddRandomPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.random.GetAllRandomPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.random.RemoveRandomPassGenConfigUseCase
 import ir.ornix.passgen.feature.config.impl.di.configModule
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import ir.ornix.passgen.feature.localauth.impl.presentation.SecretSetupViewModel
+import ir.ornix.passgen.feature.random.impl.presentation.RandomViewModel
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateViewModel
 import org.koin.core.module.dsl.factoryOf
@@ -59,9 +60,9 @@ val appModule = module {
     factoryOf(::GenerateKDFPassUseCase)
     factoryOf(::GenerateRandomPassUseCase)
 
-    factoryOf(::AddKDFPassGenConfigUseCase)
-    factoryOf(::GetAllKDFPassGenConfigsUseCase)
-    factoryOf(::RemoveKDFPassGenConfigUseCase)
+    factoryOf(::AddKdfPassGenConfigUseCase)
+    factoryOf(::GetAllKdfPassGenConfigsUseCase)
+    factoryOf(::RemoveKdfPassGenConfigUseCase)
 
     factoryOf(::AddRandomPassGenConfigUseCase)
     factoryOf(::GetAllRandomPassGenConfigsUseCase)
@@ -79,6 +80,7 @@ val appModule = module {
     factoryOf(::IsUnlockingRequiredUseCase)
 
     viewModelOf(::HomeViewModel)
+    viewModelOf(::RandomViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::UnlockingGateViewModel)
     viewModelOf(::SecretSetupViewModel)
