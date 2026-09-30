@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
-import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.ui.component.EncoderTypeSelector
 import ir.ornix.passgen.core.ui.component.HashingTypeSelector
@@ -112,28 +111,6 @@ fun AddKdfConfigScreen(
 
     val masterKeyValidation by remember(uiState.masterKey, uiState.confirmMasterKey) {
         derivedStateOf { validateMasterKey(uiState.masterKey, uiState.confirmMasterKey) }
-    }
-
-    val encoders = remember(uiState.selectedHasher) {
-        PassEncoder.getValidItems(uiState.selectedHasher)
-    }
-
-    val tokenUnitCount by remember(uiState.selectedHasher, uiState.selectedEncoder) {
-        derivedStateOf {
-            when (val encoder = uiState.selectedEncoder) {
-                is SeedPassEncoder -> null
-                is StringPassEncoder -> encoder.getTokenLength(byteSize = uiState.selectedHasher.outputByteSize)
-            }
-        }
-    }
-
-    val approximateByteCount by remember(uiState.selectedEncoder, uiState.passLength) {
-        derivedStateOf {
-            when (val encoder = uiState.selectedEncoder) {
-                is SeedPassEncoder -> 0
-                is StringPassEncoder -> encoder.getEntropyByteSize(uiState.passLength)
-            }
-        }
     }
 
     Scaffold(
@@ -228,9 +205,9 @@ fun AddKdfConfigScreen(
                     AddKdfConfigStep.ConfigDetails -> {
                         ConfigDetailsStepContent(
                             uiState = uiState,
-                            encoders = encoders,
-                            tokenUnitCount = tokenUnitCount,
-                            approximateByteCount = approximateByteCount,
+                            availableEncoders = uiState.availableEncoders,
+                            maxAvailablePassLength = uiState.maxAvailablePassLength,
+                            entropyByteSize = uiState.entropyByteSize,
                             onNameChange = { viewModel.dispatch(AddKdfConfigIntent.NameChanged(it)) },
                             onTrimSpacesChange = {
                                 viewModel.dispatch(
@@ -447,9 +424,9 @@ private fun ValidationRequirementItem(
 @Composable
 private fun ConfigDetailsStepContent(
     uiState: AddKdsConfigUiState,
-    encoders: List<PassEncoder>,
-    tokenUnitCount: Int?,
-    approximateByteCount: Int,
+    availableEncoders: List<PassEncoder>,
+    maxAvailablePassLength: Int?,
+    entropyByteSize: Int,
     onNameChange: (String) -> Unit,
     onTrimSpacesChange: (Boolean) -> Unit,
     onCollapseSpacesChange: (Boolean) -> Unit,
@@ -497,18 +474,18 @@ private fun ConfigDetailsStepContent(
         HorizontalDivider()
 
         EncoderTypeSelector(
-            encoders = encoders,
+            encoders = availableEncoders,
             selectedEncoder = uiState.selectedEncoder,
             onSelected = onEncoderSelected
         )
 
         HorizontalDivider()
 
-        if (uiState.selectedEncoder is StringPassEncoder && tokenUnitCount != null) {
+        if (uiState.selectedEncoder is StringPassEncoder && maxAvailablePassLength != null) {
             PassLengthSection(
                 passLength = uiState.passLength,
-                approximateByteCount = approximateByteCount,
-                tokenUnitCount = tokenUnitCount,
+                entropyByteSize = entropyByteSize,
+                maxAvailablePassLength = maxAvailablePassLength,
                 onPassLengthChange = onPassLengthChange
             )
         }
@@ -588,8 +565,8 @@ fun Preprocessing(
 @Composable
 fun PassLengthSection(
     passLength: Int,
-    tokenUnitCount: Int,
-    approximateByteCount: Int,
+    maxAvailablePassLength: Int,
+    entropyByteSize: Int,
     onPassLengthChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -603,7 +580,7 @@ fun PassLengthSection(
             Text(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
-                text = "≈ $approximateByteCount bytes",
+                text = "≈ $entropyByteSize bytes",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -612,7 +589,7 @@ fun PassLengthSection(
         NumberSlider(
             currentValue = passLength,
             min = 8,
-            max = tokenUnitCount,
+            max = maxAvailablePassLength,
             onValueChange = onPassLengthChange
         )
     }

@@ -26,9 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -36,9 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
-import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
-import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
 import ir.ornix.passgen.core.ui.component.EncoderTypeSelector
 import ir.ornix.passgen.core.ui.component.NumberSlider
 import ir.ornix.passgen.core.ui.security.secureContent
@@ -61,26 +57,6 @@ fun AddRandomConfigScreen(
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onConfigCreated()
-        }
-    }
-
-    val encoders = PassEncoder.getValidItems(RandomPassGen.RANDOM_PASS_GEN_MAX_ENTROPY_BYTE_SIZE)
-
-    val tokenUnitCount by remember(uiState.selectedEncoder) {
-        derivedStateOf {
-            when (val encoder = uiState.selectedEncoder) {
-                is SeedPassEncoder -> null
-                is StringPassEncoder -> encoder.getTokenLength(byteSize = RandomPassGen.RANDOM_PASS_GEN_MAX_ENTROPY_BYTE_SIZE)
-            }
-        }
-    }
-
-    val approximateByteCount by remember(uiState.selectedEncoder, uiState.passLength) {
-        derivedStateOf {
-            when (val encoder = uiState.selectedEncoder) {
-                is SeedPassEncoder -> 0
-                is StringPassEncoder -> encoder.getEntropyByteSize(uiState.passLength)
-            }
         }
     }
 
@@ -124,9 +100,9 @@ fun AddRandomConfigScreen(
         ) {
             ConfigDetailsStepContent(
                 uiState = uiState,
-                encoders = encoders,
-                tokenUnitCount = tokenUnitCount,
-                approximateByteCount = approximateByteCount,
+                encoders = uiState.availableEncoders,
+                maxAvailablePassLength = uiState.maxAvailablePassLength,
+                entropyByteSize = uiState.entropyByteSize,
                 onNameChange = { viewModel.dispatch(AddRandomConfigIntent.NameChanged(it)) },
                 onEncoderSelected = {
                     viewModel.dispatch(
@@ -153,8 +129,8 @@ fun AddRandomConfigScreen(
 private fun ConfigDetailsStepContent(
     uiState: AddRandomConfigUiState,
     encoders: List<PassEncoder>,
-    tokenUnitCount: Int?,
-    approximateByteCount: Int,
+    maxAvailablePassLength: Int?,
+    entropyByteSize: Int,
     onNameChange: (String) -> Unit,
     onEncoderSelected: (PassEncoder) -> Unit,
     onPassLengthChange: (Int) -> Unit,
@@ -187,11 +163,11 @@ private fun ConfigDetailsStepContent(
 
         HorizontalDivider()
 
-        if (uiState.selectedEncoder is StringPassEncoder && tokenUnitCount != null) {
+        if (uiState.selectedEncoder is StringPassEncoder && maxAvailablePassLength != null) {
             PassLengthSection(
                 passLength = uiState.passLength,
-                approximateByteCount = approximateByteCount,
-                tokenUnitCount = tokenUnitCount,
+                entropyByteSize = entropyByteSize,
+                maxAvailablePassLength = maxAvailablePassLength,
                 onPassLengthChange = onPassLengthChange
             )
         }
@@ -234,8 +210,8 @@ private fun ConfigDetailsStepContent(
 @Composable
 fun PassLengthSection(
     passLength: Int,
-    tokenUnitCount: Int,
-    approximateByteCount: Int,
+    maxAvailablePassLength: Int,
+    entropyByteSize: Int,
     onPassLengthChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -249,7 +225,7 @@ fun PassLengthSection(
             Text(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
-                text = "≈ $approximateByteCount bytes",
+                text = "≈ $entropyByteSize bytes",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -258,7 +234,7 @@ fun PassLengthSection(
         NumberSlider(
             currentValue = passLength,
             min = 8,
-            max = tokenUnitCount,
+            max = maxAvailablePassLength,
             onValueChange = onPassLengthChange
         )
     }
