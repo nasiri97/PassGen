@@ -5,7 +5,7 @@ import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
 
 
-class AddPassGenConfigUseCase(
+class AddKDFPassGenConfigUseCase(
     private val passGenConfigRepo: PassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {

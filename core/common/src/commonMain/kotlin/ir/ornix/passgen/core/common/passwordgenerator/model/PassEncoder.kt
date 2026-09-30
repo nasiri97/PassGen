@@ -65,7 +65,7 @@ sealed class PassEncoder(key: String, instance: Encoder) :
         const val KEY_PASS_ENCODER_BIP39_21_WORDS = "PASS_ENCODER_BIP39_21_WORDS"
         const val KEY_PASS_ENCODER_BIP39_24_WORDS = "PASS_ENCODER_BIP39_24_WORDS"
 
-        internal val allItems = allStringPassEncoders + allSeedPassEncoders
+        internal val allItems by lazy { allStringPassEncoders + allSeedPassEncoders }
 
         fun getValidItems(inputHasher: InputHasher): List<PassEncoder> {
             return getValidItems(inputHasher.outputByteSize)

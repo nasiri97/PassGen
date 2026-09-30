@@ -7,6 +7,7 @@ import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -18,11 +19,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class AddPassGenConfigUseCaseTest {
+class AddKDFPassGenConfigUseCaseTest {
 
     private lateinit var repository: FakePassGenConfigRepository
     private lateinit var hmacSigner: FakeHmacSigner
-    private lateinit var useCase: AddPassGenConfigUseCase
+    private lateinit var useCase: AddKDFPassGenConfigUseCase
 
     private val masterKey1 = "master_key_1234567890_1234567890".encodeToByteArray()
     private val masterKey2 = "another_secret_master_key_98765".encodeToByteArray()
@@ -57,7 +58,7 @@ class AddPassGenConfigUseCaseTest {
     fun setup() {
         repository = FakePassGenConfigRepository()
         hmacSigner = FakeHmacSigner()
-        useCase = AddPassGenConfigUseCase(repository, hmacSigner)
+        useCase = AddKDFPassGenConfigUseCase(repository, hmacSigner)
     }
 
     @Test
@@ -113,15 +114,15 @@ class AddPassGenConfigUseCaseTest {
     fun `invoke should propagate exception when repository add fails and not register key in signer`() =
         runTest {
             val failingRepo = object : PassGenConfigRepository {
-                override suspend fun add(config: KDFPassGenConfig): Int {
+                override suspend fun add(config: PassGenConfig): Int {
                     throw IllegalStateException("Database write failed")
                 }
 
                 override suspend fun removeById(configId: Int) {}
-                override fun getAll(): Flow<List<KDFPassGenConfig>> = repository.getAll()
+                override fun getAll(): Flow<List<PassGenConfig>> = repository.getAll()
             }
 
-            val failingUseCase = AddPassGenConfigUseCase(failingRepo, hmacSigner)
+            val failingUseCase = AddKDFPassGenConfigUseCase(failingRepo, hmacSigner)
 
             val exception = assertFailsWith<IllegalStateException> {
                 failingUseCase(testConfig1, masterKey1)
@@ -146,7 +147,7 @@ class AddPassGenConfigUseCaseTest {
             override suspend fun deleteMasterKeyDigest(mkdId: String) {}
         }
 
-        val failingUseCase = AddPassGenConfigUseCase(repository, failingSigner)
+        val failingUseCase = AddKDFPassGenConfigUseCase(repository, failingSigner)
 
         val exception = assertFailsWith<IllegalArgumentException> {
             failingUseCase(testConfig1, masterKey1)

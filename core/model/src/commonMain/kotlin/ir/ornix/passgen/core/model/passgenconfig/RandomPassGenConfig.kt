@@ -5,9 +5,11 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@SerialName("random_pass_gen_config")
 data class RandomPassGenConfig(
     override val id: Int,
     override val name: String,

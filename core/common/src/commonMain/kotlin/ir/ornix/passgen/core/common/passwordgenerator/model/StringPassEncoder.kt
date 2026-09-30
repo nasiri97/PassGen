@@ -35,11 +35,13 @@ sealed class StringPassEncoder(
 
 
     companion object {
-        internal val allStringPassEncoders = listOf(
-            HexPassEncoder,
-            Base64PassEncoder,
-            Z85PassEncoder
-        )
+        internal val allStringPassEncoders by lazy {
+            listOf(
+                HexPassEncoder,
+                Base64PassEncoder,
+                Z85PassEncoder
+            )
+        }
     }
 
 

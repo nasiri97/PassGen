@@ -12,10 +12,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class GetAllPassGenConfigsUseCaseTest {
+class GetAllKDFPassGenConfigsUseCaseTest {
 
     private lateinit var repository: FakePassGenConfigRepository
-    private lateinit var useCase: GetAllPassGenConfigsUseCase
+    private lateinit var useCase: GetAllKDFPassGenConfigsUseCase
 
     private val defaultConfig1 = KDFPassGenConfig(
         id = 1,
@@ -46,7 +46,7 @@ class GetAllPassGenConfigsUseCaseTest {
     @BeforeTest
     fun setup() {
         repository = FakePassGenConfigRepository()
-        useCase = GetAllPassGenConfigsUseCase(repository)
+        useCase = GetAllKDFPassGenConfigsUseCase(repository)
     }
 
     @Test

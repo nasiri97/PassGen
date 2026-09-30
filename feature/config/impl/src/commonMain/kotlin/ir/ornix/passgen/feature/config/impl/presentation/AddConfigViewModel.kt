@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
-import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.AddKDFPassGenConfigUseCase
 import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.channels.Channel
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddConfigViewModel(
-    private val addPassGenConfigUseCase: AddPassGenConfigUseCase
+    private val addKDFPassGenConfigUseCase: AddKDFPassGenConfigUseCase
 ) : ViewModel() {
 
     private val intents = Channel<AddConfigIntent>()
@@ -95,7 +95,7 @@ class AddConfigViewModel(
                     ),
                     inputHasher = state.selectedHasher
                 )
-                addPassGenConfigUseCase(config, state.masterKey.encodeToByteArray())
+                addKDFPassGenConfigUseCase(config, state.masterKey.encodeToByteArray())
                 apply(AddConfigPartialState.ConfigCreatedSuccess)
             } catch (e: Exception) {
                 apply(AddConfigPartialState.ConfigCreatedError(e.message ?: "Failed to create configuration"))

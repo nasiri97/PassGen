@@ -36,13 +36,15 @@ sealed class SeedPassEncoder(
 
 
     companion object {
-        internal val allSeedPassEncoders = listOf(
-            Bip39L12PassEncoder,
-            Bip39L15PassEncoder,
-            Bip39L18PassEncoder,
-            Bip39L21PassEncoder,
-            Bip39L24PassEncoder
-        )
+        internal val allSeedPassEncoders by lazy {
+            listOf(
+                Bip39L12PassEncoder,
+                Bip39L15PassEncoder,
+                Bip39L18PassEncoder,
+                Bip39L21PassEncoder,
+                Bip39L24PassEncoder
+            )
+        }
     }
 
 

@@ -7,9 +7,11 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.random.RandomPassGen
 import ir.ornix.passgen.core.model.PasswordStrengthLevel
 import ir.ornix.passgen.core.model.PasswordStrengthLevel.Companion.entropyByteSizeToPasswordStrengthLevel
+import kotlinx.serialization.Serializable
 
 
-interface PassGenConfig {
+@Serializable
+sealed interface PassGenConfig {
     val id: Int
     val name: String
     val passEncoder: PassEncoder

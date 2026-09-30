@@ -8,6 +8,7 @@ import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.model.passgenconfig.KDFPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -19,11 +20,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class RemovePassGenConfigUseCaseTest {
+class RemoveKDFPassGenConfigUseCaseTest {
 
     private lateinit var repository: FakePassGenConfigRepository
     private lateinit var hmacSigner: FakeHmacSigner
-    private lateinit var useCase: RemovePassGenConfigUseCase
+    private lateinit var useCase: RemoveKDFPassGenConfigUseCase
 
     private val masterKey1 = "master_key_1".encodeToByteArray()
     private val masterKey2 = "master_key_2".encodeToByteArray()
@@ -58,7 +59,7 @@ class RemovePassGenConfigUseCaseTest {
     fun setup() {
         repository = FakePassGenConfigRepository()
         hmacSigner = FakeHmacSigner()
-        useCase = RemovePassGenConfigUseCase(repository, hmacSigner)
+        useCase = RemoveKDFPassGenConfigUseCase(repository, hmacSigner)
     }
 
     @Test
@@ -132,15 +133,15 @@ class RemovePassGenConfigUseCaseTest {
             hmacSigner.registerKey("${testConfig1.id}", masterKey1)
 
             val failingRepo = object : PassGenConfigRepository {
-                override suspend fun add(config: KDFPassGenConfig): Int = config.id
+                override suspend fun add(config: PassGenConfig): Int = config.id
                 override suspend fun removeById(configId: Int) {
                     throw IllegalStateException("Database delete failed")
                 }
 
-                override fun getAll(): Flow<List<KDFPassGenConfig>> = repository.getAll()
+                override fun getAll(): Flow<List<PassGenConfig>> = repository.getAll()
             }
 
-            val failingUseCase = RemovePassGenConfigUseCase(failingRepo, hmacSigner)
+            val failingUseCase = RemoveKDFPassGenConfigUseCase(failingRepo, hmacSigner)
 
             val exception = assertFailsWith<IllegalStateException> {
                 failingUseCase(testConfig1.id)
@@ -167,7 +168,7 @@ class RemovePassGenConfigUseCaseTest {
                 }
             }
 
-            val failingUseCase = RemovePassGenConfigUseCase(repository, failingSigner)
+            val failingUseCase = RemoveKDFPassGenConfigUseCase(repository, failingSigner)
 
             val exception = assertFailsWith<IllegalArgumentException> {
                 failingUseCase(testConfig1.id)

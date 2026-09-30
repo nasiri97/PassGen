@@ -26,9 +26,12 @@ import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.AddPassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.GetAllPassGenConfigsUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.RemovePassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.AddKDFPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.AddRandomPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.GetAllKDFPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.GetAllRandomPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.RemoveKDFPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.RemoveRandomPassGenConfigUseCase
 import ir.ornix.passgen.feature.config.impl.di.configModule
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import ir.ornix.passgen.feature.localauth.impl.presentation.SecretSetupViewModel
@@ -54,10 +57,16 @@ val appModule = module {
     single<Crypto> { PlatformCrypto }
 
     factoryOf(::GenerateKDFPassUseCase)
-    factoryOf(::AddPassGenConfigUseCase)
-    factoryOf(::GetAllPassGenConfigsUseCase)
-    factoryOf(::RemovePassGenConfigUseCase)
     factoryOf(::GenerateRandomPassUseCase)
+
+    factoryOf(::AddKDFPassGenConfigUseCase)
+    factoryOf(::GetAllKDFPassGenConfigsUseCase)
+    factoryOf(::RemoveKDFPassGenConfigUseCase)
+
+    factoryOf(::AddRandomPassGenConfigUseCase)
+    factoryOf(::GetAllRandomPassGenConfigsUseCase)
+    factoryOf(::RemoveRandomPassGenConfigUseCase)
+
     factoryOf(::SaveAccountUseCase)
 
     factoryOf(::GetLocalAuthTypeUseCase)
