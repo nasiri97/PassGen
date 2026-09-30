@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.config.impl.ui
+package ir.ornix.passgen.feature.config.impl.kdf.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -51,12 +51,14 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.ui.component.EncoderTypeSelector
+import ir.ornix.passgen.core.ui.component.HashingTypeSelector
 import ir.ornix.passgen.core.ui.component.NumberSlider
 import ir.ornix.passgen.core.ui.security.secureContent
-import ir.ornix.passgen.feature.config.impl.presentation.AddConfigIntent
-import ir.ornix.passgen.feature.config.impl.presentation.AddConfigStep
-import ir.ornix.passgen.feature.config.impl.presentation.AddConfigUiState
-import ir.ornix.passgen.feature.config.impl.presentation.AddConfigViewModel
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigIntent
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigStep
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigViewModel
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdsConfigUiState
 import org.koin.compose.viewmodel.koinViewModel
 
 data class MasterKeyValidation(
@@ -94,12 +96,12 @@ fun validateMasterKey(masterKey: String, confirmMasterKey: String): MasterKeyVal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddConfigScreen(
+fun AddKdfConfigScreen(
     onNavigateBack: () -> Unit,
     onConfigCreated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: AddConfigViewModel = koinViewModel()
+    val viewModel: AddKdfConfigViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.isSuccess) {
@@ -149,8 +151,8 @@ fun AddConfigScreen(
                             )
                             Text(
                                 text = when (uiState.step) {
-                                    AddConfigStep.MasterKey -> "Step 1 of 2: Master Key"
-                                    AddConfigStep.ConfigDetails -> "Step 2 of 2: Configuration Details"
+                                    AddKdfConfigStep.MasterKey -> "Step 1 of 2: Master Key"
+                                    AddKdfConfigStep.ConfigDetails -> "Step 2 of 2: Configuration Details"
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -160,8 +162,8 @@ fun AddConfigScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = {
-                                if (uiState.step == AddConfigStep.ConfigDetails) {
-                                    viewModel.dispatch(AddConfigIntent.PreviousStepClicked)
+                                if (uiState.step == AddKdfConfigStep.ConfigDetails) {
+                                    viewModel.dispatch(AddKdfConfigIntent.PreviousStepClicked)
                                 } else {
                                     onNavigateBack()
                                 }
@@ -177,8 +179,8 @@ fun AddConfigScreen(
                 LinearProgressIndicator(
                     progress = {
                         when (uiState.step) {
-                            AddConfigStep.MasterKey -> 0.5f
-                            AddConfigStep.ConfigDetails -> 1.0f
+                            AddKdfConfigStep.MasterKey -> 0.5f
+                            AddKdfConfigStep.ConfigDetails -> 1.0f
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -200,32 +202,80 @@ fun AddConfigScreen(
                 transitionSpec = { fadeIn() togetherWith fadeOut() }
             ) { targetStep ->
                 when (targetStep) {
-                    AddConfigStep.MasterKey -> {
+                    AddKdfConfigStep.MasterKey -> {
                         MasterKeyStepContent(
                             uiState = uiState,
                             validation = masterKeyValidation,
-                            onMasterKeyChange = { viewModel.dispatch(AddConfigIntent.MasterKeyChanged(it)) },
-                            onConfirmMasterKeyChange = { viewModel.dispatch(AddConfigIntent.ConfirmMasterKeyChanged(it)) },
-                            onNext = { viewModel.dispatch(AddConfigIntent.NextStepClicked) },
+                            onMasterKeyChange = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.MasterKeyChanged(
+                                        it
+                                    )
+                                )
+                            },
+                            onConfirmMasterKeyChange = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.ConfirmMasterKeyChanged(
+                                        it
+                                    )
+                                )
+                            },
+                            onNext = { viewModel.dispatch(AddKdfConfigIntent.NextStepClicked) },
                             onCancel = onNavigateBack
                         )
                     }
 
-                    AddConfigStep.ConfigDetails -> {
+                    AddKdfConfigStep.ConfigDetails -> {
                         ConfigDetailsStepContent(
                             uiState = uiState,
                             encoders = encoders,
                             tokenUnitCount = tokenUnitCount,
                             approximateByteCount = approximateByteCount,
-                            onNameChange = { viewModel.dispatch(AddConfigIntent.NameChanged(it)) },
-                            onTrimSpacesChange = { viewModel.dispatch(AddConfigIntent.TrimSpacesToggled(it)) },
-                            onCollapseSpacesChange = { viewModel.dispatch(AddConfigIntent.CollapseSpacesToggled(it)) },
-                            onLowercaseChange = { viewModel.dispatch(AddConfigIntent.LowercaseToggled(it)) },
-                            onHasherSelected = { viewModel.dispatch(AddConfigIntent.HasherSelected(it)) },
-                            onEncoderSelected = { viewModel.dispatch(AddConfigIntent.EncoderSelected(it)) },
-                            onPassLengthChange = { viewModel.dispatch(AddConfigIntent.PassLengthChanged(it)) },
-                            onBack = { viewModel.dispatch(AddConfigIntent.PreviousStepClicked) },
-                            onCreate = { viewModel.dispatch(AddConfigIntent.SubmitConfigClicked) }
+                            onNameChange = { viewModel.dispatch(AddKdfConfigIntent.NameChanged(it)) },
+                            onTrimSpacesChange = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.TrimSpacesToggled(
+                                        it
+                                    )
+                                )
+                            },
+                            onCollapseSpacesChange = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.CollapseSpacesToggled(
+                                        it
+                                    )
+                                )
+                            },
+                            onLowercaseChange = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.LowercaseToggled(
+                                        it
+                                    )
+                                )
+                            },
+                            onHasherSelected = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.HasherSelected(
+                                        it
+                                    )
+                                )
+                            },
+                            onEncoderSelected = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.EncoderSelected(
+                                        it
+                                    )
+                                )
+                            },
+                            onPassLengthChange = {
+                                viewModel.dispatch(
+                                    AddKdfConfigIntent.PassLengthChanged(
+                                        it
+                                    )
+                                )
+                            },
+                            onBack = { viewModel.dispatch(AddKdfConfigIntent.PreviousStepClicked) },
+                            onCreate = { viewModel.dispatch(AddKdfConfigIntent.SubmitConfigClicked) }
                         )
                     }
                 }
@@ -236,7 +286,7 @@ fun AddConfigScreen(
 
 @Composable
 private fun MasterKeyStepContent(
-    uiState: AddConfigUiState,
+    uiState: AddKdsConfigUiState,
     validation: MasterKeyValidation,
     onMasterKeyChange: (String) -> Unit,
     onConfirmMasterKeyChange: (String) -> Unit,
@@ -396,7 +446,7 @@ private fun ValidationRequirementItem(
 
 @Composable
 private fun ConfigDetailsStepContent(
-    uiState: AddConfigUiState,
+    uiState: AddKdsConfigUiState,
     encoders: List<PassEncoder>,
     tokenUnitCount: Int?,
     approximateByteCount: Int,

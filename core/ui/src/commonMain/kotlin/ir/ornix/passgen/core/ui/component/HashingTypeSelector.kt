@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.config.impl.ui
+package ir.ornix.passgen.core.ui.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

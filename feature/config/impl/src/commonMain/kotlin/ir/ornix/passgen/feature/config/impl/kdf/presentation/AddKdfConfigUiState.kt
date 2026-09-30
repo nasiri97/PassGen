@@ -1,16 +1,16 @@
-package ir.ornix.passgen.feature.config.impl.presentation
+package ir.ornix.passgen.feature.config.impl.kdf.presentation
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 
-enum class AddConfigStep {
+enum class AddKdfConfigStep {
     MasterKey,
     ConfigDetails
 }
 
-data class AddConfigUiState(
-    val step: AddConfigStep = AddConfigStep.MasterKey,
+data class AddKdsConfigUiState(
+    val step: AddKdfConfigStep = AddKdfConfigStep.MasterKey,
     val masterKey: String = "",
     val confirmMasterKey: String = "",
     val name: String = "",

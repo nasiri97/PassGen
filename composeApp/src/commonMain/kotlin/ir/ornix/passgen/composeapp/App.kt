@@ -49,7 +49,8 @@ import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
 import ir.ornix.passgen.feature.config.api.AddConfigRoute
-import ir.ornix.passgen.feature.config.impl.ui.AddConfigScreen
+import ir.ornix.passgen.feature.config.api.PassGenConfigType
+import ir.ornix.passgen.feature.config.impl.AddConfigScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
 import ir.ornix.passgen.feature.localauth.api.LocalAuthRoute
@@ -168,6 +169,7 @@ fun App(modifier: Modifier = Modifier) {
 
                                 is AddConfigRoute -> NavEntry(key) {
                                     AddConfigScreen(
+                                        configType = key.configType,
                                         onNavigateBack = {
                                             backStack.removeLastOrNull()
                                         },
@@ -190,8 +192,8 @@ fun App(modifier: Modifier = Modifier) {
                                                 backStack.add(route)
                                             }
                                         },
-                                        onNavigateToCreateConfig = {
-                                            backStack.add(AddConfigRoute)
+                                        onNavigateToCreateConfig = { configType ->
+                                            backStack.add(AddConfigRoute(configType))
                                         }
                                     )
                                 }
@@ -210,7 +212,7 @@ fun App(modifier: Modifier = Modifier) {
 private fun MainAppContent(
     currentRoute: NavKey,
     onNavigate: (destination: NavKey, clearBackStack: Boolean) -> Unit,
-    onNavigateToCreateConfig: () -> Unit,
+    onNavigateToCreateConfig: (configType: PassGenConfigType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val drawerState = rememberDrawerState(
@@ -276,8 +278,14 @@ private fun MainAppContent(
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                 when (currentRoute) {
-                    HomeRoute -> HomeScreen(onNavigateToCreateConfig = onNavigateToCreateConfig)
-                    RandomRoute -> RandomScreen(onNavigateToCreateConfig = onNavigateToCreateConfig)
+                    HomeRoute -> HomeScreen(onNavigateToCreateConfig = {
+                        onNavigateToCreateConfig(PassGenConfigType.PASS_GEN_CONFIG_KDF)
+                    })
+
+                    RandomRoute -> RandomScreen(onNavigateToCreateConfig = {
+                        onNavigateToCreateConfig(PassGenConfigType.PASS_GEN_CONFIG_RANDOM)
+                    })
+
                     SavedPasswordsRoute -> SavedPasswordsScreen()
                     SettingsRoute -> SettingsScreen(
                         onNavigateToSecretSetupClick = {

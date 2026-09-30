@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.ui.utils
+package ir.ornix.passgen.core.ui.util
 
 import androidx.compose.ui.graphics.Color
 import ir.ornix.passgen.core.model.PasswordStrengthLevel

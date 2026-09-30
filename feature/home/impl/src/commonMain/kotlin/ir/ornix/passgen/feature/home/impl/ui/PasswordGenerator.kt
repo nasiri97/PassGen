@@ -42,7 +42,7 @@ import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
-import ir.ornix.passgen.core.ui.utils.strengthColor
+import ir.ornix.passgen.core.ui.util.strengthColor
 import ir.ornix.passgen.feature.home.impl.presentation.PasswordItem
 import kotlinx.coroutines.launch
 
