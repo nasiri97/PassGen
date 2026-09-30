@@ -7,17 +7,15 @@ import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.GetAllRandomPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.RemoveRandomPassGenConfigUseCase
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RandomViewModel(
-    private val getAllPassGenConfigs: GetAllRandomPassGenConfigsUseCase,
+    getAllPassGenConfigs: GetAllRandomPassGenConfigsUseCase,
     private val generateRandomPass: GenerateRandomPassUseCase,
     private val removePassGenConfig: RemoveRandomPassGenConfigUseCase,
     private val saveAccountUseCase: SaveAccountUseCase
@@ -31,12 +29,6 @@ class RandomViewModel(
     private val configsFlow: Flow<List<RandomPassGenConfig>> = getAllPassGenConfigs()
 
 
-    private fun calculate(config: RandomPassGenConfig) = viewModelScope.launch {
-        val password = withContext(Dispatchers.Default) {
-            generateRandomPass(config)
-        }
-    }
-
     init {
         viewModelScope.launch {
             configsFlow.collect { configs ->
@@ -49,10 +41,8 @@ class RandomViewModel(
                             it.config.id == config.id
                         } ?: PasswordItem(
                             config = config,
-                            password = null
-                        ).apply {
-                            calculate(config)
-                        }
+                            password = generateRandomPass(config)
+                        )
                     )
                 }
 
@@ -63,6 +53,17 @@ class RandomViewModel(
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
+                    is RandomIntent.RefreshAllPasswords -> {
+                        uiState.value.passwordItems.forEach { passwordItem ->
+                            apply(
+                                RandomPartialState.PasswordUpdated(
+                                    configId = passwordItem.config.id,
+                                    password = generateRandomPass(passwordItem.config)
+                                )
+                            )
+                        }
+                    }
+
                     is RandomIntent.RemoveConfig -> {
                         removePassGenConfig(intent.passGenConfig.id)
                     }

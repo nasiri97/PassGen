@@ -14,5 +14,17 @@ internal fun reduce(
                 passwordItems = change.passwordItems
             )
         }
+
+        is RandomPartialState.PasswordUpdated -> {
+            val updatedPasswordItems = oldState.passwordItems.map { item ->
+                if (item.config.id == change.configId)
+                    item.copy(password = change.password)
+                else item
+            }
+
+            oldState.copy(
+                passwordItems = updatedPasswordItems
+            )
+        }
     }
 }

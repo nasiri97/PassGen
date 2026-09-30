@@ -39,7 +39,7 @@ class GenerateRandomPassUseCaseTest {
 
             assertEquals(32, password.length)
             assertTrue(
-                hexRegex.matches(password),
+                hexRegex.matches(password.value),
                 "Password '$password' should contain valid hex characters"
             )
         }
@@ -59,7 +59,7 @@ class GenerateRandomPassUseCaseTest {
 
             assertEquals(16, password.length)
             assertTrue(
-                base64Regex.matches(password),
+                base64Regex.matches(password.value),
                 "Password '$password' should contain valid Base64 characters"
             )
         }
@@ -77,7 +77,7 @@ class GenerateRandomPassUseCaseTest {
             val password = useCase(config)
 
             assertEquals(40, password.length)
-            assertTrue(password.isNotEmpty())
+            assertTrue(password.value.isNotEmpty())
         }
 
     @Test
@@ -320,7 +320,7 @@ class GenerateRandomPassUseCaseTest {
 
         val password = useCase(config)
 
-        val words = password.trim().split(Regex("\\s+"))
+        val words = password.value.trim().split(Regex("\\s+"))
         assertEquals(
             expectedWordCount,
             words.size,

@@ -63,7 +63,10 @@ fun RandomScreen(
 
                 Button(
                     modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp),
-                    onClick = {}) {
+                    onClick = {
+                        viewModel.dispatch(RandomIntent.RefreshAllPasswords)
+                    }
+                ) {
                     Text(text = "Click to refresh")
                 }
 
