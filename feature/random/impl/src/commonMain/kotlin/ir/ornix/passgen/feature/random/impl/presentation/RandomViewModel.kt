@@ -77,6 +77,10 @@ class RandomViewModel(
                     is RandomIntent.SaveAccount -> {
                         saveAccountUseCase(intent.account)
                     }
+
+                    RandomIntent.RefreshHintShown -> {
+                        apply(RandomPartialState.RefreshHintShown)
+                    }
                 }
             }
         }

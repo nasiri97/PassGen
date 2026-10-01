@@ -41,6 +41,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun PullToRefreshWithHint(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    hasHintShown: Boolean,
+    onHintShown: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -51,17 +53,21 @@ fun PullToRefreshWithHint(
     ) {
         content()
 
-        PullToRefreshHint(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 8.dp)
-        )
+        if (!hasHintShown) {
+            PullToRefreshHint(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp),
+                onHintShown = onHintShown
+            )
+        }
     }
 }
 
 @Composable
 private fun PullToRefreshHint(
-    modifier: Modifier = Modifier,
+    onHintShown: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var visible by remember { mutableStateOf(true) }
     val offsetY = remember { Animatable(0f) }
@@ -110,6 +116,7 @@ private fun PullToRefreshHint(
         )
 
         visible = false
+        onHintShown()
     }
 
     AnimatedVisibility(

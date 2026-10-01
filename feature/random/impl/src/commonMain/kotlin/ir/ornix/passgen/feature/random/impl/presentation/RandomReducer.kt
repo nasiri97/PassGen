@@ -11,6 +11,9 @@ internal fun reduce(
         is RandomPartialState.Refreshed ->
             oldState.copy(isRefreshing = false)
 
+        is RandomPartialState.RefreshHintShown ->
+            oldState.copy(hasRefreshHintShown = true)
+
         is RandomPartialState.PasswordItemsLoaded -> {
             oldState.copy(
                 isRefreshing = false,
