@@ -57,7 +57,7 @@ fun RandomScreen(
             modifier = Modifier.padding(innerPadding).fillMaxSize(),
             isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.dispatch(RandomIntent.RefreshAllPasswords) },
-            hasHintShown = uiState.hasRefreshHintShown,
+            hasHintShown = uiState.hasRefreshHintShown || uiState.passwordItems.isEmpty(),
             onHintShown = { viewModel.dispatch(RandomIntent.RefreshHintShown) }
         ) {
             RandomList(
