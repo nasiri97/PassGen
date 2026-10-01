@@ -108,6 +108,7 @@ fun App(modifier: Modifier = Modifier) {
                     serializersModule = SerializersModule {
                         polymorphic(NavKey::class) {
                             subclass(HomeRoute::class, HomeRoute.serializer())
+                            subclass(RandomRoute::class, RandomRoute.serializer())
                             subclass(SavedPasswordsRoute::class, SavedPasswordsRoute.serializer())
                             subclass(SettingsRoute::class, SettingsRoute.serializer())
                             subclass(AboutRoute::class, AboutRoute.serializer())

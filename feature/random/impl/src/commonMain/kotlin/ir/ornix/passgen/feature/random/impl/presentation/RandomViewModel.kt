@@ -32,6 +32,8 @@ class RandomViewModel(
     init {
         viewModelScope.launch {
             configsFlow.collect { configs ->
+                apply(RandomPartialState.Refreshing)
+
                 val currentPasswordItems = uiState.value.passwordItems
                 val passwordItems = mutableListOf<PasswordItem>()
 
@@ -54,6 +56,8 @@ class RandomViewModel(
             for (intent in intents) {
                 when (intent) {
                     is RandomIntent.RefreshAllPasswords -> {
+                        apply(RandomPartialState.Refreshing)
+
                         uiState.value.passwordItems.forEach { passwordItem ->
                             apply(
                                 RandomPartialState.PasswordUpdated(
@@ -62,6 +66,8 @@ class RandomViewModel(
                                 )
                             )
                         }
+
+                        apply(RandomPartialState.Refreshed)
                     }
 
                     is RandomIntent.RemoveConfig -> {

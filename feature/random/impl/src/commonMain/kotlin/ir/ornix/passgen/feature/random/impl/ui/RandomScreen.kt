@@ -23,7 +23,10 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.ui.component.PullToRefreshWithHint
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.feature.random.impl.presentation.PasswordItem
 import ir.ornix.passgen.feature.random.impl.presentation.RandomIntent
 import ir.ornix.passgen.feature.random.impl.presentation.RandomViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -49,45 +52,52 @@ fun RandomScreen(
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        if (uiState.passwordItems.isEmpty()) {
-            EmptyHomeContent(
-                modifier = Modifier.padding(innerPadding),
-                onAddClick = onNavigateToCreateConfig
+
+        PullToRefreshWithHint(
+            modifier = Modifier.padding(innerPadding).fillMaxSize(),
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.dispatch(RandomIntent.RefreshAllPasswords) }
+        ) {
+            RandomList(
+                passwordItems = uiState.passwordItems,
+                onRemovePasswordItemClick = { viewModel.dispatch(RandomIntent.RemoveConfig(it.config)) },
+                addNewAccount = { viewModel.dispatch(RandomIntent.SaveAccount(it)) },
+                onNavigateToCreateConfig = onNavigateToCreateConfig,
+                copy = copy
             )
-        } else {
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-            ) {
-
-                Button(
-                    modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp),
-                    onClick = {
-                        viewModel.dispatch(RandomIntent.RefreshAllPasswords)
-                    }
-                ) {
-                    Text(text = "Click to refresh")
-                }
-
-                PasswordGeneratorList(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    passwordItems = uiState.passwordItems,
-                    removePasswordItem = {
-                        viewModel.dispatch(RandomIntent.RemoveConfig(it.config))
-                    },
-                    addNewAccount = { viewModel.dispatch(RandomIntent.SaveAccount(it)) },
-                    copy = copy
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun EmptyHomeContent(
+private fun RandomList(
+    passwordItems: List<PasswordItem>,
+    onRemovePasswordItemClick: (PasswordItem) -> Unit,
+    addNewAccount: (account: Account) -> Unit,
+    onNavigateToCreateConfig: () -> Unit,
+    copy: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (passwordItems.isEmpty()) {
+        EmptyRandomContent(
+            modifier = modifier,
+            onAddClick = onNavigateToCreateConfig
+        )
+    } else {
+        PasswordGeneratorList(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            passwordItems = passwordItems,
+            removePasswordItem = onRemovePasswordItemClick,
+            addNewAccount = addNewAccount,
+            copy = copy
+        )
+    }
+}
+
+@Composable
+private fun EmptyRandomContent(
     modifier: Modifier = Modifier,
     onAddClick: () -> Unit
 ) {
