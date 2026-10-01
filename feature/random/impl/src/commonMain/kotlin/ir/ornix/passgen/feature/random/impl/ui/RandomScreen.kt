@@ -24,9 +24,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.ui.component.PullToRefreshWithHint
+import ir.ornix.passgen.core.ui.passgen.PassGenItemList
 import ir.ornix.passgen.core.ui.security.secureContent
-import ir.ornix.passgen.feature.random.impl.presentation.PasswordItem
 import ir.ornix.passgen.feature.random.impl.presentation.RandomIntent
 import ir.ornix.passgen.feature.random.impl.presentation.RandomViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -45,7 +46,7 @@ fun RandomScreen(
     Scaffold(
         modifier = modifier.secureContent().fillMaxSize(),
         floatingActionButton = {
-            if (uiState.passwordItems.isNotEmpty())
+            if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
                     Icon(Icons.Default.Add, contentDescription = "Add Config")
                 }
@@ -57,11 +58,11 @@ fun RandomScreen(
             modifier = Modifier.padding(innerPadding).fillMaxSize(),
             isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.dispatch(RandomIntent.RefreshAllPasswords) },
-            hasHintShown = uiState.hasRefreshHintShown || uiState.passwordItems.isEmpty(),
+            hasHintShown = uiState.hasRefreshHintShown || uiState.passGenItems.isEmpty(),
             onHintShown = { viewModel.dispatch(RandomIntent.RefreshHintShown) }
         ) {
             RandomList(
-                passwordItems = uiState.passwordItems,
+                passGenItems = uiState.passGenItems,
                 onRemovePasswordItemClick = { viewModel.dispatch(RandomIntent.RemoveConfig(it.config)) },
                 addNewAccount = { viewModel.dispatch(RandomIntent.SaveAccount(it)) },
                 onNavigateToCreateConfig = onNavigateToCreateConfig,
@@ -73,24 +74,24 @@ fun RandomScreen(
 
 @Composable
 private fun RandomList(
-    passwordItems: List<PasswordItem>,
-    onRemovePasswordItemClick: (PasswordItem) -> Unit,
+    passGenItems: List<PassGenItem>,
+    onRemovePasswordItemClick: (PassGenItem) -> Unit,
     addNewAccount: (account: Account) -> Unit,
     onNavigateToCreateConfig: () -> Unit,
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (passwordItems.isEmpty()) {
+    if (passGenItems.isEmpty()) {
         EmptyRandomContent(
             modifier = modifier,
             onAddClick = onNavigateToCreateConfig
         )
     } else {
-        PasswordGeneratorList(
+        PassGenItemList(
             modifier = modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
-            passwordItems = passwordItems,
+            passGenItems = passGenItems,
             removePasswordItem = onRemovePasswordItemClick,
             addNewAccount = addNewAccount,
             copy = copy

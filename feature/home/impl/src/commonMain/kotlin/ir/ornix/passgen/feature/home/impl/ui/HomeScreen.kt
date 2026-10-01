@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ir.ornix.passgen.core.ui.passgen.PassGenItemList
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeIntent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
@@ -42,14 +43,14 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier.secureContent().fillMaxSize(),
         floatingActionButton = {
-            if (uiState.passwordItems.isNotEmpty())
+            if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
                     Icon(Icons.Default.Add, contentDescription = "Add Config")
                 }
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
-        if (uiState.passwordItems.isEmpty()) {
+        if (uiState.passGenItems.isEmpty()) {
             EmptyHomeContent(
                 modifier = Modifier.padding(innerPadding),
                 onAddClick = onNavigateToCreateConfig
@@ -69,11 +70,11 @@ fun HomeScreen(
                     onDone = { }
                 )
 
-                PasswordGeneratorList(
+                PassGenItemList(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp),
-                    passwordItems = uiState.passwordItems,
+                    passGenItems = uiState.passGenItems,
                     removePasswordItem = {
                         viewModel.dispatch(HomeIntent.RemoveConfig(it.config))
                     },

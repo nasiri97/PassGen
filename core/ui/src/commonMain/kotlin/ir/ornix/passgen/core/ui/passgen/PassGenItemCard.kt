@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.home.impl.ui
+package ir.ornix.passgen.core.ui.passgen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -39,33 +39,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
-import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
+import ir.ornix.passgen.core.model.PassGenItem
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
 import ir.ornix.passgen.core.ui.util.strengthColor
-import ir.ornix.passgen.feature.home.impl.presentation.PasswordItem
 import kotlinx.coroutines.launch
 
 private val passCardCornerRadius = 16.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SwipeablePasswordGenerator(
-    passwordItem: PasswordItem,
+fun PassGenItemCard(
+    passGenItem: PassGenItem,
     onRemove: () -> Unit,
     addNewAccount: (account: Account) -> Unit,
-    showPassGenInfoDialog: (KdfPassGenConfig) -> Unit,
+    showPassGenInfoDialog: (PassGenConfig) -> Unit,
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     var showNewAccountDialog by remember { mutableStateOf(false) }
 
-    val password = passwordItem.password
+    val password = passGenItem.password
 
     if (showConfirmDeleteDialog) {
         ConfirmDeleteDialog(
-            itemLabel = passwordItem.config.name,
+            itemLabel = passGenItem.config.name,
             onConfirmDelete = {
                 onRemove()
                 showConfirmDeleteDialog = false
@@ -129,17 +129,17 @@ fun SwipeablePasswordGenerator(
             }
         }
     ) {
-        PasswordGenerator(
-            passwordItem = passwordItem,
-            showPassGenInfoDialog = { showPassGenInfoDialog(passwordItem.config) },
+        Content(
+            passGenItem = passGenItem,
+            showPassGenInfoDialog = { showPassGenInfoDialog(passGenItem.config) },
             copy = copy
         )
     }
 }
 
 @Composable
-private fun PasswordGenerator(
-    passwordItem: PasswordItem,
+private fun Content(
+    passGenItem: PassGenItem,
     showPassGenInfoDialog: () -> Unit,
     copy: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -164,21 +164,21 @@ private fun PasswordGenerator(
             ) {
                 Column {
                     Text(
-                        text = passwordItem.config.name,
+                        text = passGenItem.config.name,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = passwordItem.config.typeBrief,
+                        text = passGenItem.config.typeBrief,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
 
                 Text(
-                    text = passwordItem.config.strengthLevel.label,
+                    text = passGenItem.config.strengthLevel.label,
                     style = MaterialTheme.typography.labelMedium,
-                    color = passwordItem.config.strengthColor(),
+                    color = passGenItem.config.strengthColor(),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -186,17 +186,17 @@ private fun PasswordGenerator(
             Spacer(modifier = Modifier.height(12.dp))
 
             PasswordAndActions(
-                password = passwordItem.password?.value,
+                password = passGenItem.password?.value,
                 copy = copy,
-                isLoading = passwordItem.isCalculating,
+                isLoading = passGenItem.isCalculating,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
-                progress = { passwordItem.config.strengthLevel.ratio },
+                progress = { passGenItem.config.strengthLevel.ratio },
                 modifier = Modifier.fillMaxWidth(),
-                color = passwordItem.config.strengthColor()
+                color = passGenItem.config.strengthColor()
             )
         }
     }

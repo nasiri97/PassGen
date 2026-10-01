@@ -6,6 +6,7 @@ import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.GetAllRandomPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.RemoveRandomPassGenConfigUseCase
+import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -34,21 +35,22 @@ class RandomViewModel(
             configsFlow.collect { configs ->
                 apply(RandomPartialState.Refreshing)
 
-                val currentPasswordItems = uiState.value.passwordItems
-                val passwordItems = mutableListOf<PasswordItem>()
+                val currentPasswordItems = uiState.value.passGenItems
+                val passGenItems = mutableListOf<PassGenItem>()
 
                 configs.forEach { config ->
-                    passwordItems.add(
+                    passGenItems.add(
                         currentPasswordItems.find {
                             it.config.id == config.id
-                        } ?: PasswordItem(
+                        } ?: PassGenItem(
                             config = config,
-                            password = generateRandomPass(config)
+                            password = generateRandomPass(config),
+                            isCalculating = false
                         )
                     )
                 }
 
-                apply(RandomPartialState.PasswordItemsLoaded(passwordItems))
+                apply(RandomPartialState.PasswordItemsLoaded(passGenItems))
             }
         }
 
@@ -58,11 +60,11 @@ class RandomViewModel(
                     is RandomIntent.RefreshAllPasswords -> {
                         apply(RandomPartialState.Refreshing)
 
-                        uiState.value.passwordItems.forEach { passwordItem ->
+                        uiState.value.passGenItems.forEach { passwordItem ->
                             apply(
                                 RandomPartialState.PasswordUpdated(
                                     configId = passwordItem.config.id,
-                                    password = generateRandomPass(passwordItem.config)
+                                    password = generateRandomPass(passwordItem.config as RandomPassGenConfig)
                                 )
                             )
                         }

@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.home.impl.ui
+package ir.ornix.passgen.core.ui.passgen.config
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,7 @@ import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import ir.ornix.passgen.core.ui.security.secureContent
 
 @Composable
-fun PassGenConfigDialog(
+fun KdfPassGenConfigDialog(
     config: KdfPassGenConfig,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier

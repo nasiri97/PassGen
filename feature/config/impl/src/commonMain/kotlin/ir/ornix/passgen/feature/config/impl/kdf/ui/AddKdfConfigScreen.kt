@@ -114,9 +114,7 @@ fun AddKdfConfigScreen(
     }
 
     Scaffold(
-        modifier = modifier
-            .secureContent()
-            .fillMaxSize(),
+        modifier = modifier.secureContent().fillMaxSize(),
         topBar = {
             Column {
                 TopAppBar(

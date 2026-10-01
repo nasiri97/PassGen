@@ -1,4 +1,4 @@
-package ir.ornix.passgen.feature.home.impl.ui
+package ir.ornix.passgen.core.ui.passgen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring

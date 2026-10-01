@@ -15,13 +15,13 @@ internal fun reduce(
 
         is HomePartialState.PasswordItemsLoaded -> {
             oldState.copy(
-                passwordItems = change.passwordItems
+                passGenItems = change.passGenItems
             )
         }
 
         is HomePartialState.PasswordGenerated -> {
             oldState.copy(
-                passwordItems = oldState.passwordItems.map { passwordItem ->
+                passGenItems = oldState.passGenItems.map { passwordItem ->
                     if (passwordItem.config.id == change.configId)
                         passwordItem.copy(
                             password = change.password,
@@ -34,7 +34,7 @@ internal fun reduce(
 
         is HomePartialState.PasswordIsCalculating -> {
             oldState.copy(
-                passwordItems = oldState.passwordItems.map { passwordItem ->
+                passGenItems = oldState.passGenItems.map { passwordItem ->
                     if (passwordItem.config.id == change.configId)
                         passwordItem.copy(
                             password = null,

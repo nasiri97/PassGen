@@ -1,7 +1,9 @@
 package ir.ornix.passgen.feature.config.impl
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.config.api.PassGenConfigType
 import ir.ornix.passgen.feature.config.impl.kdf.ui.AddKdfConfigScreen
 import ir.ornix.passgen.feature.config.impl.random.ui.AddRandomConfigScreen
@@ -19,14 +21,14 @@ fun AddConfigScreen(
             AddKdfConfigScreen(
                 onNavigateBack = onNavigateBack,
                 onConfigCreated = onConfigCreated,
-                modifier = modifier
+                modifier = modifier.secureContent().fillMaxSize(),
             )
 
         PassGenConfigType.PASS_GEN_CONFIG_RANDOM ->
             AddRandomConfigScreen(
                 onNavigateBack = onNavigateBack,
                 onConfigCreated = onConfigCreated,
-                modifier = modifier
+                modifier = modifier.secureContent().fillMaxSize(),
             )
     }
 }

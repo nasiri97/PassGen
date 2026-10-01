@@ -17,19 +17,19 @@ internal fun reduce(
         is RandomPartialState.PasswordItemsLoaded -> {
             oldState.copy(
                 isRefreshing = false,
-                passwordItems = change.passwordItems
+                passGenItems = change.passGenItems
             )
         }
 
         is RandomPartialState.PasswordUpdated -> {
-            val updatedPasswordItems = oldState.passwordItems.map { item ->
+            val updatedPasswordItems = oldState.passGenItems.map { item ->
                 if (item.config.id == change.configId)
                     item.copy(password = change.password)
                 else item
             }
 
             oldState.copy(
-                passwordItems = updatedPasswordItems
+                passGenItems = updatedPasswordItems
             )
         }
     }

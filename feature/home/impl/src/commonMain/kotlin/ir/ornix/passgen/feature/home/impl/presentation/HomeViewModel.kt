@@ -6,7 +6,9 @@ import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -20,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    private val getAllPassGenConfigs: GetAllKdfPassGenConfigsUseCase,
+    getAllPassGenConfigs: GetAllKdfPassGenConfigsUseCase,
     private val generateKDFPass: GenerateKDFPassUseCase,
     private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
     private val saveAccountUseCase: SaveAccountUseCase
@@ -35,14 +37,14 @@ class HomeViewModel(
 
     private val jobs = HashMap<Int, Job>()
 
-    private fun calculate(config: KdfPassGenConfig, input: String) {
+    private fun calculate(config: PassGenConfig, input: String) {
         jobs[config.id]?.cancel()
 
         jobs[config.id] = viewModelScope.launch {
             apply(HomePartialState.PasswordIsCalculating(config.id))
 
             val password = withContext(Dispatchers.Default) {
-                generateKDFPass(config, input)
+                generateKDFPass(config as KdfPassGenConfig, input)
             }
 
             currentCoroutineContext().ensureActive()
@@ -59,14 +61,14 @@ class HomeViewModel(
     init {
         viewModelScope.launch {
             configsFlow.collect { configs ->
-                val currentPasswordItems = uiState.value.passwordItems
-                val passwordItems = mutableListOf<PasswordItem>()
+                val currentPasswordItems = uiState.value.passGenItems
+                val passGenItems = mutableListOf<PassGenItem>()
 
                 configs.forEach { config ->
-                    passwordItems.add(
+                    passGenItems.add(
                         currentPasswordItems.find {
                             it.config.id == config.id
-                        } ?: PasswordItem(
+                        } ?: PassGenItem(
                             config = config,
                             password = null,
                             isCalculating = true
@@ -76,7 +78,7 @@ class HomeViewModel(
                     )
                 }
 
-                apply(HomePartialState.PasswordItemsLoaded(passwordItems))
+                apply(HomePartialState.PasswordItemsLoaded(passGenItems))
             }
         }
 
@@ -84,7 +86,7 @@ class HomeViewModel(
             for (intent in intents) {
                 when (intent) {
                     is HomeIntent.InputChanged -> {
-                        uiState.value.passwordItems.forEach { passwordItem ->
+                        uiState.value.passGenItems.forEach { passwordItem ->
                             calculate(passwordItem.config, intent.input)
                         }
 
