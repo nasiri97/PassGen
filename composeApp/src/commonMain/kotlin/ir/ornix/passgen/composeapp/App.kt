@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,21 +27,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import androidx.savedstate.serialization.SavedStateConfiguration
 import ir.ornix.passgen.composeapp.di.appModule
+import ir.ornix.passgen.composeapp.navigation.NavEntryScopedViewModelStore
+import ir.ornix.passgen.composeapp.navigation.appNavConfiguration
 import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
@@ -64,11 +61,9 @@ import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
 import ir.ornix.passgen.feature.unlock.api.UnlockRoute
 import ir.ornix.passgen.feature.unlock.impl.ui.UnlockingGateScreen
 import kotlinx.coroutines.launch
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.KoinApplication
-import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
+import org.koin.dsl.koinConfiguration
 
 sealed class NavItem(val route: NavKey, val label: String, val icon: ImageVector) {
     data object Home : NavItem(HomeRoute, "Home", Icons.Default.Home)
@@ -83,92 +78,57 @@ private val drawerItems = listOf(
     NavItem.Random,
     NavItem.SavedPasswords,
     NavItem.Settings,
-    NavItem.About
+    NavItem.About,
 )
 
 @Composable
 fun App(modifier: Modifier = Modifier) {
-    KoinApplication(application = { modules(appModule) }) {
-        KoinContext {
-            val isFirstLaunchUseCase: IsFirstLaunchUseCase = koinInject()
-            val setFirstLaunch: SetFirstLaunchUseCase = koinInject()
-            val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
+    KoinApplication(
+        configuration = koinConfiguration {
+            modules(appModule)
+        }
+    ) {
+        val isFirstLaunchUseCase: IsFirstLaunchUseCase = koinInject()
+        val setFirstLaunch: SetFirstLaunchUseCase = koinInject()
+        val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
 
-            val isFirstLaunch = isFirstLaunchUseCase()
-            val isUnlockingRequired = isUnlockingRequiredUseCase()
+        val isFirstLaunch = isFirstLaunchUseCase()
+        val isUnlockingRequired = isUnlockingRequiredUseCase()
 
-            val initialRoute = when {
-                isFirstLaunch -> LocalAuthRoute()
-                isUnlockingRequired -> UnlockRoute
-                else -> HomeRoute
-            }
+        val initialRoute = when {
+            isFirstLaunch -> LocalAuthRoute()
+            isUnlockingRequired -> UnlockRoute
+            else -> HomeRoute
+        }
 
-            val backStack = rememberNavBackStack(
-                SavedStateConfiguration {
-                    serializersModule = SerializersModule {
-                        polymorphic(NavKey::class) {
-                            subclass(HomeRoute::class, HomeRoute.serializer())
-                            subclass(RandomRoute::class, RandomRoute.serializer())
-                            subclass(SavedPasswordsRoute::class, SavedPasswordsRoute.serializer())
-                            subclass(SettingsRoute::class, SettingsRoute.serializer())
-                            subclass(AboutRoute::class, AboutRoute.serializer())
-                            subclass(LocalAuthRoute::class, LocalAuthRoute.serializer())
-                            subclass(UnlockRoute::class, UnlockRoute.serializer())
-                            subclass(AddConfigRoute::class, AddConfigRoute.serializer())
+        val backStack = rememberNavBackStack(appNavConfiguration, initialRoute)
+
+        PassGenTheme {
+            Surface(
+                modifier = modifier.secureContent().fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                NavDisplay(
+                    backStack = backStack,
+                    onBack = {
+                        if (backStack.size > 1) {
+                            backStack.removeLastOrNull()
                         }
-                    }
-                },
-                initialRoute
-            )
-
-            val vmStores = remember { mutableMapOf<NavKey, ViewModelStore>() }
-
-            PassGenTheme {
-                Surface(
-                    modifier = modifier.secureContent().fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    NavDisplay(
-                        backStack = backStack,
-                        onBack = {
-                            if (backStack.size > 1) {
-                                val removed = backStack.removeLastOrNull()
-                                (removed as? LocalAuthRoute)?.let { vmStores.remove(it)?.clear() }
-                            }
-                        },
-                        entryProvider = { key ->
+                    },
+                    entryProvider = { key ->
+                        NavEntry(key) {
                             when (key) {
-                                is LocalAuthRoute -> NavEntry(key) {
-                                    val store =
-                                        remember(key) { vmStores.getOrPut(key) { ViewModelStore() } }
-                                    CompositionLocalProvider(
-                                        LocalViewModelStoreOwner provides remember(
-                                            store
-                                        ) {
-                                            object : ViewModelStoreOwner {
-                                                override val viewModelStore = store
-                                            }
-                                        }) {
-                                        SecretSetupScreen(
-                                            onFinished = {
-                                                setFirstLaunch(false)
-                                                backStack.removeLastOrNull()
-                                                if (backStack.isEmpty()) backStack.add(HomeRoute)
-                                            }
-                                        )
-                                    }
-                                }
-
-                                is UnlockRoute -> NavEntry(key) {
-                                    UnlockingGateScreen(
-                                        onUnlocked = {
-                                            backStack.clear()
-                                            backStack.add(HomeRoute)
+                                is LocalAuthRoute -> NavEntryScopedViewModelStore(key) {
+                                    SecretSetupScreen(
+                                        onFinished = {
+                                            setFirstLaunch(false)
+                                            backStack.removeLastOrNull()
+                                            if (backStack.isEmpty()) backStack.add(HomeRoute)
                                         }
                                     )
                                 }
 
-                                is AddConfigRoute -> NavEntry(key) {
+                                is AddConfigRoute -> NavEntryScopedViewModelStore(key) {
                                     AddConfigScreen(
                                         configType = key.configType,
                                         onNavigateBack = {
@@ -180,35 +140,41 @@ fun App(modifier: Modifier = Modifier) {
                                     )
                                 }
 
+                                is UnlockRoute -> UnlockingGateScreen(
+                                    onUnlocked = {
+                                        backStack.clear()
+                                        backStack.add(HomeRoute)
+                                    }
+                                )
+
                                 is HomeRoute,
                                 is RandomRoute,
                                 is SavedPasswordsRoute,
                                 is SettingsRoute,
-                                is AboutRoute -> NavEntry(key) {
-                                    MainAppContent(
-                                        currentRoute = key,
-                                        onNavigate = { route, clearBackStack ->
-                                            if (key != route) {
-                                                if (clearBackStack) backStack.clear()
-                                                backStack.add(route)
-                                            }
-                                        },
-                                        onNavigateToCreateConfig = { configType ->
-                                            backStack.add(AddConfigRoute(configType))
+                                is AboutRoute -> MainAppContent(
+                                    currentRoute = key,
+                                    onNavigate = { route, clearBackStack ->
+                                        if (key != route) {
+                                            if (clearBackStack) backStack.clear()
+                                            backStack.add(route)
                                         }
-                                    )
-                                }
+                                    },
+                                    onNavigateToCreateConfig = { configType ->
+                                        backStack.add(AddConfigRoute(configType))
+                                    }
+                                )
 
-                                else -> NavEntry(key) { Text("Unknown Route") }
+                                else -> Text("Unknown Route")
                             }
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainAppContent(
     currentRoute: NavKey,
