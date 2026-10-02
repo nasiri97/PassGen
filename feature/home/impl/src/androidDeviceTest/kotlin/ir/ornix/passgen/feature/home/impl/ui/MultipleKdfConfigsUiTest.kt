@@ -35,10 +35,12 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val name1 = "Config SHA256"
             val hasher1 = InputHasher.SHA256
             val encoder1 = StringPassEncoder.HexPassEncoder
+            val length1 = 32
 
             val name2 = "Config Argon2id"
             val hasher2 = InputHasher.ARGON2ID
             val encoder2 = StringPassEncoder.Z85PassEncoder
+            val length2 = 80
 
             val inputPhrase = "Hello World"
 
@@ -74,6 +76,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
                 input = inputPhrase,
                 hasher = hasher1,
                 encoder = encoder1,
+                passwordLength = length1
             )
             val prefix1 = pass1.substring(0, 16.coerceAtMost(pass1.length))
 
@@ -83,12 +86,21 @@ class MultipleKdfConfigsUiTest : KoinTest {
                 input = inputPhrase,
                 hasher = hasher2,
                 encoder = encoder2,
+                passwordLength = length2
             )
             val prefix2 = pass2.substring(0, 16.coerceAtMost(pass2.length))
 
             // Wait and assert passwords for both items
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, prefix1)
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, prefix2)
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = name1,
+                rule = composeTestRule,
+                expectedSubstring = prefix1
+            )
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = name2,
+                rule = composeTestRule,
+                expectedSubstring = prefix2
+            )
         }
     }
 
@@ -100,10 +112,12 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val name1 = "Config SHA256"
             val hasher1 = InputHasher.SHA256
             val encoder1 = StringPassEncoder.HexPassEncoder
+            val length1 = 32
 
             val name2 = "Config SHA512"
             val hasher2 = InputHasher.SHA512
             val encoder2 = StringPassEncoder.HexPassEncoder
+            val length2 = 64
 
             KdfTestHarness.addConfig(
                 rule = composeTestRule,
@@ -126,28 +140,65 @@ class MultipleKdfConfigsUiTest : KoinTest {
             KdfTestHarness.enterInputPhrase(composeTestRule, phrase1)
 
             val pass1Phrase1 = KdfTestHarness.computeExpectedPassword(
-                configId = 1, configName = name1, input = phrase1, hasher = hasher1, encoder = encoder1
+                configId = 1,
+                configName = name1,
+                input = phrase1,
+                hasher = hasher1,
+                encoder = encoder1,
+                passwordLength = length1
             )
             val pass2Phrase1 = KdfTestHarness.computeExpectedPassword(
-                configId = 2, configName = name2, input = phrase1, hasher = hasher2, encoder = encoder2
+                configId = 2,
+                configName = name2,
+                input = phrase1,
+                hasher = hasher2,
+                encoder = encoder2,
+                passwordLength = length2
             )
 
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, pass1Phrase1.substring(0, 16))
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, pass2Phrase1.substring(0, 16))
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = name1,
+                rule = composeTestRule,
+                expectedSubstring = pass1Phrase1.substring(0, 16)
+            )
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = name2,
+                rule = composeTestRule,
+                expectedSubstring = pass2Phrase1.substring(0, 16)
+            )
 
             // 2. Change to Second Input Phrase
             val phrase2 = "Phrase Two"
             KdfTestHarness.enterInputPhrase(composeTestRule, phrase2)
 
             val pass1Phrase2 = KdfTestHarness.computeExpectedPassword(
-                configId = 1, configName = name1, input = phrase2, hasher = hasher1, encoder = encoder1
+                configId = 1,
+                configName = name1,
+                input = phrase2,
+                hasher = hasher1,
+                encoder = encoder1,
+                passwordLength = length1
             )
             val pass2Phrase2 = KdfTestHarness.computeExpectedPassword(
-                configId = 2, configName = name2, input = phrase2, hasher = hasher2, encoder = encoder2
+                configId = 2,
+                configName = name2,
+                input = phrase2,
+                hasher = hasher2,
+                encoder = encoder2,
+                passwordLength = length2
             )
 
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, pass1Phrase2.substring(0, 16))
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, pass2Phrase2.substring(0, 16))
+            // Wait and assert passwords for both items
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = name1,
+                rule = composeTestRule,
+                expectedSubstring = pass1Phrase2.substring(0, 16)
+            )
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = name2,
+                rule = composeTestRule,
+                expectedSubstring = pass2Phrase2.substring(0, 16)
+            )
         }
     }
 }

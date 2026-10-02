@@ -2,13 +2,12 @@ package ir.ornix.passgen.feature.home.impl.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.togglePasswordVisibility
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -31,128 +30,92 @@ class GenerateKDFPassUiTest : KoinTest {
         KdfTestHarness.tearDown()
     }
 
-    @Test
-    fun generatesExpectedPassword_withArgon2idHasher() {
+    private fun verifyKnownTestCaseAcrossHashers(
+        testCaseProvider: suspend () -> KnownTestCase,
+        testNamePrefix: String
+    ) {
         runBlocking {
             KdfTestHarness.setContent(composeTestRule)
+            val testCase = testCaseProvider()
 
-            val configName = "Argon2id Config"
-            val inputPhrase = "Hello World"
-            val hasher = InputHasher.ARGON2ID
-            val encoder = StringPassEncoder.Z85PassEncoder
-
-            KdfTestHarness.addConfig(
-                rule = composeTestRule,
-                configName = configName,
-                hasher = hasher,
-                encoder = encoder,
+            val configs = listOf(
+                Triple(
+                    "$testNamePrefix Argon2id",
+                    InputHasher.ARGON2ID,
+                    StringPassEncoder.Z85PassEncoder
+                ),
+                Triple(
+                    "$testNamePrefix BCrypt",
+                    InputHasher.BCrypt,
+                    StringPassEncoder.Base64PassEncoder
+                ),
+                Triple(
+                    "$testNamePrefix SHA-512",
+                    InputHasher.SHA512,
+                    StringPassEncoder.HexPassEncoder
+                ),
+                Triple(
+                    "$testNamePrefix SHA-256",
+                    InputHasher.SHA256,
+                    StringPassEncoder.HexPassEncoder
+                ),
             )
 
-            KdfTestHarness.enterInputPhrase(composeTestRule, inputPhrase)
+            configs.forEachIndexed { index, (configName, hasher, encoder) ->
+                KdfTestHarness.addConfig(
+                    rule = composeTestRule,
+                    configName = configName,
+                    masterKey = testCase.masterKey,
+                    hasher = hasher,
+                    encoder = encoder,
+                    lowercase = false,
+                    isFirstConfig = index == 0,
+                )
+            }
 
-            val expectedPass = KdfTestHarness.computeExpectedPassword(
-                configName = configName,
-                input = inputPhrase,
-                hasher = hasher,
-                encoder = encoder,
-            )
-            val expectedPrefix = expectedPass.substring(0, 16.coerceAtMost(expectedPass.length))
+            KdfTestHarness.enterInputPhrase(composeTestRule, testCase.input)
 
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, expectedPrefix)
+            configs.forEach { (configName, hasher, encoder) ->
+                val expectedPrefix = testCase.expectedPrefixFor(hasher, encoder)
+                KdfTestHarness.waitForPasswordSubstring(
+                    configName = configName,
+                    rule = composeTestRule,
+                    expectedSubstring = expectedPrefix
+                )
+            }
         }
     }
 
     @Test
-    fun generatesExpectedPassword_withBcryptHasher() {
-        runBlocking {
-            KdfTestHarness.setContent(composeTestRule)
-
-            val configName = "Bcrypt Config"
-            val inputPhrase = "Hello World"
-            val hasher = InputHasher.BCrypt
-            val encoder = StringPassEncoder.Base64PassEncoder
-
-            KdfTestHarness.addConfig(
-                rule = composeTestRule,
-                configName = configName,
-                hasher = hasher,
-                encoder = encoder,
-            )
-
-            KdfTestHarness.enterInputPhrase(composeTestRule, inputPhrase)
-
-            val expectedPass = KdfTestHarness.computeExpectedPassword(
-                configName = configName,
-                input = inputPhrase,
-                hasher = hasher,
-                encoder = encoder,
-            )
-            val expectedPrefix = expectedPass.substring(0, 16.coerceAtMost(expectedPass.length))
-
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, expectedPrefix)
-        }
+    fun generatesExpectedPassword_knownVector1_allHashers_masterKey1_emptyInput() {
+        verifyKnownTestCaseAcrossHashers(
+            testCaseProvider = { KdfTestHarness.knownVector1() },
+            testNamePrefix = "V1",
+        )
     }
 
     @Test
-    fun generatesExpectedPassword_withSha256Hasher() {
-        runBlocking {
-            KdfTestHarness.setContent(composeTestRule)
-
-            val configName = "SHA-256 Config"
-            val inputPhrase = "Hello World"
-            val hasher = InputHasher.SHA256
-            val encoder = StringPassEncoder.HexPassEncoder
-
-            KdfTestHarness.addConfig(
-                rule = composeTestRule,
-                configName = configName,
-                hasher = hasher,
-                encoder = encoder,
-            )
-
-            KdfTestHarness.enterInputPhrase(composeTestRule, inputPhrase)
-
-            val expectedPass = KdfTestHarness.computeExpectedPassword(
-                configName = configName,
-                input = inputPhrase,
-                hasher = hasher,
-                encoder = encoder,
-            )
-            val expectedPrefix = expectedPass.substring(0, 16.coerceAtMost(expectedPass.length))
-
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, expectedPrefix)
-        }
+    fun generatesExpectedPassword_knownVector2_allHashers_masterKey1_helloWorldInput() {
+        verifyKnownTestCaseAcrossHashers(
+            testCaseProvider = { KdfTestHarness.knownVector2() },
+            testNamePrefix = "V2",
+        )
     }
 
     @Test
-    fun generatesExpectedPassword_withSha512Hasher() {
-        runBlocking {
-            KdfTestHarness.setContent(composeTestRule)
+    fun generatesExpectedPassword_knownVector3_allHashers_masterKey2_emptyInput() {
+        verifyKnownTestCaseAcrossHashers(
+            testCaseProvider = { KdfTestHarness.knownVector3() },
+            testNamePrefix = "V3",
+        )
+    }
 
-            val configName = "SHA-512 Config"
-            val inputPhrase = "Hello World"
-            val hasher = InputHasher.SHA512
-            val encoder = StringPassEncoder.HexPassEncoder
-
-            KdfTestHarness.addConfig(
-                rule = composeTestRule,
-                configName = configName,
-                hasher = hasher,
-                encoder = encoder,
-            )
-
-            KdfTestHarness.enterInputPhrase(composeTestRule, inputPhrase)
-
-            val expectedPass = KdfTestHarness.computeExpectedPassword(
-                configName = configName,
-                input = inputPhrase,
-                hasher = hasher,
-                encoder = encoder,
-            )
-            val expectedPrefix = expectedPass.substring(0, 16.coerceAtMost(expectedPass.length))
-
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, expectedPrefix)
-        }
+    @Test
+    fun generatesExpectedPassword_knownVector4_allHashers_masterKey2_helloWorldInput() {
+        verifyKnownTestCaseAcrossHashers(
+            testCaseProvider = { KdfTestHarness.knownVector4() },
+            testNamePrefix = "V4",
+        )
     }
 
     @Test
@@ -176,8 +139,9 @@ class GenerateKDFPassUiTest : KoinTest {
                 configName = configName,
                 hasher = hasher,
                 encoder = encoder,
-                toggleTrimSpaces = true,
-                toggleLowercase = true,
+                trimSpaces = true,
+                collapseSpaces = false,
+                lowercase = true,
             )
 
             KdfTestHarness.enterInputPhrase(composeTestRule, rawInput)
@@ -188,10 +152,15 @@ class GenerateKDFPassUiTest : KoinTest {
                 hasher = hasher,
                 encoder = encoder,
                 preprocessConfig = preprocessConfig,
+                passwordLength = 24
             )
             val expectedPrefix = expectedPass.substring(0, 16.coerceAtMost(expectedPass.length))
 
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, expectedPrefix)
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = configName,
+                rule = composeTestRule,
+                expectedSubstring = expectedPrefix
+            )
         }
     }
 
@@ -219,10 +188,15 @@ class GenerateKDFPassUiTest : KoinTest {
                 input = inputPhrase,
                 hasher = hasher,
                 encoder = encoder,
+                passwordLength = null
             )
             val firstTwoWords = expectedPass.split(" ").take(2).joinToString(" ")
 
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, firstTwoWords)
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = configName,
+                rule = composeTestRule,
+                expectedSubstring = firstTwoWords
+            )
         }
     }
 
@@ -250,19 +224,32 @@ class GenerateKDFPassUiTest : KoinTest {
                 input = inputPhrase,
                 hasher = hasher,
                 encoder = encoder,
+                passwordLength = 16
             )
 
-            // Wait until generated and revealed
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, expectedPass)
+            // Assert password
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = configName,
+                rule = composeTestRule,
+                expectedSubstring = expectedPass
+            )
 
-            // Hide password by clicking 'Hide'
-            composeTestRule.onNodeWithContentDescription("Hide").performClick()
+            // Hide password
+            togglePasswordVisibility(
+                configName = configName,
+                isVisible = false,
+                rule = composeTestRule
+            )
 
             // Plaintext should not be visible anymore
             composeTestRule.onNodeWithText(expectedPass).assertDoesNotExist()
 
-            // Reveal password again by clicking 'Show'
-            composeTestRule.onNodeWithContentDescription("Show").performClick()
+            // Reveal password
+            togglePasswordVisibility(
+                configName = configName,
+                isVisible = true,
+                rule = composeTestRule
+            )
 
             // Plaintext should be visible again
             composeTestRule.onNodeWithText(expectedPass).assertIsDisplayed()

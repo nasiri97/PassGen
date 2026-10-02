@@ -82,13 +82,13 @@ interface PassGen {
             when (passEncoder) {
                 is SeedPassEncoder -> {
                     require(passwordLength == null) {
-                        "Password must be null for SeedPassEncoder."
+                        "Password length must be null for SeedPassEncoder."
                     }
                 }
 
                 is StringPassEncoder -> {
                     require(passwordLength != null) {
-                        "Password must not be null for StringPassEncoder."
+                        "Password length must not be null for StringPassEncoder."
                     }
 
                     val tokenLength = passEncoder.getTokenLength(byteSize = maxEntropyByteSize)

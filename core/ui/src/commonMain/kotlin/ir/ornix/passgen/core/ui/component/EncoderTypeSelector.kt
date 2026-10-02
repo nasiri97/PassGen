@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
@@ -46,6 +47,7 @@ fun EncoderTypeSelector(
         )
 
         ExposedDropdownMenu(
+            modifier = Modifier.testTag("encoder_type_selector"),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {

@@ -1,14 +1,24 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -16,15 +26,27 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.russhwolf.settings.MapSettings
+import dev.whyoleg.cryptography.CryptographyProvider
+import dev.whyoleg.cryptography.algorithms.HMAC
+import dev.whyoleg.cryptography.algorithms.SHA512
+import ir.ornix.passgen.core.common.codec.BCryptBase64BinaryCodec
+import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
+import ir.ornix.passgen.core.common.codec.HexBinaryCodec
+import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
+import ir.ornix.passgen.core.common.hashing.Sha512Hasher
 import ir.ornix.passgen.core.common.isAndroidDebugBuild
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
-import ir.ornix.passgen.core.data.PlatformHmacSigner
+import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
@@ -40,7 +62,7 @@ import ir.ornix.passgen.feature.config.impl.kdf.ui.AddKdfConfigScreen
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import org.koin.compose.KoinContext
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.factoryOf
@@ -48,23 +70,131 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+class TestHmacSigner : HmacSigner {
+    private val masterKeyDigests = mutableMapOf<String, ByteArray>()
+    private val sha512Hasher = Sha512Hasher()
+
+    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+        masterKeyDigests[mkdId] = sha512Hasher.digest(rawMasterKey)
+    }
+
+    override suspend fun sign(mkdId: String, input: String): ByteArray {
+        val hashedKey = masterKeyDigests[mkdId] ?: throw SigningKeyNotFoundException(mkdId)
+
+        val hmacAlgorithm = CryptographyProvider.Default.get(HMAC)
+        val keyDecoder = hmacAlgorithm.keyDecoder(SHA512)
+        val importedKey = keyDecoder.decodeFromByteArray(HMAC.Key.Format.RAW, hashedKey)
+        return importedKey.signatureGenerator().generateSignature(input.encodeToByteArray())
+    }
+
+    override suspend fun hasMasterKeyDigest(mkdId: String): Boolean =
+        masterKeyDigests.containsKey(mkdId)
+
+    override suspend fun deleteMasterKeyDigest(mkdId: String) {
+        masterKeyDigests.remove(mkdId)
+    }
+}
+
+class KnownTestCase(
+    val masterKey: String,
+    val input: String,
+    val argon2idBytes: ByteArray,
+    val bcryptBytes: ByteArray,
+    val sha512Bytes: ByteArray,
+    val sha256Bytes: ByteArray
+) {
+    suspend fun expectedPrefixFor(hasher: InputHasher, encoder: PassEncoder): String {
+        val rawBytes = when (hasher) {
+            InputHasher.ARGON2ID -> argon2idBytes
+            InputHasher.BCrypt -> bcryptBytes
+            InputHasher.SHA512 -> sha512Bytes
+            InputHasher.SHA256 -> sha256Bytes
+        }
+        val encoded = when (encoder) {
+            StringPassEncoder.HexPassEncoder -> KdfTestHarness.hexCodec.encode(rawBytes)
+            StringPassEncoder.Base64PassEncoder -> KdfTestHarness.base64Codec.encode(rawBytes)
+            StringPassEncoder.Z85PassEncoder -> KdfTestHarness.z85Codec.encode(rawBytes)
+            else -> KdfTestHarness.z85Codec.encode(rawBytes)
+        }
+        return encoded.substring(0, 16.coerceAtMost(encoded.length))
+    }
+}
+
 object KdfTestHarness {
 
     const val MASTER_KEY_1 = "MASTER_KEY_NUMBER1_ABCDabcd_1234$*?!"
     const val MASTER_KEY_2 = "MASTER_KEY_NUMBER2_ABCDabcd_1234$*?!"
 
+    const val INPUT_1 = ""
+    const val INPUT_2 = "Hello World"
+
     const val GENERATION_TIMEOUT_MS = 60_000L
+
+    val base64Codec = Base64BinaryCodec()
+    val bCryptCodec = BCryptBase64BinaryCodec()
+    val hexCodec = HexBinaryCodec(false)
+    val z85Codec = Z85BinaryCodec()
+
+    private suspend fun createTestCase(
+        masterKey: String,
+        input: String,
+        argon2id: String,
+        bcrypt: String,
+        sha512: String,
+        sha256: String
+    ) = KnownTestCase(
+        masterKey = masterKey,
+        input = input,
+        argon2idBytes = base64Codec.decode(argon2id.substring(argon2id.lastIndexOf('$') + 1)),
+        bcryptBytes = bCryptCodec.decode(bcrypt.substring(29)),
+        sha512Bytes = hexCodec.decode(sha512),
+        sha256Bytes = hexCodec.decode(sha256)
+    )
+
+    suspend fun knownVector1() = createTestCase(
+        masterKey = MASTER_KEY_1,
+        input = INPUT_1,
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$pXey1W36qe9vQXV+cQRDmQ$4LmaKI3VBU8RMcBlZZb5P7upnXDrfrW9iBlBS+85cqmPa+kolG6c3kkIXlH5cj+AFjMq5Dd5uTjti5w7+E3eCA",
+        bcrypt = $$"$2b$12$nVcwzU14oc7tOVT8aOPBkOTAenggmnwEZ05x0I2N6XR6KAl/tlEdy",
+        sha512 = "e12c3072d4dc896a983a011c3a6607e194d82def65ce767a1d4b43c56ef4b921c0780a98af739a20fec2d5f4e9568998ed9ce7a4eef32dd0275c2cd0bd6b9062",
+        sha256 = "a577b2d56dfaa9ef6f41757e71044399bf778161718106c47d28d08ee15862f3"
+    )
+
+    suspend fun knownVector2() = createTestCase(
+        masterKey = MASTER_KEY_1,
+        input = INPUT_2,
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$sc2Pdl6nCZvTASFM/cFYpg$L2BWAdIzwctqbgz7vx9qxbV+oX3YIoTCfUMrdP8Z3TUERxeL7RpIs5RHkyakgYr/ZSDwJHLuW+aLOxL7aAiF2A",
+        bcrypt = $$"$2b$12$qa0Nbj4lAXtR.QDK9aDWneA6ZqTMCkn237knCS7vQ/7ramWhP/3dK",
+        sha512 = "1f5488591763277ffc5dda6ffd07ae07f7da2506259f1180774a43cb55cda18c98402ff3a2855c897d87ae9ec5fe58e23fb67c228f6c83dc08bb7abc96b76818",
+        sha256 = "b1cd8f765ea7099bd301214cfdc158a6177637181ffdb4ea8845770f93a22d4a"
+    )
+
+    suspend fun knownVector3() = createTestCase(
+        masterKey = MASTER_KEY_2,
+        input = INPUT_1,
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$ddLWT2nJB+zIA135609Knw$8h3g9QfLtVrWdZZtWY+u1fGjRpWOUekTXodqsH2CUBa9o9YZBVnYgM6tHJCI7LJvdEURr3gBC78A44Hmb5qUKQ",
+        bcrypt = $$"$2b$12$bbJUR0lH/8xG.z134y7Ilubmjk40c01yBqaP3Mkb8PjFwEQdXxSgS",
+        sha512 = "39cd14bbf79addb2fbaa88f1a479b41cecaac17d1ba858974fed236dcdbd540d40aa4792baef4d53cb30584659e5c349e8c2cd066df50404048fa8d99827b1d5",
+        sha256 = "75d2d64f69c907ecc8035df9eb4f4a9f835be281ec3419d149d35c4b314fd787"
+    )
+
+    suspend fun knownVector4() = createTestCase(
+        masterKey = MASTER_KEY_2,
+        input = INPUT_2,
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$8TdghHqXH+EepUJbfp8OaA$7EQDsCVR9Yna8ODy3o9aKnAoisD3CTy7wuwxv9Btkdo9wGcRntMeyUrRHVxYnP3pugXgZyvMtCAjmL+OmkbzOQ",
+        bcrypt = $$"$2b$12$6RbefFoVF8CcnSHZdn6MY.n2PKDvt/H7LqS.nsMN72uNFzo9VW09e",
+        sha512 = "31a31910e0b7b4c449128efe72997b9934e03c520dd76bb9bf1a9513f885edd28e564f5e2cebc44b6d71f5f3398f27b451fe23d581a80cd7e70648f0e360c41c",
+        sha256 = "f13760847a971fe11ea5425b7e9f0e685f4c406980963a2d6b039b2980a8a1b0"
+    )
 
     val testModule = module {
         single { SettingsPassGenConfigRepository(MapSettings()) } bind PassGenConfigRepository::class
-        single { PlatformHmacSigner } bind HmacSigner::class
+        single { TestHmacSigner() } bind HmacSigner::class
+        //  single { PlatformHmacSigner } bind HmacSigner::class
         single {
             object : AccountRepository {
                 override suspend fun save(account: Account) {}
-                override suspend fun delete(accountId: Int) {
-                    TODO("Not yet implemented")
-                }
-
+                override suspend fun delete(accountId: Int) {}
                 override fun getAll(): Flow<List<Account>> = flowOf(emptyList())
             }
         } bind AccountRepository::class
@@ -92,19 +222,35 @@ object KdfTestHarness {
 
     fun setContent(composeTestRule: ComposeContentTestRule) {
         composeTestRule.setContent {
-            KoinContext {
-                var showAddConfigScreen by remember { mutableStateOf(false) }
+            var showAddConfigScreen by remember { mutableStateOf(false) }
+            var configScreenKey by remember { mutableStateOf(0) }
 
-                if (showAddConfigScreen) {
+            if (showAddConfigScreen) {
+                val storeOwner = remember(configScreenKey) {
+                    val store = ViewModelStore()
+                    object : ViewModelStoreOwner {
+                        override val viewModelStore = store
+                    }
+                }
+                DisposableEffect(configScreenKey) {
+                    onDispose {
+                        storeOwner.viewModelStore.clear()
+                    }
+                }
+
+                CompositionLocalProvider(LocalViewModelStoreOwner provides storeOwner) {
                     AddKdfConfigScreen(
                         onNavigateBack = { showAddConfigScreen = false },
-                        onConfigCreated = { showAddConfigScreen = false }
-                    )
-                } else {
-                    HomeScreen(
-                        onNavigateToCreateConfig = { showAddConfigScreen = true }
+                        onConfigCreated = { showAddConfigScreen = false },
                     )
                 }
+            } else {
+                HomeScreen(
+                    onNavigateToCreateConfig = {
+                        configScreenKey++
+                        showAddConfigScreen = true
+                    },
+                )
             }
         }
     }
@@ -113,12 +259,12 @@ object KdfTestHarness {
         rule: ComposeContentTestRule,
         configName: String,
         masterKey: String = MASTER_KEY_1,
-        hasher: InputHasher? = null,
-        encoder: PassEncoder? = null,
-        toggleTrimSpaces: Boolean = false,
-        toggleCollapseSpaces: Boolean = false,
-        toggleLowercase: Boolean = false,
-        isFirstConfig: Boolean = true
+        hasher: InputHasher = InputHasher.ARGON2ID,
+        encoder: PassEncoder = StringPassEncoder.Z85PassEncoder,
+        trimSpaces: Boolean = true,
+        collapseSpaces: Boolean = true,
+        lowercase: Boolean = true,
+        isFirstConfig: Boolean = true,
     ) {
         if (isFirstConfig) {
             rule.onNodeWithText("No password configurations yet.").assertIsDisplayed()
@@ -132,28 +278,34 @@ object KdfTestHarness {
         rule.onNodeWithTag("confirm_master_key_input").performTextInput(masterKey)
         rule.onNodeWithTag("next_button").performClick()
 
+        // Wait for Step 2 to be rendered
+        rule.onNodeWithTag("config_name_input").assertIsDisplayed()
+
         // Step 2: Config Details
         rule.onNodeWithTag("config_name_input").performTextInput(configName)
 
-        if (toggleTrimSpaces) {
+        // UI defaults are trimSpaces=true, collapseSpaces=true, lowercase=true. Toggle if target differs:
+        if (!trimSpaces) {
             rule.onNodeWithText("Trim leading/trailing spaces").performClick()
         }
-        if (toggleCollapseSpaces) {
+        if (!collapseSpaces) {
             rule.onNodeWithText("Collapse multiple spaces").performClick()
         }
-        if (toggleLowercase) {
+        if (!lowercase) {
             rule.onNodeWithText("Convert to lowercase").performClick()
         }
 
-        if (hasher != null) {
-            rule.onNodeWithText("Hashing Algorithm").performClick()
-            rule.onNodeWithText(hasher.fullName).performClick()
-        }
+        // Select Hasher
+        rule.onNodeWithText("Hashing Algorithm").performClick()
+        rule.onAllNodesWithText(hasher.fullName).filterToOne(
+            hasParent(hasTestTag("hasher_type_selector"))
+        ).performClick()
 
-        if (encoder != null) {
-            rule.onNodeWithText("Encoder Type").performClick()
-            rule.onNodeWithText(encoder.fullName).performClick()
-        }
+        // Select Encoder
+        rule.onNodeWithText("Encoder Type").performClick()
+        rule.onAllNodesWithText(encoder.fullName).filterToOne(
+            hasParent(hasTestTag("encoder_type_selector"))
+        ).performClick()
 
         rule.onNodeWithTag("scroll_container").performScrollToNode(hasTestTag("submit_button"))
         rule.onNodeWithTag("submit_button").performClick()
@@ -167,25 +319,53 @@ object KdfTestHarness {
     }
 
     fun waitForPasswordSubstring(
+        configName: String,
         rule: ComposeContentTestRule,
         expectedSubstring: String,
         timeoutMs: Long = GENERATION_TIMEOUT_MS
     ) {
+        // Wait until the password calculation completes
         rule.waitUntil(timeoutMs) {
-            val revealed = rule
-                .onAllNodesWithText(expectedSubstring, substring = true)
-                .fetchSemanticsNodes().isNotEmpty()
+            try {
+                // Reveal password
+                togglePasswordVisibility(
+                    configName = configName,
+                    isVisible = true,
+                    rule = rule
+                )
 
-            if (!revealed) {
-                val showButtons = rule.onAllNodesWithContentDescription("Show")
-                val numButtons = showButtons.fetchSemanticsNodes().size
-                for (i in 0 until numButtons) {
-                    showButtons[i].performClick()
-                }
+                // Password assertion
+                rule.onAllNodesWithText(expectedSubstring, substring = true, useUnmergedTree = true)
+                    .filterToOne(hasPassGenItemCardParent(configName)).assertIsDisplayed()
+
+                true
+            } catch (e: AssertionError) {
+                false
             }
-            revealed
         }
-        rule.onNodeWithText(expectedSubstring, substring = true).assertIsDisplayed()
+    }
+
+    fun hasPassGenItemCardParent(configName: String): SemanticsMatcher =
+        hasAnyAncestor(
+            hasTestTag("pass_gen_item_card") and
+                    hasAnyDescendant(
+                        hasText(configName)
+                    )
+        )
+
+    fun togglePasswordVisibility(
+        configName: String,
+        isVisible: Boolean,
+        rule: ComposeContentTestRule
+    ) {
+        val button = rule.onAllNodesWithContentDescription(
+            if (isVisible) "Show" else "Hide",
+            useUnmergedTree = true
+        ).filter(hasPassGenItemCardParent(configName))
+
+        if (button.fetchSemanticsNodes().isNotEmpty()) {
+            button.onFirst().performClick()
+        }
     }
 
     suspend fun computeExpectedPassword(
@@ -194,13 +374,13 @@ object KdfTestHarness {
         masterKey: String = MASTER_KEY_1,
         input: String,
         hasher: InputHasher = InputHasher.ARGON2ID,
-        encoder: PassEncoder = PassEncoder.getValidItems(hasher).first(),
+        encoder: PassEncoder = StringPassEncoder.Z85PassEncoder,
         preprocessConfig: PreprocessConfig = PreprocessConfig(
-            trimLeadingAndTrailingSpaces = false,
-            collapseMultipleSpaces = false,
-            convertToLowercase = false
+            trimLeadingAndTrailingSpaces = true,
+            collapseMultipleSpaces = true,
+            convertToLowercase = true
         ),
-        passwordLength: Int? = null
+        passwordLength: Int?
     ): String {
         val kdfConfig = KdfPassGenConfig(
             id = configId,
@@ -211,7 +391,7 @@ object KdfTestHarness {
             passwordLength = passwordLength
         )
 
-        val hmacSigner = PlatformHmacSigner
+        val hmacSigner: HmacSigner = GlobalContext.get().get()
         hmacSigner.registerKey(configId.toString(), masterKey.encodeToByteArray())
 
         val useCase = GenerateKDFPassUseCase(
@@ -220,7 +400,7 @@ object KdfTestHarness {
                 override suspend fun add(config: PassGenConfig): Int = config.id
                 override suspend fun removeById(configId: Int) {}
             },
-            hmacSigner = hmacSigner
+            hmacSigner = hmacSigner,
         )
 
         val pass = useCase(kdfConfig, input)

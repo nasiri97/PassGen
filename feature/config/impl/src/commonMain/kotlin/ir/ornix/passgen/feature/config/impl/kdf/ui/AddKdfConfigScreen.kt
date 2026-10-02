@@ -119,7 +119,7 @@ fun AddKdfConfigScreen(
         }
     }
 
-    LaunchedEffect(uiState.isSuccess) {
+    LaunchedEffect(uiState.isProcessCancelled) {
         if (uiState.isProcessCancelled) {
             onNavigateBack()
         }

@@ -7,12 +7,15 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.togglePasswordVisibility
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.test.KoinTest
+import kotlin.time.Duration.Companion.milliseconds
 
 class RapidInputKdfPassUiTest : KoinTest {
 
@@ -35,14 +38,15 @@ class RapidInputKdfPassUiTest : KoinTest {
             KdfTestHarness.setContent(composeTestRule)
 
             val configName = "Rapid Typing Test Config"
-            val hasher = InputHasher.SHA256
-            val encoder = StringPassEncoder.HexPassEncoder
+            val hasher = InputHasher.ARGON2ID
+            val encoder = StringPassEncoder.Z85PassEncoder
+            val length = 16
 
             KdfTestHarness.addConfig(
                 rule = composeTestRule,
                 configName = configName,
                 hasher = hasher,
-                encoder = encoder
+                encoder = encoder,
             )
 
             val inputNode = composeTestRule.onNodeWithText("Input Phrase")
@@ -61,27 +65,51 @@ class RapidInputKdfPassUiTest : KoinTest {
                 configName = configName,
                 input = finalInput,
                 hasher = hasher,
-                encoder = encoder
+                encoder = encoder,
+                passwordLength = length
             )
 
             val expectedOldPass = KdfTestHarness.computeExpectedPassword(
                 configName = configName,
                 input = firstInput,
                 hasher = hasher,
-                encoder = encoder
+                encoder = encoder,
+                passwordLength = length
             )
 
-            val finalPrefix = expectedFinalPass.substring(0, 16.coerceAtMost(expectedFinalPass.length))
-            val oldPrefix = expectedOldPass.substring(0, 16.coerceAtMost(expectedOldPass.length))
+            val finalPrefix =
+                expectedFinalPass.substring(0, 16.coerceAtMost(expectedFinalPass.length))
+            val oldPrefix =
+                expectedOldPass.substring(0, 16.coerceAtMost(expectedOldPass.length))
 
-            // Wait for password calculation to complete
-            KdfTestHarness.waitForPasswordSubstring(composeTestRule, finalPrefix)
+            // Wait for password calculation to complete and assert password
+            KdfTestHarness.waitForPasswordSubstring(
+                configName = configName,
+                rule = composeTestRule,
+                expectedSubstring = finalPrefix
+            )
 
-            // Final input's password prefix must be displayed
-            composeTestRule.onNodeWithText(finalPrefix, substring = true).assertIsDisplayed()
+            val startTime = System.currentTimeMillis()
 
-            // Intermediate/old input's password prefix must NOT be displayed
-            composeTestRule.onNodeWithText(oldPrefix, substring = true).assertDoesNotExist()
+            while (System.currentTimeMillis() - startTime < 10_000) {
+
+                // Reveal password
+                togglePasswordVisibility(
+                    configName = configName,
+                    isVisible = true,
+                    rule = composeTestRule
+                )
+
+                // Final input's password prefix must be displayed
+                composeTestRule.onNodeWithText(finalPrefix, substring = true)
+                    .assertIsDisplayed()
+
+                // Intermediate/old input's password prefix must NOT be displayed
+                composeTestRule.onNodeWithText(oldPrefix, substring = true)
+                    .assertDoesNotExist()
+
+                delay(5.milliseconds)
+            }
         }
     }
 }

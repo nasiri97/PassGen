@@ -72,6 +72,9 @@ fun SecurePasswordField(
                     color = MaterialTheme.colorScheme.error
                 )
             },
+            supportingText = supportingText,
+            enabled = enabled,
+            isError = isError
         )
     } else {
         ReleaseSecurePasswordField(

@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
@@ -91,6 +92,7 @@ fun PassGenItemCard(
     val scope = rememberCoroutineScope()
 
     SwipeToDismissBox(
+        modifier = modifier.fillMaxWidth().testTag("pass_gen_item_card"),
         state = swipeState,
         onDismiss = { value ->
             when (value) {
@@ -107,7 +109,6 @@ fun PassGenItemCard(
                 SwipeToDismissBoxValue.Settled -> {}
             }
         },
-        modifier = modifier.fillMaxWidth(),
         backgroundContent = {
             val direction = swipeState.dismissDirection
             if (direction != SwipeToDismissBoxValue.Settled) {
