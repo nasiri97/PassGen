@@ -40,7 +40,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -53,6 +56,7 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.ui.component.EncoderTypeSelector
 import ir.ornix.passgen.core.ui.component.HashingTypeSelector
 import ir.ornix.passgen.core.ui.component.NumberSlider
+import ir.ornix.passgen.core.ui.security.SecurePasswordField
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigIntent
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigStep
@@ -73,14 +77,16 @@ data class MasterKeyValidation(
         get() = hasMinLength && hasLowercase && hasUppercase && hasDigit && hasSpecialChar && keysMatch
 }
 
-fun validateMasterKey(masterKey: String, confirmMasterKey: String): MasterKeyValidation {
-    val hasMinLength = masterKey.length >= 24
-    val hasLowercase = masterKey.any { it.isLowerCase() }
-    val hasUppercase = masterKey.any { it.isUpperCase() }
-    val hasDigit = masterKey.any { it.isDigit() }
-    val hasSpecialChar = masterKey.any { !it.isLetterOrDigit() && !it.isWhitespace() }
-    val isRecommendedLength = masterKey.length >= 64
-    val keysMatch = masterKey.isNotEmpty() && masterKey == confirmMasterKey
+fun validateMasterKey(masterKey: ByteArray, confirmMasterKey: ByteArray): MasterKeyValidation {
+    val mkStr = masterKey.decodeToString()
+
+    val hasMinLength = masterKey.size >= 24
+    val hasLowercase = mkStr.any { it.isLowerCase() }
+    val hasUppercase = mkStr.any { it.isUpperCase() }
+    val hasDigit = mkStr.any { it.isDigit() }
+    val hasSpecialChar = mkStr.any { !it.isLetterOrDigit() && !it.isWhitespace() }
+    val isRecommendedLength = masterKey.size >= 64
+    val keysMatch = masterKey.isNotEmpty() && masterKey.contentEquals(confirmMasterKey)
 
     return MasterKeyValidation(
         hasMinLength = hasMinLength,
@@ -103,14 +109,24 @@ fun AddKdfConfigScreen(
     val viewModel: AddKdfConfigViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    var masterKeyUpdate by rememberSaveable {
+        mutableStateOf(Long.MIN_VALUE)
+    }
+
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onConfigCreated()
         }
     }
 
-    val masterKeyValidation by remember(uiState.masterKey, uiState.confirmMasterKey) {
-        derivedStateOf { validateMasterKey(uiState.masterKey, uiState.confirmMasterKey) }
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isProcessCancelled) {
+            onNavigateBack()
+        }
+    }
+
+    val masterKeyValidation by remember(masterKeyUpdate) {
+        derivedStateOf { validateMasterKey(viewModel.masterKey, viewModel.confirmMasterKey) }
     }
 
     Scaffold(
@@ -140,7 +156,7 @@ fun AddKdfConfigScreen(
                                 if (uiState.step == AddKdfConfigStep.ConfigDetails) {
                                     viewModel.dispatch(AddKdfConfigIntent.PreviousStepClicked)
                                 } else {
-                                    onNavigateBack()
+                                    viewModel.dispatch(AddKdfConfigIntent.ProcessCancelled)
                                 }
                             }
                         ) {
@@ -181,22 +197,18 @@ fun AddKdfConfigScreen(
                         MasterKeyStepContent(
                             uiState = uiState,
                             validation = masterKeyValidation,
+                            masterKey = viewModel.masterKey,
+                            confirmMasterKey = viewModel.confirmMasterKey,
                             onMasterKeyChange = {
-                                viewModel.dispatch(
-                                    AddKdfConfigIntent.MasterKeyChanged(
-                                        it
-                                    )
-                                )
+                                viewModel.updateMasterKey(it)
+                                masterKeyUpdate++
                             },
                             onConfirmMasterKeyChange = {
-                                viewModel.dispatch(
-                                    AddKdfConfigIntent.ConfirmMasterKeyChanged(
-                                        it
-                                    )
-                                )
+                                viewModel.updateConfirmMasterKey(it)
+                                masterKeyUpdate++
                             },
                             onNext = { viewModel.dispatch(AddKdfConfigIntent.NextStepClicked) },
-                            onCancel = onNavigateBack
+                            onCancel = { viewModel.dispatch(AddKdfConfigIntent.ProcessCancelled) }
                         )
                     }
 
@@ -263,8 +275,10 @@ fun AddKdfConfigScreen(
 private fun MasterKeyStepContent(
     uiState: AddKdsConfigUiState,
     validation: MasterKeyValidation,
-    onMasterKeyChange: (String) -> Unit,
-    onConfirmMasterKeyChange: (String) -> Unit,
+    masterKey: ByteArray,
+    confirmMasterKey: ByteArray,
+    onMasterKeyChange: (ByteArray) -> Unit,
+    onConfirmMasterKeyChange: (ByteArray) -> Unit,
     onNext: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -279,35 +293,29 @@ private fun MasterKeyStepContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        OutlinedTextField(
-            value = uiState.masterKey,
+        SecurePasswordField(
+            value = masterKey,
             onValueChange = onMasterKeyChange,
             label = { Text("Master Key") },
-            minLines = 5,
-            maxLines = 5,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("master_key_input")
+            modifier = Modifier.fillMaxWidth(),
+            testTag = "master_key_input"
         )
 
-        OutlinedTextField(
-            value = uiState.confirmMasterKey,
+        SecurePasswordField(
+            value = confirmMasterKey,
             onValueChange = onConfirmMasterKeyChange,
             label = { Text("Confirm Master Key") },
-            minLines = 5,
-            maxLines = 5,
-            isError = uiState.confirmMasterKey.isNotEmpty() && !validation.keysMatch,
-            supportingText = if (uiState.confirmMasterKey.isNotEmpty() && !validation.keysMatch) {
+            isError = confirmMasterKey.isNotEmpty() && !validation.keysMatch,
+            supportingText = if (confirmMasterKey.isNotEmpty() && !validation.keysMatch) {
                 { Text("Master keys do not match", color = MaterialTheme.colorScheme.error) }
             } else null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("confirm_master_key_input")
+            modifier = Modifier.fillMaxWidth(),
+            testTag = "confirm_master_key_input"
         )
 
         MasterKeyValidationCard(
             validation = validation,
-            masterKeyLength = uiState.masterKey.length
+            masterKeyLength = masterKey.size
         )
 
         Spacer(Modifier.height(16.dp))

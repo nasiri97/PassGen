@@ -17,7 +17,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -115,7 +117,7 @@ class GenerateKDFPassUseCaseTest {
         val result = useCase(config, "secret_input")
 
         assertNotNull(result)
-        assertEquals(32, result.value.length)
+        assertEquals(32, result.length)
     }
 
     @Test
@@ -161,10 +163,10 @@ class GenerateKDFPassUseCaseTest {
             assertNotNull(differentResult1)
             assertNotNull(differentResult2)
 
-            assertEquals(sameResult1.value, sameResult2.value)
-            assertNotEquals(sameResult1.value, differentResult1.value)
-            assertNotEquals(sameResult1.value, differentResult2.value)
-            assertNotEquals(differentResult1.value, differentResult2.value)
+            assertContentEquals(sameResult1.value, sameResult2.value)
+            assertContentNotEquals(sameResult1.value, differentResult1.value)
+            assertContentNotEquals(sameResult1.value, differentResult2.value)
+            assertContentNotEquals(differentResult1.value, differentResult2.value)
         }
 
     @Test
@@ -190,10 +192,10 @@ class GenerateKDFPassUseCaseTest {
             assertNotNull(differentResult1)
             assertNotNull(differentResult2)
 
-            assertEquals(sameResult1.value, sameResult2.value)
-            assertNotEquals(sameResult1.value, differentResult1.value)
-            assertNotEquals(sameResult1.value, differentResult2.value)
-            assertNotEquals(differentResult1.value, differentResult2.value)
+            assertContentEquals(sameResult1.value, sameResult2.value)
+            assertContentNotEquals(sameResult1.value, differentResult1.value)
+            assertContentNotEquals(sameResult1.value, differentResult2.value)
+            assertContentNotEquals(differentResult1.value, differentResult2.value)
         }
 
     @Test
@@ -219,10 +221,10 @@ class GenerateKDFPassUseCaseTest {
             assertNotNull(differentResult1)
             assertNotNull(differentResult2)
 
-            assertEquals(sameResult2.value, sameResult1.value)
-            assertNotEquals(sameResult1.value, differentResult1.value)
-            assertNotEquals(sameResult1.value, differentResult2.value)
-            assertNotEquals(differentResult1.value, differentResult2.value)
+            assertContentEquals(sameResult2.value, sameResult1.value)
+            assertContentNotEquals(sameResult1.value, differentResult1.value)
+            assertContentNotEquals(sameResult1.value, differentResult2.value)
+            assertContentNotEquals(differentResult1.value, differentResult2.value)
         }
 
     @Test
@@ -243,16 +245,16 @@ class GenerateKDFPassUseCaseTest {
             assertNotNull(differentResult3)
             assertNotNull(differentResult4)
 
-            assertNotEquals(result.value, differentResult1.value)
-            assertNotEquals(result.value, differentResult2.value)
-            assertNotEquals(result.value, differentResult3.value)
-            assertNotEquals(result.value, differentResult4.value)
-            assertNotEquals(differentResult1.value, differentResult2.value)
-            assertNotEquals(differentResult1.value, differentResult3.value)
-            assertNotEquals(differentResult1.value, differentResult4.value)
-            assertNotEquals(differentResult2.value, differentResult3.value)
-            assertNotEquals(differentResult2.value, differentResult4.value)
-            assertNotEquals(differentResult3.value, differentResult4.value)
+            assertContentNotEquals(result.value, differentResult1.value)
+            assertContentNotEquals(result.value, differentResult2.value)
+            assertContentNotEquals(result.value, differentResult3.value)
+            assertContentNotEquals(result.value, differentResult4.value)
+            assertContentNotEquals(differentResult1.value, differentResult2.value)
+            assertContentNotEquals(differentResult1.value, differentResult3.value)
+            assertContentNotEquals(differentResult1.value, differentResult4.value)
+            assertContentNotEquals(differentResult2.value, differentResult3.value)
+            assertContentNotEquals(differentResult2.value, differentResult4.value)
+            assertContentNotEquals(differentResult3.value, differentResult4.value)
         }
 
     @Test
@@ -282,11 +284,11 @@ class GenerateKDFPassUseCaseTest {
             assertNotNull(sameResult5)
             assertNotNull(differentResult)
 
-            assertEquals(sameResult1.value, sameResult2.value)
-            assertEquals(sameResult1.value, sameResult3.value)
-            assertEquals(sameResult1.value, sameResult4.value)
-            assertEquals(sameResult1.value, sameResult5.value)
-            assertNotEquals(sameResult1.value, differentResult.value)
+            assertContentEquals(sameResult1.value, sameResult2.value)
+            assertContentEquals(sameResult1.value, sameResult3.value)
+            assertContentEquals(sameResult1.value, sameResult4.value)
+            assertContentEquals(sameResult1.value, sameResult5.value)
+            assertContentNotEquals(sameResult1.value, differentResult.value)
         }
 
     @Test
@@ -350,7 +352,7 @@ class GenerateKDFPassUseCaseTest {
         val result = useCase(config, "z85_input")
 
         assertNotNull(result)
-        assertEquals(40, result.value.length)
+        assertEquals(40, result.length)
     }
 
     @Test
@@ -379,7 +381,7 @@ class GenerateKDFPassUseCaseTest {
                         )
                         assertEquals(
                             tokenLen,
-                            result.value.length,
+                            result.length,
                             "Length mismatch for hasher ${hasher.key} and encoder ${encoder.key}"
                         )
                     }
@@ -404,7 +406,7 @@ class GenerateKDFPassUseCaseTest {
 
             assertNotNull(result1)
             assertNotNull(result2)
-            assertNotEquals(result1.value, result2.value)
+            assertContentNotEquals(result1.value, result2.value)
         }
 
     @Test
@@ -433,7 +435,7 @@ class GenerateKDFPassUseCaseTest {
         val result = useCase(config, longInput)
 
         assertNotNull(result)
-        assertEquals(32, result.value.length)
+        assertEquals(32, result.length)
     }
 
     private suspend fun verifyBip39SeedEncoder(
@@ -455,7 +457,7 @@ class GenerateKDFPassUseCaseTest {
         val result = useCase(config, "bip39_seed_input")
 
         assertNotNull(result)
-        val words = result.value.trim().split("\\s+".toRegex())
+        val words = result.value.concatToString().trim().split("\\s+".toRegex())
         assertEquals(
             expectedWordCount,
             words.size,
@@ -537,18 +539,26 @@ class GenerateKDFPassUseCaseTest {
         assertNotNull(argon2Result)
 
         // Sha256
-        assertEquals(expectedSha256Hex, sha256Result.value, "SHA256 failed for input '$input'")
+        assertEquals(
+            expectedSha256Hex,
+            sha256Result.value.concatToString(),
+            "SHA256 failed for input '$input'"
+        )
 
         // Sha512
         val sExpected = base64Codec.encode(hexCodec.decode(expectedSha512Hex)).take(16)
-        assertEquals(sExpected, sha512Result.value, "SHA512 failed for input '$input'")
+        assertEquals(
+            sExpected,
+            sha512Result.value.concatToString(),
+            "SHA512 failed for input '$input'"
+        )
 
         // BCrypt
         assertEquals(
             z85Codec.encode(
                 bCryptBase64Codec.decode(expectedBcryptBase64.substring(29)).copyOfRange(0, 20)
             ).take(25),
-            bcryptResult.value,
+            bcryptResult.value.concatToString(),
             "BCrypt failed for input '$input'"
         )
 
@@ -557,8 +567,15 @@ class GenerateKDFPassUseCaseTest {
             z85Codec.encode(
                 base64Codec.decode(expectedArgon2Base64.substring(55))
             ).take(80),
-            argon2Result.value,
+            argon2Result.value.concatToString(),
             "Argon2 failed for input '$input'"
         )
+    }
+
+
+    fun assertContentNotEquals(charArray1: CharArray, charArray2: CharArray) {
+        assertFalse {
+            charArray1.contentEquals(charArray2)
+        }
     }
 }

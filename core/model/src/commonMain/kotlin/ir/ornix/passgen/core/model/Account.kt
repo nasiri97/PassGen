@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Account(
     val id: Int = 0,
     val username: String,
-    val password: String
+    val password: Password
 )

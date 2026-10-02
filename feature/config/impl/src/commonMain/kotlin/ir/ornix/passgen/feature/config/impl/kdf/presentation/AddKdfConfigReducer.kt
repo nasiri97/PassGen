@@ -11,12 +11,12 @@ internal fun reduce(
 ): AddKdsConfigUiState {
     return when (change) {
         is AddKdfConfigPartialState.StepChanged -> oldState.copy(step = change.step)
-        is AddKdfConfigPartialState.MasterKeyUpdated -> oldState.copy(masterKey = change.masterKey)
-        is AddKdfConfigPartialState.ConfirmMasterKeyUpdated -> oldState.copy(confirmMasterKey = change.confirmMasterKey)
         is AddKdfConfigPartialState.NameUpdated -> oldState.copy(name = change.name)
         is AddKdfConfigPartialState.TrimSpacesUpdated -> oldState.copy(trimSpaces = change.enabled)
         is AddKdfConfigPartialState.CollapseSpacesUpdated -> oldState.copy(collapseSpaces = change.enabled)
         is AddKdfConfigPartialState.LowercaseUpdated -> oldState.copy(lowercase = change.enabled)
+
+        is AddKdfConfigPartialState.ProcessCancelled -> oldState.copy(isProcessCancelled = true)
 
         is AddKdfConfigPartialState.HasherUpdated -> {
 

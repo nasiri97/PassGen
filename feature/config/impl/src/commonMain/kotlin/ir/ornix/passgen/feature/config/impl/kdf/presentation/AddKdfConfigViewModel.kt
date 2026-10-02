@@ -18,6 +18,18 @@ class AddKdfConfigViewModel(
     private val addConfig: AddKdfPassGenConfigUseCase
 ) : ViewModel() {
 
+    var masterKey: ByteArray = ByteArray(0)
+        private set(value) {
+            field.fill(0)
+            field = value
+        }
+
+    var confirmMasterKey: ByteArray = ByteArray(0)
+        private set(value) {
+            field.fill(0)
+            field = value
+        }
+
     private val intents = Channel<AddKdfConfigIntent>()
 
     val uiState: StateFlow<AddKdsConfigUiState>
@@ -27,47 +39,69 @@ class AddKdfConfigViewModel(
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
-                    is AddKdfConfigIntent.MasterKeyChanged -> {
-                        apply(AddKdfConfigPartialState.MasterKeyUpdated(intent.masterKey))
-                    }
-                    is AddKdfConfigIntent.ConfirmMasterKeyChanged -> {
-                        apply(AddKdfConfigPartialState.ConfirmMasterKeyUpdated(intent.confirmMasterKey))
-                    }
                     is AddKdfConfigIntent.NextStepClicked -> {
                         apply(AddKdfConfigPartialState.StepChanged(AddKdfConfigStep.ConfigDetails))
                     }
+
                     is AddKdfConfigIntent.PreviousStepClicked -> {
                         apply(AddKdfConfigPartialState.StepChanged(AddKdfConfigStep.MasterKey))
                     }
+
                     is AddKdfConfigIntent.NameChanged -> {
                         apply(AddKdfConfigPartialState.NameUpdated(intent.name))
                     }
+
                     is AddKdfConfigIntent.TrimSpacesToggled -> {
                         apply(AddKdfConfigPartialState.TrimSpacesUpdated(intent.enabled))
                     }
+
                     is AddKdfConfigIntent.CollapseSpacesToggled -> {
                         apply(AddKdfConfigPartialState.CollapseSpacesUpdated(intent.enabled))
                     }
+
                     is AddKdfConfigIntent.LowercaseToggled -> {
                         apply(AddKdfConfigPartialState.LowercaseUpdated(intent.enabled))
                     }
+
                     is AddKdfConfigIntent.HasherSelected -> {
                         val validEncoders = PassEncoder.getValidItems(intent.hasher)
                         apply(AddKdfConfigPartialState.HasherUpdated(intent.hasher, validEncoders))
                     }
+
                     is AddKdfConfigIntent.EncoderSelected -> {
                         apply(AddKdfConfigPartialState.EncoderUpdated(intent.encoder))
                     }
+
                     is AddKdfConfigIntent.PassLengthChanged -> {
                         apply(AddKdfConfigPartialState.PassLengthUpdated(intent.length))
                     }
+
                     is AddKdfConfigIntent.SubmitConfigClicked -> {
                         createConfig()
+                    }
+
+                    AddKdfConfigIntent.ProcessCancelled -> {
+                        apply(AddKdfConfigPartialState.ProcessCancelled)
                     }
                 }
             }
         }
     }
+
+
+    fun updateMasterKey(value: ByteArray) {
+        masterKey = value
+    }
+
+    fun updateConfirmMasterKey(value: ByteArray) {
+        confirmMasterKey = value
+    }
+
+    fun resetKeys() {
+        masterKey = ByteArray(0)
+        confirmMasterKey = ByteArray(0)
+    }
+
 
     fun dispatch(intent: AddKdfConfigIntent) {
         viewModelScope.launch {
@@ -95,15 +129,26 @@ class AddKdfConfigViewModel(
                     ),
                     inputHasher = state.selectedHasher
                 )
-                addConfig(config, state.masterKey.encodeToByteArray())
+                addConfig(config, masterKey)
                 apply(AddKdfConfigPartialState.ConfigCreatedSuccess)
             } catch (e: Exception) {
-                apply(AddKdfConfigPartialState.ConfigCreatedError(e.message ?: "Failed to create configuration"))
+                apply(
+                    AddKdfConfigPartialState.ConfigCreatedError(
+                        e.message ?: "Failed to create configuration"
+                    )
+                )
             }
         }
     }
 
     private fun apply(change: AddKdfConfigPartialState) {
+
+        if (change is AddKdfConfigPartialState.ProcessCancelled ||
+            change is AddKdfConfigPartialState.ConfigCreatedSuccess
+        ) {
+            resetKeys()
+        }
+
         uiState.update { reduce(it, change) }
     }
 }

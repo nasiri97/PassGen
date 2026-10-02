@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.PassGenItem
+import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.component.PullToRefreshWithHint
 import ir.ornix.passgen.core.ui.passgen.PassGenItemList
 import ir.ornix.passgen.core.ui.security.secureContent
@@ -41,7 +42,9 @@ fun RandomScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val clipboardManager = LocalClipboardManager.current
-    val copy: (String) -> Unit = { clipboardManager.setText(AnnotatedString(it)) }
+    val onCopyRequested: (Password) -> Unit = {
+        clipboardManager.setText(AnnotatedString(it.value.concatToString()))
+    }
 
     Scaffold(
         modifier = modifier.secureContent().fillMaxSize(),
@@ -66,7 +69,7 @@ fun RandomScreen(
                 onRemovePasswordItemClick = { viewModel.dispatch(RandomIntent.RemoveConfig(it.config)) },
                 addNewAccount = { viewModel.dispatch(RandomIntent.SaveAccount(it)) },
                 onNavigateToCreateConfig = onNavigateToCreateConfig,
-                copy = copy
+                onCopyRequested = onCopyRequested
             )
         }
     }
@@ -78,7 +81,7 @@ private fun RandomList(
     onRemovePasswordItemClick: (PassGenItem) -> Unit,
     addNewAccount: (account: Account) -> Unit,
     onNavigateToCreateConfig: () -> Unit,
-    copy: (String) -> Unit,
+    onCopyRequested: (Password) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (passGenItems.isEmpty()) {
@@ -94,7 +97,7 @@ private fun RandomList(
             passGenItems = passGenItems,
             removePasswordItem = onRemovePasswordItemClick,
             addNewAccount = addNewAccount,
-            copy = copy
+            onCopyRequested = onCopyRequested
         )
     }
 }

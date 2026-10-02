@@ -4,6 +4,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isSensitiveData
+import androidx.compose.ui.semantics.password
 import ir.ornix.passgen.core.common.isDebugBuild
 
 
@@ -30,6 +31,16 @@ fun Modifier.secureContent(): Modifier {
             // Marks this field as sensitive to prevent accessibility extraction
             isSensitiveData = true
             contentDescription = "Secure content"
+        }
+    } else this
+}
+
+
+fun Modifier.securePassword(): Modifier {
+    return if (!isDebugBuild) {
+        this.clearAndSetSemantics {
+            contentDescription = "Hidden secret" // screen readers don't read bullets
+            password()
         }
     } else this
 }

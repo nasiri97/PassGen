@@ -51,7 +51,7 @@ fun PassSecurity(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LengthChip(length = password.value.length)
+        LengthChip(length = password.length)
 
         if (password.hasUpper) {
             TraitChip(

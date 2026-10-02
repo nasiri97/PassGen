@@ -1,13 +1,29 @@
 package ir.ornix.passgen.core.model
 
 import ir.ornix.passgen.core.model.PasswordStrengthLevel.Companion.entropyByteSizeToPasswordStrengthLevel
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Password(
-    val value: String,
+    val value: CharArray,
     val entropyByteSize: Int
 ) {
 
-    val length = value.length
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Password) return false
+
+        return value.contentEquals(other.value) &&
+                entropyByteSize == other.entropyByteSize
+    }
+
+    override fun hashCode(): Int {
+        var result = value.contentHashCode()
+        result = 31 * result + entropyByteSize
+        return result
+    }
+
+    val length = value.size
 
     val strengthLevel: PasswordStrengthLevel =
         entropyByteSizeToPasswordStrengthLevel(entropyByteSize)
@@ -36,7 +52,7 @@ data class Password(
     companion object {
         fun String.toPassword(entropyByteSize: Int): Password {
             return Password(
-                value = this,
+                value = this.toCharArray(),
                 entropyByteSize = entropyByteSize
             )
         }

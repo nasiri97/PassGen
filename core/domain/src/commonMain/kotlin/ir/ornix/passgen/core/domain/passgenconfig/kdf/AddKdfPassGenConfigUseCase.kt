@@ -9,8 +9,8 @@ class AddKdfPassGenConfigUseCase(
     private val passGenConfigRepo: PassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {
-    suspend operator fun invoke(config: KdfPassGenConfig, rawKey: ByteArray) {
+    suspend operator fun invoke(config: KdfPassGenConfig, rawMasterKey: ByteArray) {
         val configId = passGenConfigRepo.add(config)
-        hmacSigner.registerKey("$configId", rawKey)
+        hmacSigner.registerKey("$configId", rawMasterKey)
     }
 }

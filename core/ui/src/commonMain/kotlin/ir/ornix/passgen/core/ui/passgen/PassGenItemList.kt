@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.PassGenItem
+import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.ui.component.getAdaptiveValue
 import ir.ornix.passgen.core.ui.passgen.config.PassGenConfigDialog
@@ -23,7 +24,7 @@ fun PassGenItemList(
     passGenItems: List<PassGenItem>,
     removePasswordItem: (PassGenItem) -> Unit,
     addNewAccount: (account: Account) -> Unit,
-    copy: (String) -> Unit,
+    onCopyRequested: (Password) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var passGenConfig by remember { mutableStateOf<PassGenConfig?>(null) }
@@ -46,7 +47,7 @@ fun PassGenItemList(
                 onRemove = { removePasswordItem(passwordItem) },
                 addNewAccount = addNewAccount,
                 showPassGenInfoDialog = { passGenConfig = it },
-                copy = copy
+                onCopyRequested = onCopyRequested
             )
         }
     }

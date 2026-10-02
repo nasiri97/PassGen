@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.PassGenItem
+import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
@@ -55,7 +56,7 @@ fun PassGenItemCard(
     onRemove: () -> Unit,
     addNewAccount: (account: Account) -> Unit,
     showPassGenInfoDialog: (PassGenConfig) -> Unit,
-    copy: (String) -> Unit,
+    onCopyRequested: (Password) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
@@ -76,13 +77,13 @@ fun PassGenItemCard(
 
     if (showNewAccountDialog && password != null && password.value.isNotEmpty()) {
         NewAccountDialog(
-            password = password.value,
+            password = password,
             onSubmit = { newAccount ->
                 addNewAccount(newAccount)
                 showNewAccountDialog = false
             },
             onDismissRequest = { showNewAccountDialog = false },
-            copyPassword = copy
+            onCopyRequested = onCopyRequested
         )
     }
 
@@ -132,7 +133,7 @@ fun PassGenItemCard(
         Content(
             passGenItem = passGenItem,
             showPassGenInfoDialog = { showPassGenInfoDialog(passGenItem.config) },
-            copy = copy
+            onCopyRequested = onCopyRequested
         )
     }
 }
@@ -141,7 +142,7 @@ fun PassGenItemCard(
 private fun Content(
     passGenItem: PassGenItem,
     showPassGenInfoDialog: () -> Unit,
-    copy: (String) -> Unit,
+    onCopyRequested: (Password) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -186,8 +187,8 @@ private fun Content(
             Spacer(modifier = Modifier.height(12.dp))
 
             PasswordAndActions(
-                password = passGenItem.password?.value,
-                copy = copy,
+                password = passGenItem.password,
+                onCopyRequested = onCopyRequested,
                 isLoading = passGenItem.isCalculating,
                 modifier = Modifier.fillMaxWidth()
             )

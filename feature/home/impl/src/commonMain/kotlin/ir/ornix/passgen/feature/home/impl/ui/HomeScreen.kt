@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.passgen.PassGenItemList
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeIntent
@@ -38,7 +39,9 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val clipboardManager = LocalClipboardManager.current
-    val copy: (String) -> Unit = { clipboardManager.setText(AnnotatedString(it)) }
+    val onCopyRequested: (Password) -> Unit = {
+        clipboardManager.setText(AnnotatedString(it.value.concatToString()))
+    }
 
     Scaffold(
         modifier = modifier.secureContent().fillMaxSize(),
@@ -79,7 +82,7 @@ fun HomeScreen(
                         viewModel.dispatch(HomeIntent.RemoveConfig(it.config))
                     },
                     addNewAccount = { viewModel.dispatch(HomeIntent.SaveAccount(it)) },
-                    copy = copy
+                    onCopyRequested = onCopyRequested
                 )
             }
         }

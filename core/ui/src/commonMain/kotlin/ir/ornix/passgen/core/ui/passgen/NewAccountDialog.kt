@@ -26,16 +26,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
 import ir.ornix.passgen.core.ui.security.secureContent
 
 
 @Composable
 fun NewAccountDialog(
-    password: String,
+    password: Password,
     onSubmit: (account: Account) -> Unit,
     onDismissRequest: () -> Unit,
-    copyPassword: (password: String) -> Unit,
+    onCopyRequested: (Password) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -54,7 +55,7 @@ fun NewAccountDialog(
                 password = password,
                 onSubmit = onSubmit,
                 onCancel = onDismissRequest,
-                copyPassword = copyPassword
+                onCopyRequested = onCopyRequested
             )
         }
     }
@@ -62,10 +63,10 @@ fun NewAccountDialog(
 
 @Composable
 private fun NewAccountContent(
-    password: String,
+    password: Password,
     onSubmit: (Account) -> Unit,
     onCancel: () -> Unit,
-    copyPassword: (password: String) -> Unit
+    onCopyRequested: (Password) -> Unit
 ) {
 
     var userName by rememberSaveable { mutableStateOf("") }
@@ -92,7 +93,7 @@ private fun NewAccountContent(
 
         PasswordAndActions(
             password = password,
-            copy = { copyPassword(password) }
+            onCopyRequested = onCopyRequested
         )
 
         Spacer(Modifier.height(16.dp))

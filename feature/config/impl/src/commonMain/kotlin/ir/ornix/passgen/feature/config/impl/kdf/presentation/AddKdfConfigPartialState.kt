@@ -5,8 +5,7 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
 sealed interface AddKdfConfigPartialState {
     data class StepChanged(val step: AddKdfConfigStep) : AddKdfConfigPartialState
-    data class MasterKeyUpdated(val masterKey: String) : AddKdfConfigPartialState
-    data class ConfirmMasterKeyUpdated(val confirmMasterKey: String) : AddKdfConfigPartialState
+    data object ProcessCancelled : AddKdfConfigPartialState
 
     data class NameUpdated(val name: String) : AddKdfConfigPartialState
     data class TrimSpacesUpdated(val enabled: Boolean) : AddKdfConfigPartialState
