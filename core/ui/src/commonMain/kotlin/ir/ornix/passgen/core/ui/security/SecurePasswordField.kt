@@ -63,7 +63,7 @@ fun SecurePasswordField(
 ) {
     if (isDebugBuild) {
         OutlinedTextField(
-            modifier = modifier.apply { testTag?.let { testTag(testTag) } },
+            modifier = testTag?.let { modifier.testTag(testTag) } ?: modifier,
             value = value.decodeToString(),
             onValueChange = { onValueChange(it.encodeToByteArray()) },
             label = {

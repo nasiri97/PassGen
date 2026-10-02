@@ -24,64 +24,58 @@ class KDFPassGenTest {
     private val hexCodec = HexBinaryCodec(false)
 
 
-    private suspend fun testCase1() = TestCase(
+    private suspend fun createTestCase(
+        input: String,
+        argon2id: String,
+        bcrypt: String,
+        sha512: String,
+        sha256: String
+    ) = TestCase(
+        input = input,
+        argon2id = base64Codec.decode(argon2id.substring(argon2id.lastIndexOf('$') + 1)),
+        bcrypt = bCryptCodec.decode(bcrypt.substring(29)),
+        sha512 = hexCodec.decode(sha512),
+        sha256 = hexCodec.decode(sha256)
+    )
+
+    private suspend fun testCase1() = createTestCase(
         input = "",
-        argon2id = base64Codec.decode(
-            "SIccW0Qtg/lQJyg+5S5HaSe5hzUqpzlpT0FZHH24rpPHsvua5MjBldLxXVCGYztmsJtLiU7D7QZWzN/mlNKkvQ"
-        ),
-        bcrypt = bCryptCodec.decode("qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py"),
-        sha512 = hexCodec.decode(
-            "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
-        ),
-        sha256 = hexCodec.decode("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$47DEQpj8HBSa+/TImW+5JA$SIccW0Qtg/lQJyg+5S5HaSe5hzUqpzlpT0FZHH24rpPHsvua5MjBldLxXVCGYztmsJtLiU7D7QZWzN/mlNKkvQ",
+        bcrypt = $$"$2b$12$25BCOnh6F/QY89RGkU83H.qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py",
+        sha512 = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+        sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     )
 
-    private suspend fun testCase2() = TestCase(
+    private suspend fun testCase2() = createTestCase(
         input = " ",
-        argon2id = base64Codec.decode(
-            "1vjyDAtqCH+KQPxO0mhBR4zbIoF2919kBVnLuECm8M8Kq+3vc9oyLS6InLO2whmP0CCgTcNd83yKBqZTfNpzYw"
-        ),
-        bcrypt = bCryptCodec.decode("Qj5eZokAr/VoyT/B81gVcigGkXjv9e."),
-        sha512 = hexCodec.decode(
-            "f90ddd77e400dfe6a3fcf479b00b1ee29e7015c5bb8cd70f5f15b4886cc339275ff553fc8a053f8ddc7324f45168cffaf81f8c3ac93996f6536eef38e5e40768"
-        ),
-        sha256 = hexCodec.decode("36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068")
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$Nqnn8clbgv+5l0PgxcTOlQ$1vjyDAtqCH+KQPxO0mhBR4zbIoF2919kBVnLuECm8M8Kq+3vc9oyLS6InLO2whmP0CCgTcNd83yKBqZTfNpzYw",
+        bcrypt = $$"$2b$12$Loll6ajZet83jyNevaRMjOQj5eZokAr/VoyT/B81gVcigGkXjv9e.",
+        sha512 = "f90ddd77e400dfe6a3fcf479b00b1ee29e7015c5bb8cd70f5f15b4886cc339275ff553fc8a053f8ddc7324f45168cffaf81f8c3ac93996f6536eef38e5e40768",
+        sha256 = "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
     )
 
-    private suspend fun testCase3() = TestCase(
+    private suspend fun testCase3() = createTestCase(
         input = "\n\n  ",
-        argon2id = base64Codec.decode(
-            "jNwuBTBCAMjy3anuNFnZZqwhBB6BNpF+1BFFMX8xpVIzXVdPSOEp0/3nR00KuzAJivSpCGORKRlotWhqvnLVbw"
-        ),
-        bcrypt = bCryptCodec.decode("EmLve0j.AXy74JiSBFzVjpov6SCkJlK"),
-        sha512 = hexCodec.decode(
-            "6d317431699988eec1fbb52dadfe5d0bfb14d38398470401e1648c412244ee3c90bdbf627b21c37faf1e7ef00e5de1b69555362028a37b471da328c3fac59941"
-        ),
-        sha256 = hexCodec.decode("4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb")
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$Qwjvlq0OhvNceVoXcgYFZQ$jNwuBTBCAMjy3anuNFnZZqwhBB6BNpF+1BFFMX8xpVIzXVdPSOEp0/3nR00KuzAJivSpCGORKRlotWhqvnLVbw",
+        bcrypt = $$"$2b$12$OuhtjoyMftLacTmVaeWDXOEmLve0j.AXy74JiSBFzVjpov6SCkJlK",
+        sha512 = "6d317431699988eec1fbb52dadfe5d0bfb14d38398470401e1648c412244ee3c90bdbf627b21c37faf1e7ef00e5de1b69555362028a37b471da328c3fac59941",
+        sha256 = "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb"
     )
 
-    private suspend fun testCase4() = TestCase(
+    private suspend fun testCase4() = createTestCase(
         input = "hello",
-        argon2id = base64Codec.decode(
-            "Jomso/aWbL3bXqb0Y+WuQOdMiveFYCBBC9FClw5pAihWocz0xFhc+Qns2PJZ3PhBp8doN1Eb9dyx36q1B50lBg"
-        ),
-        bcrypt = bCryptCodec.decode("aWoo2BxGM0sAUbeJTsGdDCs24koovhq"),
-        sha512 = hexCodec.decode(
-            "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043"
-        ),
-        sha256 = hexCodec.decode("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$LPJNul+wow4m6Dsqxbning$Jomso/aWbL3bXqb0Y+WuQOdMiveFYCBBC9FClw5pAihWocz0xFhc+Qns2PJZ3PhBp8doN1Eb9dyx36q1B50lBg",
+        bcrypt = $$"$2b$12$JNHLsj8umu2k4BqovZlgleaWoo2BxGM0sAUbeJTsGdDCs24koovhq",
+        sha512 = "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043",
+        sha256 = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
     )
 
-    private suspend fun testCase5() = TestCase(
+    private suspend fun testCase5() = createTestCase(
         input = "Hello World",
-        argon2id = base64Codec.decode(
-            "whbMNRoF5/S71AQakvFTqefPzAnppbAGVdGk3fKf9qselK/JGaY5fDawfqfVQ6hkTVWnMVoHzN7GiuwDz9a6/A"
-        ),
-        bcrypt = bCryptCodec.decode("OqWhN04gD3je48K05tPyPNL4w8snY0O"),
-        sha512 = hexCodec.decode(
-            "2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f27e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b"
-        ),
-        sha256 = hexCodec.decode("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e")
+        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$pZGm1Av0IEBKARczz7exkA$whbMNRoF5/S71AQakvFTqefPzAnppbAGVdGk3fKf9qselK/JGaY5fDawfqfVQ6hkTVWnMVoHzN7GiuwDz9a6/A",
+        bcrypt = $$"$2b$12$nXEkz.tyGC/I.Paxx5cvi.OqWhN04gD3je48K05tPyPNL4w8snY0O",
+        sha512 = "2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f27e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b",
+        sha256 = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
     )
 
     private suspend fun testCases() = listOf(

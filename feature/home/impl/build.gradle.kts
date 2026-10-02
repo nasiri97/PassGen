@@ -56,6 +56,8 @@ kotlin {
 
         val androidDeviceTest by getting {
             dependencies {
+                implementation(project(":feature:config:impl"))
+
                 implementation(libs.androidx.uitest.junit4)
                 implementation(libs.androidx.uitest.manifest)
                 implementation(libs.kotlinx.coroutines.test)
@@ -68,6 +70,8 @@ kotlin {
 
                 // Force a newer espresso-core version to fix the InputManager crash on modern emulators
                 implementation(libs.androidx.espresso.core)
+
+                implementation(libs.multiplatform.settings.test)
             }
         }
     }
