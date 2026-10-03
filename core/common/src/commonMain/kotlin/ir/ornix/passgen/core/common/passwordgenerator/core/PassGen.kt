@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.passwordgenerator.core
 
+import ir.ornix.passgen.core.common.passwordgenerator.model.IllegalPasswordLengthException
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
@@ -46,7 +47,7 @@ interface PassGen {
     /**
      * Validates the password-length configuration for the selected encoder.
      *
-     * @throws IllegalArgumentException if the configuration is invalid.
+     * @throws IllegalPasswordLengthException if the configuration is invalid.
      */
     fun validatePasswordLength() {
         validatePasswordLength(
@@ -72,7 +73,7 @@ interface PassGen {
          *   generating the token.
          * @param passwordLength Requested length of the final password, or `null`
          *   when the complete encoded token should be returned.
-         * @throws IllegalArgumentException if the configuration is invalid.
+         * @throws IllegalPasswordLengthException if the configuration is invalid.
          */
         fun validatePasswordLength(
             passEncoder: PassEncoder,
@@ -81,22 +82,21 @@ interface PassGen {
         ) {
             when (passEncoder) {
                 is SeedPassEncoder -> {
-                    require(passwordLength == null) {
-                        "Password length must be null for SeedPassEncoder."
-                    }
+                    if (passwordLength != null)
+                        throw IllegalPasswordLengthException("Password length must be null for SeedPassEncoder.")
                 }
 
                 is StringPassEncoder -> {
-                    require(passwordLength != null) {
-                        "Password length must not be null for StringPassEncoder."
-                    }
+                    if (passwordLength == null)
+                        throw IllegalPasswordLengthException("Password length must not be null for StringPassEncoder.")
 
                     val tokenLength = passEncoder.getTokenLength(byteSize = maxEntropyByteSize)
 
-                    require(passwordLength > 0) { "Password length must be greater than 0." }
-                    require(passwordLength <= tokenLength) {
-                        "Requested Password length must not exceed $tokenLength, which is the length of the Token."
-                    }
+                    if (passwordLength <= 0)
+                        throw IllegalPasswordLengthException("Password length must be greater than 0.")
+
+                    if (passwordLength > tokenLength)
+                        throw IllegalPasswordLengthException("Requested Password length must not exceed $tokenLength, which is the length of the Token.")
                 }
             }
         }

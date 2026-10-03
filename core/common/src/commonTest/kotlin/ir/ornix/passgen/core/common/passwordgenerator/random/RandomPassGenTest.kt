@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.common.passwordgenerator.random
 
+import ir.ornix.passgen.core.common.passwordgenerator.model.IllegalPasswordLengthException
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import kotlinx.coroutines.test.runTest
@@ -97,81 +98,63 @@ class RandomPassGenTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `StringPassEncoder with null passwordLength should throw IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
+    fun `StringPassEncoder with null passwordLength should throw IllegalPasswordLengthException`() {
+        assertFailsWith<IllegalPasswordLengthException> {
             RandomPassGen(
                 passEncoder = StringPassEncoder.HexPassEncoder,
                 passwordLength = null
             )
         }
-        assertEquals("Password must not be null for StringPassEncoder.", exception.message)
     }
 
     @Test
-    fun `StringPassEncoder with zero passwordLength should throw IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
+    fun `StringPassEncoder with zero passwordLength should throw IllegalPasswordLengthException`() {
+        assertFailsWith<IllegalPasswordLengthException> {
             RandomPassGen(
                 passEncoder = StringPassEncoder.HexPassEncoder,
                 passwordLength = 0
             )
         }
-        assertEquals("Password length must be greater than 0.", exception.message)
     }
 
     @Test
-    fun `StringPassEncoder with negative passwordLength should throw IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
+    fun `StringPassEncoder with negative passwordLength should throw IllegalPasswordLengthException`() {
+        assertFailsWith<IllegalPasswordLengthException> {
             RandomPassGen(
                 passEncoder = StringPassEncoder.HexPassEncoder,
                 passwordLength = -10
             )
         }
-        assertEquals("Password length must be greater than 0.", exception.message)
     }
 
     @Test
-    fun `HexPassEncoder with passwordLength exceeding 128 should throw IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
+    fun `HexPassEncoder with passwordLength exceeding 128 should throw IllegalPasswordLengthException`() {
+        assertFailsWith<IllegalPasswordLengthException> {
             RandomPassGen(
                 passEncoder = StringPassEncoder.HexPassEncoder,
                 passwordLength = 129
             )
         }
-        assertEquals(
-            exception.message?.contains("Requested Password length must not exceed 128"),
-            true,
-            "Expected exception message to contain token length limit error, got: ${exception.message}"
-        )
     }
 
     @Test
-    fun `Base64PassEncoder with passwordLength exceeding 84 should throw IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
+    fun `Base64PassEncoder with passwordLength exceeding 84 should throw IllegalPasswordLengthException`() {
+        assertFailsWith<IllegalPasswordLengthException> {
             RandomPassGen(
                 passEncoder = StringPassEncoder.Base64PassEncoder,
                 passwordLength = 85
             )
         }
-        assertEquals(
-            exception.message?.contains("Requested Password length must not exceed 84"),
-            true,
-            "Expected exception message to contain token length limit error, got: ${exception.message}"
-        )
     }
 
     @Test
-    fun `Z85PassEncoder with passwordLength exceeding 80 should throw IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
+    fun `Z85PassEncoder with passwordLength exceeding 80 should throw IllegalPasswordLengthException`() {
+        assertFailsWith<IllegalPasswordLengthException> {
             RandomPassGen(
                 passEncoder = StringPassEncoder.Z85PassEncoder,
                 passwordLength = 81
             )
         }
-        assertEquals(
-            exception.message?.contains("Requested Password length must not exceed 80"),
-            true,
-            "Expected exception message to contain token length limit error, got: ${exception.message}"
-        )
     }
 
     // -------------------------------------------------------------------------
@@ -199,7 +182,7 @@ class RandomPassGenTest {
     }
 
     @Test
-    fun `SeedPassEncoder with non-null passwordLength should throw IllegalArgumentException`() {
+    fun `SeedPassEncoder with non-null passwordLength should throw IllegalPasswordLengthException`() {
         val seedEncoders = listOf(
             SeedPassEncoder.Bip39L12PassEncoder,
             SeedPassEncoder.Bip39L15PassEncoder,
@@ -209,13 +192,12 @@ class RandomPassGenTest {
         )
 
         for (encoder in seedEncoders) {
-            val exception = assertFailsWith<IllegalArgumentException> {
+            assertFailsWith<IllegalPasswordLengthException> {
                 RandomPassGen(
                     passEncoder = encoder,
                     passwordLength = 12
                 )
             }
-            assertEquals("Password must be null for SeedPassEncoder.", exception.message)
         }
     }
 

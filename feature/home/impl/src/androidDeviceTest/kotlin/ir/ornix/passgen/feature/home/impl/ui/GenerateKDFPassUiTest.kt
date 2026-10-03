@@ -31,7 +31,7 @@ class GenerateKDFPassUiTest : KoinTest {
     }
 
     private fun verifyKnownTestCaseAcrossHashers(
-        testCaseProvider: suspend () -> KnownTestCase,
+        testCaseProvider: suspend () -> KnownVector,
         testNamePrefix: String
     ) {
         runBlocking {

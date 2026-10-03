@@ -1,6 +1,7 @@
 package ir.ornix.passgen.core.model.passgenconfig
 
 import ir.ornix.passgen.core.common.passwordgenerator.core.PassGen
+import ir.ornix.passgen.core.common.passwordgenerator.model.IllegalPasswordLengthException
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
@@ -37,7 +38,7 @@ sealed interface PassGenConfig {
     /**
      * Validates the password-length configuration for the selected encoder.
      *
-     * @throws IllegalArgumentException if the configuration is invalid.
+     * @throws IllegalPasswordLengthException if the configuration is invalid.
      */
     fun validatePasswordLength() {
         PassGen.validatePasswordLength(

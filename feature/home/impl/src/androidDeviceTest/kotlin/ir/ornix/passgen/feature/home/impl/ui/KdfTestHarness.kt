@@ -95,20 +95,20 @@ class TestHmacSigner : HmacSigner {
     }
 }
 
-class KnownTestCase(
+class KnownVector(
     val masterKey: String,
     val input: String,
-    val argon2idBytes: ByteArray,
-    val bcryptBytes: ByteArray,
-    val sha512Bytes: ByteArray,
-    val sha256Bytes: ByteArray
+    val expectedSha256: ByteArray,
+    val expectedSha512: ByteArray,
+    val expectedBcrypt: ByteArray,
+    val expectedArgon2id: ByteArray
 ) {
     suspend fun expectedPrefixFor(hasher: InputHasher, encoder: PassEncoder): String {
         val rawBytes = when (hasher) {
-            InputHasher.ARGON2ID -> argon2idBytes
-            InputHasher.BCrypt -> bcryptBytes
-            InputHasher.SHA512 -> sha512Bytes
-            InputHasher.SHA256 -> sha256Bytes
+            InputHasher.ARGON2ID -> expectedArgon2id
+            InputHasher.BCrypt -> expectedBcrypt
+            InputHasher.SHA512 -> expectedSha512
+            InputHasher.SHA256 -> expectedSha256
         }
         val encoded = when (encoder) {
             StringPassEncoder.HexPassEncoder -> KdfTestHarness.hexCodec.encode(rawBytes)
@@ -135,56 +135,64 @@ object KdfTestHarness {
     val hexCodec = HexBinaryCodec(false)
     val z85Codec = Z85BinaryCodec()
 
-    private suspend fun createTestCase(
+    private suspend fun createKnownVector(
         masterKey: String,
         input: String,
-        argon2id: String,
-        bcrypt: String,
-        sha512: String,
-        sha256: String
-    ) = KnownTestCase(
+        expectedSha256: String,
+        expectedSha512: String,
+        expectedBcryptMcfEncoded: String,
+        expectedArgon2id: String
+    ) = KnownVector(
         masterKey = masterKey,
         input = input,
-        argon2idBytes = base64Codec.decode(argon2id.substring(argon2id.lastIndexOf('$') + 1)),
-        bcryptBytes = bCryptCodec.decode(bcrypt.substring(29)),
-        sha512Bytes = hexCodec.decode(sha512),
-        sha256Bytes = hexCodec.decode(sha256)
+        expectedSha256 = hexCodec.decode(expectedSha256),
+        expectedSha512 = hexCodec.decode(expectedSha512),
+        expectedBcrypt = bCryptCodec.decode(
+            expectedBcryptMcfEncoded.substring(29)
+        ),
+        expectedArgon2id = base64Codec.decode(
+            expectedArgon2id.substring(
+                expectedArgon2id.lastIndexOf(
+                    '$'
+                ) + 1
+            )
+        )
     )
 
-    suspend fun knownVector1() = createTestCase(
+    suspend fun knownVector1() = createKnownVector(
         masterKey = MASTER_KEY_1,
         input = INPUT_1,
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$pXey1W36qe9vQXV+cQRDmQ$4LmaKI3VBU8RMcBlZZb5P7upnXDrfrW9iBlBS+85cqmPa+kolG6c3kkIXlH5cj+AFjMq5Dd5uTjti5w7+E3eCA",
-        bcrypt = $$"$2b$12$nVcwzU14oc7tOVT8aOPBkOTAenggmnwEZ05x0I2N6XR6KAl/tlEdy",
-        sha512 = "e12c3072d4dc896a983a011c3a6607e194d82def65ce767a1d4b43c56ef4b921c0780a98af739a20fec2d5f4e9568998ed9ce7a4eef32dd0275c2cd0bd6b9062",
-        sha256 = "a577b2d56dfaa9ef6f41757e71044399bf778161718106c47d28d08ee15862f3"
+        expectedSha256 = "a577b2d56dfaa9ef6f41757e71044399bf778161718106c47d28d08ee15862f3",
+        expectedSha512 = "e12c3072d4dc896a983a011c3a6607e194d82def65ce767a1d4b43c56ef4b921c0780a98af739a20fec2d5f4e9568998ed9ce7a4eef32dd0275c2cd0bd6b9062",
+        expectedBcryptMcfEncoded = $$"$2b$12$nVcwzU14oc7tOVT8aOPBkOTAenggmnwEZ05x0I2N6XR6KAl/tlEdy",
+        expectedArgon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$pXey1W36qe9vQXV+cQRDmQ$4LmaKI3VBU8RMcBlZZb5P7upnXDrfrW9iBlBS+85cqmPa+kolG6c3kkIXlH5cj+AFjMq5Dd5uTjti5w7+E3eCA"
     )
 
-    suspend fun knownVector2() = createTestCase(
+    suspend fun knownVector2() = createKnownVector(
         masterKey = MASTER_KEY_1,
         input = INPUT_2,
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$sc2Pdl6nCZvTASFM/cFYpg$L2BWAdIzwctqbgz7vx9qxbV+oX3YIoTCfUMrdP8Z3TUERxeL7RpIs5RHkyakgYr/ZSDwJHLuW+aLOxL7aAiF2A",
-        bcrypt = $$"$2b$12$qa0Nbj4lAXtR.QDK9aDWneA6ZqTMCkn237knCS7vQ/7ramWhP/3dK",
-        sha512 = "1f5488591763277ffc5dda6ffd07ae07f7da2506259f1180774a43cb55cda18c98402ff3a2855c897d87ae9ec5fe58e23fb67c228f6c83dc08bb7abc96b76818",
-        sha256 = "b1cd8f765ea7099bd301214cfdc158a6177637181ffdb4ea8845770f93a22d4a"
+        expectedSha256 = "b1cd8f765ea7099bd301214cfdc158a6177637181ffdb4ea8845770f93a22d4a",
+        expectedSha512 = "1f5488591763277ffc5dda6ffd07ae07f7da2506259f1180774a43cb55cda18c98402ff3a2855c897d87ae9ec5fe58e23fb67c228f6c83dc08bb7abc96b76818",
+        expectedBcryptMcfEncoded = $$"$2b$12$qa0Nbj4lAXtR.QDK9aDWneA6ZqTMCkn237knCS7vQ/7ramWhP/3dK",
+        expectedArgon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$sc2Pdl6nCZvTASFM/cFYpg$L2BWAdIzwctqbgz7vx9qxbV+oX3YIoTCfUMrdP8Z3TUERxeL7RpIs5RHkyakgYr/ZSDwJHLuW+aLOxL7aAiF2A"
     )
 
-    suspend fun knownVector3() = createTestCase(
+    suspend fun knownVector3() = createKnownVector(
         masterKey = MASTER_KEY_2,
         input = INPUT_1,
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$ddLWT2nJB+zIA135609Knw$8h3g9QfLtVrWdZZtWY+u1fGjRpWOUekTXodqsH2CUBa9o9YZBVnYgM6tHJCI7LJvdEURr3gBC78A44Hmb5qUKQ",
-        bcrypt = $$"$2b$12$bbJUR0lH/8xG.z134y7Ilubmjk40c01yBqaP3Mkb8PjFwEQdXxSgS",
-        sha512 = "39cd14bbf79addb2fbaa88f1a479b41cecaac17d1ba858974fed236dcdbd540d40aa4792baef4d53cb30584659e5c349e8c2cd066df50404048fa8d99827b1d5",
-        sha256 = "75d2d64f69c907ecc8035df9eb4f4a9f835be281ec3419d149d35c4b314fd787"
+        expectedSha256 = "75d2d64f69c907ecc8035df9eb4f4a9f835be281ec3419d149d35c4b314fd787",
+        expectedSha512 = "39cd14bbf79addb2fbaa88f1a479b41cecaac17d1ba858974fed236dcdbd540d40aa4792baef4d53cb30584659e5c349e8c2cd066df50404048fa8d99827b1d5",
+        expectedBcryptMcfEncoded = $$"$2b$12$bbJUR0lH/8xG.z134y7Ilubmjk40c01yBqaP3Mkb8PjFwEQdXxSgS",
+        expectedArgon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$ddLWT2nJB+zIA135609Knw$8h3g9QfLtVrWdZZtWY+u1fGjRpWOUekTXodqsH2CUBa9o9YZBVnYgM6tHJCI7LJvdEURr3gBC78A44Hmb5qUKQ"
     )
 
-    suspend fun knownVector4() = createTestCase(
+    suspend fun knownVector4() = createKnownVector(
         masterKey = MASTER_KEY_2,
         input = INPUT_2,
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$8TdghHqXH+EepUJbfp8OaA$7EQDsCVR9Yna8ODy3o9aKnAoisD3CTy7wuwxv9Btkdo9wGcRntMeyUrRHVxYnP3pugXgZyvMtCAjmL+OmkbzOQ",
-        bcrypt = $$"$2b$12$6RbefFoVF8CcnSHZdn6MY.n2PKDvt/H7LqS.nsMN72uNFzo9VW09e",
-        sha512 = "31a31910e0b7b4c449128efe72997b9934e03c520dd76bb9bf1a9513f885edd28e564f5e2cebc44b6d71f5f3398f27b451fe23d581a80cd7e70648f0e360c41c",
-        sha256 = "f13760847a971fe11ea5425b7e9f0e685f4c406980963a2d6b039b2980a8a1b0"
+        expectedSha256 = "f13760847a971fe11ea5425b7e9f0e685f4c406980963a2d6b039b2980a8a1b0",
+        expectedSha512 = "31a31910e0b7b4c449128efe72997b9934e03c520dd76bb9bf1a9513f885edd28e564f5e2cebc44b6d71f5f3398f27b451fe23d581a80cd7e70648f0e360c41c",
+        expectedBcryptMcfEncoded = $$"$2b$12$6RbefFoVF8CcnSHZdn6MY.n2PKDvt/H7LqS.nsMN72uNFzo9VW09e",
+        expectedArgon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$8TdghHqXH+EepUJbfp8OaA$7EQDsCVR9Yna8ODy3o9aKnAoisD3CTy7wuwxv9Btkdo9wGcRntMeyUrRHVxYnP3pugXgZyvMtCAjmL+OmkbzOQ"
     )
 
     val testModule = module {
@@ -382,6 +390,7 @@ object KdfTestHarness {
         ),
         passwordLength: Int?
     ): String {
+
         val kdfConfig = KdfPassGenConfig(
             id = configId,
             name = configName,

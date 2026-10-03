@@ -1,9 +1,7 @@
 package ir.ornix.passgen.core.common.passwordgenerator.kdf
 
-import ir.ornix.passgen.core.common.codec.BCryptBase64BinaryCodec
-import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
-import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Utf8TextCodec
+import ir.ornix.passgen.core.common.passwordgenerator.model.IllegalPasswordLengthException
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
@@ -19,80 +17,14 @@ import kotlin.time.Duration.Companion.minutes
 class KDFPassGenTest {
 
     private val utf8Codec = Utf8TextCodec()
-    private val base64Codec = Base64BinaryCodec()
-    private val bCryptCodec = BCryptBase64BinaryCodec()
-    private val hexCodec = HexBinaryCodec(false)
-
-
-    private suspend fun createTestCase(
-        input: String,
-        argon2id: String,
-        bcrypt: String,
-        sha512: String,
-        sha256: String
-    ) = TestCase(
-        input = input,
-        argon2id = base64Codec.decode(argon2id.substring(argon2id.lastIndexOf('$') + 1)),
-        bcrypt = bCryptCodec.decode(bcrypt.substring(29)),
-        sha512 = hexCodec.decode(sha512),
-        sha256 = hexCodec.decode(sha256)
-    )
-
-    private suspend fun testCase1() = createTestCase(
-        input = "",
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$47DEQpj8HBSa+/TImW+5JA$SIccW0Qtg/lQJyg+5S5HaSe5hzUqpzlpT0FZHH24rpPHsvua5MjBldLxXVCGYztmsJtLiU7D7QZWzN/mlNKkvQ",
-        bcrypt = $$"$2b$12$25BCOnh6F/QY89RGkU83H.qnIYintMZA9VQ3qWzqxEtvw4tXyO5Py",
-        sha512 = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
-        sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    )
-
-    private suspend fun testCase2() = createTestCase(
-        input = " ",
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$Nqnn8clbgv+5l0PgxcTOlQ$1vjyDAtqCH+KQPxO0mhBR4zbIoF2919kBVnLuECm8M8Kq+3vc9oyLS6InLO2whmP0CCgTcNd83yKBqZTfNpzYw",
-        bcrypt = $$"$2b$12$Loll6ajZet83jyNevaRMjOQj5eZokAr/VoyT/B81gVcigGkXjv9e.",
-        sha512 = "f90ddd77e400dfe6a3fcf479b00b1ee29e7015c5bb8cd70f5f15b4886cc339275ff553fc8a053f8ddc7324f45168cffaf81f8c3ac93996f6536eef38e5e40768",
-        sha256 = "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
-    )
-
-    private suspend fun testCase3() = createTestCase(
-        input = "\n\n  ",
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$Qwjvlq0OhvNceVoXcgYFZQ$jNwuBTBCAMjy3anuNFnZZqwhBB6BNpF+1BFFMX8xpVIzXVdPSOEp0/3nR00KuzAJivSpCGORKRlotWhqvnLVbw",
-        bcrypt = $$"$2b$12$OuhtjoyMftLacTmVaeWDXOEmLve0j.AXy74JiSBFzVjpov6SCkJlK",
-        sha512 = "6d317431699988eec1fbb52dadfe5d0bfb14d38398470401e1648c412244ee3c90bdbf627b21c37faf1e7ef00e5de1b69555362028a37b471da328c3fac59941",
-        sha256 = "4308ef96ad0e86f35c795a177206056556333e814e65bfc9cd04bb164f8d61eb"
-    )
-
-    private suspend fun testCase4() = createTestCase(
-        input = "hello",
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$LPJNul+wow4m6Dsqxbning$Jomso/aWbL3bXqb0Y+WuQOdMiveFYCBBC9FClw5pAihWocz0xFhc+Qns2PJZ3PhBp8doN1Eb9dyx36q1B50lBg",
-        bcrypt = $$"$2b$12$JNHLsj8umu2k4BqovZlgleaWoo2BxGM0sAUbeJTsGdDCs24koovhq",
-        sha512 = "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043",
-        sha256 = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
-    )
-
-    private suspend fun testCase5() = createTestCase(
-        input = "Hello World",
-        argon2id = $$"$argon2id$v=19$m=131072,t=4,p=1$pZGm1Av0IEBKARczz7exkA$whbMNRoF5/S71AQakvFTqefPzAnppbAGVdGk3fKf9qselK/JGaY5fDawfqfVQ6hkTVWnMVoHzN7GiuwDz9a6/A",
-        bcrypt = $$"$2b$12$nXEkz.tyGC/I.Paxx5cvi.OqWhN04gD3je48K05tPyPNL4w8snY0O",
-        sha512 = "2c74fd17edafd80e8447b0d46741ee243b7eb74dd2149a0ab1b9246fb30382f27e853d8585719e0e67cbda0daa8f51671064615d645ae27acb15bfb1447f459b",
-        sha256 = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
-    )
-
-    private suspend fun testCases() = listOf(
-        testCase1(),
-        testCase2(),
-        testCase3(),
-        testCase4(),
-        testCase5()
-    )
-
 
     @Test
-    fun testIllegalPasswordLength() = runTest {
+    fun `password length above maximum throws exception`() = runTest {
         InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
                 val maxLength =
-                    (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
+                    (inputHasher.outputByteSize / passEncoder.binaryBlockSize) *
+                            passEncoder.encodedBlockSize
 
                 assertFailsWith<IllegalArgumentException> {
                     KDFPassGen(
@@ -105,20 +37,18 @@ class KDFPassGenTest {
         }
     }
 
-
     @Test
-    fun testFullLength() = runTest {
+    fun `maximum password length produces expected result`() = runTest {
         InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
                 val maxLength =
                     (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
-                testCases().forEach { testCase ->
-
-                    val expected = testCase.getDigest(
+                knownVectors().forEach { testCase ->
+                    val expected = testCase.getExpectedDigest(
                         inputHasher = inputHasher,
-                        length = null,
-                        passEncoder = passEncoder
+                        passEncoder = passEncoder,
+                        length = null
                     )
 
                     assertEquals(
@@ -127,55 +57,62 @@ class KDFPassGenTest {
                             inputHasher = inputHasher,
                             passEncoder = passEncoder,
                             passwordLength = maxLength
-                        ).generate(input = testCase.input, inputDecoder = utf8Codec)
+                        ).generate(
+                            input = testCase.input,
+                            inputDecoder = utf8Codec
+                        )
                     )
                 }
             }
         }
     }
 
-
     @Test
-    fun testCustomLength() = runTest(timeout = 5.minutes) {
-        InputHasher.allItems.forEach { inputHasher ->
-            StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
-                testCases().forEach { testCase ->
-                    val maxLength =
-                        (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
+    fun `custom password lengths produce expected results`() =
+        runTest(timeout = 5.minutes) {
+            InputHasher.allItems.forEach { inputHasher ->
+                StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
+                    knownVectors().forEach { testCase ->
+                        val maxLength =
+                            (inputHasher.outputByteSize / passEncoder.binaryBlockSize) * passEncoder.encodedBlockSize
 
-                    ((maxLength - 5)..maxLength).forEach { length ->
-                        val expected = testCase.getDigest(
-                            inputHasher = inputHasher,
-                            length = length,
-                            passEncoder = passEncoder
-                        )
-
-                        assertEquals(
-                            expected,
-                            KDFPassGen(
+                        (maxLength - 5..maxLength).forEach { length ->
+                            val expected = testCase.getExpectedDigest(
                                 inputHasher = inputHasher,
                                 passEncoder = passEncoder,
-                                passwordLength = length
-                            ).generate(input = testCase.input, inputDecoder = utf8Codec)
-                        )
+                                length = length
+                            )
+
+                            assertEquals(
+                                expected,
+                                KDFPassGen(
+                                    inputHasher = inputHasher,
+                                    passEncoder = passEncoder,
+                                    passwordLength = length
+                                ).generate(
+                                    input = testCase.input,
+                                    inputDecoder = utf8Codec
+                                )
+                            )
+                        }
                     }
                 }
             }
         }
-    }
 
     // -------------------------------------------------------------------------
     // Property Tests
     // -------------------------------------------------------------------------
 
     @Test
-    fun testMaxEntropyByteSizeMatchesInputHasherOutputByteSize() {
+    fun `maximum entropy byte size matches input hasher output byte size`() {
         InputHasher.allItems.forEach { inputHasher ->
             val passGen = KDFPassGen(
                 inputHasher = inputHasher,
                 passEncoder = StringPassEncoder.HexPassEncoder,
                 passwordLength = 10
             )
+
             assertEquals(
                 inputHasher.outputByteSize,
                 passGen.maxEntropyByteSize,
@@ -189,49 +126,46 @@ class KDFPassGenTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun testStringPassEncoderWithNullPasswordLengthThrowsException() {
+    fun `StringPassEncoder with null password length throws exception`() {
         InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
-                val exception = assertFailsWith<IllegalArgumentException> {
+                assertFailsWith<IllegalPasswordLengthException> {
                     KDFPassGen(
                         inputHasher = inputHasher,
                         passEncoder = passEncoder,
                         passwordLength = null
                     )
                 }
-                assertEquals("Password must not be null for StringPassEncoder.", exception.message)
             }
         }
     }
 
     @Test
-    fun testStringPassEncoderWithZeroPasswordLengthThrowsException() {
+    fun `StringPassEncoder with zero password length throws exception`() {
         InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
-                val exception = assertFailsWith<IllegalArgumentException> {
+                assertFailsWith<IllegalPasswordLengthException> {
                     KDFPassGen(
                         inputHasher = inputHasher,
                         passEncoder = passEncoder,
                         passwordLength = 0
                     )
                 }
-                assertEquals("Password length must be greater than 0.", exception.message)
             }
         }
     }
 
     @Test
-    fun testStringPassEncoderWithNegativePasswordLengthThrowsException() {
+    fun `StringPassEncoder with negative password length throws exception`() {
         InputHasher.allItems.forEach { inputHasher ->
             StringPassEncoder.allStringPassEncoders.forEach { passEncoder ->
-                val exception = assertFailsWith<IllegalArgumentException> {
+                assertFailsWith<IllegalPasswordLengthException> {
                     KDFPassGen(
                         inputHasher = inputHasher,
                         passEncoder = passEncoder,
                         passwordLength = -5
                     )
                 }
-                assertEquals("Password length must be greater than 0.", exception.message)
             }
         }
     }
@@ -241,27 +175,28 @@ class KDFPassGenTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun testSeedPassEncoderWithNonNullPasswordLengthThrowsException() {
+    fun `SeedPassEncoder with non-null password length throws exception`() {
         InputHasher.allItems.forEach { inputHasher ->
-            val validSeedEncoders = PassEncoder.getValidItems(inputHasher.outputByteSize)
+            val validSeedEncoders = PassEncoder
+                .getValidItems(inputHasher.outputByteSize)
                 .filterIsInstance<SeedPassEncoder>()
 
             validSeedEncoders.forEach { seedEncoder ->
-                val exception = assertFailsWith<IllegalArgumentException> {
+                assertFailsWith<IllegalPasswordLengthException> {
                     KDFPassGen(
                         inputHasher = inputHasher,
                         passEncoder = seedEncoder,
                         passwordLength = 12
                     )
                 }
-                assertEquals("Password must be null for SeedPassEncoder.", exception.message)
             }
         }
     }
 
     @Test
-    fun testSeedPassEncoderWithNullPasswordLengthInitializesSuccessfully() {
-        val validSeedEncoders = PassEncoder.getValidItems(InputHasher.SHA512.outputByteSize)
+    fun `SeedPassEncoder with null password length initializes successfully`() {
+        val validSeedEncoders = PassEncoder
+            .getValidItems(InputHasher.SHA512.outputByteSize)
             .filterIsInstance<SeedPassEncoder>()
 
         validSeedEncoders.forEach { seedEncoder ->
@@ -270,6 +205,7 @@ class KDFPassGenTest {
                 passEncoder = seedEncoder,
                 passwordLength = null
             )
+
             assertEquals(seedEncoder, passGen.passEncoder)
             assertEquals(null, passGen.passwordLength)
         }
@@ -280,7 +216,7 @@ class KDFPassGenTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun testSeedPassEncoderGenerationProducesDeterministicBip39Mnemonics() = runTest {
+    fun `SeedPassEncoder produces deterministic BIP-39 mnemonics`() = runTest {
         val seedEncodersAndWordCounts = listOf(
             SeedPassEncoder.Bip39L12PassEncoder to 12,
             SeedPassEncoder.Bip39L15PassEncoder to 15,
@@ -296,29 +232,27 @@ class KDFPassGenTest {
                 passwordLength = null
             )
 
-            // Generate with String + Decoder
-            val resultString1 = passGen.generate("my_secret_seed_phrase_input", utf8Codec)
-            val resultString2 = passGen.generate("my_secret_seed_phrase_input", utf8Codec)
+            val resultString1 =
+                passGen.generate("my_secret_seed_phrase_input", utf8Codec)
+            val resultString2 =
+                passGen.generate("my_secret_seed_phrase_input", utf8Codec)
 
             assertNotNull(resultString1)
-            assertEquals(resultString1, resultString2, "Generation should be deterministic")
+            assertEquals(resultString1, resultString2)
 
             val words = resultString1.trim().split(Regex("\\s+"))
+
             assertEquals(
                 expectedWordCount,
                 words.size,
                 "Expected $expectedWordCount words for ${seedEncoder.key}"
             )
 
-            // Generate with ByteArray directly
-            val byteArrayInput = utf8Codec.decode("my_secret_seed_phrase_input")
+            val byteArrayInput =
+                utf8Codec.decode("my_secret_seed_phrase_input")
             val resultBytes = passGen.generate(byteArrayInput)
 
-            assertEquals(
-                resultString1,
-                resultBytes,
-                "ByteArray generate should match String generate"
-            )
+            assertEquals(resultString1, resultBytes)
         }
     }
 
@@ -327,25 +261,26 @@ class KDFPassGenTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun testGenerateWithByteArrayInputMatchesGenerateWithDecoder() = runTest {
-        val passGen = KDFPassGen(
-            inputHasher = InputHasher.SHA256,
-            passEncoder = StringPassEncoder.HexPassEncoder,
-            passwordLength = 32
-        )
+    fun `ByteArray input produces the same result as String input with decoder`() =
+        runTest {
+            val passGen = KDFPassGen(
+                inputHasher = InputHasher.SHA256,
+                passEncoder = StringPassEncoder.HexPassEncoder,
+                passwordLength = 32
+            )
 
-        val inputStr = "Test Input String 123!"
-        val inputBytes = utf8Codec.decode(inputStr)
+            val inputString = "Test Input String 123!"
+            val inputBytes = utf8Codec.decode(inputString)
 
-        val passFromStr = passGen.generate(inputStr, utf8Codec)
-        val passFromBytes = passGen.generate(inputBytes)
+            val passFromString = passGen.generate(inputString, utf8Codec)
+            val passFromBytes = passGen.generate(inputBytes)
 
-        assertNotNull(passFromStr)
-        assertEquals(passFromStr, passFromBytes, "Result from String+Decoder must match ByteArray")
-    }
+            assertNotNull(passFromString)
+            assertEquals(passFromString, passFromBytes)
+        }
 
     @Test
-    fun testGenerateWithEmptyByteArrayInput() = runTest {
+    fun `empty ByteArray input produces a deterministic password`() = runTest {
         val passGen = KDFPassGen(
             inputHasher = InputHasher.SHA256,
             passEncoder = StringPassEncoder.Base64PassEncoder,
@@ -358,7 +293,7 @@ class KDFPassGenTest {
 
         assertNotNull(pass1)
         assertEquals(16, pass1.length)
-        assertEquals(pass1, pass2, "Empty byte array generation should be deterministic")
+        assertEquals(pass1, pass2)
     }
 
     // -------------------------------------------------------------------------
@@ -366,133 +301,72 @@ class KDFPassGenTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun testDeterminismAndInputSensitivity() = runTest {
-        val passGen = KDFPassGen(
-            inputHasher = InputHasher.SHA256,
-            passEncoder = StringPassEncoder.HexPassEncoder,
-            passwordLength = 32
-        )
+    fun `same input produces the same password and different input produces a different password`() =
+        runTest {
+            val passGen = KDFPassGen(
+                inputHasher = InputHasher.SHA256,
+                passEncoder = StringPassEncoder.HexPassEncoder,
+                passwordLength = 32
+            )
 
-        val input1 = "secret_password_1".encodeToByteArray()
-        val input2 = "secret_password_2".encodeToByteArray()
+            val input1 = "secret_password_1".encodeToByteArray()
+            val input2 = "secret_password_2".encodeToByteArray()
 
-        val result1a = passGen.generate(input1)
-        val result1b = passGen.generate(input1) // Cached / repeated
-        val result2 = passGen.generate(input2)  // Different input
-        val result1c = passGen.generate(input1) // Switched back
+            val result1a = passGen.generate(input1)
+            val result1b = passGen.generate(input1)
+            val result2 = passGen.generate(input2)
+            val result1c = passGen.generate(input1)
 
-        assertNotNull(result1a)
-        assertNotNull(result1b)
-        assertNotNull(result2)
-        assertNotNull(result1c)
+            assertNotNull(result1a)
+            assertNotNull(result1b)
+            assertNotNull(result2)
+            assertNotNull(result1c)
 
-        assertEquals(
-            result1a,
-            result1b,
-            "Repeated calls with same input should return identical password"
-        )
-        assertNotEquals(result1a, result2, "Different inputs must produce different passwords")
-        assertEquals(
-            result1a,
-            result1c,
-            "Switching back to original input should return original password"
-        )
-    }
+            assertEquals(result1a, result1b)
+            assertNotEquals(result1a, result2)
+            assertEquals(result1a, result1c)
+        }
 
     // -------------------------------------------------------------------------
     // Valid Combinations Tests
     // -------------------------------------------------------------------------
 
     @Test
-    fun testAllValidHasherAndEncoderCombinations() = runTest {
-        for (hasher in InputHasher.allItems) {
-            val validEncoders = PassEncoder.getValidItems(hasher)
+    fun `all valid hasher and encoder combinations produce a password`() =
+        runTest {
+            for (hasher in InputHasher.allItems) {
+                val validEncoders = PassEncoder.getValidItems(hasher)
 
-            for (encoder in validEncoders) {
-                val passLen = when (encoder) {
-                    is StringPassEncoder -> encoder.getTokenLength(hasher.outputByteSize)
-                    else -> null
-                }
+                for (encoder in validEncoders) {
+                    val passLen = when (encoder) {
+                        is StringPassEncoder ->
+                            encoder.getTokenLength(hasher.outputByteSize)
 
-                val passGen = KDFPassGen(
-                    inputHasher = hasher,
-                    passEncoder = encoder,
-                    passwordLength = passLen
-                )
+                        else -> null
+                    }
 
-                val result = passGen.generate("valid_combo_test_input", utf8Codec)
-
-                assertNotNull(
-                    result,
-                    "Failed to generate password for ${hasher.key} and ${encoder.key}"
-                )
-
-                if (passLen != null) {
-                    assertEquals(
-                        passLen,
-                        result.length,
-                        "Length mismatch for ${hasher.key} and ${encoder.key}"
+                    val passGen = KDFPassGen(
+                        inputHasher = hasher,
+                        passEncoder = encoder,
+                        passwordLength = passLen
                     )
+
+                    val result =
+                        passGen.generate("valid_combo_test_input", utf8Codec)
+
+                    assertNotNull(
+                        result,
+                        "Failed to generate password for ${hasher.key} and ${encoder.key}"
+                    )
+
+                    if (passLen != null) {
+                        assertEquals(
+                            passLen,
+                            result.length,
+                            "Length mismatch for ${hasher.key} and ${encoder.key}"
+                        )
+                    }
                 }
             }
         }
-    }
-
-
-    private class TestCase(
-        val input: String,
-        val argon2id: ByteArray,
-        val bcrypt: ByteArray,
-        val sha512: ByteArray,
-        val sha256: ByteArray
-    ) {
-
-        /**
-         * @param length Set null for full-length
-         */
-        suspend fun getDigest(
-            inputHasher: InputHasher,
-            length: Int?,
-            passEncoder: StringPassEncoder
-        ): String {
-            val binaryBlockSize: Int
-            val encodedBlockSize: Int
-
-            val bytes = when (inputHasher) {
-                is InputHasher.ARGON2ID -> argon2id
-                is InputHasher.BCrypt -> bcrypt
-                is InputHasher.SHA512 -> sha512
-                is InputHasher.SHA256 -> sha256
-            }
-
-            when (passEncoder) {
-                is StringPassEncoder.HexPassEncoder -> {
-                    binaryBlockSize = 1
-                    encodedBlockSize = 2
-                }
-
-                is StringPassEncoder.Base64PassEncoder -> {
-                    binaryBlockSize = 3
-                    encodedBlockSize = 4
-                }
-
-                is StringPassEncoder.Z85PassEncoder -> {
-                    binaryBlockSize = 4
-                    encodedBlockSize = 5
-                }
-            }
-
-            val maxSize = bytes.size - (bytes.size % binaryBlockSize)
-            val validBytes = bytes.copyOfRange(0, maxSize)
-            val encoded = passEncoder.encodeAllBytes(validBytes)
-
-            check(encoded.length == (maxSize / binaryBlockSize) * encodedBlockSize) {
-                "Encoded size must be a multiple of encodedBlockSize!"
-            }
-
-            return if (length == null) encoded
-            else encoded.substring(0, length)
-        }
-    }
-
 }
