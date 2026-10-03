@@ -1,68 +1,74 @@
 package ir.ornix.passgen.core.common.hashing
 
-import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Utf8TextCodec
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class Sha256HasherTest {
 
     private val sha256Hashing = Sha256Hasher()
-    private val hexCodec = HexBinaryCodec(false)
     private val utf8Codec = Utf8TextCodec()
 
     @Test
-    fun testOutputByteSize() {
+    fun `known vectors produce expected SHA-256 digests`() = runTest {
+        knownVectors().forEachIndexed { index, knownVector ->
+            assertContentEquals(
+                knownVector.expectedSha256,
+                sha256Hashing.digest(knownVector.inputBytes),
+                "SHA-256 output mismatch in test case $index."
+            )
+        }
+    }
+
+    @Test
+    fun `output byte size is 32 bytes`() {
         assertEquals(32, sha256Hashing.outputByteSize)
     }
 
     @Test
-    fun testEmptyString() = runTest {
-        val input = ""
-        val expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        val result = sha256Hashing.digest(utf8Codec.decode(input))
-        assertContentEquals(hexCodec.decode(expected), result)
-    }
-
-    @Test
-    fun testSingleSpace() = runTest {
-        val input = " "
-        val expected = "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
-        val result = sha256Hashing.digest(utf8Codec.decode(input))
-        assertContentEquals(hexCodec.decode(expected), result)
-    }
-
-    @Test
-    fun testHello() = runTest {
-        val input = "hello"
-        val expected = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
-        val result = sha256Hashing.digest(utf8Codec.decode(input))
-        assertContentEquals(hexCodec.decode(expected), result)
-    }
-
-    @Test
-    fun testVerify() = runTest {
+    fun `verify returns true when input matches digest`() = runTest {
         val input = utf8Codec.decode("hello")
         val digest = sha256Hashing.digest(input)
+
         assertTrue(sha256Hashing.verify(input, digest))
     }
 
     @Test
-    fun testMultipleSpace() = runTest {
-        val input = "  \n\n"
-        val expected = "b94f13a5c07a89598ff9c517dbb26d84a29b460a8d2c3671699886e9458ccabf"
-        val result = sha256Hashing.digest(utf8Codec.decode(input))
-        assertContentEquals(hexCodec.decode(expected), result)
+    fun `verify returns false when input does not match digest`() = runTest {
+        val input = utf8Codec.decode("hello")
+        val otherInput = utf8Codec.decode("world")
+        val digest = sha256Hashing.digest(input)
+
+        assertFalse(sha256Hashing.verify(otherInput, digest))
     }
 
     @Test
-    fun testSentence() = runTest {
-        val input = "Hello from Hashing\nWe try to hash your content!"
-        val expected = "2d589220278b9585b8140665bd70d95d46a9df75c9048542febfcd45c0feddbc"
-        val result = sha256Hashing.digest(utf8Codec.decode(input))
-        assertContentEquals(hexCodec.decode(expected), result)
+    fun `verify returns false when digest is modified`() = runTest {
+        val input = utf8Codec.decode("hello")
+        val digest = sha256Hashing.digest(input)
+        digest[0] = (digest[0].toInt() xor 0x01).toByte()
+
+        assertFalse(sha256Hashing.verify(input, digest))
+    }
+
+    @Test
+    fun `empty input produces a 32 byte digest`() = runTest {
+        val digest = sha256Hashing.digest(ByteArray(0))
+
+        assertEquals(32, digest.size)
+    }
+
+    @Test
+    fun `digest is deterministic`() = runTest {
+        val input = utf8Codec.decode("hello")
+
+        val firstDigest = sha256Hashing.digest(input)
+        val secondDigest = sha256Hashing.digest(input)
+
+        assertContentEquals(firstDigest, secondDigest)
     }
 }
