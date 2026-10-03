@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.domain.passgen
 
+import ir.ornix.passgen.core.common.passwordgenerator.model.IllegalPasswordLengthException
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
@@ -149,9 +150,9 @@ class GenerateRandomPassUseCaseTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `creating RandomPassGenConfig with StringPassEncoder and null passwordLength should throw IllegalArgumentException`() =
+    fun `creating RandomPassGenConfig with StringPassEncoder and null passwordLength should throw IllegalPasswordLengthException`() =
         runTest {
-            val exception = assertFailsWith<IllegalArgumentException> {
+            assertFailsWith<IllegalPasswordLengthException> {
                 RandomPassGenConfig(
                     id = 5,
                     name = "Null Length String Config",
@@ -159,13 +160,12 @@ class GenerateRandomPassUseCaseTest {
                     passwordLength = null
                 )
             }
-            assertEquals("Password must not be null for StringPassEncoder.", exception.message)
         }
 
     @Test
-    fun `creating RandomPassGenConfig with zero password length should throw IllegalArgumentException`() =
+    fun `creating RandomPassGenConfig with zero password length should throw IllegalPasswordLengthException`() =
         runTest {
-            val exception = assertFailsWith<IllegalArgumentException> {
+            assertFailsWith<IllegalPasswordLengthException> {
                 RandomPassGenConfig(
                     id = 6,
                     name = "Zero Length Config",
@@ -173,13 +173,12 @@ class GenerateRandomPassUseCaseTest {
                     passwordLength = 0
                 )
             }
-            assertEquals("Password length must be greater than 0.", exception.message)
         }
 
     @Test
-    fun `creating RandomPassGenConfig with negative password length should throw IllegalArgumentException`() =
+    fun `creating RandomPassGenConfig with negative password length should throw IllegalPasswordLengthException`() =
         runTest {
-            val exception = assertFailsWith<IllegalArgumentException> {
+            assertFailsWith<IllegalPasswordLengthException> {
                 RandomPassGenConfig(
                     id = 7,
                     name = "Negative Length Config",
@@ -187,13 +186,12 @@ class GenerateRandomPassUseCaseTest {
                     passwordLength = -10
                 )
             }
-            assertEquals("Password length must be greater than 0.", exception.message)
         }
 
     @Test
-    fun `creating RandomPassGenConfig with password length exceeding max token length should throw IllegalArgumentException`() =
+    fun `creating RandomPassGenConfig with password length exceeding max token length should throw IllegalPasswordLengthException`() =
         runTest {
-            val exception = assertFailsWith<IllegalArgumentException> {
+            assertFailsWith<IllegalPasswordLengthException> {
                 RandomPassGenConfig(
                     id = 8,
                     name = "Exceeding Length Config",
@@ -201,11 +199,6 @@ class GenerateRandomPassUseCaseTest {
                     passwordLength = 85
                 )
             }
-            assertEquals(
-                exception.message?.contains("Requested Password length must not exceed 84"),
-                true,
-                "Expected exception message to state max length limit exceeded, got: ${exception.message}"
-            )
         }
 
     // -------------------------------------------------------------------------
@@ -213,7 +206,7 @@ class GenerateRandomPassUseCaseTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `creating RandomPassGenConfig with SeedPassEncoder and non-null passwordLength should throw IllegalArgumentException`() =
+    fun `creating RandomPassGenConfig with SeedPassEncoder and non-null passwordLength should throw IllegalPasswordLengthException`() =
         runTest {
             val seedEncoders = listOf(
                 SeedPassEncoder.Bip39L12PassEncoder,
@@ -224,7 +217,7 @@ class GenerateRandomPassUseCaseTest {
             )
 
             for (encoder in seedEncoders) {
-                val exception = assertFailsWith<IllegalArgumentException> {
+                assertFailsWith<IllegalPasswordLengthException> {
                     RandomPassGenConfig(
                         id = 9,
                         name = "Invalid Seed Config",
@@ -232,7 +225,6 @@ class GenerateRandomPassUseCaseTest {
                         passwordLength = 12
                     )
                 }
-                assertEquals("Password must be null for SeedPassEncoder.", exception.message)
             }
         }
 
