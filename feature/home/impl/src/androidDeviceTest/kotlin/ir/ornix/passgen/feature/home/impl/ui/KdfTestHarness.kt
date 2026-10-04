@@ -42,6 +42,7 @@ import ir.ornix.passgen.core.common.isAndroidDebugBuild
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.HmacSigner
@@ -281,6 +282,9 @@ object KdfTestHarness {
             rule.onNodeWithContentDescription("Add Config").performClick()
         }
 
+        // Step 0
+        rule.onNodeWithText("I have read and understood the information above.").performClick()
+
         // Step 1: Master Key
         rule.onNodeWithTag("master_key_input").performTextInput(masterKey)
         rule.onNodeWithTag("confirm_master_key_input").performTextInput(masterKey)
@@ -321,14 +325,18 @@ object KdfTestHarness {
         rule.onNodeWithText(configName).assertIsDisplayed()
     }
 
+    fun acknowledgeMasterKeyNotice(rule: ComposeContentTestRule) {
+        rule.onNodeWithTag("master_key_ack").performClick()
+    }
+
     fun enterInputPhrase(rule: ComposeContentTestRule, phrase: String) {
         val inputField = rule.onNodeWithText("Input Phrase")
         inputField.performTextReplacement(phrase)
     }
 
     fun waitForPasswordSubstring(
-        configName: String,
         rule: ComposeContentTestRule,
+        configName: String,
         expectedSubstring: String,
         timeoutMs: Long = GENERATION_TIMEOUT_MS
     ) {
@@ -343,15 +351,37 @@ object KdfTestHarness {
                 )
 
                 // Password assertion
-                rule.onAllNodesWithText(expectedSubstring, substring = true, useUnmergedTree = true)
-                    .filterToOne(hasPassGenItemCardParent(configName)).assertIsDisplayed()
+                getPasswordNode(
+                    rule = rule,
+                    configName = configName,
+                    expectedPass = expectedSubstring,
+                    substring = true
+                ).assertIsDisplayed()
 
                 true
-            } catch (e: AssertionError) {
+            } catch (_: AssertionError) {
                 false
             }
         }
     }
+
+
+    fun getPasswordNode(
+        rule: ComposeContentTestRule,
+        configName: String,
+        expectedPass: String,
+        substring: Boolean = false
+    ) = rule.onAllNodesWithText(
+        text = expectedPass
+            .toCharArray()
+            .withLineBreakOpportunities()
+            .concatToString(),
+        substring = substring,
+        useUnmergedTree = true
+    ).filterToOne(
+        hasPassGenItemCardParent(configName)
+    )
+
 
     fun hasPassGenItemCardParent(configName: String): SemanticsMatcher =
         hasAnyAncestor(

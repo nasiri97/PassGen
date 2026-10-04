@@ -44,7 +44,7 @@ import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
-import ir.ornix.passgen.core.ui.component.PasswordAndActions
+import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import ir.ornix.passgen.core.ui.util.strengthColor
 import kotlinx.coroutines.launch
 
@@ -187,7 +187,7 @@ private fun Content(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            PasswordAndActions(
+            PasswordDisplay(
                 password = passGenItem.password,
                 onCopyRequested = onCopyRequested,
                 isLoading = passGenItem.isCalculating,

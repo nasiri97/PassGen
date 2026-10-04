@@ -1,7 +1,7 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
@@ -78,8 +78,8 @@ class GenerateKDFPassUiTest : KoinTest {
             configs.forEach { (configName, hasher, encoder) ->
                 val expectedPrefix = testCase.expectedPrefixFor(hasher, encoder)
                 KdfTestHarness.waitForPasswordSubstring(
-                    configName = configName,
                     rule = composeTestRule,
+                    configName = configName,
                     expectedSubstring = expectedPrefix
                 )
             }
@@ -157,8 +157,8 @@ class GenerateKDFPassUiTest : KoinTest {
             val expectedPrefix = expectedPass.substring(0, 16.coerceAtMost(expectedPass.length))
 
             KdfTestHarness.waitForPasswordSubstring(
-                configName = configName,
                 rule = composeTestRule,
+                configName = configName,
                 expectedSubstring = expectedPrefix
             )
         }
@@ -193,8 +193,8 @@ class GenerateKDFPassUiTest : KoinTest {
             val firstTwoWords = expectedPass.split(" ").take(2).joinToString(" ")
 
             KdfTestHarness.waitForPasswordSubstring(
-                configName = configName,
                 rule = composeTestRule,
+                configName = configName,
                 expectedSubstring = firstTwoWords
             )
         }
@@ -229,8 +229,8 @@ class GenerateKDFPassUiTest : KoinTest {
 
             // Assert password
             KdfTestHarness.waitForPasswordSubstring(
-                configName = configName,
                 rule = composeTestRule,
+                configName = configName,
                 expectedSubstring = expectedPass
             )
 
@@ -252,7 +252,11 @@ class GenerateKDFPassUiTest : KoinTest {
             )
 
             // Plaintext should be visible again
-            composeTestRule.onNodeWithText(expectedPass).assertIsDisplayed()
+            KdfTestHarness.getPasswordNode(
+                rule = composeTestRule,
+                configName = configName,
+                expectedPass = expectedPass
+            ).assertIsDisplayed()
         }
     }
 }

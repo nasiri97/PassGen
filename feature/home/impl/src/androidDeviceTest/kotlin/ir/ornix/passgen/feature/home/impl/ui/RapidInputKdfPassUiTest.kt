@@ -1,7 +1,8 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
@@ -84,8 +85,8 @@ class RapidInputKdfPassUiTest : KoinTest {
 
             // Wait for password calculation to complete and assert password
             KdfTestHarness.waitForPasswordSubstring(
-                configName = configName,
                 rule = composeTestRule,
+                configName = configName,
                 expectedSubstring = finalPrefix
             )
 
@@ -101,12 +102,20 @@ class RapidInputKdfPassUiTest : KoinTest {
                 )
 
                 // Final input's password prefix must be displayed
-                composeTestRule.onNodeWithText(finalPrefix, substring = true)
-                    .assertIsDisplayed()
+                KdfTestHarness.getPasswordNode(
+                    configName = configName,
+                    rule = composeTestRule,
+                    expectedPass = finalPrefix,
+                    substring = true
+                ).assertIsDisplayed()
 
                 // Intermediate/old input's password prefix must NOT be displayed
-                composeTestRule.onNodeWithText(oldPrefix, substring = true)
-                    .assertDoesNotExist()
+                KdfTestHarness.getPasswordNode(
+                    configName = configName,
+                    rule = composeTestRule,
+                    expectedPass = oldPrefix,
+                    substring = true
+                ).assertIsNotDisplayed()
 
                 delay(5.milliseconds)
             }

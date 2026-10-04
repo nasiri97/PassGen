@@ -1,7 +1,7 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
@@ -92,13 +92,13 @@ class MultipleKdfConfigsUiTest : KoinTest {
 
             // Wait and assert passwords for both items
             KdfTestHarness.waitForPasswordSubstring(
-                configName = name1,
                 rule = composeTestRule,
+                configName = name1,
                 expectedSubstring = prefix1
             )
             KdfTestHarness.waitForPasswordSubstring(
-                configName = name2,
                 rule = composeTestRule,
+                configName = name2,
                 expectedSubstring = prefix2
             )
         }
@@ -157,13 +157,13 @@ class MultipleKdfConfigsUiTest : KoinTest {
             )
 
             KdfTestHarness.waitForPasswordSubstring(
-                configName = name1,
                 rule = composeTestRule,
+                configName = name1,
                 expectedSubstring = pass1Phrase1.substring(0, 16)
             )
             KdfTestHarness.waitForPasswordSubstring(
-                configName = name2,
                 rule = composeTestRule,
+                configName = name2,
                 expectedSubstring = pass2Phrase1.substring(0, 16)
             )
 
@@ -190,13 +190,13 @@ class MultipleKdfConfigsUiTest : KoinTest {
 
             // Wait and assert passwords for both items
             KdfTestHarness.waitForPasswordSubstring(
-                configName = name1,
                 rule = composeTestRule,
+                configName = name1,
                 expectedSubstring = pass1Phrase2.substring(0, 16)
             )
             KdfTestHarness.waitForPasswordSubstring(
-                configName = name2,
                 rule = composeTestRule,
+                configName = name2,
                 expectedSubstring = pass2Phrase2.substring(0, 16)
             )
         }

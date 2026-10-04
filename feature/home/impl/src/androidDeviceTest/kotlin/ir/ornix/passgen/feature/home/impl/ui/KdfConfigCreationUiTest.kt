@@ -3,7 +3,7 @@ package ir.ornix.passgen.feature.home.impl.ui
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -88,6 +88,7 @@ class KdfConfigCreationUiTest : KoinTest {
 
             val validKey = KdfTestHarness.MASTER_KEY_1
 
+            KdfTestHarness.acknowledgeMasterKeyNotice(rule = composeTestRule)
             composeTestRule.onNodeWithTag("master_key_input").performTextInput(validKey)
             composeTestRule.onNodeWithTag("confirm_master_key_input").performTextInput(validKey)
 
@@ -104,6 +105,7 @@ class KdfConfigCreationUiTest : KoinTest {
             composeTestRule.onNodeWithText("Add your first config").performClick()
 
             val validKey = KdfTestHarness.MASTER_KEY_1
+            KdfTestHarness.acknowledgeMasterKeyNotice(rule = composeTestRule)
             composeTestRule.onNodeWithTag("master_key_input").performTextInput(validKey)
             composeTestRule.onNodeWithTag("confirm_master_key_input").performTextInput(validKey)
             composeTestRule.onNodeWithTag("next_button").performClick()
