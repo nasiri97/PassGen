@@ -39,6 +39,13 @@ import ir.ornix.passgen.core.designsystem.BothPreview
 import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.trait_chars_format
+import ir.ornix.passgen.core.ui.trait_digits
+import ir.ornix.passgen.core.ui.trait_lowercase
+import ir.ornix.passgen.core.ui.trait_special
+import ir.ornix.passgen.core.ui.trait_uppercase
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -55,25 +62,25 @@ fun PassSecurity(
 
         if (password.hasUpper) {
             TraitChip(
-                label = "Uppercase",
+                label = stringResource(Res.string.trait_uppercase),
                 icon = Icons.Rounded.TextFormat
             )
         }
         if (password.hasLower) {
             TraitChip(
-                label = "Lowercase",
+                label = stringResource(Res.string.trait_lowercase),
                 icon = Icons.Rounded.TextFormat
             )
         }
         if (password.hasDigit) {
             TraitChip(
-                label = "Digits",
+                label = stringResource(Res.string.trait_digits),
                 icon = Icons.Rounded.Numbers
             )
         }
         if (password.hasSpecialChar) {
             TraitChip(
-                label = "Special",
+                label = stringResource(Res.string.trait_special),
                 icon = Icons.Rounded.Star
             )
         }
@@ -89,7 +96,7 @@ fun LengthChip(length: Int) {
     }
 
     TraitChip(
-        label = "$length chars",
+        label = stringResource(Res.string.trait_chars_format, length),
         icon = Icons.Rounded.Password,
         containerColor = containerColor,
         contentColor = contentColor
@@ -139,7 +146,6 @@ private fun TraitChip(
         }
     }
 }
-
 
 @BothPreview
 @Composable

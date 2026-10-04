@@ -19,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.label_hashing_algorithm
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +41,7 @@ fun HashingTypeSelector(
             value = selected.fullName,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Hashing Algorithm") },
+            label = { Text(stringResource(Res.string.label_hashing_algorithm)) },
             supportingText = selected.description?.let { { Text(it) } },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),

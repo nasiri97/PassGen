@@ -53,15 +53,48 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_back
+import ir.ornix.passgen.core.ui.action_cancel
+import ir.ornix.passgen.core.ui.action_create
+import ir.ornix.passgen.core.ui.action_creating
+import ir.ornix.passgen.core.ui.action_next
 import ir.ornix.passgen.core.ui.component.EncoderTypeSelector
 import ir.ornix.passgen.core.ui.component.HashingTypeSelector
 import ir.ornix.passgen.core.ui.component.NumberSlider
+import ir.ornix.passgen.core.ui.content_desc_back
+import ir.ornix.passgen.core.ui.create_config_title
+import ir.ornix.passgen.core.ui.error_master_keys_mismatch
+import ir.ornix.passgen.core.ui.label_approx_bytes_format
+import ir.ornix.passgen.core.ui.label_config_name
+import ir.ornix.passgen.core.ui.label_confirm_master_key
+import ir.ornix.passgen.core.ui.label_master_key
+import ir.ornix.passgen.core.ui.label_password_length_format
+import ir.ornix.passgen.core.ui.master_key_explanation
+import ir.ornix.passgen.core.ui.master_key_requirements_title
+import ir.ornix.passgen.core.ui.option_collapse_spaces
+import ir.ornix.passgen.core.ui.option_convert_lowercase
+import ir.ornix.passgen.core.ui.option_trim_spaces
+import ir.ornix.passgen.core.ui.req_digit
+import ir.ornix.passgen.core.ui.req_lowercase
+import ir.ornix.passgen.core.ui.req_match
+import ir.ornix.passgen.core.ui.req_min_length
+import ir.ornix.passgen.core.ui.req_rec_reached
+import ir.ornix.passgen.core.ui.req_rec_target
+import ir.ornix.passgen.core.ui.req_special
+import ir.ornix.passgen.core.ui.req_uppercase
 import ir.ornix.passgen.core.ui.security.SecurePasswordField
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.setup_master_key_title
+import ir.ornix.passgen.core.ui.step_1_of_2_master_key
+import ir.ornix.passgen.core.ui.step_2_of_2_details
+import ir.ornix.passgen.core.ui.title_config_details
+import ir.ornix.passgen.core.ui.title_preprocessing
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigIntent
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigStep
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigViewModel
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdsConfigUiState
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 data class MasterKeyValidation(
@@ -137,13 +170,13 @@ fun AddKdfConfigScreen(
                     title = {
                         Column {
                             Text(
-                                text = "Create Password Config",
+                                text = stringResource(Res.string.create_config_title),
                                 style = MaterialTheme.typography.titleLarge
                             )
                             Text(
                                 text = when (uiState.step) {
-                                    AddKdfConfigStep.MasterKey -> "Step 1 of 2: Master Key"
-                                    AddKdfConfigStep.ConfigDetails -> "Step 2 of 2: Configuration Details"
+                                    AddKdfConfigStep.MasterKey -> stringResource(Res.string.step_1_of_2_master_key)
+                                    AddKdfConfigStep.ConfigDetails -> stringResource(Res.string.step_2_of_2_details)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -162,7 +195,7 @@ fun AddKdfConfigScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(Res.string.content_desc_back)
                             )
                         }
                     }
@@ -284,11 +317,11 @@ private fun MasterKeyStepContent(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
-            text = "Set Up Master Key",
+            text = stringResource(Res.string.setup_master_key_title),
             style = MaterialTheme.typography.titleLarge
         )
         Text(
-            text = "Enter and confirm your Master Key. It acts as a secret seed to generate your deterministic passwords.",
+            text = stringResource(Res.string.master_key_explanation),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -296,7 +329,7 @@ private fun MasterKeyStepContent(
         SecurePasswordField(
             value = masterKey,
             onValueChange = onMasterKeyChange,
-            label = { Text("Master Key") },
+            label = { Text(stringResource(Res.string.label_master_key)) },
             modifier = Modifier.fillMaxWidth(),
             testTag = "master_key_input"
         )
@@ -304,10 +337,15 @@ private fun MasterKeyStepContent(
         SecurePasswordField(
             value = confirmMasterKey,
             onValueChange = onConfirmMasterKeyChange,
-            label = { Text("Confirm Master Key") },
+            label = { Text(stringResource(Res.string.label_confirm_master_key)) },
             isError = confirmMasterKey.isNotEmpty() && !validation.keysMatch,
             supportingText = if (confirmMasterKey.isNotEmpty() && !validation.keysMatch) {
-                { Text("Master keys do not match", color = MaterialTheme.colorScheme.error) }
+                {
+                    Text(
+                        stringResource(Res.string.error_master_keys_mismatch),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             } else null,
             modifier = Modifier.fillMaxWidth(),
             testTag = "confirm_master_key_input"
@@ -326,7 +364,7 @@ private fun MasterKeyStepContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = onCancel) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
 
             Spacer(Modifier.width(8.dp))
@@ -336,7 +374,7 @@ private fun MasterKeyStepContent(
                 enabled = validation.isValid,
                 onClick = onNext
             ) {
-                Text("Next")
+                Text(stringResource(Res.string.action_next))
             }
         }
     }
@@ -359,35 +397,37 @@ private fun MasterKeyValidationCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Master Key Requirements",
+                text = stringResource(Res.string.master_key_requirements_title),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary
             )
 
             ValidationRequirementItem(
-                label = "At least 24 characters (Current: $masterKeyLength)",
+                label = stringResource(Res.string.req_min_length, masterKeyLength),
                 isSatisfied = validation.hasMinLength,
                 isRecommended = validation.isRecommendedLength,
-                recommendationLabel = if (validation.isRecommendedLength) " (Recommended 64 reached)" else " (Recommended: 64)"
+                recommendationLabel = if (validation.isRecommendedLength) stringResource(Res.string.req_rec_reached) else stringResource(
+                    Res.string.req_rec_target
+                )
             )
             ValidationRequirementItem(
-                label = "At least one lowercase letter (a-z)",
+                label = stringResource(Res.string.req_lowercase),
                 isSatisfied = validation.hasLowercase
             )
             ValidationRequirementItem(
-                label = "At least one uppercase letter (A-Z)",
+                label = stringResource(Res.string.req_uppercase),
                 isSatisfied = validation.hasUppercase
             )
             ValidationRequirementItem(
-                label = "At least one number (0-9)",
+                label = stringResource(Res.string.req_digit),
                 isSatisfied = validation.hasDigit
             )
             ValidationRequirementItem(
-                label = "At least one special character (!@#$...)",
+                label = stringResource(Res.string.req_special),
                 isSatisfied = validation.hasSpecialChar
             )
             ValidationRequirementItem(
-                label = "Master keys match",
+                label = stringResource(Res.string.req_match),
                 isSatisfied = validation.keysMatch
             )
         }
@@ -445,14 +485,14 @@ private fun ConfigDetailsStepContent(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
-            text = "Configuration Details",
+            text = stringResource(Res.string.title_config_details),
             style = MaterialTheme.typography.titleLarge
         )
 
         OutlinedTextField(
             value = uiState.name,
             onValueChange = onNameChange,
-            label = { Text("Configuration Name") },
+            label = { Text(stringResource(Res.string.label_config_name)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -515,7 +555,7 @@ private fun ConfigDetailsStepContent(
                 onClick = onBack,
                 enabled = !uiState.isSubmitting
             ) {
-                Text("Back")
+                Text(stringResource(Res.string.action_back))
             }
 
             Spacer(Modifier.width(8.dp))
@@ -525,7 +565,11 @@ private fun ConfigDetailsStepContent(
                 enabled = uiState.name.isNotBlank() && !uiState.isSubmitting,
                 onClick = onCreate
             ) {
-                Text(if (uiState.isSubmitting) "Creating..." else "Create")
+                Text(
+                    if (uiState.isSubmitting) stringResource(Res.string.action_creating) else stringResource(
+                        Res.string.action_create
+                    )
+                )
             }
         }
     }
@@ -543,25 +587,25 @@ fun Preprocessing(
 ) {
     Column(modifier) {
         Text(
-            "Preprocessing",
+            stringResource(Res.string.title_preprocessing),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
 
         LabeledCheckbox(
-            label = "Trim leading/trailing spaces",
+            label = stringResource(Res.string.option_trim_spaces),
             checked = trimSpaces,
             onCheckedChange = trimSpacesChanged
         )
 
         LabeledCheckbox(
-            label = "Collapse multiple spaces",
+            label = stringResource(Res.string.option_collapse_spaces),
             checked = collapseSpaces,
             onCheckedChange = collapseSpacesChanged
         )
 
         LabeledCheckbox(
-            label = "Convert to lowercase",
+            label = stringResource(Res.string.option_convert_lowercase),
             checked = lowercase,
             onCheckedChange = lowercaseChanged
         )
@@ -579,14 +623,14 @@ fun PassLengthSection(
     Column(modifier) {
         Row {
             Text(
-                text = "Password length: $passLength",
+                text = stringResource(Res.string.label_password_length_format, passLength),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
-                text = "≈ $entropyByteSize bytes",
+                text = stringResource(Res.string.label_approx_bytes_format, entropyByteSize),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )

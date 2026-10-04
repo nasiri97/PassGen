@@ -12,7 +12,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import ir.ornix.passgen.core.designsystem.BothPreview
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_cancel
+import ir.ornix.passgen.core.ui.action_cannot_be_undone
+import ir.ornix.passgen.core.ui.action_delete
+import ir.ornix.passgen.core.ui.delete_item_confirm_msg_generic
+import ir.ornix.passgen.core.ui.delete_item_confirm_msg_named
+import ir.ornix.passgen.core.ui.delete_item_title
 import ir.ornix.passgen.core.ui.security.secureContent
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ConfirmDeleteDialog(
@@ -22,9 +30,9 @@ fun ConfirmDeleteDialog(
     modifier: Modifier = Modifier
 ) {
     val message = if (itemLabel.isNullOrBlank()) {
-        "Are you sure you want to delete this item?"
+        stringResource(Res.string.delete_item_confirm_msg_generic)
     } else {
-        "Are you sure you want to delete \"$itemLabel\"?"
+        stringResource(Res.string.delete_item_confirm_msg_named, itemLabel)
     }
 
     AlertDialog(
@@ -39,13 +47,13 @@ fun ConfirmDeleteDialog(
         },
         title = {
             Text(
-                text = "Delete item",
+                text = stringResource(Res.string.delete_item_title),
                 style = MaterialTheme.typography.titleMedium
             )
         },
         text = {
             Text(
-                text = "$message\nThis action can’t be undone.",
+                text = "$message\n${stringResource(Res.string.action_cannot_be_undone)}",
                 style = MaterialTheme.typography.bodyMedium
             )
         },
@@ -57,17 +65,16 @@ fun ConfirmDeleteDialog(
                     contentColor = MaterialTheme.colorScheme.onError
                 )
             ) {
-                Text("Delete")
+                Text(stringResource(Res.string.action_delete))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
         }
     )
 }
-
 
 @BothPreview
 @Composable

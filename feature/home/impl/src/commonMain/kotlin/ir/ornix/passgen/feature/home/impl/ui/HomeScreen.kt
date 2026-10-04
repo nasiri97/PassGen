@@ -24,10 +24,15 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.add_config_content_desc
+import ir.ornix.passgen.core.ui.add_first_config_button
+import ir.ornix.passgen.core.ui.no_config_message
 import ir.ornix.passgen.core.ui.passgen.PassGenItemList
 import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeIntent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -48,7 +53,10 @@ fun HomeScreen(
         floatingActionButton = {
             if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Config")
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = stringResource(Res.string.add_config_content_desc)
+                    )
                 }
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -100,12 +108,12 @@ private fun EmptyHomeContent(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "No password configurations yet.",
+                text = stringResource(Res.string.no_config_message),
                 style = MaterialTheme.typography.bodyLarge
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onAddClick) {
-                Text("Add your first config")
+                Text(stringResource(Res.string.add_first_config_button))
             }
         }
     }

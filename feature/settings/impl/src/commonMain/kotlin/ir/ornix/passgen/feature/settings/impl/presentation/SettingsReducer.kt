@@ -22,5 +22,17 @@ internal fun reduce(
                 isBiometricAvailable = change.available
             )
         }
+
+        is SettingsPartialState.LanguageChanged -> {
+            oldState.copy(
+                selectedLanguage = change.language
+            )
+        }
+
+        is SettingsPartialState.ThemeChanged -> {
+            oldState.copy(
+                selectedTheme = change.theme
+            )
+        }
     }
 }

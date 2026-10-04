@@ -25,12 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.application_locked_title
+import ir.ornix.passgen.core.ui.content_desc_fingerprint
 import ir.ornix.passgen.core.ui.lockview.PasswordLockView
 import ir.ornix.passgen.core.ui.lockview.PatternLockView
 import ir.ornix.passgen.core.ui.lockview.PinLockView
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.use_fingerprint_action
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateIntent
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -68,7 +73,7 @@ fun UnlockingGateScreen(
         ) {
 
             Text(
-                text = "Application Locked",
+                text = stringResource(Res.string.application_locked_title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -129,14 +134,14 @@ fun UnlockingGateScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Fingerprint,
-                            contentDescription = "Use fingerprint",
+                            contentDescription = stringResource(Res.string.content_desc_fingerprint),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(36.dp),
                         )
                     }
 
                     Text(
-                        text = "Use Fingerprint",
+                        text = stringResource(Res.string.use_fingerprint_action),
                     )
                 }
             }

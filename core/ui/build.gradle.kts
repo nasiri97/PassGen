@@ -29,6 +29,10 @@ kotlin {
         namespace = "ir.ornix.passgen.core.ui"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        androidResources {
+            enable = true
+        }
     }
 
     sourceSets {
@@ -36,6 +40,48 @@ kotlin {
             api(project(":core:designsystem"))
             api(project(":core:model"))
             api(project(":core:common"))
+            api(libs.compose.components.resources)
+        }
+
+        val jvmCommonMain = create("jvmCommonMain") {
+            dependsOn(commonMain.get())
+        }
+
+        androidMain {
+            dependsOn(jvmCommonMain)
+        }
+
+        jvmMain {
+            dependsOn(jvmCommonMain)
+        }
+
+        val webMain = create("webMain") {
+            dependsOn(commonMain.get())
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+        }
+
+        val iosMain = create("iosMain") {
+            dependsOn(commonMain.get())
+        }
+
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
         }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "ir.ornix.passgen.core.ui"
 }

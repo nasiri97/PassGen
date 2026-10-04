@@ -35,14 +35,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_back
+import ir.ornix.passgen.core.ui.action_create
+import ir.ornix.passgen.core.ui.action_creating
 import ir.ornix.passgen.core.ui.component.EncoderTypeSelector
 import ir.ornix.passgen.core.ui.component.NumberSlider
+import ir.ornix.passgen.core.ui.content_desc_back
+import ir.ornix.passgen.core.ui.create_config_title
+import ir.ornix.passgen.core.ui.label_approx_bytes_format
+import ir.ornix.passgen.core.ui.label_config_name
+import ir.ornix.passgen.core.ui.label_password_length_format
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.title_config_details
 import ir.ornix.passgen.feature.config.impl.random.presentation.AddRandomConfigIntent
 import ir.ornix.passgen.feature.config.impl.random.presentation.AddRandomConfigUiState
 import ir.ornix.passgen.feature.config.impl.random.presentation.AddRandomConfigViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +77,7 @@ fun AddRandomConfigScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Create Password Config",
+                            text = stringResource(Res.string.create_config_title),
                             style = MaterialTheme.typography.titleLarge
                         )
                     },
@@ -79,7 +89,7 @@ fun AddRandomConfigScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(Res.string.content_desc_back)
                             )
                         }
                     }
@@ -137,14 +147,14 @@ private fun ConfigDetailsStepContent(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
-            text = "Configuration Details",
+            text = stringResource(Res.string.title_config_details),
             style = MaterialTheme.typography.titleLarge
         )
 
         OutlinedTextField(
             value = uiState.name,
             onValueChange = onNameChange,
-            label = { Text("Configuration Name") },
+            label = { Text(stringResource(Res.string.label_config_name)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -189,7 +199,7 @@ private fun ConfigDetailsStepContent(
                 onClick = onBack,
                 enabled = !uiState.isSubmitting
             ) {
-                Text("Back")
+                Text(stringResource(Res.string.action_back))
             }
 
             Spacer(Modifier.width(8.dp))
@@ -199,7 +209,11 @@ private fun ConfigDetailsStepContent(
                 enabled = uiState.name.isNotBlank() && !uiState.isSubmitting,
                 onClick = onCreate
             ) {
-                Text(if (uiState.isSubmitting) "Creating..." else "Create")
+                Text(
+                    if (uiState.isSubmitting) stringResource(Res.string.action_creating) else stringResource(
+                        Res.string.action_create
+                    )
+                )
             }
         }
     }
@@ -216,14 +230,14 @@ fun PassLengthSection(
     Column(modifier) {
         Row {
             Text(
-                text = "Password length: $passLength",
+                text = stringResource(Res.string.label_password_length_format, passLength),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
-                text = "≈ $entropyByteSize bytes",
+                text = stringResource(Res.string.label_approx_bytes_format, entropyByteSize),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )

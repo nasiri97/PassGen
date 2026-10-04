@@ -27,9 +27,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_cancel
+import ir.ornix.passgen.core.ui.action_create
 import ir.ornix.passgen.core.ui.component.PasswordAndActions
+import ir.ornix.passgen.core.ui.create_new_account_title
+import ir.ornix.passgen.core.ui.label_username
 import ir.ornix.passgen.core.ui.security.secureContent
-
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun NewAccountDialog(
@@ -79,14 +84,14 @@ private fun NewAccountContent(
     ) {
 
         Text(
-            text = "Create New Account",
+            text = stringResource(Res.string.create_new_account_title),
             style = MaterialTheme.typography.headlineSmall
         )
 
         OutlinedTextField(
             value = userName,
             onValueChange = { userName = it },
-            label = { Text("Username") },
+            label = { Text(stringResource(Res.string.label_username)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -103,7 +108,7 @@ private fun NewAccountContent(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = onCancel) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
 
             Spacer(Modifier.width(8.dp))
@@ -120,7 +125,7 @@ private fun NewAccountContent(
                     )
                 }
             ) {
-                Text("Create")
+                Text(stringResource(Res.string.action_create))
             }
         }
     }

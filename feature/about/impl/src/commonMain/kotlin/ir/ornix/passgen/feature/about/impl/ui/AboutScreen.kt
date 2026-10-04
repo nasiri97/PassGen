@@ -8,8 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.title_about
 import ir.ornix.passgen.feature.about.impl.presentation.AboutViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AboutScreen(modifier: Modifier = Modifier) {
@@ -19,6 +22,6 @@ fun AboutScreen(modifier: Modifier = Modifier) {
         modifier = modifier.secureContent().fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("About Page", style = MaterialTheme.typography.headlineLarge)
+        Text(stringResource(Res.string.title_about), style = MaterialTheme.typography.headlineLarge)
     }
 }

@@ -20,7 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_close
+import ir.ornix.passgen.core.ui.label_output_encoder_type
+import ir.ornix.passgen.core.ui.label_password_length
+import ir.ornix.passgen.core.ui.section_generating_settings
+import ir.ornix.passgen.core.ui.section_postprocess_settings
 import ir.ornix.passgen.core.ui.security.secureContent
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RandomPassGenConfigDialog(
@@ -33,7 +40,7 @@ fun RandomPassGenConfigDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(Res.string.action_close))
             }
         },
         title = {
@@ -51,13 +58,13 @@ fun RandomPassGenConfigDialog(
             ) {
 
                 Text(
-                    text = "Generating Settings",
+                    text = stringResource(Res.string.section_generating_settings),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
 
                 ConfigColumn(
-                    label = "Output Encoder Type",
+                    label = stringResource(Res.string.label_output_encoder_type),
                     name = config.passEncoder.fullName,
                     description = null
                 )
@@ -65,13 +72,13 @@ fun RandomPassGenConfigDialog(
                 HorizontalDivider()
 
                 Text(
-                    text = "Postprocess Settings",
+                    text = stringResource(Res.string.section_postprocess_settings),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
 
                 ConfigRow(
-                    label = "Password Length",
+                    label = stringResource(Res.string.label_password_length),
                     value = config.passwordLength.toString()
                 )
             }
@@ -79,7 +86,6 @@ fun RandomPassGenConfigDialog(
         shape = RoundedCornerShape(16.dp)
     )
 }
-
 
 @Composable
 private fun ConfigColumn(label: String, name: String, description: String?) {

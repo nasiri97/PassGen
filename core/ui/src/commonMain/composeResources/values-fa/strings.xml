@@ -1,0 +1,138 @@
+<resources>
+    <string name="app_name">پاس‌ژن</string>
+    <string name="nav_home">خانه</string>
+    <string name="nav_random">تصادفی</string>
+    <string name="nav_saved_passwords">گذرواژه‌های ذخیره‌شده</string>
+    <string name="nav_settings">تنظیمات</string>
+    <string name="nav_about">درباره</string>
+    <string name="content_desc_menu">منو</string>
+
+    <!-- Confirm Delete Dialog -->
+    <string name="delete_item_title">حذف آیتم</string>
+    <string name="delete_item_confirm_msg_generic">آیا از حذف این آیتم اطمینان دارید؟</string>
+    <string name="delete_item_confirm_msg_named">آیا از حذف «%s» اطمینان دارید؟</string>
+    <string name="action_cannot_be_undone">این عمل قابل بازگشت نیست.</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_cancel">انصراف</string>
+
+    <!-- Component Selectors -->
+    <string name="label_encoder_type">نوع رمزگذار</string>
+    <string name="label_hashing_algorithm">الگوریتم درهم‌سازی</string>
+
+    <!-- Password Actions -->
+    <string name="action_hide">پنهان‌سازی</string>
+    <string name="action_show">نمایش</string>
+    <string name="action_hide_password">پنهان‌سازی گذرواژه</string>
+    <string name="action_show_password">نمایش گذرواژه</string>
+    <string name="debug_mode_warning">حالت اشکال‌زدایی: ایمن نیست!</string>
+
+    <!-- New Account Dialog -->
+    <string name="create_new_account_title">ایجاد حساب جدید</string>
+    <string name="label_username">نام کاربری</string>
+    <string name="action_create">ایجاد</string>
+
+    <!-- Config Dialogs -->
+    <string name="section_preprocess_settings">تنظیمات پیش‌پردازش</string>
+    <string name="section_generating_settings">تنظیمات تولید</string>
+    <string name="section_postprocess_settings">تنظیمات پس‌پردازش</string>
+    <string name="label_output_encoder_type">نوع رمزگذار خروجی</string>
+    <string name="label_password_length">طول گذرواژه</string>
+    <string name="setting_trim_spaces">حذف فاصله‌های ابتدا و انتها</string>
+    <string name="setting_collapse_spaces">ادغام فاصله‌های متوالی</string>
+    <string name="setting_to_lowercase">تبدیل به حروف کوچک</string>
+    <string name="action_close">بستن</string>
+
+    <!-- Pull To Refresh -->
+    <string name="pull_down_to_refresh">برای به‌روزرسانی به پایین بکشید</string>
+
+    <!-- Password Security Traits -->
+    <string name="trait_uppercase">حروف بزرگ</string>
+    <string name="trait_lowercase">حروف کوچک</string>
+    <string name="trait_digits">ارقام</string>
+    <string name="trait_special">نویسه‌های خاص</string>
+    <string name="trait_chars_format">%d نویسه</string>
+
+    <!-- Home &amp; Random Screens -->
+    <string name="input_phrase_label">عبارت ورودی</string>
+    <string name="action_clear">پاک کردن</string>
+    <string name="no_config_message">هنوز پیکربندی گذرواژه‌ای وجود ندارد.</string>
+    <string name="add_first_config_button">افزودن اولین پیکربندی</string>
+    <string name="add_config_content_desc">افزودن پیکربندی</string>
+
+    <!-- Saved Passwords &amp; About -->
+    <string name="title_saved_passwords">صفحه گذرواژه‌های ذخیره‌شده</string>
+    <string name="title_about">صفحه درباره</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_section_verification_methods">روش‌های راستی‌آزمایی</string>
+    <string name="settings_fingerprints_title">اثر انگشت</string>
+    <string name="settings_fingerprints_subtitle_available">باز کردن برنامه با تشخیص زیست‌سنجی</string>
+    <string name="settings_fingerprints_subtitle_unavailable">زیست‌سنجی در این دستگاه در دسترس نیست</string>
+    <string name="settings_local_lock_title">پین، گذرواژه یا الگو</string>
+    <string name="settings_lock_active_pin">قفل پین فعال است</string>
+    <string name="settings_lock_active_password">قفل گذرواژه فعال است</string>
+    <string name="settings_lock_active_pattern">قفل الگو فعال است</string>
+    <string name="settings_lock_none">هیچ قفل محلی تنظیم نشده است</string>
+    <string name="settings_change_local_lock">تغییر روش قفل محلی</string>
+
+    <string name="settings_section_appearance">ظاهر و زبان</string>
+    <string name="settings_theme_title">تم</string>
+    <string name="settings_theme_system">پیش‌فرض سیستم</string>
+    <string name="settings_theme_light">روشن</string>
+    <string name="settings_theme_dark">تاریک</string>
+
+    <string name="settings_language_title">زبان</string>
+    <string name="settings_language_system">پیش‌فرض سیستم</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_persian">فارسی</string>
+
+    <!-- Local Auth &amp; Secret Setup -->
+    <string name="app_security_title">امنیت برنامه</string>
+    <string name="local_lock_setup_subtitle">تنظیم روش قفل محلی</string>
+    <string name="setup_pin_button">تنظیم پین</string>
+    <string name="setup_password_button">تنظیم گذرواژه متنی</string>
+    <string name="setup_pattern_button">تنظیم قفل الگو</string>
+    <string name="action_skip">رد شدن</string>
+    <string name="confirm_pin_label">پین ۴ رقمی خود را تأیید کنید</string>
+    <string name="confirm_password_label">گذرواژه متنی خود را تأیید کنید</string>
+    <string name="confirm_pattern_label">الگو را دوباره رسم کنید</string>
+    <string name="enter_pin_label">پین ۴ رقمی جدید را وارد کنید</string>
+    <string name="enter_password_label">گذرواژه متنی جدید را وارد کنید</string>
+    <string name="enter_pattern_label">الگوی سرّی خود را رسم کنید</string>
+
+    <!-- Unlocking Gate -->
+    <string name="application_locked_title">برنامه قفل شده است</string>
+    <string name="use_fingerprint_action">استفاده از اثر انگشت</string>
+    <string name="content_desc_fingerprint">استفاده از اثر انگشت</string>
+
+    <!-- Add Config Screens -->
+    <string name="create_config_title">ایجاد پیکربندی گذرواژه</string>
+    <string name="step_1_of_2_master_key">مرحله ۱ از ۲: کلید اصلی</string>
+    <string name="step_2_of_2_details">مرحله ۲ از ۲: جزئیات پیکربندی</string>
+    <string name="content_desc_back">بازگشت</string>
+    <string name="setup_master_key_title">تنظیم کلید اصلی</string>
+    <string name="master_key_explanation">کلید اصلی خود را وارد و تأیید کنید. این کلید به عنوان هسته سرّی برای تولید گذرواژه‌های معین شما عمل می‌کند.</string>
+    <string name="label_master_key">کلید اصلی</string>
+    <string name="label_confirm_master_key">تأیید کلید اصلی</string>
+    <string name="error_master_keys_mismatch">کلیدهای اصلی مطابقت ندارند</string>
+    <string name="action_next">بعدی</string>
+    <string name="action_back">قبلی</string>
+    <string name="action_creating">در حال ایجاد...</string>
+    <string name="master_key_requirements_title">الزامات کلید اصلی</string>
+    <string name="req_min_length">حداقل ۲۴ نویسه (فعلی: %d)</string>
+    <string name="req_rec_reached"> (توصیه ۶۴ رعایت شد)</string>
+    <string name="req_rec_target"> (توصیه شده: ۶۴)</string>
+    <string name="req_lowercase">حداقل یک حرف کوچک (a-z)</string>
+    <string name="req_uppercase">حداقل یک حرف بزرگ (A-Z)</string>
+    <string name="req_digit">حداقل یک عدد (0-9)</string>
+    <string name="req_special">حداقل یک نویسه خاص (!@#$...)</string>
+    <string name="req_match">کلیدهای اصلی مطابقت دارند</string>
+    <string name="title_config_details">جزئیات پیکربندی</string>
+    <string name="label_config_name">نام پیکربندی</string>
+    <string name="title_preprocessing">پیش‌پردازش</string>
+    <string name="option_trim_spaces">حذف فاصله‌های ابتدا و انتها</string>
+    <string name="option_collapse_spaces">ادغام فاصله‌های متوالی</string>
+    <string name="option_convert_lowercase">تبدیل به حروف کوچک</string>
+    <string name="label_password_length_format">طول گذرواژه: %d</string>
+    <string name="label_approx_bytes_format">≈ %d بایت</string>
+</resources>

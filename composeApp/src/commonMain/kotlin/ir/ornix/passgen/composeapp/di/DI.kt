@@ -16,8 +16,12 @@ import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
+import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
+import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
@@ -78,6 +82,10 @@ val appModule = module {
     factoryOf(::IsFirstLaunchUseCase)
     factoryOf(::SetFirstLaunchUseCase)
     factoryOf(::IsUnlockingRequiredUseCase)
+    factoryOf(::GetLanguageUseCase)
+    factoryOf(::SetLanguageUseCase)
+    factoryOf(::GetThemeUseCase)
+    factoryOf(::SetThemeUseCase)
 
     viewModelOf(::HomeViewModel)
     viewModelOf(::RandomViewModel)

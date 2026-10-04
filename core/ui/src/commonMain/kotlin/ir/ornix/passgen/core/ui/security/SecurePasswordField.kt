@@ -1,6 +1,5 @@
 package ir.ornix.passgen.core.ui.security
 
-
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
@@ -38,9 +37,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import ir.ornix.passgen.core.common.isDebugBuild
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_hide_password
+import ir.ornix.passgen.core.ui.action_show_password
+import ir.ornix.passgen.core.ui.debug_mode_warning
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
-
 
 @Composable
 fun SecurePasswordField(
@@ -68,7 +71,7 @@ fun SecurePasswordField(
             onValueChange = { onValueChange(it.encodeToByteArray()) },
             label = {
                 Text(
-                    "Debugging mod: It is not safe!",
+                    stringResource(Res.string.debug_mode_warning),
                     color = MaterialTheme.colorScheme.error
                 )
             },
@@ -96,7 +99,6 @@ fun SecurePasswordField(
         )
     }
 }
-
 
 @Composable
 fun ReleaseSecurePasswordField(
@@ -159,8 +161,6 @@ fun ReleaseSecurePasswordField(
         }
     }
 
-    //ScreenCaptureProtection(enabled = blockScreenCapture)
-
     OutlinedSecureTextField(
         state = state,
         modifier = modifier.semantics {
@@ -186,7 +186,9 @@ fun ReleaseSecurePasswordField(
                     Icon(
                         imageVector = if (revealed) Icons.Default.VisibilityOff
                         else Icons.Default.Visibility,
-                        contentDescription = if (revealed) "Hide password" else "Show password",
+                        contentDescription = if (revealed) stringResource(Res.string.action_hide_password) else stringResource(
+                            Res.string.action_show_password
+                        ),
                     )
                 }
             }

@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
+import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
@@ -19,7 +23,11 @@ class SettingsViewModel(
     private val setBiometricEnabled: SetBiometricEnabledUseCase,
     biometricAuthenticator: BiometricAuthenticator,
     getLocalAuthType: GetLocalAuthTypeUseCase,
-    private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase
+    private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase,
+    getLanguage: GetLanguageUseCase,
+    private val setLanguage: SetLanguageUseCase,
+    getTheme: GetThemeUseCase,
+    private val setTheme: SetThemeUseCase
 ) : ViewModel() {
 
     private val intents = Channel<SettingsIntent>()
@@ -29,10 +37,11 @@ class SettingsViewModel(
             SettingsUiState(
                 isBiometricAvailable = biometricAuthenticator.isBiometricAvailable(),
                 isBiometricEnabled = isBiometricEnabled().value,
-                currentLocalAuthType = getLocalAuthType().value
+                currentLocalAuthType = getLocalAuthType().value,
+                selectedLanguage = getLanguage().value,
+                selectedTheme = getTheme().value
             )
         )
-
 
     init {
         viewModelScope.launch {
@@ -48,6 +57,18 @@ class SettingsViewModel(
         }
 
         viewModelScope.launch {
+            getLanguage().collect {
+                apply(SettingsPartialState.LanguageChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
+            getTheme().collect {
+                apply(SettingsPartialState.ThemeChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
                     is SettingsIntent.SetFingerprintEnabled -> {
@@ -57,11 +78,18 @@ class SettingsViewModel(
                     is SettingsIntent.LocalAuthenticationDisabled -> {
                         saveLocalAuthSecret(LocalAuthType.NONE, ByteArray(0))
                     }
+
+                    is SettingsIntent.SelectLanguage -> {
+                        setLanguage(intent.language)
+                    }
+
+                    is SettingsIntent.SelectTheme -> {
+                        setTheme(intent.theme)
+                    }
                 }
             }
         }
     }
-
 
     /** Send new intent */
     fun dispatch(intent: SettingsIntent) = viewModelScope.launch {

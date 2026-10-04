@@ -78,6 +78,7 @@ kotlin {
             implementation(project(":feature:config:api"))
             implementation(project(":feature:config:impl"))
 
+            implementation(libs.compose.components.resources)
             implementation(libs.compose.icons)
             implementation(libs.compose.navigation3.ui)
             implementation(libs.kotlinx.serialization.json)
@@ -87,5 +88,15 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
         }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "ir.ornix.passgen.composeapp"
 }

@@ -25,8 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_hide
+import ir.ornix.passgen.core.ui.action_show
 import ir.ornix.passgen.core.ui.security.securePassword
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -88,7 +92,9 @@ fun PasswordAndActions(
         IconButton(onClick = { revealed = !revealed }) {
             Icon(
                 imageVector = if (revealed) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                contentDescription = if (revealed) "Hide" else "Show",
+                contentDescription = if (revealed) stringResource(Res.string.action_hide) else stringResource(
+                    Res.string.action_show
+                ),
             )
         }
     }

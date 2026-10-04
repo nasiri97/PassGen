@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.security.MessageDigest
 import java.time.Duration
 
@@ -251,7 +252,7 @@ private fun ByteArray.toHexString(): String =
         "%02x".format(byte.toInt() and 0xFF)
     }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>()
+tasks.withType<KotlinCompilationTask<*>>()
     .configureEach {
         dependsOn(generateBip39WordList)
     }

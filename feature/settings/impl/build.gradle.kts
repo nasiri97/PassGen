@@ -39,5 +39,10 @@ kotlin {
             api(project(":core:ui"))
             implementation(libs.koin.compose.viewmodel)
         }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
     }
 }

@@ -25,7 +25,19 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_close
+import ir.ornix.passgen.core.ui.label_hashing_algorithm
+import ir.ornix.passgen.core.ui.label_output_encoder_type
+import ir.ornix.passgen.core.ui.label_password_length
+import ir.ornix.passgen.core.ui.section_generating_settings
+import ir.ornix.passgen.core.ui.section_postprocess_settings
+import ir.ornix.passgen.core.ui.section_preprocess_settings
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.setting_collapse_spaces
+import ir.ornix.passgen.core.ui.setting_to_lowercase
+import ir.ornix.passgen.core.ui.setting_trim_spaces
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun KdfPassGenConfigDialog(
@@ -38,7 +50,7 @@ fun KdfPassGenConfigDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(Res.string.action_close))
             }
         },
         title = {
@@ -55,7 +67,7 @@ fun KdfPassGenConfigDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Preprocess Settings",
+                    text = stringResource(Res.string.section_preprocess_settings),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -64,18 +76,18 @@ fun KdfPassGenConfigDialog(
                 HorizontalDivider()
 
                 Text(
-                    text = "Generating Settings",
+                    text = stringResource(Res.string.section_generating_settings),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
 
                 ConfigColumn(
-                    label = "Hashing Algorithm",
+                    label = stringResource(Res.string.label_hashing_algorithm),
                     name = config.inputHasher.fullName,
                     description = config.inputHasher.description
                 )
                 ConfigColumn(
-                    label = "Output Encoder Type",
+                    label = stringResource(Res.string.label_output_encoder_type),
                     name = config.passEncoder.fullName,
                     description = null
                 )
@@ -83,13 +95,13 @@ fun KdfPassGenConfigDialog(
                 HorizontalDivider()
 
                 Text(
-                    text = "Postprocess Settings",
+                    text = stringResource(Res.string.section_postprocess_settings),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
 
                 ConfigRow(
-                    label = "Password Length",
+                    label = stringResource(Res.string.label_password_length),
                     value = config.passwordLength.toString()
                 )
             }
@@ -97,7 +109,6 @@ fun KdfPassGenConfigDialog(
         shape = RoundedCornerShape(16.dp)
     )
 }
-
 
 @Composable
 private fun ConfigColumn(label: String, name: String, description: String?) {
@@ -149,9 +160,15 @@ private fun ConfigRow(label: String, value: String) {
 @Composable
 private fun PreprocessSettings(config: PreprocessConfig) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SettingItem("Trim Spaces", config.trimLeadingAndTrailingSpaces)
-        SettingItem("Collapse Spaces", config.collapseMultipleSpaces)
-        SettingItem("To Lowercase", config.convertToLowercase)
+        SettingItem(
+            stringResource(Res.string.setting_trim_spaces),
+            config.trimLeadingAndTrailingSpaces
+        )
+        SettingItem(
+            stringResource(Res.string.setting_collapse_spaces),
+            config.collapseMultipleSpaces
+        )
+        SettingItem(stringResource(Res.string.setting_to_lowercase), config.convertToLowercase)
     }
 }
 

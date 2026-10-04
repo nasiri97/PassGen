@@ -33,7 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.pull_down_to_refresh
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -151,7 +154,7 @@ private fun PullToRefreshHint(
                 )
 
                 Text(
-                    text = "Pull down to refresh",
+                    text = stringResource(Res.string.pull_down_to_refresh),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

@@ -8,8 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.title_saved_passwords
 import ir.ornix.passgen.feature.savedpasswords.impl.presentation.SavedPasswordsViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SavedPasswordsScreen(modifier: Modifier = Modifier) {
@@ -19,6 +22,9 @@ fun SavedPasswordsScreen(modifier: Modifier = Modifier) {
         modifier = modifier.secureContent().fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("Saved Passwords Page", style = MaterialTheme.typography.headlineLarge)
+        Text(
+            stringResource(Res.string.title_saved_passwords),
+            style = MaterialTheme.typography.headlineLarge
+        )
     }
 }
