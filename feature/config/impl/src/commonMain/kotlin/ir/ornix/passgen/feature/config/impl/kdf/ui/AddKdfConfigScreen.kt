@@ -48,7 +48,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 internal const val MIN_MASTER_KEY_LENGTH = 16
-internal const val RECOMMENDED_MASTER_KEY_LENGTH = 32
 
 data class MasterKeyValidation(
     val hasMinLength: Boolean,
@@ -56,7 +55,6 @@ data class MasterKeyValidation(
     val hasUppercase: Boolean,
     val hasDigit: Boolean,
     val hasSpecialChar: Boolean,
-    val isRecommendedLength: Boolean,
     val keysMatch: Boolean
 ) {
     val isValid: Boolean
@@ -71,7 +69,6 @@ fun validateMasterKey(masterKey: ByteArray, confirmMasterKey: ByteArray): Master
     val hasUppercase = mkStr.any { it.isUpperCase() }
     val hasDigit = mkStr.any { it.isDigit() }
     val hasSpecialChar = mkStr.any { !it.isLetterOrDigit() && !it.isWhitespace() }
-    val isRecommendedLength = masterKey.size >= RECOMMENDED_MASTER_KEY_LENGTH
     val keysMatch = masterKey.isNotEmpty() && masterKey.contentEquals(confirmMasterKey)
 
     return MasterKeyValidation(
@@ -80,7 +77,6 @@ fun validateMasterKey(masterKey: ByteArray, confirmMasterKey: ByteArray): Master
         hasUppercase = hasUppercase,
         hasDigit = hasDigit,
         hasSpecialChar = hasSpecialChar,
-        isRecommendedLength = isRecommendedLength,
         keysMatch = keysMatch
     )
 }

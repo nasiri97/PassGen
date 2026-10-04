@@ -120,8 +120,6 @@
     <string name="action_creating">در حال ایجاد...</string>
     <string name="master_key_requirements_title">الزامات کلید اصلی</string>
     <string name="req_min_length">حداقل %2$d حرف (فعلی: %1$d)</string>
-    <string name="req_rec_reached"> (توصیه %1$d رعایت شد)</string>
-    <string name="req_rec_target"> (توصیه شده: %1$d)</string>
     <string name="req_lowercase">حداقل یک حرف کوچک (a-z)</string>
     <string name="req_uppercase">حداقل یک حرف بزرگ (A-Z)</string>
     <string name="req_digit">حداقل یک عدد (0-9)</string>

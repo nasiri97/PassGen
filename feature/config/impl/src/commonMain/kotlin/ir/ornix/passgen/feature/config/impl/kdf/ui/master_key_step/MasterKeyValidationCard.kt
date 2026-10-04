@@ -22,13 +22,10 @@ import ir.ornix.passgen.core.ui.master_key_requirements_title
 import ir.ornix.passgen.core.ui.req_digit
 import ir.ornix.passgen.core.ui.req_lowercase
 import ir.ornix.passgen.core.ui.req_min_length
-import ir.ornix.passgen.core.ui.req_rec_reached
-import ir.ornix.passgen.core.ui.req_rec_target
 import ir.ornix.passgen.core.ui.req_special
 import ir.ornix.passgen.core.ui.req_uppercase
 import ir.ornix.passgen.feature.config.impl.kdf.ui.MIN_MASTER_KEY_LENGTH
 import ir.ornix.passgen.feature.config.impl.kdf.ui.MasterKeyValidation
-import ir.ornix.passgen.feature.config.impl.kdf.ui.RECOMMENDED_MASTER_KEY_LENGTH
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -60,12 +57,6 @@ internal fun MasterKeyValidationCard(
                     MIN_MASTER_KEY_LENGTH
                 ),
                 isSatisfied = validation.hasMinLength,
-                isRecommended = validation.isRecommendedLength,
-                recommendationLabel =
-                    if (validation.isRecommendedLength)
-                        stringResource(Res.string.req_rec_reached, RECOMMENDED_MASTER_KEY_LENGTH)
-                    else
-                        stringResource(Res.string.req_rec_target, RECOMMENDED_MASTER_KEY_LENGTH)
             )
             ValidationRequirementItem(
                 label = stringResource(Res.string.req_lowercase),
@@ -90,9 +81,7 @@ internal fun MasterKeyValidationCard(
 @Composable
 private fun ValidationRequirementItem(
     label: String,
-    isSatisfied: Boolean,
-    isRecommended: Boolean = false,
-    recommendationLabel: String = ""
+    isSatisfied: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -109,10 +98,9 @@ private fun ValidationRequirementItem(
             modifier = Modifier.size(18.dp)
         )
         Text(
-            text = label + recommendationLabel,
+            text = label,
             style = MaterialTheme.typography.bodySmall,
             color = when {
-                isRecommended -> MaterialTheme.colorScheme.primary
                 isSatisfied -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurfaceVariant
             }
