@@ -62,8 +62,12 @@ fun PasswordAndActions(
     // The real String exists only while revealed; when hidden, the mask is built from the length alone
     val shown: String = remember(revealed, passwordCharArray.contentHashCode()) {
         if (passwordCharArray == null) "**********"
-        else if (revealed) passwordCharArray.concatToString()
-        else maskChar.toString().repeat(maskLength ?: passwordCharArray.size)
+        else if (revealed) {
+            val spaced = passwordCharArray.breakAnywhere()
+            val text = spaced.concatToString()
+            spaced.fill('\u0000') // wipe the intermediate array
+            text
+        } else maskChar.toString().repeat(maskLength ?: passwordCharArray.size)
     }
 
     Row(
@@ -98,4 +102,26 @@ fun PasswordAndActions(
             )
         }
     }
+}
+
+
+// Zero-Width Space
+private const val ZWSP = '\u200B'
+
+
+/**
+ * Returns a new array with a zero-width space between every character.
+ * If the input contains a space, the text already wraps naturally, so an
+ * unchanged copy is returned instead.
+ */
+private fun CharArray.breakAnywhere(): CharArray {
+    if (isEmpty()) return CharArray(0)
+    if (contains(' ')) return copyOf() // unchanged content, separate array
+
+    val out = CharArray(size * 2 - 1)
+    for (i in indices) {
+        out[i * 2] = this[i]
+        if (i < lastIndex) out[i * 2 + 1] = ZWSP
+    }
+    return out
 }
