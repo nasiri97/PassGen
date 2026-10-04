@@ -119,9 +119,9 @@
     <string name="action_back">قبلی</string>
     <string name="action_creating">در حال ایجاد...</string>
     <string name="master_key_requirements_title">الزامات کلید اصلی</string>
-    <string name="req_min_length">حداقل ۲۴ نویسه (فعلی: %d)</string>
-    <string name="req_rec_reached"> (توصیه ۶۴ رعایت شد)</string>
-    <string name="req_rec_target"> (توصیه شده: ۶۴)</string>
+    <string name="req_min_length">حداقل %2$d حرف (فعلی: %1$d)</string>
+    <string name="req_rec_reached"> (توصیه %1$d رعایت شد)</string>
+    <string name="req_rec_target"> (توصیه شده: %1$d)</string>
     <string name="req_lowercase">حداقل یک حرف کوچک (a-z)</string>
     <string name="req_uppercase">حداقل یک حرف بزرگ (A-Z)</string>
     <string name="req_digit">حداقل یک عدد (0-9)</string>
@@ -133,6 +133,17 @@
     <string name="option_trim_spaces">حذف فاصله‌های ابتدا و انتها</string>
     <string name="option_collapse_spaces">ادغام فاصله‌های متوالی</string>
     <string name="option_convert_lowercase">تبدیل به حروف کوچک</string>
-    <string name="label_password_length_format">طول گذرواژه: %d</string>
-    <string name="label_approx_bytes_format">≈ %d بایت</string>
+    <string name="label_password_length_format">طول گذرواژه: %1$d</string>
+    <string name="label_approx_bytes_format">≈ %1$d بایت</string>
+
+
+    <string name="master_key_notice_expand">نمایش جزئیات</string>
+    <string name="master_key_notice_collapse">بستن جزئیات</string>
+
+    <!-- Master Key Notice -->
+    <string name="master_key_notice_title">نکات مهم</string>
+    <string name="master_key_notice_derived">تمام رمزهای عبور شما از این کلید اصلی ساخته می‌شوند.</string>
+    <string name="master_key_notice_backup">کلید اصلی خود را یادداشت کنید و آن را در جایی امن و دور از دسترس دیگران نگهداری کنید.</string>
+    <string name="master_key_notice_portable">با کلید اصلی می‌توانید تمام رمزهای عبور خود را روی هر دستگاهی — حتی خارج از این برنامه — بازیابی کنید.</string>
+    <string name="master_key_notice_ack">اطلاعات بالا را مطالعه کرده و متوجه شده‌ام.</string>
 </resources>

@@ -119,9 +119,9 @@
     <string name="action_back">Back</string>
     <string name="action_creating">Creating...</string>
     <string name="master_key_requirements_title">Master Key Requirements</string>
-    <string name="req_min_length">At least 24 characters (Current: %d)</string>
-    <string name="req_rec_reached"> (Recommended 64 reached)</string>
-    <string name="req_rec_target"> (Recommended: 64)</string>
+    <string name="req_min_length">At least %2$d characters (Current: %1$d)</string>
+    <string name="req_rec_reached"> (Recommended %1$d reached)</string>
+    <string name="req_rec_target"> (Recommended: %1$d)</string>
     <string name="req_lowercase">At least one lowercase letter (a-z)</string>
     <string name="req_uppercase">At least one uppercase letter (A-Z)</string>
     <string name="req_digit">At least one number (0-9)</string>
@@ -133,6 +133,18 @@
     <string name="option_trim_spaces">Trim leading/trailing spaces</string>
     <string name="option_collapse_spaces">Collapse multiple spaces</string>
     <string name="option_convert_lowercase">Convert to lowercase</string>
-    <string name="label_password_length_format">Password length: %d</string>
-    <string name="label_approx_bytes_format">≈ %d bytes</string>
+    <string name="label_password_length_format">Password length: %1$d</string>
+    <string name="label_approx_bytes_format">≈ %1$d bytes</string>
+
+
+    <string name="master_key_notice_expand">Show details</string>
+    <string name="master_key_notice_collapse">Hide details</string>
+
+    <!-- Master Key Notice -->
+    <string name="master_key_notice_title">Important to know</string>
+    <string name="master_key_notice_derived">All your passwords are derived from this Master Key.</string>
+    <string name="master_key_notice_backup">Write down your Master Key and store it securely, away from others.</string>
+    <string name="master_key_notice_portable">You can retrieve all your passwords on any device — even outside this app — using your Master Key.</string>
+    <string name="master_key_notice_ack">I have read and understood the information above.</string>
+
 </resources>
