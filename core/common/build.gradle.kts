@@ -9,18 +9,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-private val bip39WordListFile = layout.projectDirectory.file(
-    "src/commonMain/resources/bip39/bip39-english.txt"
-)
-
-
-// Generated file : core/common/build/generated/bip39/commonMain/kotlin/
-// ir/ornix/passgen/core/common/codec/util/Bip39EnglishWordList.kt
-private val generatedBip39Dir = layout.buildDirectory.dir(
-    "generated/bip39/commonMain/kotlin"
-)
-
-private val EXPECTED_BIP39_ENGLISH_SHA256 =
+private val expectedBip39EnglishShs256 =
     "2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda"
 
 kotlin {
@@ -77,7 +66,7 @@ kotlin {
             }
 
             // Because the generated Kotlin file isn't inside src/commonMain/kotlin, telling Kotlin Multiplatform about it
-            kotlin.srcDir(generatedBip39Dir)
+            kotlin.srcDir(layout.buildDirectory.dir("generated/bip39/commonMain/kotlin"))
         }
 
 
@@ -136,13 +125,15 @@ val generateBip39WordList = tasks.register("generateBip39WordList") {
     group = "code generation"
     description = "Validates the BIP-39 English word list and generates the Kotlin word array."
 
-    val inputFile = bip39WordListFile.asFile
-    val outputDir = generatedBip39Dir.get().asFile
-
-    inputs.file(inputFile)
-    outputs.dir(outputDir)
+    inputs.file(layout.projectDirectory.file("src/commonMain/resources/bip39/bip39-english.txt"))
+    outputs.dir(layout.buildDirectory.dir("generated/bip39/commonMain/kotlin"))
+    inputs.property("expectedSha256", expectedBip39EnglishShs256)
 
     doLast {
+        val inputFile = inputs.files.singleFile
+        val outputDir = outputs.files.singleFile
+        val expectedHash = inputs.properties["expectedSha256"] as String
+
         require(inputFile.exists()) {
             "BIP-39 English word list not found: ${inputFile.absolutePath}"
         }
@@ -158,7 +149,7 @@ val generateBip39WordList = tasks.register("generateBip39WordList") {
 
         require(
             actualSha256.equals(
-                EXPECTED_BIP39_ENGLISH_SHA256,
+                expectedHash,
                 ignoreCase = true
             )
         ) {
@@ -166,7 +157,7 @@ val generateBip39WordList = tasks.register("generateBip39WordList") {
             BIP-39 English word list checksum mismatch!
 
             Expected:
-            $EXPECTED_BIP39_ENGLISH_SHA256
+            $expectedHash
 
             Actual:
             $actualSha256

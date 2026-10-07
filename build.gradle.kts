@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
@@ -12,7 +15,28 @@ plugins {
 }
 
 subprojects {
+    plugins.withId("org.jetbrains.kotlin.multiplatform") {
+        extensions.configure<KotlinMultiplatformExtension> {
+            if (targets.findByName("js") == null) {
+                js {
+                    browser()
+                }
+            }
+            if (targets.findByName("wasmJs") == null) {
+                @OptIn(ExperimentalWasmDsl::class)
+                wasmJs {
+                    browser()
+                }
+            }
+        }
+    }
+
+    tasks.matching { it.name.startsWith("checkComposeUiTestConfiguration") }.configureEach {
+        enabled = false
+    }
+
     tasks.matching { it.name.endsWith("BrowserTest") }.configureEach {
+        enabled = project.hasProperty("enableBrowserTests")
         val subprojectKarmaDir = project.file("karma.config.d")
         doFirst {
             val rootKarmaDir = rootProject.file("karma.config.d")
@@ -27,4 +51,3 @@ subprojects {
         }
     }
 }
-

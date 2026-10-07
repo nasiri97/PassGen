@@ -65,22 +65,32 @@ val generatedWebResources =
  *
  * The generated file is located under `build/`, so it is not committed to Git.
  */
-val generateWebBuildConfig = tasks.register("generateWebBuildConfig") {
-    description = "Generates the web build configuration file."
-    group = "build"
+abstract class GenerateWebBuildConfigTask : DefaultTask() {
+    @get:Input
+    abstract val debugBuild: Property<Boolean>
 
-    outputs.dir(generatedWebResources)
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
 
-    doLast {
-        val directory = generatedWebResources.get().asFile
+    @TaskAction
+    fun generate() {
+        val directory = outputDir.get().asFile
         directory.mkdirs()
 
         directory.resolve("build-config.js").writeText(
             """
-            globalThis.__APP_DEBUG__ = $isDebugWebBuild;
+            globalThis.__APP_DEBUG__ = ${debugBuild.get()};
             """.trimIndent()
         )
     }
+}
+
+val generateWebBuildConfig = tasks.register<GenerateWebBuildConfigTask>("generateWebBuildConfig") {
+    description = "Generates the web build configuration file."
+    group = "build"
+
+    outputDir.set(generatedWebResources)
+    debugBuild.set(isDebugWebBuild)
 }
 
 kotlin {
@@ -121,8 +131,8 @@ kotlin {
 tasks.configureEach {
     if (name.endsWith("ProcessResources")) {
         dependsOn(generateWebBuildConfig)
-		// jsProcessResources
-		// wasmJsProcessResources
-		// metadataWebMainProcessResources
+        // jsProcessResources
+        // wasmJsProcessResources
+        // metadataWebMainProcessResources
     }
 }
