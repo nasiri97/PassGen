@@ -11,12 +11,24 @@ kotlin {
         jvmTarget = JvmTarget.JVM_11
     }
 }
+
 dependencies {
     implementation(project(":composeApp"))
     implementation(project(":core:data"))
     implementation(project(":core:common"))
     implementation(project(":core:ui"))
     implementation(libs.androidx.activity.compose)
+}
+
+val signingEnvironment = listOf(
+    "ANDROID_KEYSTORE_FILE",
+    "ANDROID_KEYSTORE_PASSWORD",
+    "ANDROID_KEY_ALIAS",
+    "ANDROID_KEY_PASSWORD"
+)
+
+val hasReleaseSigning = signingEnvironment.all {
+    providers.environmentVariable(it).isPresent
 }
 
 android {
@@ -30,13 +42,30 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(providers.environmentVariable("ANDROID_KEYSTORE_FILE").get())
+                storePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").get()
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+
             // Enables R8 code shrinking, optimization, and obfuscation
             isMinifyEnabled = true
 
