@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import ir.ornix.passgen.composeapp.di.appModule
 import ir.ornix.passgen.composeapp.navigation.NavEntryScopedViewModelStore
+import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.composeapp.navigation.appNavConfiguration
 import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
@@ -86,6 +88,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
 
 data class NavItem(val route: NavKey, val label: String, val icon: ImageVector)
@@ -144,6 +147,11 @@ fun App(modifier: Modifier = Modifier) {
         }
 
         val backStack = rememberNavBackStack(appNavConfiguration, initialRoute)
+
+        val navViewModelStoreProvider: NavViewModelStoreProvider = koinViewModel()
+        LaunchedEffect(backStack.toList()) {
+            navViewModelStoreProvider.clearUnused(backStack.toSet())
+        }
 
         CompositionLocalProvider(
             LocalProvidableLocaleList provides localeList,

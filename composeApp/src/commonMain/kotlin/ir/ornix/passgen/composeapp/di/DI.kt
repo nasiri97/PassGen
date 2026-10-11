@@ -1,6 +1,7 @@
 package ir.ornix.passgen.composeapp.di
 
 import com.russhwolf.settings.Settings
+import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
 import ir.ornix.passgen.core.data.SettingsAccountRepository
@@ -92,4 +93,5 @@ val appModule = module {
     viewModelOf(::SettingsViewModel)
     viewModelOf(::UnlockingGateViewModel)
     viewModelOf(::SecretSetupViewModel)
+    viewModelOf(::NavViewModelStoreProvider)
 }
