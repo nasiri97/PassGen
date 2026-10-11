@@ -14,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,16 +27,20 @@ import ir.ornix.passgen.core.ui.req_lowercase
 import ir.ornix.passgen.core.ui.req_min_length
 import ir.ornix.passgen.core.ui.req_special
 import ir.ornix.passgen.core.ui.req_uppercase
-import ir.ornix.passgen.feature.config.impl.kdf.ui.MIN_MASTER_KEY_LENGTH
-import ir.ornix.passgen.feature.config.impl.kdf.ui.MasterKeyValidation
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.MIN_MASTER_KEY_LENGTH
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.MasterKeyValidation
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun MasterKeyValidationCard(
     validation: MasterKeyValidation,
-    masterKeyLength: Int,
     modifier: Modifier = Modifier
 ) {
+
+    val masterKeyLength by remember(validation.masterKeyLength) {
+        mutableStateOf(validation.masterKeyLength)
+    }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -56,7 +63,7 @@ internal fun MasterKeyValidationCard(
                     masterKeyLength,
                     MIN_MASTER_KEY_LENGTH
                 ),
-                isSatisfied = validation.hasMinLength,
+                isSatisfied = validation.hasMinLength
             )
             ValidationRequirementItem(
                 label = stringResource(Res.string.req_lowercase),

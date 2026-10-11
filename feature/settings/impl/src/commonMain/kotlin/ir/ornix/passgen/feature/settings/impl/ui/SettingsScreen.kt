@@ -33,7 +33,6 @@ import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.settings_change_local_lock
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_available
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_unavailable
@@ -67,7 +66,7 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
-        modifier = modifier.secureContent()
+        modifier = modifier
             .fillMaxSize()
             .padding(24.dp)
             .verticalScroll(rememberScrollState()),

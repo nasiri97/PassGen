@@ -1,46 +1,42 @@
 package ir.ornix.passgen.core.ui.security
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.semantics.password
+import androidx.compose.ui.semantics.semantics
 import ir.ornix.passgen.core.common.isDebugBuild
 
+/**
+ * Display-only secrets (Text, or a Column of Texts).
+ * Clears the semantics of everything inside, so don't put buttons or fields in it.
+ */
+fun Modifier.secureContent(contentDescription: String): Modifier =
+    if (isDebugBuild) this.semantics {
+        this.contentDescription = contentDescription
+    }
+    else clearAndSetSemantics {
+        isSensitiveData = true
+        this.contentDescription = contentDescription
+    }
 
 /**
- * clearAndSetSemantics clears the semantics of all descendant nodes in the actual UI tree — meaning every composable
- * that gets called (nested) inside Screen, no matter how deeply nested,
- * and regardless of whether you threaded a modifier parameter into those functions.
- * The semantics tree mirrors the composition/layout hierarchy (which composable called which),
- * not the modifier chain arguments.
- *
- * The one real gap is when a composable creates a separate composition root/window rather than being a structural descendant:
- *
- * - Dialog { ... }
- * - Popup { ... }
- * - AndroidView embedding a separate View hierarchy
- * - Another Activity, or a separately hosted ComposeView
- *
- * If you show sensitive content in a Dialog,
- * you'd need to apply clearAndSetSemantics inside that dialog's own content too — the parent's clearing won't reach across the window boundary.
+ * Text fields (TextField / OutlinedTextField / BasicTextField).
+ * Merges with the field's own semantics, so typing, focus and TalkBack editing still work.
  */
-fun Modifier.secureContent(): Modifier {
-    return if (!isDebugBuild) {
-        this.clearAndSetSemantics {
-            // Marks this field as sensitive to prevent accessibility extraction
-            isSensitiveData = true
-            contentDescription = "Secure content"
-        }
-    } else this
-}
+fun Modifier.secureInput(contentDescription: String, isCredential: Boolean = true): Modifier =
+    if (isDebugBuild) this.semantics {
+        this.contentDescription = contentDescription
+    }
+    else semantics {
+        isSensitiveData = true
+        this.contentDescription = contentDescription
 
-
-fun Modifier.securePassword(): Modifier {
-    return if (!isDebugBuild) {
-        this.clearAndSetSemantics {
-            contentDescription = "Hidden secret" // screen readers don't read bullets
+        if (isCredential) {
+            contentType = ContentType.Password
             password()
         }
-    } else this
-}
+    }

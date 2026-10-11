@@ -31,7 +31,6 @@ import ir.ornix.passgen.core.ui.content_desc_fingerprint
 import ir.ornix.passgen.core.ui.lockview.PasswordLockView
 import ir.ornix.passgen.core.ui.lockview.PatternLockView
 import ir.ornix.passgen.core.ui.lockview.PinLockView
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.use_fingerprint_action
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateIntent
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateViewModel
@@ -61,7 +60,7 @@ fun UnlockingGateScreen(
 
 
     Surface(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(

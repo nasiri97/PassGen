@@ -14,9 +14,10 @@ enum class AddKdfConfigStep {
     ConfigDetails
 }
 
-data class AddKdsConfigUiState(
+data class AddKdfConfigUiState(
     val step: AddKdfConfigStep = AddKdfConfigStep.MasterKey,
     val isProcessCancelled: Boolean = false,
+    val masterKeyValidation: MasterKeyValidation = MasterKeyValidation(),
     val name: String = "",
     val trimSpaces: Boolean = true,
     val collapseSpaces: Boolean = true,

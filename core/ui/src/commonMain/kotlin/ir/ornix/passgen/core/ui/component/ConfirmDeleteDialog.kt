@@ -19,7 +19,6 @@ import ir.ornix.passgen.core.ui.action_delete
 import ir.ornix.passgen.core.ui.delete_item_confirm_msg_generic
 import ir.ornix.passgen.core.ui.delete_item_confirm_msg_named
 import ir.ornix.passgen.core.ui.delete_item_title
-import ir.ornix.passgen.core.ui.security.secureContent
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -36,7 +35,7 @@ fun ConfirmDeleteDialog(
     }
 
     AlertDialog(
-        modifier = modifier.secureContent(),
+        modifier = modifier,
         onDismissRequest = onDismissRequest,
         icon = {
             Icon(

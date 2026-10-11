@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.title_about
 import ir.ornix.passgen.feature.about.impl.presentation.AboutViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -19,7 +18,7 @@ fun AboutScreen(modifier: Modifier = Modifier) {
     val viewModel: AboutViewModel = viewModel { AboutViewModel() }
 
     Box(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(stringResource(Res.string.title_about), style = MaterialTheme.typography.headlineLarge)

@@ -6,11 +6,12 @@ import ir.ornix.passgen.feature.config.impl.util.getKdfMaxAvailablePassLength
 import ir.ornix.passgen.feature.config.impl.util.getValidPassLength
 
 internal fun reduce(
-    oldState: AddKdsConfigUiState,
+    oldState: AddKdfConfigUiState,
     change: AddKdfConfigPartialState
-): AddKdsConfigUiState {
+): AddKdfConfigUiState {
     return when (change) {
         is AddKdfConfigPartialState.StepChanged -> oldState.copy(step = change.step)
+        is AddKdfConfigPartialState.MasterKeyValidationUpdated -> oldState.copy(masterKeyValidation = change.validation)
         is AddKdfConfigPartialState.NameUpdated -> oldState.copy(name = change.name)
         is AddKdfConfigPartialState.TrimSpacesUpdated -> oldState.copy(trimSpaces = change.enabled)
         is AddKdfConfigPartialState.CollapseSpacesUpdated -> oldState.copy(collapseSpaces = change.enabled)

@@ -6,6 +6,7 @@
     <string name="nav_settings">تنظیمات</string>
     <string name="nav_about">درباره</string>
     <string name="content_desc_menu">منو</string>
+    <string name="password">رمز</string>
 
     <!-- Confirm Delete Dialog -->
     <string name="delete_item_title">حذف آیتم</string>

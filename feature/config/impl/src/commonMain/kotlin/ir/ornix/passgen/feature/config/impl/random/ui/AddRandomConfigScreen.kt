@@ -46,7 +46,6 @@ import ir.ornix.passgen.core.ui.create_config_title
 import ir.ornix.passgen.core.ui.label_approx_bytes_format
 import ir.ornix.passgen.core.ui.label_config_name
 import ir.ornix.passgen.core.ui.label_password_length_format
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.title_config_details
 import ir.ornix.passgen.feature.config.impl.random.presentation.AddRandomConfigIntent
 import ir.ornix.passgen.feature.config.impl.random.presentation.AddRandomConfigUiState
@@ -71,7 +70,7 @@ fun AddRandomConfigScreen(
     }
 
     Scaffold(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             Column {
                 TopAppBar(

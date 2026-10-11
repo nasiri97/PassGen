@@ -37,7 +37,6 @@ import ir.ornix.passgen.core.ui.local_lock_setup_subtitle
 import ir.ornix.passgen.core.ui.lockview.PasswordLockView
 import ir.ornix.passgen.core.ui.lockview.PatternLockView
 import ir.ornix.passgen.core.ui.lockview.PinLockView
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.setup_password_button
 import ir.ornix.passgen.core.ui.setup_pattern_button
 import ir.ornix.passgen.core.ui.setup_pin_button
@@ -57,7 +56,7 @@ fun SecretSetupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Surface(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(

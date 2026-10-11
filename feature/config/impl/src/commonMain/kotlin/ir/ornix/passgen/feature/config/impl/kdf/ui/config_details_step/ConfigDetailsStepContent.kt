@@ -40,12 +40,12 @@ import ir.ornix.passgen.core.ui.option_convert_lowercase
 import ir.ornix.passgen.core.ui.option_trim_spaces
 import ir.ornix.passgen.core.ui.title_config_details
 import ir.ornix.passgen.core.ui.title_preprocessing
-import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdsConfigUiState
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigUiState
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ConfigDetailsStepContent(
-    uiState: AddKdsConfigUiState,
+    uiState: AddKdfConfigUiState,
     availableEncoders: List<PassEncoder>,
     maxAvailablePassLength: Int?,
     entropyByteSize: Int,

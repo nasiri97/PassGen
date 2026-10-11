@@ -64,7 +64,6 @@ import ir.ornix.passgen.core.ui.nav_home
 import ir.ornix.passgen.core.ui.nav_random
 import ir.ornix.passgen.core.ui.nav_saved_passwords
 import ir.ornix.passgen.core.ui.nav_settings
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.util.setAppLocale
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
@@ -152,7 +151,7 @@ fun App(modifier: Modifier = Modifier) {
         ) {
             PassGenTheme(darkTheme = isDarkTheme) {
                 Surface(
-                    modifier = modifier.secureContent().fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     NavDisplay(

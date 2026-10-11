@@ -7,6 +7,9 @@ sealed interface AddKdfConfigPartialState {
     data class StepChanged(val step: AddKdfConfigStep) : AddKdfConfigPartialState
     data object ProcessCancelled : AddKdfConfigPartialState
 
+    data class MasterKeyValidationUpdated(val validation: MasterKeyValidation) :
+        AddKdfConfigPartialState
+
     data class NameUpdated(val name: String) : AddKdfConfigPartialState
     data class TrimSpacesUpdated(val enabled: Boolean) : AddKdfConfigPartialState
     data class CollapseSpacesUpdated(val enabled: Boolean) : AddKdfConfigPartialState

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.ImeAction
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_clear
 import ir.ornix.passgen.core.ui.input_phrase_label
+import ir.ornix.passgen.core.ui.security.secureInput
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -27,7 +28,9 @@ fun InputSection(
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .secureInput(stringResource(Res.string.input_phrase_label))
+            .fillMaxWidth(),
         value = input,
         onValueChange = {
             if (!it.contains('\n')) onInputChange(it)

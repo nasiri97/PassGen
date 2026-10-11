@@ -26,7 +26,6 @@ import ir.ornix.passgen.core.ui.label_output_encoder_type
 import ir.ornix.passgen.core.ui.label_password_length
 import ir.ornix.passgen.core.ui.section_generating_settings
 import ir.ornix.passgen.core.ui.section_postprocess_settings
-import ir.ornix.passgen.core.ui.security.secureContent
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -36,7 +35,7 @@ fun RandomPassGenConfigDialog(
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
-        modifier = modifier.secureContent(),
+        modifier = modifier,
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onDismiss) {

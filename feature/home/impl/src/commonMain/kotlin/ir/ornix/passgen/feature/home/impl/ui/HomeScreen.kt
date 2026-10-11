@@ -29,7 +29,6 @@ import ir.ornix.passgen.core.ui.add_config_content_desc
 import ir.ornix.passgen.core.ui.add_first_config_button
 import ir.ornix.passgen.core.ui.no_config_message
 import ir.ornix.passgen.core.ui.passgen.PassGenItemList
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeIntent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -49,7 +48,7 @@ fun HomeScreen(
     }
 
     Scaffold(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {

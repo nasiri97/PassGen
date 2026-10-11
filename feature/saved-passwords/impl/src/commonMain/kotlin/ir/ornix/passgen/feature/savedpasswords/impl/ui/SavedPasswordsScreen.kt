@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.title_saved_passwords
 import ir.ornix.passgen.feature.savedpasswords.impl.presentation.SavedPasswordsViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -19,7 +18,7 @@ fun SavedPasswordsScreen(modifier: Modifier = Modifier) {
     val viewModel: SavedPasswordsViewModel = viewModel { SavedPasswordsViewModel() }
 
     Box(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(

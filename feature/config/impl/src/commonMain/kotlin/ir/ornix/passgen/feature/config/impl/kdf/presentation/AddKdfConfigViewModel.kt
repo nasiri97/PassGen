@@ -18,27 +18,35 @@ class AddKdfConfigViewModel(
     private val addConfig: AddKdfPassGenConfigUseCase
 ) : ViewModel() {
 
-    var masterKey: ByteArray = ByteArray(0)
-        private set(value) {
+    private var masterKey: ByteArray = ByteArray(0)
+        set(value) {
             field.fill(0)
             field = value
         }
 
-    var confirmMasterKey: ByteArray = ByteArray(0)
-        private set(value) {
+    private var confirmMasterKey: ByteArray = ByteArray(0)
+        set(value) {
             field.fill(0)
             field = value
         }
 
     private val intents = Channel<AddKdfConfigIntent>()
 
-    val uiState: StateFlow<AddKdsConfigUiState>
-        field: MutableStateFlow<AddKdsConfigUiState> = MutableStateFlow(AddKdsConfigUiState())
+    val uiState: StateFlow<AddKdfConfigUiState>
+        field: MutableStateFlow<AddKdfConfigUiState> = MutableStateFlow(AddKdfConfigUiState())
 
     init {
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
+                    is AddKdfConfigIntent.MasterKeyChanged -> {
+                        updateMasterKey(intent.masterKey)
+                    }
+
+                    is AddKdfConfigIntent.ConfirmMasterKeyChanged -> {
+                        updateConfirmMasterKey(intent.confirmMasterKey)
+                    }
+
                     is AddKdfConfigIntent.NextStepClicked -> {
                         apply(AddKdfConfigPartialState.StepChanged(AddKdfConfigStep.ConfigDetails))
                     }
@@ -88,20 +96,26 @@ class AddKdfConfigViewModel(
         }
     }
 
-
     fun updateMasterKey(value: ByteArray) {
         masterKey = value
+        onKeysChanged()
     }
 
     fun updateConfirmMasterKey(value: ByteArray) {
         confirmMasterKey = value
+        onKeysChanged()
     }
 
-    fun resetKeys() {
+    private fun onKeysChanged() {
+        val validation = validateMasterKey(masterKey, confirmMasterKey)
+        apply(AddKdfConfigPartialState.MasterKeyValidationUpdated(validation))
+    }
+
+    private fun resetKeys() {
         masterKey = ByteArray(0)
         confirmMasterKey = ByteArray(0)
+        onKeysChanged()
     }
-
 
     fun dispatch(intent: AddKdfConfigIntent) {
         viewModelScope.launch {
@@ -142,7 +156,6 @@ class AddKdfConfigViewModel(
     }
 
     private fun apply(change: AddKdfConfigPartialState) {
-
         if (change is AddKdfConfigPartialState.ProcessCancelled ||
             change is AddKdfConfigPartialState.ConfigCreatedSuccess
         ) {

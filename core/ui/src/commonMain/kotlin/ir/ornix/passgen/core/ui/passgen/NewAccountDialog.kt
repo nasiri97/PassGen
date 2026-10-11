@@ -30,10 +30,9 @@ import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_cancel
 import ir.ornix.passgen.core.ui.action_create
-import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import ir.ornix.passgen.core.ui.create_new_account_title
 import ir.ornix.passgen.core.ui.label_username
-import ir.ornix.passgen.core.ui.security.secureContent
+import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -50,7 +49,7 @@ fun NewAccountDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = modifier.secureContent()
+            modifier = modifier
                 .fillMaxWidth(0.95f)
                 .padding(16.dp),
             shape = MaterialTheme.shapes.large,

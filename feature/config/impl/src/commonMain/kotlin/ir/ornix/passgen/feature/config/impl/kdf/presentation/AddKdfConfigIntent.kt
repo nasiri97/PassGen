@@ -4,6 +4,30 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
 sealed interface AddKdfConfigIntent {
+    data class MasterKeyChanged(val masterKey: ByteArray) : AddKdfConfigIntent {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is MasterKeyChanged) return false
+            return masterKey.contentEquals(other.masterKey)
+        }
+
+        override fun hashCode(): Int {
+            return masterKey.contentHashCode()
+        }
+    }
+
+    data class ConfirmMasterKeyChanged(val confirmMasterKey: ByteArray) : AddKdfConfigIntent {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ConfirmMasterKeyChanged) return false
+            return confirmMasterKey.contentEquals(other.confirmMasterKey)
+        }
+
+        override fun hashCode(): Int {
+            return confirmMasterKey.contentHashCode()
+        }
+    }
+
     data object NextStepClicked : AddKdfConfigIntent
     data object PreviousStepClicked : AddKdfConfigIntent
     data object ProcessCancelled : AddKdfConfigIntent

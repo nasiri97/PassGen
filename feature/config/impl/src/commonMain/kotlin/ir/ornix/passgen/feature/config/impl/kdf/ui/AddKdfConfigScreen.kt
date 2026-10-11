@@ -23,10 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -36,7 +34,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.content_desc_back
 import ir.ornix.passgen.core.ui.create_config_title
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.step_1_of_2_master_key
 import ir.ornix.passgen.core.ui.step_2_of_2_details
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigIntent
@@ -46,40 +43,6 @@ import ir.ornix.passgen.feature.config.impl.kdf.ui.config_details_step.ConfigDet
 import ir.ornix.passgen.feature.config.impl.kdf.ui.master_key_step.MasterKeyStepContent
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-internal const val MIN_MASTER_KEY_LENGTH = 16
-
-data class MasterKeyValidation(
-    val hasMinLength: Boolean,
-    val hasLowercase: Boolean,
-    val hasUppercase: Boolean,
-    val hasDigit: Boolean,
-    val hasSpecialChar: Boolean,
-    val keysMatch: Boolean
-) {
-    val isValid: Boolean
-        get() = hasMinLength && hasLowercase && hasUppercase && hasDigit && hasSpecialChar && keysMatch
-}
-
-fun validateMasterKey(masterKey: ByteArray, confirmMasterKey: ByteArray): MasterKeyValidation {
-    val mkStr = masterKey.decodeToString()
-
-    val hasMinLength = masterKey.size >= MIN_MASTER_KEY_LENGTH
-    val hasLowercase = mkStr.any { it.isLowerCase() }
-    val hasUppercase = mkStr.any { it.isUpperCase() }
-    val hasDigit = mkStr.any { it.isDigit() }
-    val hasSpecialChar = mkStr.any { !it.isLetterOrDigit() && !it.isWhitespace() }
-    val keysMatch = masterKey.isNotEmpty() && masterKey.contentEquals(confirmMasterKey)
-
-    return MasterKeyValidation(
-        hasMinLength = hasMinLength,
-        hasLowercase = hasLowercase,
-        hasUppercase = hasUppercase,
-        hasDigit = hasDigit,
-        hasSpecialChar = hasSpecialChar,
-        keysMatch = keysMatch
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,10 +54,6 @@ fun AddKdfConfigScreen(
     val viewModel: AddKdfConfigViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var noticeAcknowledged by rememberSaveable { mutableStateOf(false) }
-
-    var masterKeyUpdate by rememberSaveable {
-        mutableStateOf(Long.MIN_VALUE)
-    }
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
@@ -108,12 +67,8 @@ fun AddKdfConfigScreen(
         }
     }
 
-    val masterKeyValidation by remember(masterKeyUpdate) {
-        derivedStateOf { validateMasterKey(viewModel.masterKey, viewModel.confirmMasterKey) }
-    }
-
     Scaffold(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             Column {
                 TopAppBar(
@@ -178,16 +133,12 @@ fun AddKdfConfigScreen(
                 when (targetStep) {
                     AddKdfConfigStep.MasterKey -> {
                         MasterKeyStepContent(
-                            validation = masterKeyValidation,
-                            masterKey = viewModel.masterKey,
-                            confirmMasterKey = viewModel.confirmMasterKey,
+                            validation = uiState.masterKeyValidation,
                             onMasterKeyChange = {
-                                viewModel.updateMasterKey(it)
-                                masterKeyUpdate++
+                                viewModel.dispatch(AddKdfConfigIntent.MasterKeyChanged(it))
                             },
                             onConfirmMasterKeyChange = {
-                                viewModel.updateConfirmMasterKey(it)
-                                masterKeyUpdate++
+                                viewModel.dispatch(AddKdfConfigIntent.ConfirmMasterKeyChanged(it))
                             },
                             acknowledged = noticeAcknowledged,
                             onAcknowledgedChange = { noticeAcknowledged = it },

@@ -33,7 +33,6 @@ import ir.ornix.passgen.core.ui.label_password_length
 import ir.ornix.passgen.core.ui.section_generating_settings
 import ir.ornix.passgen.core.ui.section_postprocess_settings
 import ir.ornix.passgen.core.ui.section_preprocess_settings
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.core.ui.setting_collapse_spaces
 import ir.ornix.passgen.core.ui.setting_to_lowercase
 import ir.ornix.passgen.core.ui.setting_trim_spaces
@@ -46,7 +45,7 @@ fun KdfPassGenConfigDialog(
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
-        modifier = modifier.secureContent(),
+        modifier = modifier,
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onDismiss) {

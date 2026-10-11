@@ -25,15 +25,13 @@ import ir.ornix.passgen.core.ui.label_master_key
 import ir.ornix.passgen.core.ui.master_key_explanation
 import ir.ornix.passgen.core.ui.security.SecurePasswordField
 import ir.ornix.passgen.core.ui.setup_master_key_title
-import ir.ornix.passgen.feature.config.impl.kdf.ui.MasterKeyValidation
+import ir.ornix.passgen.feature.config.impl.kdf.presentation.MasterKeyValidation
 import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
 internal fun MasterKeyStepContent(
     validation: MasterKeyValidation,
-    masterKey: ByteArray,
-    confirmMasterKey: ByteArray,
     onMasterKeyChange: (ByteArray) -> Unit,
     onConfirmMasterKeyChange: (ByteArray) -> Unit,
     acknowledged: Boolean,
@@ -58,19 +56,19 @@ internal fun MasterKeyStepContent(
         )
 
         SecurePasswordField(
-            value = masterKey,
             onValueChange = onMasterKeyChange,
             label = { Text(stringResource(Res.string.label_master_key)) },
+            contentDescription = stringResource(Res.string.label_master_key),
             modifier = Modifier.fillMaxWidth(),
             testTag = "master_key_input"
         )
 
         SecurePasswordField(
-            value = confirmMasterKey,
             onValueChange = onConfirmMasterKeyChange,
             label = { Text(stringResource(Res.string.label_confirm_master_key)) },
-            isError = confirmMasterKey.isNotEmpty() && !validation.keysMatch,
-            supportingText = if (confirmMasterKey.isNotEmpty() && !validation.keysMatch) {
+            contentDescription = stringResource(Res.string.label_confirm_master_key),
+            isError = validation.shouldShowConfirmError,
+            supportingText = if (validation.shouldShowConfirmError) {
                 {
                     Text(
                         stringResource(Res.string.error_master_keys_mismatch),
@@ -82,10 +80,7 @@ internal fun MasterKeyStepContent(
             testTag = "confirm_master_key_input"
         )
 
-        MasterKeyValidationCard(
-            validation = validation,
-            masterKeyLength = masterKey.size
-        )
+        MasterKeyValidationCard(validation = validation)
 
         Spacer(Modifier.height(16.dp))
 

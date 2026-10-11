@@ -31,6 +31,7 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_hide
 import ir.ornix.passgen.core.ui.action_show
 import ir.ornix.passgen.core.ui.error_password_generation_failed
+import ir.ornix.passgen.core.ui.password
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
@@ -115,7 +116,8 @@ fun PasswordDisplay(
             )
         } else {
             Text(
-                modifier = Modifier.weight(1f).securePassword()
+                modifier = Modifier.weight(1f)
+                    .secureContent(stringResource(Res.string.password))
                     .clickable(enabled = password != null) {
                         password?.let(onCopyRequested)
                     },

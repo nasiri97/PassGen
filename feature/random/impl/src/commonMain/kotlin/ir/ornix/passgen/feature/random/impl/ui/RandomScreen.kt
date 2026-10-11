@@ -32,7 +32,6 @@ import ir.ornix.passgen.core.ui.add_first_config_button
 import ir.ornix.passgen.core.ui.component.PullToRefreshWithHint
 import ir.ornix.passgen.core.ui.no_config_message
 import ir.ornix.passgen.core.ui.passgen.PassGenItemList
-import ir.ornix.passgen.core.ui.security.secureContent
 import ir.ornix.passgen.feature.random.impl.presentation.RandomIntent
 import ir.ornix.passgen.feature.random.impl.presentation.RandomViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -52,7 +51,7 @@ fun RandomScreen(
     }
 
     Scaffold(
-        modifier = modifier.secureContent().fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
