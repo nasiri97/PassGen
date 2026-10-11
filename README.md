@@ -41,7 +41,7 @@ flowchart TD
 %% Key Derivation / Authentication
 %% ─────────────────────────────────────────────
 
-    MK(["🔑 Master Key (<b>MK</b>)"]) -->|SHA-512| MKD(["Master Key Digest (<b>MKD</b>)<br/>(64 Bytes)"])
+    MK(["🔑 Master Key (<b>MK</b>)"]) -->|SHA-512| MKD(["Master Key Digest</br>(<b>MKD</b>: 64 Bytes)"])
 
     CIN(["Context Input</br>(e.g. 'user@gmail.com')"]) --> NORMALIZE["Trim Leading/Trailing Spaces</br>Collapse Multiple Spaces</br>Convert to Lowercase"]
     NORMALIZE --> NCIN(["Normalized Context Input"])
