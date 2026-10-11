@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">پاس‌ژن</string>
+    <string name="app_name">رمزآفرین</string>
     <string name="nav_home">خانه</string>
     <string name="nav_random">تصادفی</string>
     <string name="nav_saved_passwords">گذرواژه‌های ذخیره‌شده</string>
@@ -63,7 +63,48 @@
 
     <!-- Saved Passwords &amp; About -->
     <string name="title_saved_passwords">صفحه گذرواژه‌های ذخیره‌شده</string>
-    <string name="title_about">صفحه درباره</string>
+    <string name="title_about">درباره پاس‌ژن</string>
+
+    <!-- About Screen -->
+    <string name="about_app_subtitle">تولیدکننده معین و بدون ذخیره‌سازی گذرواژه</string>
+    <string name="about_app_version">نسخه ۱.۰.۰</string>
+
+    <string name="about_github_button">مشاهده در گیت‌هاب</string>
+    <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>
+    <string name="about_open_source_title">۱۰۰٪ رایگان و متن‌باز (Open Source)</string>
+
+    <string name="about_section_what_is_passgen">رمزآفرین چیست؟</string>
+    <string name="about_what_is_passgen_desc">مدیریت‌کننده‌های رمز عبور سنتی، تمام گذرواژه‌های شما را در یک پایگاه داده یا مخزن ابری ذخیره می‌کنند. اگر آن مخزن هک شود، لو برود یا پاک شود، تمام حساب‌های شما به خطر می‌افتند.\n\nپاس‌ژن کاملاً بدون ذخیره‌سازی (Stateless) است: این برنامه هیچ رمز عبوری را در هیچ کجا ذخیره نمی‌کند! در عوض، گذرواژه‌های قوی و امن شما را در لحظه و بر پایه ریاضیات تولید می‌کند.</string>
+
+    <string name="about_section_how_it_works">نحوه کارکرد برنامه</string>
+    <string name="about_step_1_title">۱. کلید اصلی شما</string>
+    <string name="about_step_1_desc">شما یک کلید اصلی سرّی انتخاب کرده و به خاطر می‌سپارید. این کلید فقط در حافظه امن دستگاه شما باقی می‌ماند.</string>
+
+    <string name="about_step_2_title">۲. نام سرویس یا حساب</string>
+    <string name="about_step_2_desc">نام سایت یا برنامه‌ای که می‌خواهید برای آن رمز بگذارید را وارد کنید (مثلاً google.com یا github.com).</string>
+
+    <string name="about_step_3_title">۳. مشتق‌سازی معین (KDF)</string>
+    <string name="about_step_3_desc">پاس‌ژن کلید اصلی و نام سرویس شما را با استفاده از الگوریتم‌های استاندارد رمزنگاری (Argon2id, BCrypt, SHA-512) ترکیب کرده و رمز عبور منحصربه‌فرد شما را محاسبه می‌کند.</string>
+
+    <string name="about_step_4_title">۴. یک رمز عبور یکسان در همه‌جا</string>
+    <string name="about_step_4_desc">هر زمان که همان کلید اصلی و نام سرویس را روی هر دستگاهی (اندروید، آیفون، کامپیوتر یا مرورگر) وارد کنید، دقیقاً همان رمز عبور تولید می‌شود!</string>
+
+    <string name="about_section_why_passgen">چرا رمزآفرین؟</string>
+
+    <string name="about_benefit_no_storage_title">بدون پایگاه داده و ابر</string>
+    <string name="about_benefit_no_storage_desc">هیچ سرور ابری وجود ندارد که هک یا لو برود. گذرواژه‌های شما وجود خارجی ندارند تا زمانی که آن‌ها را تولید کنید.</string>
+
+    <string name="about_benefit_offline_title">۱۰۰٪ آفلاین و خصوصی</string>
+    <string name="about_benefit_offline_desc">بدون نیاز به اینترنت یا ساخت حساب کاربری، به صورت کاملاً آفلاین روی دستگاه شما اجرا می‌شود.</string>
+
+    <string name="about_benefit_cross_platform_title">پشتیبانی همه‌جانبه</string>
+    <string name="about_benefit_cross_platform_desc">گذرواژه‌های خود را در هر زمان روی اندروید، iOS، ویندوز، مک، لینوکس یا مرورگر بازسازی کنید.</string>
+
+    <string name="about_benefit_hardware_security_title">امنیت سخت‌افزاری</string>
+    <string name="about_benefit_hardware_security_desc">از تراشه‌های امنیتی دستگاه (TEE / StrongBox / Keychain) برای محافظت از محاسبات استفاده می‌کند.</string>
+
+    <string name="about_section_developer">توسعه‌دهنده و متن‌باز</string>
+    <string name="about_open_source_desc">این پروژه به صورت ۱۰۰٪ متن‌باز تحت مجوز Apache 2.0 منتشر شده است. می‌توانید کد منبع را مشاهده کرده، در توسعه آن مشارکت کنید یا رمزنگاری آن را در گیت‌هاب بررسی کنید.</string>
 
     <!-- Settings Screen -->
     <string name="settings_section_verification_methods">روش‌های راستی‌آزمایی</string>

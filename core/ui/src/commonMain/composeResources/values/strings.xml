@@ -63,7 +63,48 @@
 
     <!-- Saved Passwords &amp; About -->
     <string name="title_saved_passwords">Saved Passwords Page</string>
-    <string name="title_about">About Page</string>
+    <string name="title_about">About PassGen</string>
+
+    <!-- About Screen -->
+    <string name="about_app_subtitle">Stateless &amp; Deterministic Password Generator</string>
+    <string name="about_app_version">Version 1.0.0</string>
+
+    <string name="about_github_button">View on GitHub</string>
+    <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>
+    <string name="about_open_source_title">100% Free &amp; Open Source</string>
+
+    <string name="about_section_what_is_passgen">What is PassGen?</string>
+    <string name="about_what_is_passgen_desc">Traditional password managers save your passwords in a database or cloud vault. If that vault is lost, hacked, or leaked, all your accounts are exposed.\n\nPassGen is completely stateless: it NEVER saves passwords anywhere. Instead, it generates strong, cryptographically secure passwords on demand using math!</string>
+
+    <string name="about_section_how_it_works">How It Works</string>
+    <string name="about_step_1_title">1. Your Master Key</string>
+    <string name="about_step_1_desc">You choose and remember a single secret Master Key. This key stays strictly on your device in secure memory.</string>
+
+    <string name="about_step_2_title">2. Context / Service Name</string>
+    <string name="about_step_2_desc">Enter the name of the service or website (for example: google.com or github.com).</string>
+
+    <string name="about_step_3_title">3. Deterministic Derivation (KDF)</string>
+    <string name="about_step_3_desc">PassGen blends your Master Key and Service Name using industry-standard algorithms (Argon2id, BCrypt, SHA-512) to calculate your unique password.</string>
+
+    <string name="about_step_4_title">4. Same Password Everywhere</string>
+    <string name="about_step_4_desc">Whenever you type the same Master Key and Service Name on ANY device (Android, iOS, Desktop, Web), you get the exact same password!</string>
+
+    <string name="about_section_why_passgen">Why Choose PassGen?</string>
+
+    <string name="about_benefit_no_storage_title">Zero Database / No Cloud</string>
+    <string name="about_benefit_no_storage_desc">No cloud databases to hack, leak, or sync. Your passwords don\'t exist until you generate them.</string>
+
+    <string name="about_benefit_offline_title">100% Offline &amp; Private</string>
+    <string name="about_benefit_offline_desc">Runs completely offline on your device without needing an account or internet connection.</string>
+
+    <string name="about_benefit_cross_platform_title">Universal Cross-Platform</string>
+    <string name="about_benefit_cross_platform_desc">Recreate your passwords anytime on Android, iOS, Windows, macOS, Linux, or Web browsers.</string>
+
+    <string name="about_benefit_hardware_security_title">Hardware Security</string>
+    <string name="about_benefit_hardware_security_desc">Uses device security chips (TEE / StrongBox / Keychain) to protect intermediate calculations.</string>
+
+    <string name="about_section_developer">Developer &amp; Open Source</string>
+    <string name="about_open_source_desc">This project is fully open source under the Apache 2.0 License. You can view the full source code, contribute, or audit the cryptography on GitHub.</string>
 
     <!-- Settings Screen -->
     <string name="settings_section_verification_methods">Verification methods</string>
