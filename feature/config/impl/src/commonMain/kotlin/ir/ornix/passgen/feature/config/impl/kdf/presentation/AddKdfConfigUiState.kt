@@ -2,6 +2,7 @@ package ir.ornix.passgen.feature.config.impl.kdf.presentation
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import ir.ornix.passgen.feature.config.impl.util.DEFAULT_INPUT_HASHER
 import ir.ornix.passgen.feature.config.impl.util.DEFAULT_PASS_ENCODER
 import ir.ornix.passgen.feature.config.impl.util.DEFAULT_PASS_LENGTH
@@ -40,5 +41,6 @@ data class AddKdfConfigUiState(
     ),
     val isSubmitting: Boolean = false,
     val isSuccess: Boolean = false,
+    val visibilityTimeout: PasswordVisibilityTimeout = PasswordVisibilityTimeout.default,
     val errorMessage: String? = null
 )

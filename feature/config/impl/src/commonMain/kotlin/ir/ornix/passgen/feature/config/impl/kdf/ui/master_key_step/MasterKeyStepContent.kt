@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun MasterKeyStepContent(
     validation: MasterKeyValidation,
+    revealTimeoutMillis: Long,
     onMasterKeyChange: (ByteArray) -> Unit,
     onConfirmMasterKeyChange: (ByteArray) -> Unit,
     acknowledged: Boolean,
@@ -57,6 +58,7 @@ internal fun MasterKeyStepContent(
 
         SecurePasswordField(
             onValueChange = onMasterKeyChange,
+            revealTimeoutMillis = revealTimeoutMillis,
             label = { Text(stringResource(Res.string.label_master_key)) },
             contentDescription = stringResource(Res.string.label_master_key),
             modifier = Modifier.fillMaxWidth(),
@@ -65,6 +67,7 @@ internal fun MasterKeyStepContent(
 
         SecurePasswordField(
             onValueChange = onConfirmMasterKeyChange,
+            revealTimeoutMillis = revealTimeoutMillis,
             label = { Text(stringResource(Res.string.label_confirm_master_key)) },
             contentDescription = stringResource(Res.string.label_confirm_master_key),
             isError = validation.shouldShowConfirmError,

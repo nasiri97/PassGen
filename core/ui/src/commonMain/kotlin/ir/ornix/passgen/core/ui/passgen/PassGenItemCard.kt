@@ -58,6 +58,7 @@ fun PassGenItemCard(
     addNewAccount: (account: Account) -> Unit,
     showPassGenInfoDialog: (PassGenConfig) -> Unit,
     onCopyRequested: (Password) -> Unit,
+    revealTimeoutMillis: Long,
     modifier: Modifier = Modifier
 ) {
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
@@ -84,7 +85,8 @@ fun PassGenItemCard(
                 showNewAccountDialog = false
             },
             onDismissRequest = { showNewAccountDialog = false },
-            onCopyRequested = onCopyRequested
+            onCopyRequested = onCopyRequested,
+            revealTimeoutMillis = revealTimeoutMillis
         )
     }
 
@@ -134,7 +136,8 @@ fun PassGenItemCard(
         Content(
             passGenItem = passGenItem,
             showPassGenInfoDialog = { showPassGenInfoDialog(passGenItem.config) },
-            onCopyRequested = onCopyRequested
+            onCopyRequested = onCopyRequested,
+            revealTimeoutMillis = revealTimeoutMillis
         )
     }
 }
@@ -144,6 +147,7 @@ private fun Content(
     passGenItem: PassGenItem,
     showPassGenInfoDialog: () -> Unit,
     onCopyRequested: (Password) -> Unit,
+    revealTimeoutMillis: Long,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -190,6 +194,7 @@ private fun Content(
             PasswordDisplay(
                 password = passGenItem.password,
                 onCopyRequested = onCopyRequested,
+                revealTimeoutMillis = revealTimeoutMillis,
                 isLoading = passGenItem.isCalculating,
                 modifier = Modifier.fillMaxWidth()
             )

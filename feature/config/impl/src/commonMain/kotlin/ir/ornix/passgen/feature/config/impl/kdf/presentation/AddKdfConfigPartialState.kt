@@ -2,6 +2,7 @@ package ir.ornix.passgen.feature.config.impl.kdf.presentation
 
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 
 sealed interface AddKdfConfigPartialState {
     data class StepChanged(val step: AddKdfConfigStep) : AddKdfConfigPartialState
@@ -20,6 +21,10 @@ sealed interface AddKdfConfigPartialState {
 
     data class EncoderUpdated(val encoder: PassEncoder) : AddKdfConfigPartialState
     data class PassLengthUpdated(val length: Int) : AddKdfConfigPartialState
+
+    data class PasswordVisibilityTimeoutChanged(
+        val visibilityTimeout: PasswordVisibilityTimeout
+    ) : AddKdfConfigPartialState
 
     data object Submitting : AddKdfConfigPartialState
     data object ConfigCreatedSuccess : AddKdfConfigPartialState

@@ -41,6 +41,7 @@ fun NewAccountDialog(
     onSubmit: (account: Account) -> Unit,
     onDismissRequest: () -> Unit,
     onCopyRequested: (Password) -> Unit,
+    revealTimeoutMillis: Long,
     modifier: Modifier = Modifier
 ) {
 
@@ -59,7 +60,8 @@ fun NewAccountDialog(
                 password = password,
                 onSubmit = onSubmit,
                 onCancel = onDismissRequest,
-                onCopyRequested = onCopyRequested
+                onCopyRequested = onCopyRequested,
+                revealTimeoutMillis = revealTimeoutMillis
             )
         }
     }
@@ -70,7 +72,8 @@ private fun NewAccountContent(
     password: Password,
     onSubmit: (Account) -> Unit,
     onCancel: () -> Unit,
-    onCopyRequested: (Password) -> Unit
+    onCopyRequested: (Password) -> Unit,
+    revealTimeoutMillis: Long
 ) {
 
     var userName by rememberSaveable { mutableStateOf("") }
@@ -97,7 +100,8 @@ private fun NewAccountContent(
 
         PasswordDisplay(
             password = password,
-            onCopyRequested = onCopyRequested
+            onCopyRequested = onCopyRequested,
+            revealTimeoutMillis = revealTimeoutMillis
         )
 
         Spacer(Modifier.height(16.dp))

@@ -14,9 +14,13 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -27,10 +31,13 @@ import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.add_config_content_desc
 import ir.ornix.passgen.core.ui.add_first_config_button
+import ir.ornix.passgen.core.ui.copy_disabled_toast_message
+import ir.ornix.passgen.core.ui.copy_success_toast_message
 import ir.ornix.passgen.core.ui.no_config_message
 import ir.ornix.passgen.core.ui.passgen.PassGenItemList
 import ir.ornix.passgen.feature.home.impl.presentation.HomeIntent
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -43,12 +50,28 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val clipboardManager = LocalClipboardManager.current
-    val onCopyRequested: (Password) -> Unit = {
-        clipboardManager.setText(AnnotatedString(it.value.concatToString()))
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val copyDisabledMessage = stringResource(Res.string.copy_disabled_toast_message)
+    val copySuccessMessage = stringResource(Res.string.copy_success_toast_message)
+
+    val onCopyRequested: (Password) -> Unit = { password ->
+        if (uiState.isCopyEnabled) {
+            clipboardManager.setText(AnnotatedString(password.value.concatToString()))
+            scope.launch {
+                snackbarHostState.showSnackbar(copySuccessMessage)
+            }
+        } else {
+            scope.launch {
+                snackbarHostState.showSnackbar(copyDisabledMessage)
+            }
+        }
     }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
@@ -89,7 +112,8 @@ fun HomeScreen(
                         viewModel.dispatch(HomeIntent.RemoveConfig(it.config))
                     },
                     addNewAccount = { viewModel.dispatch(HomeIntent.SaveAccount(it)) },
-                    onCopyRequested = onCopyRequested
+                    onCopyRequested = onCopyRequested,
+                    revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
                 )
             }
         }

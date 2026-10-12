@@ -34,5 +34,23 @@ internal fun reduce(
                 selectedTheme = change.theme
             )
         }
+
+        is SettingsPartialState.CopyEnabledChanged -> {
+            oldState.copy(
+                isCopyEnabled = change.enabled
+            )
+        }
+
+        is SettingsPartialState.CopyWarningDialogVisibilityChanged -> {
+            oldState.copy(
+                showCopyWarningDialog = change.visible
+            )
+        }
+
+        is SettingsPartialState.PasswordVisibilityTimeoutChanged -> {
+            oldState.copy(
+                selectedVisibilityTimeout = change.timeout
+            )
+        }
     }
 }

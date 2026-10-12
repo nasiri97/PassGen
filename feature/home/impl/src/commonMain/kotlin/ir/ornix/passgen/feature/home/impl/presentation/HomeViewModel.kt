@@ -3,6 +3,8 @@ package ir.ornix.passgen.feature.home.impl.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
+import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
+import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
@@ -25,7 +27,9 @@ class HomeViewModel(
     getAllPassGenConfigs: GetAllKdfPassGenConfigsUseCase,
     private val generateKDFPass: GenerateKDFPassUseCase,
     private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
-    private val saveAccountUseCase: SaveAccountUseCase
+    private val saveAccountUseCase: SaveAccountUseCase,
+    private val isCopyEnabled: IsCopyEnabledUseCase,
+    private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
     private val intents = Channel<HomeIntent>()
@@ -79,6 +83,18 @@ class HomeViewModel(
                 }
 
                 apply(HomePartialState.PasswordItemsLoaded(passGenItems))
+            }
+        }
+
+        viewModelScope.launch {
+            isCopyEnabled().collect {
+                apply(HomePartialState.CopyEnabledChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
+            getVisibilityTimeout().collect {
+                apply(HomePartialState.PasswordVisibilityTimeoutChanged(it))
             }
         }
 

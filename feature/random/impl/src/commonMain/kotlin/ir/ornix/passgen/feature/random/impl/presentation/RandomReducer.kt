@@ -32,5 +32,11 @@ internal fun reduce(
                 passGenItems = updatedPasswordItems
             )
         }
+
+        is RandomPartialState.CopyEnabledChanged ->
+            oldState.copy(isCopyEnabled = change.isCopyEnabled)
+
+        is RandomPartialState.PasswordVisibilityTimeoutChanged ->
+            oldState.copy(visibilityTimeout = change.visibilityTimeout)
     }
 }

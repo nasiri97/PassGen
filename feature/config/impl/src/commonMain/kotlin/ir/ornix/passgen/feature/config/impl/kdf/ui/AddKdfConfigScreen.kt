@@ -134,6 +134,7 @@ fun AddKdfConfigScreen(
                     AddKdfConfigStep.MasterKey -> {
                         MasterKeyStepContent(
                             validation = uiState.masterKeyValidation,
+                            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
                             onMasterKeyChange = {
                                 viewModel.dispatch(AddKdfConfigIntent.MasterKeyChanged(it))
                             },

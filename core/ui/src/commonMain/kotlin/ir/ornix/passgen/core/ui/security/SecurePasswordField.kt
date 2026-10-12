@@ -40,6 +40,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun SecurePasswordField(
     onValueChange: (ByteArray) -> Unit,
+    revealTimeoutMillis: Long,   // auto re-mask after this long; 0 = no timeout
     modifier: Modifier = Modifier,
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     contentDescription: String? = null,
@@ -48,7 +49,6 @@ fun SecurePasswordField(
     isError: Boolean = false,
     maxLength: Int = 128,
     allowReveal: Boolean = true,
-    revealTimeoutMillis: Long = 5_000,   // auto re-mask after this long; 0 = no timeout
     clearOnStop: Boolean = false,        // wipe when the app goes to background
     clearOnDispose: Boolean = false,     // wipe when the field leaves composition
     testTag: String? = null,

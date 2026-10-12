@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.WarningAmber
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -32,8 +36,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
+import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.settings_change_local_lock
+import ir.ornix.passgen.core.ui.settings_copy_subtitle
+import ir.ornix.passgen.core.ui.settings_copy_title
+import ir.ornix.passgen.core.ui.settings_copy_warning_cancel
+import ir.ornix.passgen.core.ui.settings_copy_warning_confirm
+import ir.ornix.passgen.core.ui.settings_copy_warning_message
+import ir.ornix.passgen.core.ui.settings_copy_warning_title
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_available
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_unavailable
 import ir.ornix.passgen.core.ui.settings_fingerprints_title
@@ -47,11 +58,19 @@ import ir.ornix.passgen.core.ui.settings_lock_active_pattern
 import ir.ornix.passgen.core.ui.settings_lock_active_pin
 import ir.ornix.passgen.core.ui.settings_lock_none
 import ir.ornix.passgen.core.ui.settings_section_appearance
+import ir.ornix.passgen.core.ui.settings_section_security_privacy
 import ir.ornix.passgen.core.ui.settings_section_verification_methods
 import ir.ornix.passgen.core.ui.settings_theme_dark
 import ir.ornix.passgen.core.ui.settings_theme_light
 import ir.ornix.passgen.core.ui.settings_theme_system
 import ir.ornix.passgen.core.ui.settings_theme_title
+import ir.ornix.passgen.core.ui.settings_timeout_10s
+import ir.ornix.passgen.core.ui.settings_timeout_1m
+import ir.ornix.passgen.core.ui.settings_timeout_20s
+import ir.ornix.passgen.core.ui.settings_timeout_30s
+import ir.ornix.passgen.core.ui.settings_timeout_5s
+import ir.ornix.passgen.core.ui.settings_timeout_disabled
+import ir.ornix.passgen.core.ui.settings_visibility_timeout_title
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsIntent
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -64,6 +83,46 @@ fun SettingsScreen(
 ) {
     val viewModel: SettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    if (uiState.showCopyWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.WarningAmber,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(stringResource(Res.string.settings_copy_warning_title))
+            },
+            text = {
+                Text(
+                    text = stringResource(Res.string.settings_copy_warning_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.dispatch(SettingsIntent.ConfirmEnableCopy) }
+                ) {
+                    Text(
+                        text = stringResource(Res.string.settings_copy_warning_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog) }
+                ) {
+                    Text(stringResource(Res.string.settings_copy_warning_cancel))
+                }
+            }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -121,6 +180,27 @@ fun SettingsScreen(
         HorizontalDivider()
 
         Text(
+            text = stringResource(Res.string.settings_section_security_privacy),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        VerificationMethodRow(
+            title = stringResource(Res.string.settings_copy_title),
+            subtitle = stringResource(Res.string.settings_copy_subtitle),
+            enabled = true,
+            checked = uiState.isCopyEnabled,
+            onCheckedChange = { viewModel.dispatch(SettingsIntent.RequestSetCopyEnabled(it)) }
+        )
+
+        VisibilityTimeoutSelectorRow(
+            selectedTimeout = uiState.selectedVisibilityTimeout,
+            onTimeoutSelected = { viewModel.dispatch(SettingsIntent.SelectVisibilityTimeout(it)) }
+        )
+
+        HorizontalDivider()
+
+        Text(
             text = stringResource(Res.string.settings_section_appearance),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
@@ -164,6 +244,81 @@ private fun VerificationMethodRow(
             onCheckedChange = onCheckedChange,
             enabled = enabled
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VisibilityTimeoutSelectorRow(
+    selectedTimeout: PasswordVisibilityTimeout,
+    onTimeoutSelected: (PasswordVisibilityTimeout) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val timeoutLabel = when (selectedTimeout) {
+        PasswordVisibilityTimeout.DISABLED -> stringResource(Res.string.settings_timeout_disabled)
+        PasswordVisibilityTimeout.SECONDS_5 -> stringResource(Res.string.settings_timeout_5s)
+        PasswordVisibilityTimeout.SECONDS_10 -> stringResource(Res.string.settings_timeout_10s)
+        PasswordVisibilityTimeout.SECONDS_20 -> stringResource(Res.string.settings_timeout_20s)
+        PasswordVisibilityTimeout.SECONDS_30 -> stringResource(Res.string.settings_timeout_30s)
+        PasswordVisibilityTimeout.MINUTE_1 -> stringResource(Res.string.settings_timeout_1m)
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(Res.string.settings_visibility_timeout_title),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
+        ) {
+            OutlinedTextField(
+                value = timeoutLabel,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                PasswordVisibilityTimeout.entries.forEach { timeout ->
+                    val label = when (timeout) {
+                        PasswordVisibilityTimeout.DISABLED -> stringResource(Res.string.settings_timeout_disabled)
+                        PasswordVisibilityTimeout.SECONDS_5 -> stringResource(Res.string.settings_timeout_5s)
+                        PasswordVisibilityTimeout.SECONDS_10 -> stringResource(Res.string.settings_timeout_10s)
+                        PasswordVisibilityTimeout.SECONDS_20 -> stringResource(Res.string.settings_timeout_20s)
+                        PasswordVisibilityTimeout.SECONDS_30 -> stringResource(Res.string.settings_timeout_30s)
+                        PasswordVisibilityTimeout.MINUTE_1 -> stringResource(Res.string.settings_timeout_1m)
+                    }
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (timeout == selectedTimeout) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        onClick = {
+                            onTimeoutSelected(timeout)
+                            expanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
+            }
+        }
     }
 }
 

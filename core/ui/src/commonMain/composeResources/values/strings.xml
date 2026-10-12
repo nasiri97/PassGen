@@ -188,4 +188,25 @@
     <string name="master_key_notice_portable">You can retrieve all your passwords on any device — even outside this app — using your Master Key.</string>
     <string name="master_key_notice_ack">I have read and understood the information above.</string>
 
+    <!-- Security &amp; Privacy Settings -->
+    <string name="settings_section_security_privacy">Security &amp; Privacy</string>
+    <string name="settings_copy_title">Tap password to copy</string>
+    <string name="settings_copy_subtitle">Allow copying generated passwords to system clipboard by tapping them</string>
+
+    <string name="settings_copy_warning_title">Clipboard Security Risk</string>
+    <string name="settings_copy_warning_message">Enabling tap-to-copy places your plaintext passwords into the system clipboard.\n\n• Background apps, accessibility tools, and third-party keyboard extensions can monitor clipboard data.\n• For maximum security, write or view passwords manually or use system AutoFill.\n\nAre you sure you want to enable clipboard copy?</string>
+    <string name="settings_copy_warning_confirm">Enable Copying</string>
+    <string name="settings_copy_warning_cancel">Cancel</string>
+
+    <string name="settings_visibility_timeout_title">Password auto-hide timeout</string>
+    <string name="settings_timeout_disabled">Disabled (Never auto-hide)</string>
+    <string name="settings_timeout_5s">5 seconds</string>
+    <string name="settings_timeout_10s">10 seconds</string>
+    <string name="settings_timeout_20s">20 seconds</string>
+    <string name="settings_timeout_30s">30 seconds</string>
+    <string name="settings_timeout_1m">1 minute</string>
+
+    <string name="copy_disabled_toast_message">Copying to clipboard is disabled in Settings for security</string>
+    <string name="copy_success_toast_message">Password copied to clipboard</string>
+
 </resources>

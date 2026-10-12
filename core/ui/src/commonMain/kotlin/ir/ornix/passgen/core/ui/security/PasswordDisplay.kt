@@ -56,22 +56,22 @@ import kotlin.time.Duration.Companion.milliseconds
  *
  * @param password The password to display, or null if generation failed.
  * @param onCopyRequested Called with the password when the user taps it.
+ * @param revealTimeoutMillis Time in milliseconds before a revealed password is
+ * masked again. Use 0 to disable the timeout.
  * @param isLoading Whether the password is still being generated.
  * @param maskChar Character used to build the mask while hidden.
  * @param maskLength Fixed mask length, which hides the real password length.
  * If null, the mask has the same length as the password.
- * @param revealTimeoutMillis Time in milliseconds before a revealed password is
- * masked again. Use 0 to disable the timeout.
  * @param modifier Modifier applied to the root layout.
  */
 @Composable
 fun PasswordDisplay(
     password: Password?,
     onCopyRequested: (Password) -> Unit,
+    revealTimeoutMillis: Long,
     isLoading: Boolean = false,
     maskChar: Char = '•',
     maskLength: Int? = null,
-    revealTimeoutMillis: Long = 10_000,
     modifier: Modifier = Modifier
 ) {
 

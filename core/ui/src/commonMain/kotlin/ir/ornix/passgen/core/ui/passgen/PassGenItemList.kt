@@ -25,6 +25,7 @@ fun PassGenItemList(
     removePasswordItem: (PassGenItem) -> Unit,
     addNewAccount: (account: Account) -> Unit,
     onCopyRequested: (Password) -> Unit,
+    revealTimeoutMillis: Long,
     modifier: Modifier = Modifier
 ) {
     var passGenConfig by remember { mutableStateOf<PassGenConfig?>(null) }
@@ -47,7 +48,8 @@ fun PassGenItemList(
                 onRemove = { removePasswordItem(passwordItem) },
                 addNewAccount = addNewAccount,
                 showPassGenInfoDialog = { passGenConfig = it },
-                onCopyRequested = onCopyRequested
+                onCopyRequested = onCopyRequested,
+                revealTimeoutMillis = revealTimeoutMillis
             )
         }
     }

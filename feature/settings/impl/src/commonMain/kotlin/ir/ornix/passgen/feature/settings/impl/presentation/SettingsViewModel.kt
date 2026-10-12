@@ -6,8 +6,12 @@ import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
+import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
+import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
+import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
@@ -27,7 +31,11 @@ class SettingsViewModel(
     getLanguage: GetLanguageUseCase,
     private val setLanguage: SetLanguageUseCase,
     getTheme: GetThemeUseCase,
-    private val setTheme: SetThemeUseCase
+    private val setTheme: SetThemeUseCase,
+    isCopyEnabled: IsCopyEnabledUseCase,
+    private val setCopyEnabled: SetCopyEnabledUseCase,
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase,
+    private val setVisibilityTimeout: SetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
     private val intents = Channel<SettingsIntent>()
@@ -39,7 +47,9 @@ class SettingsViewModel(
                 isBiometricEnabled = isBiometricEnabled().value,
                 currentLocalAuthType = getLocalAuthType().value,
                 selectedLanguage = getLanguage().value,
-                selectedTheme = getTheme().value
+                selectedTheme = getTheme().value,
+                isCopyEnabled = isCopyEnabled().value,
+                selectedVisibilityTimeout = getVisibilityTimeout().value
             )
         )
 
@@ -69,6 +79,18 @@ class SettingsViewModel(
         }
 
         viewModelScope.launch {
+            isCopyEnabled().collect {
+                apply(SettingsPartialState.CopyEnabledChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
+            getVisibilityTimeout().collect {
+                apply(SettingsPartialState.PasswordVisibilityTimeoutChanged(it))
+            }
+        }
+
+        viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
                     is SettingsIntent.SetFingerprintEnabled -> {
@@ -85,6 +107,29 @@ class SettingsViewModel(
 
                     is SettingsIntent.SelectTheme -> {
                         setTheme(intent.theme)
+                    }
+
+                    is SettingsIntent.RequestSetCopyEnabled -> {
+                        if (intent.enabled) {
+                            if (!uiState.value.isCopyEnabled) {
+                                apply(SettingsPartialState.CopyWarningDialogVisibilityChanged(true))
+                            }
+                        } else {
+                            setCopyEnabled(false)
+                        }
+                    }
+
+                    is SettingsIntent.ConfirmEnableCopy -> {
+                        apply(SettingsPartialState.CopyWarningDialogVisibilityChanged(false))
+                        setCopyEnabled(true)
+                    }
+
+                    is SettingsIntent.DismissCopyWarningDialog -> {
+                        apply(SettingsPartialState.CopyWarningDialogVisibilityChanged(false))
+                    }
+
+                    is SettingsIntent.SelectVisibilityTimeout -> {
+                        setVisibilityTimeout(intent.timeout)
                     }
                 }
             }

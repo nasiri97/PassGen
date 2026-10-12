@@ -44,5 +44,11 @@ internal fun reduce(
                 }
             )
         }
+
+        is HomePartialState.CopyEnabledChanged ->
+            oldState.copy(isCopyEnabled = change.isCopyEnabled)
+
+        is HomePartialState.PasswordVisibilityTimeoutChanged ->
+            oldState.copy(visibilityTimeout = change.visibilityTimeout)
     }
 }

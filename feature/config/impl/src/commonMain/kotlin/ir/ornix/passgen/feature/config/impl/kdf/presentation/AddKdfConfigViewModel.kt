@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
@@ -15,7 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddKdfConfigViewModel(
-    private val addConfig: AddKdfPassGenConfigUseCase
+    private val addConfig: AddKdfPassGenConfigUseCase,
+    private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
     private var masterKey: ByteArray = ByteArray(0)
@@ -36,6 +38,13 @@ class AddKdfConfigViewModel(
         field: MutableStateFlow<AddKdfConfigUiState> = MutableStateFlow(AddKdfConfigUiState())
 
     init {
+
+        viewModelScope.launch {
+            getVisibilityTimeout().collect {
+                apply(AddKdfConfigPartialState.PasswordVisibilityTimeoutChanged(it))
+            }
+        }
+
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {

@@ -187,4 +187,26 @@
     <string name="master_key_notice_backup">کلید اصلی خود را یادداشت کنید و آن را در جایی امن و دور از دسترس دیگران نگهداری کنید.</string>
     <string name="master_key_notice_portable">با کلید اصلی می‌توانید تمام رمزهای عبور خود را روی هر دستگاهی — حتی خارج از این برنامه — بازیابی کنید.</string>
     <string name="master_key_notice_ack">اطلاعات بالا را مطالعه کرده و متوجه شده‌ام.</string>
+
+    <!-- Security &amp; Privacy Settings -->
+    <string name="settings_section_security_privacy">امنیت و حریم خصوصی</string>
+    <string name="settings_copy_title">لمس رمز برای کپی</string>
+    <string name="settings_copy_subtitle">امکان کپی‌کردن گذرواژه‌های تولیدشده به حافظه موقت (کلیپ‌بورد) با لمس آن‌ها</string>
+
+    <string name="settings_copy_warning_title">هشدار امنیتی کلیپ‌بورد</string>
+    <string name="settings_copy_warning_message">فعال‌سازی قابلیت کپی، گذرواژه‌های متنی شما را در حافظه موقت سیستم قرار می‌دهد.\n\n• برنامه‌های پس‌زمینه، ابزارهای دسترسی‌پذیری و کیبوردهای جانبی می‌توانند محتوای کلیپ‌بورد را رصد کنند.\n• برای امنیت بیشتر، گذرواژه را به صورت دستی مشاهده کرده یا از تکمیل خودکار سیستم استفاده کنید.\n\nآیا از فعال‌سازی کپی در کلیپ‌بورد اطمینان دارید؟</string>
+    <string name="settings_copy_warning_confirm">فعال‌سازی کپی</string>
+    <string name="settings_copy_warning_cancel">انصراف</string>
+
+    <string name="settings_visibility_timeout_title">زمان پنهان‌سازی خودکار رمز</string>
+    <string name="settings_timeout_disabled">غیرفعال (هرگز پنهان نشود)</string>
+    <string name="settings_timeout_5s">۵ ثانیه</string>
+    <string name="settings_timeout_10s">۱۰ ثانیه</string>
+    <string name="settings_timeout_20s">۲۰ ثانیه</string>
+    <string name="settings_timeout_30s">۳۰ ثانیه</string>
+    <string name="settings_timeout_1m">۱ دقیقه</string>
+
+    <string name="copy_disabled_toast_message">کپی در کلیپ‌بورد به دلایل امنیتی در تنظیمات غیرفعال است</string>
+    <string name="copy_success_toast_message">رمز عبور در کلیپ‌بورد کپی شد</string>
+
 </resources>
