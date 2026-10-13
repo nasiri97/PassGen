@@ -20,15 +20,15 @@ class AddKdfConfigViewModel(
     private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
-    private var masterKey: ByteArray = ByteArray(0)
+    private var masterKey: CharArray = CharArray(0)
         set(value) {
-            field.fill(0)
+            if (field !== value) field.fill('\u0000')
             field = value
         }
 
-    private var confirmMasterKey: ByteArray = ByteArray(0)
+    private var confirmMasterKey: CharArray = CharArray(0)
         set(value) {
-            field.fill(0)
+            if (field !== value) field.fill('\u0000')
             field = value
         }
 
@@ -105,12 +105,12 @@ class AddKdfConfigViewModel(
         }
     }
 
-    fun updateMasterKey(value: ByteArray) {
+    private fun updateMasterKey(value: CharArray) {
         masterKey = value
         onKeysChanged()
     }
 
-    fun updateConfirmMasterKey(value: ByteArray) {
+    private fun updateConfirmMasterKey(value: CharArray) {
         confirmMasterKey = value
         onKeysChanged()
     }
@@ -121,8 +121,8 @@ class AddKdfConfigViewModel(
     }
 
     private fun resetKeys() {
-        masterKey = ByteArray(0)
-        confirmMasterKey = ByteArray(0)
+        masterKey = CharArray(0)
+        confirmMasterKey = CharArray(0)
         onKeysChanged()
     }
 

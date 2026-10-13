@@ -19,14 +19,13 @@ data class MasterKeyValidation(
         get() = (confirmMasterKeyLength != 0) && !keysMatch
 }
 
-fun validateMasterKey(masterKey: ByteArray, confirmMasterKey: ByteArray): MasterKeyValidation {
-    val mkStr = masterKey.decodeToString()
+fun validateMasterKey(masterKey: CharArray, confirmMasterKey: CharArray): MasterKeyValidation {
 
     val hasMinLength = masterKey.size >= MIN_MASTER_KEY_LENGTH
-    val hasLowercase = mkStr.any { it.isLowerCase() }
-    val hasUppercase = mkStr.any { it.isUpperCase() }
-    val hasDigit = mkStr.any { it.isDigit() }
-    val hasSpecialChar = mkStr.any { !it.isLetterOrDigit() && !it.isWhitespace() }
+    val hasLowercase = masterKey.any { it.isLowerCase() }
+    val hasUppercase = masterKey.any { it.isUpperCase() }
+    val hasDigit = masterKey.any { it.isDigit() }
+    val hasSpecialChar = masterKey.any { !it.isLetterOrDigit() && !it.isWhitespace() }
     val keysMatch = masterKey.isNotEmpty() && masterKey.contentEquals(confirmMasterKey)
 
     return MasterKeyValidation(

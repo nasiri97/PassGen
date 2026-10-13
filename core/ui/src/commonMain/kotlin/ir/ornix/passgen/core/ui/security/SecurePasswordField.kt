@@ -39,7 +39,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SecurePasswordField(
-    onValueChange: (ByteArray) -> Unit,
+    onValueChange: (CharArray) -> Unit,
     revealTimeoutMillis: Long,   // auto re-mask after this long; 0 = no timeout
     modifier: Modifier = Modifier,
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
@@ -63,7 +63,7 @@ fun SecurePasswordField(
 
     // field -> caller
     LaunchedEffect(state) {
-        snapshotFlow { state.text.toString() }.collect { currentOnValueChange(it.encodeToByteArray()) }
+        snapshotFlow { state.text.toString() }.collect { currentOnValueChange(it.toCharArray()) }
     }
 
     // Re-mask (and optionally wipe) when leaving the foreground
@@ -85,7 +85,7 @@ fun SecurePasswordField(
         DisposableEffect(state) {
             onDispose {
                 state.clearText()
-                currentOnValueChange(ByteArray(0))
+                currentOnValueChange(CharArray(0))
             }
         }
     }

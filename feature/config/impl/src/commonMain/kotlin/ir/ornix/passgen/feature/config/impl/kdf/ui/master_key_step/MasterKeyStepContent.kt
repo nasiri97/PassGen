@@ -33,8 +33,8 @@ import org.jetbrains.compose.resources.stringResource
 internal fun MasterKeyStepContent(
     validation: MasterKeyValidation,
     revealTimeoutMillis: Long,
-    onMasterKeyChange: (ByteArray) -> Unit,
-    onConfirmMasterKeyChange: (ByteArray) -> Unit,
+    onMasterKeyChange: (CharArray) -> Unit,
+    onConfirmMasterKeyChange: (CharArray) -> Unit,
     acknowledged: Boolean,
     onAcknowledgedChange: (Boolean) -> Unit,
     onNext: () -> Unit,
