@@ -57,6 +57,7 @@
     <!-- Home &amp; Random Screens -->
     <string name="context_input_label">Context Input</string>
     <string name="context_input_placeholder">e.g. 'gmail user@gmail.com'</string>
+    <string name="error_max_length">Maximum %1$d characters allowed.</string>
     <string name="action_clear">Clear</string>
     <string name="no_config_message">No password configurations yet.</string>
     <string name="add_first_config_button">Add your first config</string>

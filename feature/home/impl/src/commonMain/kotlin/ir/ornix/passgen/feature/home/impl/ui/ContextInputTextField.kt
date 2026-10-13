@@ -19,23 +19,28 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_clear
 import ir.ornix.passgen.core.ui.context_input_label
 import ir.ornix.passgen.core.ui.context_input_placeholder
+import ir.ornix.passgen.core.ui.error_max_length
 import ir.ornix.passgen.core.ui.security.secureInput
 import org.jetbrains.compose.resources.stringResource
 
+private const val MAX_CONTEXT_INPUT_CHARS = 256
+
 @Composable
-fun InputSection(
+internal fun ContextInputTextField(
     input: String,
     onInputChange: (String) -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isAtLimit = input.length >= MAX_CONTEXT_INPUT_CHARS
+
     OutlinedTextField(
         modifier = modifier
             .secureInput(stringResource(Res.string.context_input_label))
             .fillMaxWidth(),
         value = input,
         onValueChange = {
-            if (!it.contains('\n')) onInputChange(it)
+            if (!it.contains('\n')) onInputChange(it.take(MAX_CONTEXT_INPUT_CHARS))
         },
         label = { Text(stringResource(Res.string.context_input_label)) },
         placeholder = {
@@ -57,6 +62,12 @@ fun InputSection(
                         contentDescription = stringResource(Res.string.action_clear)
                     )
                 }
+            }
+        },
+        isError = isAtLimit,
+        supportingText = {
+            if (isAtLimit) {
+                Text(stringResource(Res.string.error_max_length, MAX_CONTEXT_INPUT_CHARS))
             }
         },
         singleLine = true,

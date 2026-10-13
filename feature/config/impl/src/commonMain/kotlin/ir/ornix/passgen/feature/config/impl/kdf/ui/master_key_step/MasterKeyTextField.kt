@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.ui.security
+package ir.ornix.passgen.feature.config.impl.kdf.ui.master_key_step
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -33,26 +33,25 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_hide_password
 import ir.ornix.passgen.core.ui.action_show_password
 import ir.ornix.passgen.core.ui.password
+import ir.ornix.passgen.core.ui.security.secureInput
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun SecurePasswordField(
+fun MasterKeyTextField(
     onValueChange: (CharArray) -> Unit,
     revealTimeoutMillis: Long,   // auto re-mask after this long; 0 = no timeout
+    maxLength: Int,
     modifier: Modifier = Modifier,
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     contentDescription: String? = null,
     supportingText: @Composable (() -> Unit)? = null,
-    enabled: Boolean = true,
     isError: Boolean = false,
-    maxLength: Int = 128,
-    allowReveal: Boolean = true,
     clearOnStop: Boolean = false,        // wipe when the app goes to background
     clearOnDispose: Boolean = false,     // wipe when the field leaves composition
     testTag: String? = null,
-    onDone: () -> Unit = {},
+    onDone: () -> Unit = {}
 ) {
     // Plain remember, NOT rememberTextFieldState(): the latter is savable
     // and would write the password into the saved-instance-state Bundle.
@@ -96,13 +95,13 @@ fun SecurePasswordField(
     OutlinedSecureTextField(
         state = state,
         modifier = testTag?.let { secureModifier.testTag(testTag) } ?: secureModifier,
-        enabled = enabled,
         label = label,
         supportingText = supportingText,
         isError = isError,
         inputTransformation = InputTransformation.maxLength(maxLength),
-        textObfuscationMode = if (revealed) TextObfuscationMode.Visible
-        else TextObfuscationMode.Hidden,   // no "last typed" flash
+        textObfuscationMode =
+            if (revealed) TextObfuscationMode.Visible
+            else TextObfuscationMode.Hidden,   // no "last typed" flash
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
             autoCorrectEnabled = false,
@@ -110,18 +109,16 @@ fun SecurePasswordField(
             imeAction = ImeAction.Done,
         ),
         onKeyboardAction = { onDone() },
-        trailingIcon = if (allowReveal) {
-            {
-                IconButton(onClick = { revealed = !revealed }) {
-                    Icon(
-                        imageVector = if (revealed) Icons.Default.VisibilityOff
-                        else Icons.Default.Visibility,
-                        contentDescription = if (revealed) stringResource(Res.string.action_hide_password) else stringResource(
-                            Res.string.action_show_password
-                        ),
-                    )
-                }
+        trailingIcon = {
+            IconButton(onClick = { revealed = !revealed }) {
+                Icon(
+                    imageVector = if (revealed) Icons.Default.VisibilityOff
+                    else Icons.Default.Visibility,
+                    contentDescription = if (revealed) stringResource(Res.string.action_hide_password) else stringResource(
+                        Res.string.action_show_password
+                    ),
+                )
             }
-        } else null,
+        }
     )
 }

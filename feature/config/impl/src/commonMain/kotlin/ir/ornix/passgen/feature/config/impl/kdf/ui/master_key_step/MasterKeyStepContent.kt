@@ -20,14 +20,15 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_cancel
 import ir.ornix.passgen.core.ui.action_next
 import ir.ornix.passgen.core.ui.error_master_keys_mismatch
+import ir.ornix.passgen.core.ui.error_max_length
 import ir.ornix.passgen.core.ui.label_confirm_master_key
 import ir.ornix.passgen.core.ui.label_master_key
 import ir.ornix.passgen.core.ui.master_key_explanation
-import ir.ornix.passgen.core.ui.security.SecurePasswordField
 import ir.ornix.passgen.core.ui.setup_master_key_title
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.MasterKeyValidation
 import org.jetbrains.compose.resources.stringResource
 
+private const val MAX_MASTER_KEY_CHARS = 256
 
 @Composable
 internal fun MasterKeyStepContent(
@@ -56,18 +57,28 @@ internal fun MasterKeyStepContent(
             onAcknowledgedChange = onAcknowledgedChange
         )
 
-        SecurePasswordField(
+        val isAtLimit = validation.masterKeyLength >= MAX_MASTER_KEY_CHARS
+
+        MasterKeyTextField(
             onValueChange = onMasterKeyChange,
             revealTimeoutMillis = revealTimeoutMillis,
+            maxLength = MAX_MASTER_KEY_CHARS,
             label = { Text(stringResource(Res.string.label_master_key)) },
             contentDescription = stringResource(Res.string.label_master_key),
+            isError = isAtLimit,
+            supportingText = {
+                if (isAtLimit) {
+                    Text(stringResource(Res.string.error_max_length, MAX_MASTER_KEY_CHARS))
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             testTag = "master_key_input"
         )
 
-        SecurePasswordField(
+        MasterKeyTextField(
             onValueChange = onConfirmMasterKeyChange,
             revealTimeoutMillis = revealTimeoutMillis,
+            maxLength = MAX_MASTER_KEY_CHARS,
             label = { Text(stringResource(Res.string.label_confirm_master_key)) },
             contentDescription = stringResource(Res.string.label_confirm_master_key),
             isError = validation.shouldShowConfirmError,

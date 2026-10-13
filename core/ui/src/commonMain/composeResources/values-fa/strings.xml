@@ -57,6 +57,7 @@
     <!-- Home &amp; Random Screens -->
     <string name="context_input_label">عبارت ورودی</string>
     <string name="context_input_placeholder">مثال 'تلگرام ۰۹۱۲۳۴۵۶۷۸۹'</string>
+    <string name="error_max_length">حداکثر %1$d کاراکتر مجاز است.</string>
     <string name="action_clear">پاک کردن</string>
     <string name="no_config_message">هنوز پیکربندی گذرواژه‌ای وجود ندارد.</string>
     <string name="add_first_config_button">افزودن اولین پیکربندی</string>

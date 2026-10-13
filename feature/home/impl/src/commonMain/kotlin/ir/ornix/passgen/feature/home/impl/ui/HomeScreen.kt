@@ -94,7 +94,7 @@ fun HomeScreen(
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
-                InputSection(
+                ContextInputTextField(
                     modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp),
                     input = uiState.input,
                     onInputChange = {
