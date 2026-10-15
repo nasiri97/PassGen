@@ -69,7 +69,7 @@
 
     <!-- About Screen -->
     <string name="about_app_subtitle">Stateless &amp; Deterministic Password Generator</string>
-    <string name="about_app_version">Version 1.0.0</string>
+    <string name="app_version">Version %1$s</string>
 
     <string name="about_github_button">View on GitHub</string>
     <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>

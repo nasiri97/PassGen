@@ -31,6 +31,9 @@ val hasReleaseSigning = signingEnvironment.all {
     providers.environmentVariable(it).isPresent
 }
 
+val appVersionName = rootProject.extra["appVersionName"] as String
+val appVersionCode = rootProject.extra["appVersionCode"] as Int
+
 android {
     namespace = "ir.ornix.passgen"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -39,8 +42,8 @@ android {
         applicationId = "ir.ornix.passgen"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionName = appVersionName
+        versionCode = appVersionCode
     }
 
     packaging {

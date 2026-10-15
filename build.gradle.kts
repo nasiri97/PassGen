@@ -12,6 +12,11 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.androidLint) apply false
+
+    // build-logic plugins
+    alias(libs.plugins.app.root.version)   // version values + syncIosVersion
+    alias(libs.plugins.app.version) apply false
+    alias(libs.plugins.app.bip39) apply false
 }
 
 subprojects {

@@ -1,6 +1,8 @@
 rootProject.name = "PassGen"
 
 pluginManagement {
+	includeBuild("build-logic")
+
     repositories {
         google {
             mavenContent {

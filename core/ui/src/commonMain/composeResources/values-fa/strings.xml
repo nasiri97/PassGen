@@ -69,7 +69,7 @@
 
     <!-- About Screen -->
     <string name="about_app_subtitle">تولیدکننده معین و بدون ذخیره‌سازی گذرواژه</string>
-    <string name="about_app_version">نسخه ۱.۰.۰</string>
+    <string name="app_version">نسخه %1$s</string>
 
     <string name="about_github_button">مشاهده در گیت‌هاب</string>
     <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>

@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.about_app_subtitle
-import ir.ornix.passgen.core.ui.about_app_version
 import ir.ornix.passgen.core.ui.about_benefit_cross_platform_desc
 import ir.ornix.passgen.core.ui.about_benefit_cross_platform_title
 import ir.ornix.passgen.core.ui.about_benefit_hardware_security_desc
@@ -92,6 +91,8 @@ import ir.ornix.passgen.core.ui.about_step_4_title
 import ir.ornix.passgen.core.ui.about_what_is_passgen_desc
 import ir.ornix.passgen.core.ui.app_icon
 import ir.ornix.passgen.core.ui.app_name
+import ir.ornix.passgen.core.ui.app_version
+import ir.ornix.passgen.core.common.AppVersion
 import ir.ornix.passgen.feature.about.impl.presentation.AboutViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -204,7 +205,7 @@ private fun AboutHeaderSection(modifier: Modifier = Modifier) {
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                 ) {
                     Text(
-                        text = stringResource(Res.string.about_app_version),
+                        text = stringResource(Res.string.app_version, AppVersion.NAME),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
