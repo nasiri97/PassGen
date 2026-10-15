@@ -40,7 +40,7 @@ fun PassGenItemList(
         columns = StaggeredGridCells.Fixed(columnsCount),
         verticalItemSpacing = 16.dp,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
+        contentPadding = PaddingValues(top = 16.dp, bottom = 64.dp)
     ) {
         items(items = passGenItems, key = { it.config.id }) { passwordItem ->
             PassGenItemCard(
