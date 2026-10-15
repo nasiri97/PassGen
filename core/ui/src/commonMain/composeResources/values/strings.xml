@@ -79,7 +79,7 @@
 
     <string name="about_github_button">View on GitHub</string>
     <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>
-    <string name="about_open_source_title">100% Free &amp; Open Source</string>
+    <string name="about_open_source_title">Free &amp; Open Source</string>
 
     <string name="about_section_what_is_passgen">What is PassGen?</string>
     <string name="about_what_is_passgen_desc">Traditional password managers save your passwords in a database or cloud vault. If that vault is lost, hacked, or leaked, all your accounts are exposed.\n\nPassGen is completely stateless: it NEVER saves passwords anywhere. Instead, it generates strong, cryptographically secure passwords on demand using math!</string>

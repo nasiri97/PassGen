@@ -79,7 +79,7 @@
 
     <string name="about_github_button">مشاهده در گیت‌هاب</string>
     <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>
-    <string name="about_open_source_title">۱۰۰٪ رایگان و متن‌باز (Open Source)</string>
+    <string name="about_open_source_title">رایگان و متن‌باز</string>
 
     <string name="about_section_what_is_passgen">رمزآفرین چیست؟</string>
     <string name="about_what_is_passgen_desc">مدیریت‌کننده‌های رمز عبور سنتی، تمام گذرواژه‌های شما را در یک پایگاه داده یا مخزن ابری ذخیره می‌کنند. اگر آن مخزن هک شود، لو برود یا پاک شود، تمام حساب‌های شما به خطر می‌افتند.\n\nپاس‌ژن کاملاً بدون ذخیره‌سازی (Stateless) است: این برنامه هیچ رمز عبوری را در هیچ کجا ذخیره نمی‌کند! در عوض، گذرواژه‌های قوی و امن شما را در لحظه و بر پایه ریاضیات تولید می‌کند.</string>

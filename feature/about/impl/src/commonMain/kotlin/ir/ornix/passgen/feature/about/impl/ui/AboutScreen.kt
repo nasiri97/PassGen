@@ -155,7 +155,7 @@ private fun AboutHeaderSection(modifier: Modifier = Modifier) {
                     )
                 )
             )
-            .padding(24.dp),
+            .padding(vertical = 24.dp, horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
