@@ -1,25 +1,51 @@
 package ir.ornix.passgen.feature.settings.impl.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.UnfoldMore
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,7 +56,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.domain.LocalAuthType
@@ -50,6 +80,7 @@ import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_unavailable
 import ir.ornix.passgen.core.ui.settings_fingerprints_title
 import ir.ornix.passgen.core.ui.settings_language_english
 import ir.ornix.passgen.core.ui.settings_language_persian
+import ir.ornix.passgen.core.ui.settings_language_subtitle
 import ir.ornix.passgen.core.ui.settings_language_system
 import ir.ornix.passgen.core.ui.settings_language_title
 import ir.ornix.passgen.core.ui.settings_local_lock_title
@@ -62,6 +93,7 @@ import ir.ornix.passgen.core.ui.settings_section_security_privacy
 import ir.ornix.passgen.core.ui.settings_section_verification_methods
 import ir.ornix.passgen.core.ui.settings_theme_dark
 import ir.ornix.passgen.core.ui.settings_theme_light
+import ir.ornix.passgen.core.ui.settings_theme_subtitle
 import ir.ornix.passgen.core.ui.settings_theme_system
 import ir.ornix.passgen.core.ui.settings_theme_title
 import ir.ornix.passgen.core.ui.settings_timeout_10s
@@ -70,11 +102,18 @@ import ir.ornix.passgen.core.ui.settings_timeout_20s
 import ir.ornix.passgen.core.ui.settings_timeout_30s
 import ir.ornix.passgen.core.ui.settings_timeout_5s
 import ir.ornix.passgen.core.ui.settings_timeout_disabled
+import ir.ornix.passgen.core.ui.settings_visibility_timeout_subtitle
 import ir.ornix.passgen.core.ui.settings_visibility_timeout_title
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsIntent
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+
+private enum class ActiveDialog {
+    TIMEOUT,
+    THEME,
+    LANGUAGE
+}
 
 @Composable
 fun SettingsScreen(
@@ -84,161 +123,249 @@ fun SettingsScreen(
     val viewModel: SettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    var activeDialog by remember { mutableStateOf<ActiveDialog?>(null) }
+
     if (uiState.showCopyWarningDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.WarningAmber,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
-                )
-            },
-            title = {
-                Text(stringResource(Res.string.settings_copy_warning_title))
-            },
-            text = {
-                Text(
-                    text = stringResource(Res.string.settings_copy_warning_message),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.dispatch(SettingsIntent.ConfirmEnableCopy) }
-                ) {
-                    Text(
-                        text = stringResource(Res.string.settings_copy_warning_confirm),
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog) }
-                ) {
-                    Text(stringResource(Res.string.settings_copy_warning_cancel))
-                }
-            }
+        CopyWarningDialog(
+            onConfirm = { viewModel.dispatch(SettingsIntent.ConfirmEnableCopy) },
+            onDismiss = { viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog) }
         )
+    }
+
+    when (activeDialog) {
+        ActiveDialog.TIMEOUT -> {
+            SettingSelectionDialog(
+                title = stringResource(Res.string.settings_visibility_timeout_title),
+                icon = Icons.Outlined.Timer,
+                options = PasswordVisibilityTimeout.entries,
+                selectedOption = uiState.selectedVisibilityTimeout,
+                optionLabel = { timeout -> getTimeoutLabel(timeout) },
+                onOptionSelected = { viewModel.dispatch(SettingsIntent.SelectVisibilityTimeout(it)) },
+                onDismissRequest = { activeDialog = null }
+            )
+        }
+
+        ActiveDialog.THEME -> {
+            SettingSelectionDialog(
+                title = stringResource(Res.string.settings_theme_title),
+                icon = Icons.Outlined.Palette,
+                options = AppTheme.entries,
+                selectedOption = uiState.selectedTheme,
+                optionLabel = { theme -> getThemeLabel(theme) },
+                onOptionSelected = { viewModel.dispatch(SettingsIntent.SelectTheme(it)) },
+                onDismissRequest = { activeDialog = null }
+            )
+        }
+
+        ActiveDialog.LANGUAGE -> {
+            SettingSelectionDialog(
+                title = stringResource(Res.string.settings_language_title),
+                icon = Icons.Outlined.Language,
+                options = AppLanguage.entries,
+                selectedOption = uiState.selectedLanguage,
+                optionLabel = { language -> getLanguageLabel(language) },
+                onOptionSelected = { viewModel.dispatch(SettingsIntent.SelectLanguage(it)) },
+                onDismissRequest = { activeDialog = null }
+            )
+        }
+
+        null -> Unit
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.settings_section_verification_methods),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
+        // Section 1: Verification Methods
+        SectionCard(
+            sectionTitle = stringResource(Res.string.settings_section_verification_methods),
+            sectionIcon = Icons.Outlined.Shield
+        ) {
+            SettingSwitchRow(
+                title = stringResource(Res.string.settings_fingerprints_title),
+                subtitle = if (uiState.isBiometricAvailable) {
+                    stringResource(Res.string.settings_fingerprints_subtitle_available)
+                } else {
+                    stringResource(Res.string.settings_fingerprints_subtitle_unavailable)
+                },
+                icon = Icons.Outlined.Fingerprint,
+                checked = uiState.isBiometricEnabled,
+                enabled = uiState.isBiometricAvailable,
+                onCheckedChange = { viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(it)) }
+            )
 
-        VerificationMethodRow(
-            title = stringResource(Res.string.settings_fingerprints_title),
-            subtitle = if (uiState.isBiometricAvailable) {
-                stringResource(Res.string.settings_fingerprints_subtitle_available)
-            } else {
-                stringResource(Res.string.settings_fingerprints_subtitle_unavailable)
-            },
-            enabled = uiState.isBiometricAvailable,
-            checked = uiState.isBiometricEnabled,
-            onCheckedChange = { viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(it)) }
-        )
+            ItemDivider()
 
-        VerificationMethodRow(
-            title = stringResource(Res.string.settings_local_lock_title),
-            subtitle = when (uiState.currentLocalAuthType) {
-                LocalAuthType.PIN -> stringResource(Res.string.settings_lock_active_pin)
-                LocalAuthType.PASSWORD -> stringResource(Res.string.settings_lock_active_password)
-                LocalAuthType.PATTERN -> stringResource(Res.string.settings_lock_active_pattern)
-                else -> stringResource(Res.string.settings_lock_none)
-            },
-            enabled = true,
-            checked = uiState.currentLocalAuthType != LocalAuthType.NONE,
-            onCheckedChange = {
-                if (uiState.currentLocalAuthType == LocalAuthType.NONE)
-                    onNavigateToSecretSetupClick()
-                else
-                    viewModel.dispatch(SettingsIntent.LocalAuthenticationDisabled)
-            }
-        )
-
-        if (uiState.currentLocalAuthType != LocalAuthType.NONE) {
-            TextButton(
-                onClick = {
-                    onNavigateToSecretSetupClick()
-                }
-            ) {
-                Text(stringResource(Res.string.settings_change_local_lock))
-            }
+            SettingLocalLockRow(
+                currentLocalAuthType = uiState.currentLocalAuthType,
+                onToggleLocalAuth = { enabled ->
+                    if (enabled) {
+                        onNavigateToSecretSetupClick()
+                    } else {
+                        viewModel.dispatch(SettingsIntent.LocalAuthenticationDisabled)
+                    }
+                },
+                onChangeLocalLock = onNavigateToSecretSetupClick
+            )
         }
 
-        HorizontalDivider()
+        // Section 2: Security & Privacy
+        SectionCard(
+            sectionTitle = stringResource(Res.string.settings_section_security_privacy),
+            sectionIcon = Icons.Outlined.Security
+        ) {
+            SettingSwitchRow(
+                title = stringResource(Res.string.settings_copy_title),
+                subtitle = stringResource(Res.string.settings_copy_subtitle),
+                icon = Icons.Outlined.ContentCopy,
+                checked = uiState.isCopyEnabled,
+                onCheckedChange = { viewModel.dispatch(SettingsIntent.RequestSetCopyEnabled(it)) }
+            )
 
-        Text(
-            text = stringResource(Res.string.settings_section_security_privacy),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
+            ItemDivider()
+
+            SettingSelectionRow(
+                title = stringResource(Res.string.settings_visibility_timeout_title),
+                subtitle = stringResource(Res.string.settings_visibility_timeout_subtitle),
+                icon = Icons.Outlined.Timer,
+                selectedValueLabel = getTimeoutLabel(uiState.selectedVisibilityTimeout),
+                onClick = { activeDialog = ActiveDialog.TIMEOUT }
+            )
+        }
+
+        // Section 3: Appearance & Language
+        SectionCard(
+            sectionTitle = stringResource(Res.string.settings_section_appearance),
+            sectionIcon = Icons.Outlined.DarkMode
+        ) {
+            SettingSelectionRow(
+                title = stringResource(Res.string.settings_theme_title),
+                subtitle = stringResource(Res.string.settings_theme_subtitle),
+                icon = Icons.Outlined.Palette,
+                selectedValueLabel = getThemeLabel(uiState.selectedTheme),
+                onClick = { activeDialog = ActiveDialog.THEME }
+            )
+
+            ItemDivider()
+
+            SettingSelectionRow(
+                title = stringResource(Res.string.settings_language_title),
+                subtitle = stringResource(Res.string.settings_language_subtitle),
+                icon = Icons.Outlined.Language,
+                selectedValueLabel = getLanguageLabel(uiState.selectedLanguage),
+                onClick = { activeDialog = ActiveDialog.LANGUAGE }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionCard(
+    sectionTitle: String,
+    sectionIcon: ImageVector,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f)
         )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    imageVector = sectionIcon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = sectionTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
-        VerificationMethodRow(
-            title = stringResource(Res.string.settings_copy_title),
-            subtitle = stringResource(Res.string.settings_copy_subtitle),
-            enabled = true,
-            checked = uiState.isCopyEnabled,
-            onCheckedChange = { viewModel.dispatch(SettingsIntent.RequestSetCopyEnabled(it)) }
-        )
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
 
-        VisibilityTimeoutSelectorRow(
-            selectedTimeout = uiState.selectedVisibilityTimeout,
-            onTimeoutSelected = { viewModel.dispatch(SettingsIntent.SelectVisibilityTimeout(it)) }
-        )
+            content()
+        }
+    }
+}
 
-        HorizontalDivider()
-
-        Text(
-            text = stringResource(Res.string.settings_section_appearance),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        ThemeSelectorRow(
-            selectedTheme = uiState.selectedTheme,
-            onThemeSelected = { viewModel.dispatch(SettingsIntent.SelectTheme(it)) }
-        )
-
-        LanguageSelectorRow(
-            selectedLanguage = uiState.selectedLanguage,
-            onLanguageSelected = { viewModel.dispatch(SettingsIntent.SelectLanguage(it)) }
+@Composable
+private fun SettingIcon(
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.size(22.dp)
         )
     }
 }
 
 @Composable
-private fun VerificationMethodRow(
+private fun SettingSwitchRow(
     title: String,
     subtitle: String,
-    enabled: Boolean,
+    icon: ImageVector,
     checked: Boolean,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = enabled) { onCheckedChange(!checked) }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        SettingIcon(imageVector = icon)
+
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
@@ -247,74 +374,75 @@ private fun VerificationMethodRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun VisibilityTimeoutSelectorRow(
-    selectedTimeout: PasswordVisibilityTimeout,
-    onTimeoutSelected: (PasswordVisibilityTimeout) -> Unit
+private fun SettingLocalLockRow(
+    currentLocalAuthType: LocalAuthType,
+    onToggleLocalAuth: (Boolean) -> Unit,
+    onChangeLocalLock: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val timeoutLabel = when (selectedTimeout) {
-        PasswordVisibilityTimeout.DISABLED -> stringResource(Res.string.settings_timeout_disabled)
-        PasswordVisibilityTimeout.SECONDS_5 -> stringResource(Res.string.settings_timeout_5s)
-        PasswordVisibilityTimeout.SECONDS_10 -> stringResource(Res.string.settings_timeout_10s)
-        PasswordVisibilityTimeout.SECONDS_20 -> stringResource(Res.string.settings_timeout_20s)
-        PasswordVisibilityTimeout.SECONDS_30 -> stringResource(Res.string.settings_timeout_30s)
-        PasswordVisibilityTimeout.MINUTE_1 -> stringResource(Res.string.settings_timeout_1m)
+    val isEnabled = currentLocalAuthType != LocalAuthType.NONE
+    val subtitle = when (currentLocalAuthType) {
+        LocalAuthType.PIN -> stringResource(Res.string.settings_lock_active_pin)
+        LocalAuthType.PASSWORD -> stringResource(Res.string.settings_lock_active_password)
+        LocalAuthType.PATTERN -> stringResource(Res.string.settings_lock_active_pattern)
+        else -> stringResource(Res.string.settings_lock_none)
     }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = stringResource(Res.string.settings_visibility_timeout_title),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggleLocalAuth(!isEnabled) }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            OutlinedTextField(
-                value = timeoutLabel,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
-            )
+            SettingIcon(imageVector = Icons.Outlined.Lock)
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.settings_local_lock_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = onToggleLocalAuth
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isEnabled,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 70.dp, end = 16.dp, bottom = 12.dp)
             ) {
-                PasswordVisibilityTimeout.entries.forEach { timeout ->
-                    val label = when (timeout) {
-                        PasswordVisibilityTimeout.DISABLED -> stringResource(Res.string.settings_timeout_disabled)
-                        PasswordVisibilityTimeout.SECONDS_5 -> stringResource(Res.string.settings_timeout_5s)
-                        PasswordVisibilityTimeout.SECONDS_10 -> stringResource(Res.string.settings_timeout_10s)
-                        PasswordVisibilityTimeout.SECONDS_20 -> stringResource(Res.string.settings_timeout_20s)
-                        PasswordVisibilityTimeout.SECONDS_30 -> stringResource(Res.string.settings_timeout_30s)
-                        PasswordVisibilityTimeout.MINUTE_1 -> stringResource(Res.string.settings_timeout_1m)
-                    }
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = if (timeout == selectedTimeout) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        onClick = {
-                            onTimeoutSelected(timeout)
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                OutlinedButton(
+                    onClick = onChangeLocalLock,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(Res.string.settings_change_local_lock),
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
@@ -322,140 +450,228 @@ private fun VisibilityTimeoutSelectorRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ThemeSelectorRow(
-    selectedTheme: AppTheme,
-    onThemeSelected: (AppTheme) -> Unit
+private fun SettingSelectionRow(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    selectedValueLabel: String,
+    onClick: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val themeLabel = when (selectedTheme) {
-        AppTheme.SYSTEM -> stringResource(Res.string.settings_theme_system)
-        AppTheme.LIGHT -> stringResource(Res.string.settings_theme_light)
-        AppTheme.DARK -> stringResource(Res.string.settings_theme_dark)
-    }
-
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.settings_theme_title),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
+        SettingIcon(imageVector = icon)
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it }
-        ) {
-            OutlinedTextField(
-                value = themeLabel,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                AppTheme.entries.forEach { theme ->
-                    val label = when (theme) {
-                        AppTheme.SYSTEM -> stringResource(Res.string.settings_theme_system)
-                        AppTheme.LIGHT -> stringResource(Res.string.settings_theme_light)
-                        AppTheme.DARK -> stringResource(Res.string.settings_theme_dark)
-                    }
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = if (theme == selectedTheme) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        onClick = {
-                            onThemeSelected(theme)
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                }
+                Text(
+                    text = selectedValueLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Icon(
+                    imageVector = Icons.Default.UnfoldMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LanguageSelectorRow(
-    selectedLanguage: AppLanguage,
-    onLanguageSelected: (AppLanguage) -> Unit
+private fun ItemDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 70.dp, end = 16.dp),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+    )
+}
+
+@Composable
+private fun <T> SettingSelectionDialog(
+    title: String,
+    icon: ImageVector,
+    options: List<T>,
+    selectedOption: T,
+    optionLabel: @Composable (T) -> String,
+    onOptionSelected: (T) -> Unit,
+    onDismissRequest: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val languageLabel = when (selectedLanguage) {
-        AppLanguage.SYSTEM -> stringResource(Res.string.settings_language_system)
-        AppLanguage.ENGLISH -> stringResource(Res.string.settings_language_english)
-        AppLanguage.PERSIAN -> stringResource(Res.string.settings_language_persian)
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = stringResource(Res.string.settings_language_title),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it }
-        ) {
-            OutlinedTextField(
-                value = languageLabel,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        icon = {
+            Box(
                 modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                AppLanguage.entries.forEach { language ->
-                    val label = when (language) {
-                        AppLanguage.SYSTEM -> stringResource(Res.string.settings_language_system)
-                        AppLanguage.ENGLISH -> stringResource(Res.string.settings_language_english)
-                        AppLanguage.PERSIAN -> stringResource(Res.string.settings_language_persian)
-                    }
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = if (language == selectedLanguage) FontWeight.Bold else FontWeight.Normal
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        },
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                options.forEach { option ->
+                    val isSelected = option == selectedOption
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .selectable(
+                                selected = isSelected,
+                                onClick = {
+                                    onOptionSelected(option)
+                                    onDismissRequest()
+                                },
+                                role = Role.RadioButton
                             )
-                        },
-                        onClick = {
-                            onLanguageSelected(language)
-                            expanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
+                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        RadioButton(
+                            selected = isSelected,
+                            onClick = null
+                        )
+                        Text(
+                            text = optionLabel(option),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(stringResource(Res.string.settings_copy_warning_cancel))
+            }
         }
-    }
+    )
+}
+
+@Composable
+private fun CopyWarningDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.errorContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.WarningAmber,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(Res.string.settings_copy_warning_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(Res.string.settings_copy_warning_message),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = stringResource(Res.string.settings_copy_warning_confirm),
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.settings_copy_warning_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun getTimeoutLabel(timeout: PasswordVisibilityTimeout): String = when (timeout) {
+    PasswordVisibilityTimeout.DISABLED -> stringResource(Res.string.settings_timeout_disabled)
+    PasswordVisibilityTimeout.SECONDS_5 -> stringResource(Res.string.settings_timeout_5s)
+    PasswordVisibilityTimeout.SECONDS_10 -> stringResource(Res.string.settings_timeout_10s)
+    PasswordVisibilityTimeout.SECONDS_20 -> stringResource(Res.string.settings_timeout_20s)
+    PasswordVisibilityTimeout.SECONDS_30 -> stringResource(Res.string.settings_timeout_30s)
+    PasswordVisibilityTimeout.MINUTE_1 -> stringResource(Res.string.settings_timeout_1m)
+}
+
+@Composable
+private fun getThemeLabel(theme: AppTheme): String = when (theme) {
+    AppTheme.SYSTEM -> stringResource(Res.string.settings_theme_system)
+    AppTheme.LIGHT -> stringResource(Res.string.settings_theme_light)
+    AppTheme.DARK -> stringResource(Res.string.settings_theme_dark)
+}
+
+@Composable
+private fun getLanguageLabel(language: AppLanguage): String = when (language) {
+    AppLanguage.SYSTEM -> stringResource(Res.string.settings_language_system)
+    AppLanguage.ENGLISH -> stringResource(Res.string.settings_language_english)
+    AppLanguage.PERSIAN -> stringResource(Res.string.settings_language_persian)
 }
