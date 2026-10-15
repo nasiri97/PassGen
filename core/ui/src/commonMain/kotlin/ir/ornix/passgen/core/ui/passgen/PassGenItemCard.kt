@@ -1,27 +1,33 @@
 package ir.ornix.passgen.core.ui.passgen
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Update
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -42,13 +48,17 @@ import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.model.PasswordStrengthLevel
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
+import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
+import ir.ornix.passgen.core.ui.password_strength
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import ir.ornix.passgen.core.ui.util.strengthColor
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
-private val passCardCornerRadius = 16.dp
+private val passCardCornerRadius = 20.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,12 +124,26 @@ fun PassGenItemCard(
         backgroundContent = {
             val direction = swipeState.dismissDirection
             if (direction != SwipeToDismissBoxValue.Settled) {
-                val color =
-                    if (direction == SwipeToDismissBoxValue.StartToEnd) Color.Blue else Color.Red
-                val icon =
-                    if (direction == SwipeToDismissBoxValue.StartToEnd) Icons.Default.Update else Icons.Default.Delete
-                val alignment =
-                    if (direction == SwipeToDismissBoxValue.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
+                val color = if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.errorContainer
+                }
+                val iconColor = if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onErrorContainer
+                }
+                val icon = if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                    Icons.Default.Update
+                } else {
+                    Icons.Default.Delete
+                }
+                val alignment = if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                    Alignment.CenterStart
+                } else {
+                    Alignment.CenterEnd
+                }
 
                 Box(
                     modifier = Modifier
@@ -128,7 +152,7 @@ fun PassGenItemCard(
                         .padding(horizontal = 24.dp),
                     contentAlignment = alignment
                 ) {
-                    Icon(icon, contentDescription = null, tint = Color.White)
+                    Icon(icon, contentDescription = null, tint = iconColor)
                 }
             }
         }
@@ -150,61 +174,180 @@ private fun Content(
     revealTimeoutMillis: Long,
     modifier: Modifier = Modifier
 ) {
-    ElevatedCard(
+    OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize()
             .clip(RoundedCornerShape(passCardCornerRadius)),
-        shape = RoundedCornerShape(passCardCornerRadius)
+        shape = RoundedCornerShape(passCardCornerRadius),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
-                .defaultMinSize(minHeight = 140.dp),
-            verticalArrangement = Arrangement.Center
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Header: Title, Type Badge, and Info Icon
             Row(
-                modifier = Modifier.fillMaxWidth().clickable { showPassGenInfoDialog() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showPassGenInfoDialog() },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(
                         text = passGenItem.config.name,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(
-                        text = passGenItem.config.typeBrief,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f)
+                    ) {
+                        Text(
+                            text = passGenItem.config.typeBrief,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 }
 
-                Text(
-                    text = passGenItem.config.strengthLevel.label,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = passGenItem.config.strengthColor(),
-                    fontWeight = FontWeight.Bold
+                IconButton(
+                    onClick = showPassGenInfoDialog,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            // Divider between Header and Password Display
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+            )
+
+            // Middle: Password Display in Container with Border
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.4f),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                PasswordDisplay(
+                    password = passGenItem.password,
+                    onCopyRequested = onCopyRequested,
+                    revealTimeoutMillis = revealTimeoutMillis,
+                    isLoading = passGenItem.isCalculating,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            PasswordDisplay(
-                password = passGenItem.password,
-                onCopyRequested = onCopyRequested,
-                revealTimeoutMillis = revealTimeoutMillis,
-                isLoading = passGenItem.isCalculating,
-                modifier = Modifier.fillMaxWidth()
+            // Divider between Password Display and Strength Section
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { passGenItem.config.strengthLevel.ratio },
-                modifier = Modifier.fillMaxWidth(),
-                color = passGenItem.config.strengthColor()
+            // Bottom: Combined Strength Progress & Word Label
+            StrengthProgressIndicator(
+                strengthLevel = passGenItem.config.strengthLevel,
+                strengthColor = passGenItem.config.strengthColor()
             )
+        }
+    }
+}
+
+@Composable
+private fun StrengthProgressIndicator(
+    strengthLevel: PasswordStrengthLevel,
+    strengthColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val levels = PasswordStrengthLevel.entries
+    val currentLevelIndex = levels.indexOf(strengthLevel)
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        // Label Row: Strength Header + Color Badge
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.password_strength),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = strengthColor.copy(alpha = 0.15f)
+            ) {
+                Text(
+                    text = strengthLevel.label,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = strengthColor,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
+        }
+
+        // Segmented Step Progress Bar
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            levels.forEachIndexed { index, _ ->
+                val isActive = index <= currentLevelIndex
+                val targetColor = if (isActive) {
+                    strengthColor
+                } else {
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                }
+
+                val animatedColor by animateColorAsState(
+                    targetValue = targetColor,
+                    animationSpec = tween(durationMillis = 300),
+                    label = "strength_step_color"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(animatedColor)
+                )
+            }
         }
     }
 }

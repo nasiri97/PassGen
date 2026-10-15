@@ -213,5 +213,6 @@
 
     <string name="copy_disabled_toast_message">کپی در کلیپ‌بورد به دلایل امنیتی در تنظیمات غیرفعال است</string>
     <string name="copy_success_toast_message">رمز عبور در کلیپ‌بورد کپی شد</string>
+    <string name="password_strength">قدرت گذرواژه</string>
 
 </resources>

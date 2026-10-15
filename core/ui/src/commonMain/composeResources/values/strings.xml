@@ -213,5 +213,6 @@
 
     <string name="copy_disabled_toast_message">Copying to clipboard is disabled in Settings for security</string>
     <string name="copy_success_toast_message">Password copied to clipboard</string>
+    <string name="password_strength">Strength</string>
 
 </resources>
