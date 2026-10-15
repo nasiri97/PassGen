@@ -63,8 +63,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ir.ornix.passgen.core.common.AppVersion
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.about_app_subtitle
 import ir.ornix.passgen.core.ui.about_benefit_cross_platform_desc
 import ir.ornix.passgen.core.ui.about_benefit_cross_platform_title
 import ir.ornix.passgen.core.ui.about_benefit_hardware_security_desc
@@ -91,8 +91,8 @@ import ir.ornix.passgen.core.ui.about_step_4_title
 import ir.ornix.passgen.core.ui.about_what_is_passgen_desc
 import ir.ornix.passgen.core.ui.app_icon
 import ir.ornix.passgen.core.ui.app_name
+import ir.ornix.passgen.core.ui.app_subtitle
 import ir.ornix.passgen.core.ui.app_version
-import ir.ornix.passgen.core.common.AppVersion
 import ir.ornix.passgen.feature.about.impl.presentation.AboutViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -190,7 +190,7 @@ private fun AboutHeaderSection(modifier: Modifier = Modifier) {
             )
 
             Text(
-                text = stringResource(Res.string.about_app_subtitle),
+                text = stringResource(Res.string.app_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)

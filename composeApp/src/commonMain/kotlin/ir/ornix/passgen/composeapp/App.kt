@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -39,7 +37,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -69,9 +70,9 @@ import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.about_app_subtitle
 import ir.ornix.passgen.core.ui.app_icon
 import ir.ornix.passgen.core.ui.app_name
+import ir.ornix.passgen.core.ui.app_subtitle
 import ir.ornix.passgen.core.ui.content_desc_menu
 import ir.ornix.passgen.core.ui.nav_about
 import ir.ornix.passgen.core.ui.nav_home
@@ -96,6 +97,7 @@ import ir.ornix.passgen.feature.settings.api.SettingsRoute
 import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
 import ir.ornix.passgen.feature.unlock.api.UnlockRoute
 import ir.ornix.passgen.feature.unlock.impl.ui.UnlockingGateScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -103,11 +105,25 @@ import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
+import kotlin.time.Duration.Companion.milliseconds
 
 data class NavItem(val route: NavKey, val label: String, val icon: ImageVector)
 
+
 @Composable
-fun App(modifier: Modifier = Modifier) {
+fun App(
+    modifier: Modifier = Modifier,
+    deviceSupportStatus: DeviceSupportStatus? = DeviceSupportStatus.SUPPORTED,
+    onExit: (() -> Unit)? = null
+) {
+
+    var splashTimeElapsed by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(3_000L.milliseconds)
+        splashTimeElapsed = true
+    }
+
     KoinApplication(
         configuration = koinConfiguration {
             modules(appModule)
@@ -116,11 +132,12 @@ fun App(modifier: Modifier = Modifier) {
         val isFirstLaunchUseCase: IsFirstLaunchUseCase = koinInject()
         val setFirstLaunch: SetFirstLaunchUseCase = koinInject()
         val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
-        val getLanguageUseCase: GetLanguageUseCase = koinInject()
-        val getThemeUseCase: GetThemeUseCase = koinInject()
 
         val isFirstLaunch = isFirstLaunchUseCase()
         val isUnlockingRequired = isUnlockingRequiredUseCase()
+
+        val getLanguageUseCase: GetLanguageUseCase = koinInject()
+        val getThemeUseCase: GetThemeUseCase = koinInject()
 
         val selectedLanguage by getLanguageUseCase().collectAsStateWithLifecycle()
         val selectedTheme by getThemeUseCase().collectAsStateWithLifecycle()
@@ -153,19 +170,6 @@ fun App(modifier: Modifier = Modifier) {
             LayoutDirection.Ltr
         }
 
-        val initialRoute = when {
-            isFirstLaunch -> LocalAuthRoute()
-            isUnlockingRequired -> UnlockRoute
-            else -> HomeRoute
-        }
-
-        val backStack = rememberNavBackStack(appNavConfiguration, initialRoute)
-
-        val navViewModelStoreProvider: NavViewModelStoreProvider = koinViewModel()
-        LaunchedEffect(backStack.toList()) {
-            navViewModelStoreProvider.clearUnused(backStack.toSet())
-        }
-
         CompositionLocalProvider(
             LocalProvidableLocaleList provides localeList,
             LocalLayoutDirection provides layoutDirection
@@ -175,70 +179,114 @@ fun App(modifier: Modifier = Modifier) {
                     modifier = modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NavDisplay(
-                        backStack = backStack,
-                        onBack = {
-                            if (backStack.size > 1) {
-                                backStack.removeLastOrNull()
-                            }
-                        },
-                        entryProvider = { key ->
-                            NavEntry(key) {
-                                when (key) {
-                                    is LocalAuthRoute -> NavEntryScopedViewModelStore(key) {
-                                        SecretSetupScreen(
-                                            onFinished = {
-                                                setFirstLaunch(false)
-                                                backStack.removeLastOrNull()
-                                                if (backStack.isEmpty()) backStack.add(HomeRoute)
-                                            }
-                                        )
-                                    }
+                    when {
+                        deviceSupportStatus == DeviceSupportStatus.SUPPORTED && splashTimeElapsed ->
+                            AppContent(
+                                isFirstLaunch = isFirstLaunch,
+                                isUnlockingRequired = isUnlockingRequired,
+                                setFirstLaunch = { setFirstLaunch(it) }
+                            )
 
-                                    is AddConfigRoute -> NavEntryScopedViewModelStore(key) {
-                                        AddConfigScreen(
-                                            configType = key.configType,
-                                            onNavigateBack = {
-                                                backStack.removeLastOrNull()
-                                            },
-                                            onConfigCreated = {
-                                                backStack.removeLastOrNull()
-                                            }
-                                        )
-                                    }
+                        deviceSupportStatus == null || !splashTimeElapsed ->
+                            SplashScreen()
 
-                                    is UnlockRoute -> UnlockingGateScreen(
-                                        onUnlocked = {
-                                            backStack.clear()
-                                            backStack.add(HomeRoute)
-                                        }
-                                    )
-
-                                    is HomeRoute,
-                                    is RandomRoute,
-                                    is SavedPasswordsRoute,
-                                    is SettingsRoute,
-                                    is AboutRoute -> MainAppContent(
-                                        currentRoute = key,
-                                        onNavigate = { route, clearBackStack ->
-                                            if (key != route) {
-                                                if (clearBackStack) backStack.clear()
-                                                backStack.add(route)
-                                            }
-                                        },
-                                        onNavigateToCreateConfig = { configType ->
-                                            backStack.add(AddConfigRoute(configType))
-                                        }
-                                    )
-
-                                    else -> Text("Unknown Route")
-                                }
-                            }
-                        }
-                    )
+                        else ->
+                            UnsupportedDeviceScreen(
+                                reason = deviceSupportStatus,
+                                onExit = onExit
+                            )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AppContent(
+    modifier: Modifier = Modifier,
+    isFirstLaunch: Boolean,
+    isUnlockingRequired: Boolean,
+    setFirstLaunch: (Boolean) -> Unit
+) {
+    val initialRoute = when {
+        isFirstLaunch -> LocalAuthRoute()
+        isUnlockingRequired -> UnlockRoute
+        else -> HomeRoute
+    }
+
+    val backStack = rememberNavBackStack(appNavConfiguration, initialRoute)
+
+    val navViewModelStoreProvider: NavViewModelStoreProvider = koinViewModel()
+    LaunchedEffect(backStack.toList()) {
+        navViewModelStoreProvider.clearUnused(backStack.toSet())
+    }
+
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        NavDisplay(
+            backStack = backStack,
+            onBack = {
+                if (backStack.size > 1) {
+                    backStack.removeLastOrNull()
+                }
+            },
+            entryProvider = { key ->
+                NavEntry(key) {
+                    when (key) {
+                        is LocalAuthRoute -> NavEntryScopedViewModelStore(key) {
+                            SecretSetupScreen(
+                                onFinished = {
+                                    setFirstLaunch(false)
+                                    backStack.removeLastOrNull()
+                                    if (backStack.isEmpty()) backStack.add(HomeRoute)
+                                }
+                            )
+                        }
+
+                        is AddConfigRoute -> NavEntryScopedViewModelStore(key) {
+                            AddConfigScreen(
+                                configType = key.configType,
+                                onNavigateBack = {
+                                    backStack.removeLastOrNull()
+                                },
+                                onConfigCreated = {
+                                    backStack.removeLastOrNull()
+                                }
+                            )
+                        }
+
+                        is UnlockRoute -> UnlockingGateScreen(
+                            onUnlocked = {
+                                backStack.clear()
+                                backStack.add(HomeRoute)
+                            }
+                        )
+
+                        is HomeRoute,
+                        is RandomRoute,
+                        is SavedPasswordsRoute,
+                        is SettingsRoute,
+                        is AboutRoute -> MainAppContent(
+                            currentRoute = key,
+                            onNavigate = { route, clearBackStack ->
+                                if (key != route) {
+                                    if (clearBackStack) backStack.clear()
+                                    backStack.add(route)
+                                }
+                            },
+                            onNavigateToCreateConfig = { configType ->
+                                backStack.add(AddConfigRoute(configType))
+                            }
+                        )
+
+                        else -> Text("Unknown Route")
+                    }
+                }
+            }
+        )
     }
 }
 
@@ -386,7 +434,7 @@ private fun DrawerHeader(modifier: Modifier = Modifier) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = stringResource(Res.string.about_app_subtitle),
+                    text = stringResource(Res.string.app_subtitle),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

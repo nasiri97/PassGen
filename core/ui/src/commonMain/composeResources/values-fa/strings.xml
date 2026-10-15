@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">رمزآفرین</string>
+    <string name="app_subtitle">تولیدکننده معین و بدون ذخیره‌سازی گذرواژه</string>
+    <string name="app_version">نسخه %1$s</string>
     <string name="nav_home">خانه</string>
     <string name="nav_random">تصادفی</string>
     <string name="nav_saved_passwords">گذرواژه‌های ذخیره‌شده</string>
@@ -7,6 +9,14 @@
     <string name="nav_about">درباره</string>
     <string name="content_desc_menu">منو</string>
     <string name="password">رمز</string>
+
+    <!-- Unsupported Screen -->
+    <string name="unsupported_title">دستگاه پشتیبانی نمی‌شود</string>
+    <string name="supported_message">دستگاه پشتیبانی می‌شود</string>
+    <string name="unsupported_message">این برنامه به دلیل عدم رعایت الزامات امنیتی یا سازگاری، روی این دستگاه اجرا نمی‌شود.</string>
+    <string name="unsupported_exit">بستن برنامه</string>
+    <string name="root_detected_message">دستگاه شما روت شده یا نرم‌افزار سیستمی آن تغییر کرده است. برای حفظ امنیت اطلاعات و حساب کاربری شما، اجرای این برنامه روی این دستگاه امکان‌پذیر نیست.</string>
+    <string name="unsupported_os_message">این برنامه به نسخه جدیدتری از سیستم‌عامل نیاز دارد. لطفاً برای ادامه، دستگاه خود را به‌روزرسانی کنید.</string>
 
     <!-- Confirm Delete Dialog -->
     <string name="delete_item_title">حذف آیتم</string>
@@ -66,10 +76,6 @@
     <!-- Saved Passwords &amp; About -->
     <string name="title_saved_passwords">صفحه گذرواژه‌های ذخیره‌شده</string>
     <string name="title_about">درباره پاس‌ژن</string>
-
-    <!-- About Screen -->
-    <string name="about_app_subtitle">تولیدکننده معین و بدون ذخیره‌سازی گذرواژه</string>
-    <string name="app_version">نسخه %1$s</string>
 
     <string name="about_github_button">مشاهده در گیت‌هاب</string>
     <string name="about_github_repo_url">https://github.com/nasiri97/PassGen.git</string>

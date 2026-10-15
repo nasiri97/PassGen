@@ -7,9 +7,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import ir.ornix.passgen.composeapp.App
+import ir.ornix.passgen.composeapp.DeviceSupportStatus
 import ir.ornix.passgen.core.data.AppContextProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,9 +43,26 @@ class MainActivity : ComponentActivity() {
             window.setHideOverlayWindows(true)
         }
 
-
         setContent {
-            App()
+            var isDeviceRooted by remember { mutableStateOf<Boolean?>(null) }
+
+            LaunchedEffect(Unit) {
+                isDeviceRooted = withContext(Dispatchers.IO) {
+                    RootDetector.isDeviceRooted(applicationContext)
+                }
+            }
+
+            val deviceSupportStatus = when (isDeviceRooted) {
+                true -> DeviceSupportStatus.ROOTED
+                else -> DeviceSupportStatus.SUPPORTED
+            }
+
+            App(
+                deviceSupportStatus = deviceSupportStatus,
+                onExit = {
+                    this.finishAffinity()
+                }
+            )
         }
     }
 
