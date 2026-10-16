@@ -25,8 +25,8 @@ class AddKdfPassGenConfigUseCaseTest {
     private lateinit var hmacSigner: FakeHmacSigner
     private lateinit var useCase: AddKdfPassGenConfigUseCase
 
-    private val masterKey1 = "master_key_1234567890_1234567890".encodeToByteArray()
-    private val masterKey2 = "another_secret_master_key_98765".encodeToByteArray()
+    private val masterKey1 = "master_key_1234567890_1234567890".toCharArray()
+    private val masterKey2 = "another_secret_master_key_98765".toCharArray()
 
     private val testConfig1 = KdfPassGenConfig(
         id = 10,
@@ -102,7 +102,7 @@ class AddKdfPassGenConfigUseCaseTest {
 
     @Test
     fun `invoke should work with empty raw key byte array`() = runTest {
-        val emptyKey = ByteArray(0)
+        val emptyKey = CharArray(0)
         useCase(testConfig1, emptyKey)
 
         val configs = repository.getAll().first()

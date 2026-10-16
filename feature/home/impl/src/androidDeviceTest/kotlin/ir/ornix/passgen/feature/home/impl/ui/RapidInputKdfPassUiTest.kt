@@ -3,11 +3,9 @@ package ir.ornix.passgen.feature.home.impl.ui
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performTextReplacement
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.enterInputPhrase
 import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.togglePasswordVisibility
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -47,19 +45,17 @@ class RapidInputKdfPassUiTest : KoinTest {
                 rule = composeTestRule,
                 configName = configName,
                 hasher = hasher,
-                encoder = encoder,
+                encoder = encoder
             )
-
-            val inputNode = composeTestRule.onNodeWithText("Input Phrase")
 
             val firstInput = "FastInputNumber1"
             val secondInput = "FastInputNumber2"
             val finalInput = "FinalInputString123"
 
             // Rapid input changes without waiting
-            inputNode.performTextInput(firstInput)
-            inputNode.performTextReplacement(secondInput)
-            inputNode.performTextReplacement(finalInput)
+            enterInputPhrase(composeTestRule, firstInput)
+            enterInputPhrase(composeTestRule, secondInput)
+            enterInputPhrase(composeTestRule, finalInput)
 
             // Compute expected passwords
             val expectedFinalPass = KdfTestHarness.computeExpectedPassword(
@@ -103,8 +99,8 @@ class RapidInputKdfPassUiTest : KoinTest {
 
                 // Final input's password prefix must be displayed
                 KdfTestHarness.getPasswordNode(
-                    configName = configName,
                     rule = composeTestRule,
+                    configName = configName,
                     expectedPass = finalPrefix,
                     substring = true
                 ).assertIsDisplayed()

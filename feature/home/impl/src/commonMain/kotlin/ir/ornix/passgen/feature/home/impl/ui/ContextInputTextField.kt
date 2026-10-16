@@ -12,6 +12,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import ir.ornix.passgen.core.designsystem.icon.terminal_2
@@ -37,7 +38,8 @@ internal fun ContextInputTextField(
     OutlinedTextField(
         modifier = modifier
             .secureInput(stringResource(Res.string.context_input_label))
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag("context_input"),
         value = input,
         onValueChange = {
             if (!it.contains('\n')) onInputChange(it.take(MAX_CONTEXT_INPUT_CHARS))

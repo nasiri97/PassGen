@@ -6,17 +6,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyChild
 import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -24,11 +27,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import com.russhwolf.settings.MapSettings
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.HMAC
@@ -43,12 +48,16 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
+import ir.ornix.passgen.core.data.SettingsAppConfigRepository
 import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.domain.AccountRepository
+import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
+import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
+import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
@@ -197,6 +206,7 @@ object KdfTestHarness {
     )
 
     val testModule = module {
+        single { SettingsAppConfigRepository(MapSettings()) } bind AppConfigRepository::class
         single { SettingsPassGenConfigRepository(MapSettings()) } bind PassGenConfigRepository::class
         single { TestHmacSigner() } bind HmacSigner::class
         //  single { PlatformHmacSigner } bind HmacSigner::class
@@ -208,6 +218,8 @@ object KdfTestHarness {
             }
         } bind AccountRepository::class
 
+        factoryOf(::IsCopyEnabledUseCase)
+        factoryOf(::GetVisibilityTimeoutUseCase)
         factoryOf(::GenerateKDFPassUseCase)
         factoryOf(::AddKdfPassGenConfigUseCase)
         factoryOf(::GetAllKdfPassGenConfigsUseCase)
@@ -330,7 +342,7 @@ object KdfTestHarness {
     }
 
     fun enterInputPhrase(rule: ComposeContentTestRule, phrase: String) {
-        val inputField = rule.onNodeWithText("Input Phrase")
+        val inputField = rule.onNodeWithTag("context_input")
         inputField.performTextReplacement(phrase)
     }
 
@@ -340,14 +352,16 @@ object KdfTestHarness {
         expectedSubstring: String,
         timeoutMs: Long = GENERATION_TIMEOUT_MS
     ) {
+        closeSoftKeyboard()
+
         // Wait until the password calculation completes
         rule.waitUntil(timeoutMs) {
             try {
                 // Reveal password
                 togglePasswordVisibility(
+                    rule = rule,
                     configName = configName,
-                    isVisible = true,
-                    rule = rule
+                    isVisible = true
                 )
 
                 // Password assertion
@@ -392,17 +406,28 @@ object KdfTestHarness {
         )
 
     fun togglePasswordVisibility(
+        rule: ComposeContentTestRule,
         configName: String,
-        isVisible: Boolean,
-        rule: ComposeContentTestRule
+        isVisible: Boolean
     ) {
-        val button = rule.onAllNodesWithContentDescription(
-            if (isVisible) "Show" else "Hide",
-            useUnmergedTree = true
-        ).filter(hasPassGenItemCardParent(configName))
+        val currentDescription = if (isVisible) "Show" else "Hide"
+
+        val button = rule
+            .onAllNodesWithTag(
+                "password_visibility_toggle",
+                useUnmergedTree = true
+            )
+            .filter(hasPassGenItemCardParent(configName))
+            .filter(hasAnyChild(hasContentDescription(currentDescription)))
 
         if (button.fetchSemanticsNodes().isNotEmpty()) {
-            button.onFirst().performClick()
+            //button.onFirst().performClick()
+
+            // Invoke the click semantics action directly instead of performClick(),
+            // which dispatches a touch at the node's center and may hit the overlapping FAB.
+            button.onFirst().performSemanticsAction(
+                SemanticsActions.OnClick
+            )
         }
     }
 
