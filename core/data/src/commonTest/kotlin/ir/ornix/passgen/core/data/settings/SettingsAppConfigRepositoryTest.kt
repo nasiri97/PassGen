@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.data
+package ir.ornix.passgen.core.data.settings
 
 import com.russhwolf.settings.MapSettings
 import ir.ornix.passgen.core.model.AppLanguage
