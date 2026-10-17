@@ -32,9 +32,11 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":core:domain"))
+                implementation(project(":core:database"))
                 implementation(libs.multiplatform.settings)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.sqldelight.coroutines)
                 implementation(libs.cryptography.core)
                 implementation(libs.cryptography.provider.optimal)
             }
@@ -51,6 +53,12 @@ kotlin {
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.multiplatform.settings.test)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.sqldelight.driver.sqlite)
             }
         }
 

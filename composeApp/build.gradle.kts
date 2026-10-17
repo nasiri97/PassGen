@@ -48,6 +48,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:data"))
+            implementation(project(":core:database"))
             implementation(project(":core:domain"))
             implementation(project(":feature:unlock:api"))
             implementation(project(":feature:unlock:impl"))

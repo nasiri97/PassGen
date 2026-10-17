@@ -1,7 +1,7 @@
 rootProject.name = "PassGen"
 
 pluginManagement {
-	includeBuild("build-logic")
+    includeBuild("build-logic")
 
     repositories {
         google {
@@ -38,6 +38,7 @@ include(":core:designsystem")
 include(":core:ui")
 include(":core:domain")
 include(":core:data")
+include(":core:database")
 include(":core:model")
 include(":core:common")
 include(":core:logging")

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -34,7 +32,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
             }
         }
 
@@ -64,7 +61,7 @@ kotlin {
             dependsOn(webMain)
         }
 
-		val iosMain = create("iosMain") {
+        val iosMain = create("iosMain") {
             dependsOn(commonMain.get())
         }
 

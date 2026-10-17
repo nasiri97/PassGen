@@ -1,0 +1,24 @@
+CREATE TABLE localAuthEntity (
+    id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+    auth_type TEXT NOT NULL DEFAULT 'NONE',
+    encrypted_secret BLOB,
+    is_biometric_enabled INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT OR IGNORE INTO localAuthEntity (id, auth_type, encrypted_secret, is_biometric_enabled)
+VALUES (1, 'NONE', NULL, 0);
+
+selectLocalAuth:
+SELECT * FROM localAuthEntity WHERE id = 1;
+
+updateAuthType:
+UPDATE localAuthEntity SET auth_type = ? WHERE id = 1;
+
+updateEncryptedSecret:
+UPDATE localAuthEntity SET encrypted_secret = ? WHERE id = 1;
+
+updateBiometricEnabled:
+UPDATE localAuthEntity SET is_biometric_enabled = ? WHERE id = 1;
+
+clearLocalAuth:
+UPDATE localAuthEntity SET auth_type = 'NONE', encrypted_secret = NULL, is_biometric_enabled = 0 WHERE id = 1;

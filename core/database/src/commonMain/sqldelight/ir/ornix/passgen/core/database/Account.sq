@@ -1,0 +1,24 @@
+CREATE TABLE accountEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    username TEXT NOT NULL,
+    password_value TEXT NOT NULL,
+    entropy_byte_size INTEGER NOT NULL
+);
+
+insertAccount:
+INSERT INTO accountEntity(id, username, password_value, entropy_byte_size)
+VALUES (?, ?, ?, ?);
+
+insertAccountAutoId:
+INSERT INTO accountEntity(username, password_value, entropy_byte_size)
+VALUES (?, ?, ?);
+
+deleteAccountById:
+DELETE FROM accountEntity
+WHERE id = ?;
+
+selectAllAccounts:
+SELECT * FROM accountEntity;
+
+selectAccountById:
+SELECT * FROM accountEntity WHERE id = ?;

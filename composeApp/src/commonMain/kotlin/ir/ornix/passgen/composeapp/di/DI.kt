@@ -4,11 +4,12 @@ import com.russhwolf.settings.Settings
 import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
-import ir.ornix.passgen.core.data.SettingsAccountRepository
-import ir.ornix.passgen.core.data.SettingsAppConfigRepository
-import ir.ornix.passgen.core.data.SettingsLocalAuthRepository
-import ir.ornix.passgen.core.data.SettingsPassGenConfigRepository
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
+import ir.ornix.passgen.core.data.repository.SqlDelightAccountRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightAppConfigRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
+import ir.ornix.passgen.core.database.createDatabase
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
@@ -48,7 +49,6 @@ import ir.ornix.passgen.feature.random.impl.presentation.RandomViewModel
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsViewModel
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateViewModel
 import org.koin.core.module.dsl.factoryOf
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -57,11 +57,18 @@ val appModule = module {
     includes(configModule)
 
     single { Settings() }
+    single { createDatabase() }
 
-    singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class
-    singleOf(::SettingsPassGenConfigRepository) bind PassGenConfigRepository::class
-    singleOf(::SettingsAccountRepository) bind AccountRepository::class
-    single { SettingsLocalAuthRepository(get()) } bind LocalAuthRepository::class
+//    singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class
+//    singleOf(::SettingsPassGenConfigRepository) bind PassGenConfigRepository::class
+//    singleOf(::SettingsAccountRepository) bind AccountRepository::class
+//    single { SettingsLocalAuthRepository(get()) } bind LocalAuthRepository::class
+
+    single<AppConfigRepository> { SqlDelightAppConfigRepository(get()) }
+    single<PassGenConfigRepository> { SqlDelightPassGenConfigRepository(get()) }
+    single<AccountRepository> { SqlDelightAccountRepository(get()) }
+    single<LocalAuthRepository> { SqlDelightLocalAuthRepository(get()) }
+
     single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
     single<HmacSigner> { PlatformHmacSigner }
     single<Crypto> { PlatformCrypto }
