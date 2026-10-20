@@ -37,6 +37,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.sqldelight.coroutines)
+                implementation(libs.sqldelight.async)
                 implementation(libs.cryptography.core)
                 implementation(libs.cryptography.provider.optimal)
             }
@@ -46,6 +47,9 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.annotation)
             }
+        }
+
+        jvmMain {
         }
 
         commonTest {

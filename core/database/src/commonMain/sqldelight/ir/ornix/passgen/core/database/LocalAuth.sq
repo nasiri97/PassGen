@@ -1,4 +1,4 @@
-CREATE TABLE localAuthEntity (
+CREATE TABLE IF NOT EXISTS localAuthEntity (
     id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
     auth_type TEXT NOT NULL DEFAULT 'NONE',
     encrypted_secret BLOB,

@@ -1,4 +1,4 @@
-CREATE TABLE accountEntity (
+CREATE TABLE IF NOT EXISTS accountEntity (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     username TEXT NOT NULL,
     password_value TEXT NOT NULL,

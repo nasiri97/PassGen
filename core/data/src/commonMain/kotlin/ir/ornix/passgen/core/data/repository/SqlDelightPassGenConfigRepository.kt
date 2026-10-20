@@ -1,7 +1,9 @@
 package ir.ornix.passgen.core.data.repository
 
+import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.db.SqlDriver
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.database.PassGenDatabase
@@ -18,12 +20,18 @@ import kotlinx.coroutines.withContext
 
 class SqlDelightPassGenConfigRepository(
     private val database: PassGenDatabase,
+    private val driver: SqlDriver,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : PassGenConfigRepository {
 
     private val queries = database.passGenConfigQueries
 
     override suspend fun add(config: PassGenConfig): Int = withContext(ioDispatcher) {
+        try {
+            PassGenDatabase.Schema.create(driver).await()
+        } catch (_: Exception) {
+        }
+
         database.transactionWithResult {
             val configId: Long = if (config.id > 0) {
                 queries.insertPassGenConfigWithId(
@@ -47,7 +55,7 @@ class SqlDelightPassGenConfigRepository(
                     pass_encoder_key = config.passEncoder.key,
                     password_length = config.passwordLength?.toLong()
                 )
-                queries.lastInsertedId().executeAsOne()
+                queries.lastInsertedId().awaitAsOne()
             }
 
             if (config is KdfPassGenConfig) {
@@ -65,6 +73,10 @@ class SqlDelightPassGenConfigRepository(
     }
 
     override suspend fun removeById(configId: Int): Unit = withContext(ioDispatcher) {
+        try {
+            PassGenDatabase.Schema.create(driver).await()
+        } catch (_: Exception) {
+        }
         queries.deletePassGenConfigById(configId.toLong())
     }
 
@@ -97,6 +109,7 @@ class SqlDelightPassGenConfigRepository(
                                     passwordLength = passwordLength
                                 )
                             }
+
                             TYPE_RANDOM -> {
                                 RandomPassGenConfig(
                                     id = id,
@@ -105,9 +118,10 @@ class SqlDelightPassGenConfigRepository(
                                     passwordLength = passwordLength
                                 )
                             }
+
                             else -> null
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         null
                     }
                 }

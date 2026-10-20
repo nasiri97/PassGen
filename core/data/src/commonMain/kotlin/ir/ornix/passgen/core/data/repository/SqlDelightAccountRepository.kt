@@ -2,6 +2,7 @@ package ir.ornix.passgen.core.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.db.SqlDriver
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.model.Account
@@ -14,12 +15,18 @@ import kotlinx.coroutines.withContext
 
 class SqlDelightAccountRepository(
     database: PassGenDatabase,
+    private val driver: SqlDriver,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : AccountRepository {
 
     private val queries = database.accountQueries
 
     override suspend fun save(account: Account): Unit = withContext(ioDispatcher) {
+        try {
+            PassGenDatabase.Schema.create(driver).await()
+        } catch (_: Exception) {
+        }
+
         if (account.id > 0) {
             queries.insertAccount(
                 id = account.id.toLong(),
@@ -37,6 +44,10 @@ class SqlDelightAccountRepository(
     }
 
     override suspend fun delete(accountId: Int): Unit = withContext(ioDispatcher) {
+        try {
+            PassGenDatabase.Schema.create(driver).await()
+        } catch (_: Exception) {
+        }
         queries.deleteAccountById(accountId.toLong())
     }
 

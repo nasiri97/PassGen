@@ -93,6 +93,20 @@ val generateWebBuildConfig = tasks.register<GenerateWebBuildConfigTask>("generat
     debugBuild.set(isDebugWebBuild)
 }
 
+val copySqlJsWasmResources = tasks.register<Copy>("copySqlJsWasmResources") {
+    description = "Copies sql.js and sqldelight worker files to web resources."
+    group = "build"
+
+    val nodeModulesDir = rootProject.layout.buildDirectory.dir("js/node_modules")
+    from(nodeModulesDir.map { it.dir("sql.js/dist") }) {
+        include("sql-wasm.wasm")
+    }
+    from(nodeModulesDir.map { it.dir("@cashapp/sqldelight-sqljs-worker") }) {
+        include("sqljs.worker.js")
+    }
+    into(generatedWebResources)
+}
+
 kotlin {
     js {
         browser()
@@ -131,8 +145,6 @@ kotlin {
 tasks.configureEach {
     if (name.endsWith("ProcessResources")) {
         dependsOn(generateWebBuildConfig)
-        // jsProcessResources
-        // wasmJsProcessResources
-        // metadataWebMainProcessResources
+        dependsOn(copySqlJsWasmResources)
     }
 }

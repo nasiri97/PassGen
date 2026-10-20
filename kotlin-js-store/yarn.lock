@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@cashapp/sqldelight-sqljs-worker@2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@cashapp/sqldelight-sqljs-worker/-/sqldelight-sqljs-worker-2.0.2.tgz#5503bbac49dd8c0d6e6c7bf5c8e59795475ba566"
-  integrity sha512-jmk1Tnkwknu4eG/6hbetWf4Z+s/bPfvC9GWdW+uMXPsHNWSxX4ZyPMVdJnH0Jzi4Qrohc7Pby01HX+UdTIevow==
+"@cashapp/sqldelight-sqljs-worker@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cashapp/sqldelight-sqljs-worker/-/sqldelight-sqljs-worker-2.1.0.tgz#4ab898698aca9487f47fc9a42107c606c3ce81c5"
+  integrity sha512-odvBljb1rUOCk3UUZgjdiAChEohYI4Fy6Tj3NUy3l6u3WV/we+tjDTJ/kC25CJKD4pv0ZlH5AL1sKsZ5clKCew==
 
 "@discoveryjs/json-ext@^1.1.0":
   version "1.1.0"

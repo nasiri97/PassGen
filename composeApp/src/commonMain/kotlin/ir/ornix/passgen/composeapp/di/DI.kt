@@ -5,18 +5,9 @@ import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
-import ir.ornix.passgen.core.data.repository.SqlDelightAccountRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightAppConfigRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
-import ir.ornix.passgen.core.database.createDatabase
-import ir.ornix.passgen.core.domain.AccountRepository
-import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
-import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
@@ -54,20 +45,9 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
-    includes(configModule)
+    includes(configModule, repositoryModule)
 
     single { Settings() }
-    single { createDatabase() }
-
-//    singleOf(::SettingsAppConfigRepository) bind AppConfigRepository::class
-//    singleOf(::SettingsPassGenConfigRepository) bind PassGenConfigRepository::class
-//    singleOf(::SettingsAccountRepository) bind AccountRepository::class
-//    single { SettingsLocalAuthRepository(get()) } bind LocalAuthRepository::class
-
-    single<AppConfigRepository> { SqlDelightAppConfigRepository(get()) }
-    single<PassGenConfigRepository> { SqlDelightPassGenConfigRepository(get()) }
-    single<AccountRepository> { SqlDelightAccountRepository(get()) }
-    single<LocalAuthRepository> { SqlDelightLocalAuthRepository(get()) }
 
     single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
     single<HmacSigner> { PlatformHmacSigner }

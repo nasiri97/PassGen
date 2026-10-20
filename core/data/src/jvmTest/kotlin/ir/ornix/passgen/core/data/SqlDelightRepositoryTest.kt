@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.data
 
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
@@ -17,7 +18,9 @@ import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import java.io.File
 import kotlin.test.AfterTest
@@ -26,13 +29,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SqlDelightRepositoryTest {
-
-    private fun createInMemoryTestDb(): PassGenDatabase {
-        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-        PassGenDatabase.Schema.create(driver)
-        return PassGenDatabase(driver)
-    }
 
     @AfterTest
     fun cleanup() {
@@ -41,8 +39,10 @@ class SqlDelightRepositoryTest {
 
     @Test
     fun testAccountRepositorySaveAndDelete() = runTest {
-        val db = createInMemoryTestDb()
-        val repo = SqlDelightAccountRepository(db)
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        PassGenDatabase.Schema.synchronous().create(driver)
+        val db = PassGenDatabase(driver)
+        val repo = SqlDelightAccountRepository(db, driver)
 
         val account = Account(
             id = 0,
@@ -64,51 +64,80 @@ class SqlDelightRepositoryTest {
 
     @Test
     fun testAppConfigRepository() = runTest {
-        val db = createInMemoryTestDb()
-        val repo = SqlDelightAppConfigRepository(database = db)
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        PassGenDatabase.Schema.synchronous().create(driver)
+        val db = PassGenDatabase(driver)
+        val testDispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repo = SqlDelightAppConfigRepository(
+            database = db,
+            driver = driver,
+            ioDispatcher = testDispatcher
+        )
 
+        testScheduler.advanceUntilIdle()
         assertTrue(repo.isFirstLaunch())
+
         repo.setFirstLaunch(false)
+        testScheduler.advanceUntilIdle()
         assertFalse(repo.isFirstLaunch())
 
         repo.setLanguage(AppLanguage.PERSIAN)
+        testScheduler.advanceUntilIdle()
         assertEquals(AppLanguage.PERSIAN, repo.getLanguage().value)
 
         repo.setTheme(AppTheme.DARK)
+        testScheduler.advanceUntilIdle()
         assertEquals(AppTheme.DARK, repo.getTheme().value)
 
         repo.setCopyEnabled(true)
+        testScheduler.advanceUntilIdle()
         assertTrue(repo.isCopyEnabled().value)
 
         repo.setVisibilityTimeout(PasswordVisibilityTimeout.MINUTE_1)
+        testScheduler.advanceUntilIdle()
         assertEquals(PasswordVisibilityTimeout.MINUTE_1, repo.getVisibilityTimeout().value)
     }
 
     @Test
     fun testLocalAuthRepository() = runTest {
-        val db = createInMemoryTestDb()
-        val repo = SqlDelightLocalAuthRepository(database = db)
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        PassGenDatabase.Schema.synchronous().create(driver)
+        val db = PassGenDatabase(driver)
+        val testDispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repo = SqlDelightLocalAuthRepository(
+            database = db,
+            driver = driver,
+            ioDispatcher = testDispatcher
+        )
 
+        testScheduler.advanceUntilIdle()
         assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().value)
+
         repo.setLocalAuthType(LocalAuthType.PIN)
+        testScheduler.advanceUntilIdle()
         assertEquals(LocalAuthType.PIN, repo.getLocalAuthType().value)
 
         val secret = byteArrayOf(1, 2, 3, 4, 5)
         repo.saveEncryptedSecret(secret)
+        testScheduler.advanceUntilIdle()
         assertTrue(secret.contentEquals(repo.getEncryptedSecret()))
 
         repo.setBiometricEnabled(true)
+        testScheduler.advanceUntilIdle()
         assertTrue(repo.isBiometricEnabled().value)
 
         repo.clearAuth()
+        testScheduler.advanceUntilIdle()
         assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().value)
         assertFalse(repo.isBiometricEnabled().value)
     }
 
     @Test
     fun testPassGenConfigRepository() = runTest {
-        val db = createInMemoryTestDb()
-        val repo = SqlDelightPassGenConfigRepository(db)
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        PassGenDatabase.Schema.synchronous().create(driver)
+        val db = PassGenDatabase(driver)
+        val repo = SqlDelightPassGenConfigRepository(db, driver)
 
         val kdfConfig = KdfPassGenConfig(
             id = 0,

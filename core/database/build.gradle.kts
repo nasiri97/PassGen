@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
@@ -13,6 +15,11 @@ kotlin {
         browser()
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     jvm()
 
     android {
@@ -25,6 +32,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.sqldelight.coroutines)
+                implementation(libs.sqldelight.async)
                 implementation(libs.sqldelight.primitive.adapters)
                 implementation(libs.kotlinx.coroutines.core)
             }
@@ -42,12 +50,22 @@ kotlin {
             }
         }
 
-        jsMain {
+        val webMain = create("webMain") {
+            dependsOn(commonMain.get())
             dependencies {
                 implementation(libs.sqldelight.driver.webworker)
-                implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))
+                implementation(libs.wrappers.browser)
+                implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.1.0"))
                 implementation(npm("sql.js", "1.8.0"))
             }
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
         }
 
         val iosMain = create("iosMain") {
@@ -71,6 +89,7 @@ sqldelight {
     databases {
         create("PassGenDatabase") {
             packageName.set("ir.ornix.passgen.core.database")
+            generateAsync.set(true)
         }
     }
 }

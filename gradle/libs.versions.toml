@@ -23,7 +23,7 @@ runner = "1.7.0"
 core = "1.7.0"
 bcprov = "1.85.2"
 cryptographyCore = "0.6.0"
-sqldelight = "2.1.0-alpha01"
+sqldelight = "2.1.0"
 
 # CMP 1.12.0    https://kotlinlang.org/docs/multiplatform/whats-new-compose-112.html#dependencies
 composeMultiplatform = "1.12.0"
@@ -98,6 +98,7 @@ sqldelight-driver-native = { module = "app.cash.sqldelight:native-driver", versi
 sqldelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-driver-webworker = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-async = { module = "app.cash.sqldelight:async-extensions", version.ref = "sqldelight" }
 sqldelight-primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqldelight" }
 
 [plugins]
