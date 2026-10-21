@@ -1,15 +1,12 @@
 package ir.ornix.passgen.core.model
 
-enum class PasswordStrengthLevel(
-    val label: String,
-    val ratio: Float
-) {
-    Fragile(label = "Fragile", ratio = 0.1F),
-    Weak(label = "Weak", ratio = 0.28F),
-    Fair(label = "Fair", ratio = 0.46F),
-    Good(label = "Good", ratio = 0.64F),
-    Strong(label = "Strong", ratio = 0.82F),
-    Robust(label = "Robust", ratio = 1F);
+enum class PasswordStrengthLevel(val ratio: Float) {
+    Fragile(ratio = 0.1F),
+    Weak(ratio = 0.28F),
+    Fair(ratio = 0.46F),
+    Good(ratio = 0.64F),
+    Strong(ratio = 0.82F),
+    Robust(ratio = 1F);
 
     companion object {
         /**

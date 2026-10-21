@@ -17,6 +17,14 @@ import ir.ornix.passgen.core.designsystem.theme.PassStrengthWeakDark
 import ir.ornix.passgen.core.designsystem.theme.PassStrengthWeakLight
 import ir.ornix.passgen.core.model.PasswordStrengthLevel
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.strength_fair
+import ir.ornix.passgen.core.ui.strength_fragile
+import ir.ornix.passgen.core.ui.strength_good
+import ir.ornix.passgen.core.ui.strength_robust
+import ir.ornix.passgen.core.ui.strength_strong
+import ir.ornix.passgen.core.ui.strength_weak
+import org.jetbrains.compose.resources.stringResource
 
 fun PasswordStrengthLevel.strengthColor(isDark: Boolean = false): Color = when (this) {
     PasswordStrengthLevel.Fragile -> if (isDark) PassStrengthFragileDark else PassStrengthFragileLight
@@ -25,6 +33,16 @@ fun PasswordStrengthLevel.strengthColor(isDark: Boolean = false): Color = when (
     PasswordStrengthLevel.Good -> if (isDark) PassStrengthGoodDark else PassStrengthGoodLight
     PasswordStrengthLevel.Strong -> if (isDark) PassStrengthStrongDark else PassStrengthStrongLight
     PasswordStrengthLevel.Robust -> if (isDark) PassStrengthRobustDark else PassStrengthRobustLight
+}
+
+@Composable
+fun PasswordStrengthLevel.label(): String = when (this) {
+    PasswordStrengthLevel.Fragile -> stringResource(Res.string.strength_fragile)
+    PasswordStrengthLevel.Weak -> stringResource(Res.string.strength_weak)
+    PasswordStrengthLevel.Fair -> stringResource(Res.string.strength_fair)
+    PasswordStrengthLevel.Good -> stringResource(Res.string.strength_good)
+    PasswordStrengthLevel.Strong -> stringResource(Res.string.strength_strong)
+    PasswordStrengthLevel.Robust -> stringResource(Res.string.strength_robust)
 }
 
 @Composable

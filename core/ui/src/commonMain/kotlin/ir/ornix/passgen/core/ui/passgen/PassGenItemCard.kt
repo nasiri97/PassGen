@@ -54,6 +54,7 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.password_strength
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
+import ir.ornix.passgen.core.ui.util.label
 import ir.ornix.passgen.core.ui.util.strengthColor
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -311,7 +312,7 @@ private fun StrengthProgressIndicator(
                 color = strengthColor.copy(alpha = 0.15f)
             ) {
                 Text(
-                    text = strengthLevel.label,
+                    text = strengthLevel.label(),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = strengthColor,

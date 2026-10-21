@@ -221,4 +221,11 @@
     <string name="copy_success_toast_message">Password copied to clipboard</string>
     <string name="password_strength">Strength</string>
 
+    <string name="strength_fragile">Fragile</string>
+    <string name="strength_weak">Weak</string>
+    <string name="strength_fair">Fair</string>
+    <string name="strength_good">Good</string>
+    <string name="strength_strong">Strong</string>
+    <string name="strength_robust">Robust</string>
+
 </resources>
