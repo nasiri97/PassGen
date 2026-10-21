@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,7 +72,7 @@ fun PasswordDisplay(
     modifier: Modifier = Modifier
 ) {
 
-    var revealed by remember { mutableStateOf(false) }
+    var revealed by rememberSaveable { mutableStateOf(false) }
 
     // Re-mask when the app leaves the foreground
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
