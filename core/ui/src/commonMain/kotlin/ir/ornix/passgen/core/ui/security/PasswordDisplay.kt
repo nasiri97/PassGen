@@ -1,6 +1,5 @@
 package ir.ornix.passgen.core.ui.security
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,7 +47,6 @@ import kotlin.time.Duration.Companion.milliseconds
  *   [revealTimeoutMillis].
  * - The reveal state is not saved across configuration changes or process death.
  * - Zero-width spaces are inserted for line wrapping in the displayed text only.
- *   The array passed to [onCopyRequested] is never modified.
  *
  * **States**
  * - Loading ([isLoading] is true): shows a progress indicator in place of the text.
@@ -56,7 +54,6 @@ import kotlin.time.Duration.Companion.milliseconds
  * - Normal: shows the masked or revealed password.
  *
  * @param password The password to display, or null if generation failed.
- * @param onCopyRequested Called with the password when the user taps it.
  * @param revealTimeoutMillis Time in milliseconds before a revealed password is
  * masked again. Use 0 to disable the timeout.
  * @param isLoading Whether the password is still being generated.
@@ -68,7 +65,6 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun PasswordDisplay(
     password: Password?,
-    onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
     isLoading: Boolean = false,
     maskChar: Char = '•',
@@ -117,11 +113,7 @@ fun PasswordDisplay(
             )
         } else {
             Text(
-                modifier = Modifier.weight(1f)
-                    .secureContent(stringResource(Res.string.password))
-                    .clickable(enabled = password != null) {
-                        password?.let(onCopyRequested)
-                    },
+                modifier = Modifier.weight(1f).secureContent(stringResource(Res.string.password)),
                 text = displayText ?: stringResource(Res.string.error_password_generation_failed),
                 style = MaterialTheme.typography.bodyLarge,
                 fontFamily = FontFamily.Monospace,

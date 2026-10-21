@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.ui.passgen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -99,8 +100,10 @@ private fun NewAccountContent(
         )
 
         PasswordDisplay(
+            modifier = Modifier.clickable {
+                onCopyRequested(password)
+            },
             password = password,
-            onCopyRequested = onCopyRequested,
             revealTimeoutMillis = revealTimeoutMillis
         )
 

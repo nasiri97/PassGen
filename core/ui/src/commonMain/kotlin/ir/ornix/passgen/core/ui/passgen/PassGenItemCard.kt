@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -24,7 +26,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
@@ -195,11 +196,8 @@ private fun Content(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Header: Title, Type Badge, and Info Icon
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showPassGenInfoDialog() },
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -209,35 +207,16 @@ private fun Content(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
+                        modifier = Modifier.weight(1F),
                         text = passGenItem.config.name,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f)
-                    ) {
-                        Text(
-                            text = passGenItem.config.typeBrief,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-
-                IconButton(
-                    onClick = showPassGenInfoDialog,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
+                    TypeBadge(
+                        typeBrief = passGenItem.config.typeBrief,
+                        onClick = showPassGenInfoDialog
                     )
                 }
             }
@@ -249,21 +228,23 @@ private fun Content(
 
             // Middle: Password Display in Container with Border
             Surface(
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.4f),
                 border = BorderStroke(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                ),
-                modifier = Modifier.fillMaxWidth()
+                )
             ) {
                 PasswordDisplay(
                     password = passGenItem.password,
-                    onCopyRequested = onCopyRequested,
                     revealTimeoutMillis = revealTimeoutMillis,
                     isLoading = passGenItem.isCalculating,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable(enabled = passGenItem.password != null) {
+                            passGenItem.password?.let(onCopyRequested)
+                        }
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 )
             }
@@ -277,6 +258,41 @@ private fun Content(
             StrengthProgressIndicator(
                 strengthLevel = passGenItem.config.strengthLevel,
                 strengthColor = passGenItem.config.strengthColor()
+            )
+        }
+    }
+}
+
+@Composable
+private fun TypeBadge(
+    typeBrief: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                text = typeBrief,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }
