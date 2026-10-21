@@ -40,6 +40,8 @@ kotlin {
                 implementation(libs.sqldelight.async)
                 implementation(libs.cryptography.core)
                 implementation(libs.cryptography.provider.optimal)
+
+                implementation(libs.koin.core)
             }
         }
 

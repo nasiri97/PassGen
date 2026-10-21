@@ -64,8 +64,6 @@ import ir.ornix.passgen.composeapp.navigation.appNavConfiguration
 import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
-import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
-import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
@@ -129,11 +127,7 @@ fun App(
             modules(appModule)
         }
     ) {
-        val isFirstLaunchUseCase: IsFirstLaunchUseCase = koinInject()
-        val setFirstLaunch: SetFirstLaunchUseCase = koinInject()
         val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
-
-        val isFirstLaunch = isFirstLaunchUseCase()
         val isUnlockingRequired = isUnlockingRequiredUseCase()
 
         val getLanguageUseCase: GetLanguageUseCase = koinInject()
@@ -181,11 +175,7 @@ fun App(
                 ) {
                     when {
                         deviceSupportStatus == DeviceSupportStatus.SUPPORTED && splashTimeElapsed ->
-                            AppContent(
-                                isFirstLaunch = isFirstLaunch,
-                                isUnlockingRequired = isUnlockingRequired,
-                                setFirstLaunch = { setFirstLaunch(it) }
-                            )
+                            AppContent(isUnlockingRequired = isUnlockingRequired)
 
                         deviceSupportStatus == null || !splashTimeElapsed ->
                             SplashScreen()
@@ -204,13 +194,10 @@ fun App(
 
 @Composable
 private fun AppContent(
-    modifier: Modifier = Modifier,
-    isFirstLaunch: Boolean,
     isUnlockingRequired: Boolean,
-    setFirstLaunch: (Boolean) -> Unit
+    modifier: Modifier = Modifier
 ) {
     val initialRoute = when {
-        isFirstLaunch -> LocalAuthRoute()
         isUnlockingRequired -> UnlockRoute
         else -> HomeRoute
     }
@@ -239,7 +226,6 @@ private fun AppContent(
                         is LocalAuthRoute -> NavEntryScopedViewModelStore(key) {
                             SecretSetupScreen(
                                 onFinished = {
-                                    setFirstLaunch(false)
                                     backStack.removeLastOrNull()
                                     if (backStack.isEmpty()) backStack.add(HomeRoute)
                                 }

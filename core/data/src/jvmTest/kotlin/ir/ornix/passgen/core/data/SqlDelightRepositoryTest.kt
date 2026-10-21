@@ -5,7 +5,6 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.data.repository.SqlDelightAccountRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightAppConfigRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase

@@ -4,6 +4,7 @@ import com.russhwolf.settings.Settings
 import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
+import ir.ornix.passgen.core.data.di.repositoryModule
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.Crypto
@@ -13,9 +14,7 @@ import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
-import ir.ornix.passgen.core.domain.appconfig.IsFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetCopyEnabledUseCase
-import ir.ornix.passgen.core.domain.appconfig.SetFirstLaunchUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
@@ -71,8 +70,6 @@ val appModule = module {
     factoryOf(::ValidateLocalAuthSecretUseCase)
     factoryOf(::IsBiometricEnabledUseCase)
     factoryOf(::SetBiometricEnabledUseCase)
-    factoryOf(::IsFirstLaunchUseCase)
-    factoryOf(::SetFirstLaunchUseCase)
     factoryOf(::IsUnlockingRequiredUseCase)
     factoryOf(::GetLanguageUseCase)
     factoryOf(::SetLanguageUseCase)

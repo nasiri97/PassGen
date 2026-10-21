@@ -48,8 +48,7 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
-import ir.ornix.passgen.core.data.settings.SettingsAppConfigRepository
-import ir.ornix.passgen.core.data.settings.SettingsPassGenConfigRepository
+import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner

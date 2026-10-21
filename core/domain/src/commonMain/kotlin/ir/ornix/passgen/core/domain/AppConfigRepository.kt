@@ -6,8 +6,6 @@ import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import kotlinx.coroutines.flow.StateFlow
 
 interface AppConfigRepository {
-    fun isFirstLaunch(): Boolean
-    fun setFirstLaunch(isFirstLaunch: Boolean)
     fun getLanguage(): StateFlow<AppLanguage>
     fun setLanguage(language: AppLanguage)
     fun getTheme(): StateFlow<AppTheme>

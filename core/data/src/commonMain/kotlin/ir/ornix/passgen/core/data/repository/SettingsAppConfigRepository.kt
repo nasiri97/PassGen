@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.data.settings
+package ir.ornix.passgen.core.data.repository
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
@@ -14,13 +14,11 @@ class SettingsAppConfigRepository(private val settings: Settings = Settings()) :
     AppConfigRepository {
 
     companion object {
-        private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_LANGUAGE = "app_language"
         private const val KEY_THEME = "app_theme"
         private const val KEY_COPY_ENABLED = "copy_enabled"
         private const val KEY_VISIBILITY_TIMEOUT = "visibility_timeout"
 
-        private const val DEFAULT_IS_FIRST_LAUNCH = true
         private const val DEFAULT_IS_COPY_ENABLED = false
         private val DEFAULT_VISIBILITY_TIMEOUT = PasswordVisibilityTimeout.default
     }
@@ -42,14 +40,6 @@ class SettingsAppConfigRepository(private val settings: Settings = Settings()) :
             settings.getString(KEY_VISIBILITY_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT.storageKey)
         )
     )
-
-    override fun isFirstLaunch(): Boolean {
-        return settings.getBoolean(KEY_FIRST_LAUNCH, DEFAULT_IS_FIRST_LAUNCH)
-    }
-
-    override fun setFirstLaunch(isFirstLaunch: Boolean) {
-        settings[KEY_FIRST_LAUNCH] = isFirstLaunch
-    }
 
     override fun getLanguage(): StateFlow<AppLanguage> = languageFlow.asStateFlow()
 
