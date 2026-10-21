@@ -122,12 +122,14 @@
     <string name="settings_section_appearance">Appearance &amp; Language</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_subtitle">Choose light, dark, or system default theme</string>
+    <string name="settings_theme_system_brief">Default</string>
     <string name="settings_theme_system">System default</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
 
     <string name="settings_language_title">Language</string>
     <string name="settings_language_subtitle">Select your preferred interface language</string>
+    <string name="settings_language_system_brief">Default</string>
     <string name="settings_language_system">System default</string>
     <string name="settings_language_english">English</string>
     <string name="settings_language_persian">فارسی</string>
@@ -203,6 +205,14 @@
 
     <string name="settings_visibility_timeout_title">Password auto-hide timeout</string>
     <string name="settings_visibility_timeout_subtitle">Automatically conceal revealed passwords after a delay</string>
+
+    <string name="settings_timeout_disabled_brief">Disabled</string>
+    <string name="settings_timeout_5s_brief">5 s</string>
+    <string name="settings_timeout_10s_brief">10 s</string>
+    <string name="settings_timeout_20s_brief">20 s</string>
+    <string name="settings_timeout_30s_brief">30 s</string>
+    <string name="settings_timeout_1m_brief">1 m</string>
+
     <string name="settings_timeout_disabled">Disabled (Never auto-hide)</string>
     <string name="settings_timeout_5s">5 seconds</string>
     <string name="settings_timeout_10s">10 seconds</string>

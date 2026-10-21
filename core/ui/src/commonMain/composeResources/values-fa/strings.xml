@@ -122,12 +122,14 @@
     <string name="settings_section_appearance">ظاهر و زبان</string>
     <string name="settings_theme_title">تم</string>
     <string name="settings_theme_subtitle">انتخاب پوسته روشن، تاریک یا پیش‌فرض سیستم</string>
+    <string name="settings_theme_system_brief">پیش‌فرض</string>
     <string name="settings_theme_system">پیش‌فرض سیستم</string>
     <string name="settings_theme_light">روشن</string>
     <string name="settings_theme_dark">تاریک</string>
 
     <string name="settings_language_title">زبان</string>
     <string name="settings_language_subtitle">انتخاب زبان مورد نظر برای محیط برنامه</string>
+    <string name="settings_language_system_brief">پیش‌فرض</string>
     <string name="settings_language_system">پیش‌فرض سیستم</string>
     <string name="settings_language_english">English</string>
     <string name="settings_language_persian">فارسی</string>
@@ -203,6 +205,14 @@
 
     <string name="settings_visibility_timeout_title">زمان پنهان‌سازی خودکار رمز</string>
     <string name="settings_visibility_timeout_subtitle">پنهان‌سازی خودکار گذرواژه‌های نمایان‌شده پس از مدت زمان مشخص</string>
+
+    <string name="settings_timeout_disabled_brief">غیرفعال</string>
+    <string name="settings_timeout_5s_brief">۵ ثانیه</string>
+    <string name="settings_timeout_10s_brief">۱۰ ثانیه</string>
+    <string name="settings_timeout_20s_brief">۲۰ ثانیه</string>
+    <string name="settings_timeout_30s_brief">۳۰ ثانیه</string>
+    <string name="settings_timeout_1m_brief">۱ دقیقه</string>
+
     <string name="settings_timeout_disabled">غیرفعال (هرگز پنهان نشود)</string>
     <string name="settings_timeout_5s">۵ ثانیه</string>
     <string name="settings_timeout_10s">۱۰ ثانیه</string>

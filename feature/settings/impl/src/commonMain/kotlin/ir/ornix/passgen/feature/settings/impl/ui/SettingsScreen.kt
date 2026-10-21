@@ -82,6 +82,7 @@ import ir.ornix.passgen.core.ui.settings_language_english
 import ir.ornix.passgen.core.ui.settings_language_persian
 import ir.ornix.passgen.core.ui.settings_language_subtitle
 import ir.ornix.passgen.core.ui.settings_language_system
+import ir.ornix.passgen.core.ui.settings_language_system_brief
 import ir.ornix.passgen.core.ui.settings_language_title
 import ir.ornix.passgen.core.ui.settings_local_lock_title
 import ir.ornix.passgen.core.ui.settings_lock_active_password
@@ -95,13 +96,20 @@ import ir.ornix.passgen.core.ui.settings_theme_dark
 import ir.ornix.passgen.core.ui.settings_theme_light
 import ir.ornix.passgen.core.ui.settings_theme_subtitle
 import ir.ornix.passgen.core.ui.settings_theme_system
+import ir.ornix.passgen.core.ui.settings_theme_system_brief
 import ir.ornix.passgen.core.ui.settings_theme_title
 import ir.ornix.passgen.core.ui.settings_timeout_10s
+import ir.ornix.passgen.core.ui.settings_timeout_10s_brief
 import ir.ornix.passgen.core.ui.settings_timeout_1m
+import ir.ornix.passgen.core.ui.settings_timeout_1m_brief
 import ir.ornix.passgen.core.ui.settings_timeout_20s
+import ir.ornix.passgen.core.ui.settings_timeout_20s_brief
 import ir.ornix.passgen.core.ui.settings_timeout_30s
+import ir.ornix.passgen.core.ui.settings_timeout_30s_brief
 import ir.ornix.passgen.core.ui.settings_timeout_5s
+import ir.ornix.passgen.core.ui.settings_timeout_5s_brief
 import ir.ornix.passgen.core.ui.settings_timeout_disabled
+import ir.ornix.passgen.core.ui.settings_timeout_disabled_brief
 import ir.ornix.passgen.core.ui.settings_visibility_timeout_subtitle
 import ir.ornix.passgen.core.ui.settings_visibility_timeout_title
 import ir.ornix.passgen.feature.settings.impl.presentation.SettingsIntent
@@ -139,7 +147,7 @@ fun SettingsScreen(
                 icon = Icons.Outlined.Timer,
                 options = PasswordVisibilityTimeout.entries,
                 selectedOption = uiState.selectedVisibilityTimeout,
-                optionLabel = { timeout -> getTimeoutLabel(timeout) },
+                optionLabel = { timeout -> getTimeoutLabel(timeout, false) },
                 onOptionSelected = { viewModel.dispatch(SettingsIntent.SelectVisibilityTimeout(it)) },
                 onDismissRequest = { activeDialog = null }
             )
@@ -151,7 +159,7 @@ fun SettingsScreen(
                 icon = Icons.Outlined.Palette,
                 options = AppTheme.entries,
                 selectedOption = uiState.selectedTheme,
-                optionLabel = { theme -> getThemeLabel(theme) },
+                optionLabel = { theme -> getThemeLabel(theme, false) },
                 onOptionSelected = { viewModel.dispatch(SettingsIntent.SelectTheme(it)) },
                 onDismissRequest = { activeDialog = null }
             )
@@ -163,7 +171,7 @@ fun SettingsScreen(
                 icon = Icons.Outlined.Language,
                 options = AppLanguage.entries,
                 selectedOption = uiState.selectedLanguage,
-                optionLabel = { language -> getLanguageLabel(language) },
+                optionLabel = { language -> getLanguageLabel(language, false) },
                 onOptionSelected = { viewModel.dispatch(SettingsIntent.SelectLanguage(it)) },
                 onDismissRequest = { activeDialog = null }
             )
@@ -231,7 +239,7 @@ fun SettingsScreen(
                 title = stringResource(Res.string.settings_visibility_timeout_title),
                 subtitle = stringResource(Res.string.settings_visibility_timeout_subtitle),
                 icon = Icons.Outlined.Timer,
-                selectedValueLabel = getTimeoutLabel(uiState.selectedVisibilityTimeout),
+                selectedValueLabel = getTimeoutLabel(uiState.selectedVisibilityTimeout, true),
                 onClick = { activeDialog = ActiveDialog.TIMEOUT }
             )
         }
@@ -245,7 +253,7 @@ fun SettingsScreen(
                 title = stringResource(Res.string.settings_theme_title),
                 subtitle = stringResource(Res.string.settings_theme_subtitle),
                 icon = Icons.Outlined.Palette,
-                selectedValueLabel = getThemeLabel(uiState.selectedTheme),
+                selectedValueLabel = getThemeLabel(uiState.selectedTheme, true),
                 onClick = { activeDialog = ActiveDialog.THEME }
             )
 
@@ -255,7 +263,7 @@ fun SettingsScreen(
                 title = stringResource(Res.string.settings_language_title),
                 subtitle = stringResource(Res.string.settings_language_subtitle),
                 icon = Icons.Outlined.Language,
-                selectedValueLabel = getLanguageLabel(uiState.selectedLanguage),
+                selectedValueLabel = getLanguageLabel(uiState.selectedLanguage, true),
                 onClick = { activeDialog = ActiveDialog.LANGUAGE }
             )
         }
@@ -653,25 +661,49 @@ private fun CopyWarningDialog(
 }
 
 @Composable
-private fun getTimeoutLabel(timeout: PasswordVisibilityTimeout): String = when (timeout) {
-    PasswordVisibilityTimeout.DISABLED -> stringResource(Res.string.settings_timeout_disabled)
-    PasswordVisibilityTimeout.SECONDS_5 -> stringResource(Res.string.settings_timeout_5s)
-    PasswordVisibilityTimeout.SECONDS_10 -> stringResource(Res.string.settings_timeout_10s)
-    PasswordVisibilityTimeout.SECONDS_20 -> stringResource(Res.string.settings_timeout_20s)
-    PasswordVisibilityTimeout.SECONDS_30 -> stringResource(Res.string.settings_timeout_30s)
-    PasswordVisibilityTimeout.MINUTE_1 -> stringResource(Res.string.settings_timeout_1m)
-}
+private fun getTimeoutLabel(timeout: PasswordVisibilityTimeout, brief: Boolean): String =
+    when (timeout) {
+        PasswordVisibilityTimeout.DISABLED ->
+            if (brief) stringResource(Res.string.settings_timeout_disabled_brief)
+            else stringResource(Res.string.settings_timeout_disabled)
+
+        PasswordVisibilityTimeout.SECONDS_5 ->
+            if (brief) stringResource(Res.string.settings_timeout_5s_brief)
+            else stringResource(Res.string.settings_timeout_5s)
+
+        PasswordVisibilityTimeout.SECONDS_10 ->
+            if (brief) stringResource(Res.string.settings_timeout_10s_brief)
+            else stringResource(Res.string.settings_timeout_10s)
+
+        PasswordVisibilityTimeout.SECONDS_20 ->
+            if (brief) stringResource(Res.string.settings_timeout_20s_brief)
+            else stringResource(Res.string.settings_timeout_20s)
+
+        PasswordVisibilityTimeout.SECONDS_30 ->
+            if (brief) stringResource(Res.string.settings_timeout_30s_brief)
+            else stringResource(Res.string.settings_timeout_30s)
+
+        PasswordVisibilityTimeout.MINUTE_1 ->
+            if (brief) stringResource(Res.string.settings_timeout_1m_brief)
+            else stringResource(Res.string.settings_timeout_1m)
+    }
 
 @Composable
-private fun getThemeLabel(theme: AppTheme): String = when (theme) {
-    AppTheme.SYSTEM -> stringResource(Res.string.settings_theme_system)
+private fun getThemeLabel(theme: AppTheme, brief: Boolean): String = when (theme) {
+    AppTheme.SYSTEM ->
+        if (brief) stringResource(Res.string.settings_theme_system_brief)
+        else stringResource(Res.string.settings_theme_system)
+
     AppTheme.LIGHT -> stringResource(Res.string.settings_theme_light)
     AppTheme.DARK -> stringResource(Res.string.settings_theme_dark)
 }
 
 @Composable
-private fun getLanguageLabel(language: AppLanguage): String = when (language) {
-    AppLanguage.SYSTEM -> stringResource(Res.string.settings_language_system)
+private fun getLanguageLabel(language: AppLanguage, brief: Boolean): String = when (language) {
+    AppLanguage.SYSTEM ->
+        if (brief) stringResource(Res.string.settings_language_system_brief)
+        else stringResource(Res.string.settings_language_system)
+
     AppLanguage.ENGLISH -> stringResource(Res.string.settings_language_english)
     AppLanguage.PERSIAN -> stringResource(Res.string.settings_language_persian)
 }
