@@ -44,6 +44,8 @@ kotlin {
         val androidDeviceTest by getting {
             dependencies {
                 implementation(project(":feature:config:impl"))
+                implementation(project(":core:data"))
+                implementation(project(":core:database"))
 
                 implementation(libs.androidx.uitest.junit4)
                 implementation(libs.androidx.uitest.manifest)
@@ -52,13 +54,15 @@ kotlin {
                 implementation(libs.cryptography.provider.optimal)
                 implementation(libs.koin.test)
 
-                implementation(project(":core:data"))
                 implementation(libs.multiplatform.settings)
 
                 // Force a newer espresso-core version to fix the InputManager crash on modern emulators
                 implementation(libs.androidx.espresso.core)
 
                 implementation(libs.multiplatform.settings.test)
+
+                implementation(libs.sqldelight.driver.android)
+                implementation(libs.androidx.core)
             }
         }
     }

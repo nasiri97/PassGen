@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.Account
 import ir.ornix.passgen.core.model.PassGenItem
@@ -36,7 +37,7 @@ fun PassGenItemList(
     )
 
     LazyVerticalStaggeredGrid(
-        modifier = modifier,
+        modifier = modifier.testTag("pass_gen_items_container"),
         columns = StaggeredGridCells.Fixed(columnsCount),
         verticalItemSpacing = 16.dp,
         horizontalArrangement = Arrangement.spacedBy(16.dp),

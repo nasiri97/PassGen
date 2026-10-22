@@ -90,8 +90,6 @@ class SettingsViewModelTest {
         val copyEnabledFlow = MutableStateFlow(false)
         val visibilityTimeoutFlow = MutableStateFlow(PasswordVisibilityTimeout.default)
 
-        override fun isFirstLaunch(): Boolean = false
-        override fun setFirstLaunch(isFirstLaunch: Boolean) {}
         override fun getLanguage(): StateFlow<AppLanguage> = languageFlow.asStateFlow()
         override fun setLanguage(language: AppLanguage) {
             languageFlow.value = language

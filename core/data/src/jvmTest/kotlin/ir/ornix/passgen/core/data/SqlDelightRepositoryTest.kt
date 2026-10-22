@@ -2,8 +2,10 @@ package ir.ornix.passgen.core.data
 
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.russhwolf.settings.MapSettings
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
+import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightAccountRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
@@ -63,22 +65,7 @@ class SqlDelightRepositoryTest {
 
     @Test
     fun testAppConfigRepository() = runTest {
-        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-        PassGenDatabase.Schema.synchronous().create(driver)
-        val db = PassGenDatabase(driver)
-        val testDispatcher = UnconfinedTestDispatcher(testScheduler)
-        val repo = SqlDelightAppConfigRepository(
-            database = db,
-            driver = driver,
-            ioDispatcher = testDispatcher
-        )
-
-        testScheduler.advanceUntilIdle()
-        assertTrue(repo.isFirstLaunch())
-
-        repo.setFirstLaunch(false)
-        testScheduler.advanceUntilIdle()
-        assertFalse(repo.isFirstLaunch())
+        val repo = SettingsAppConfigRepository(MapSettings())
 
         repo.setLanguage(AppLanguage.PERSIAN)
         testScheduler.advanceUntilIdle()

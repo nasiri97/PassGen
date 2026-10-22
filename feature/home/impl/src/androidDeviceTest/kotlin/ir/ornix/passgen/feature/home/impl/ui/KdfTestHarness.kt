@@ -34,6 +34,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.test.espresso.Espresso.closeSoftKeyboard
+import androidx.test.platform.app.InstrumentationRegistry
+import app.cash.sqldelight.async.coroutines.synchronous
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.russhwolf.settings.MapSettings
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.HMAC
@@ -49,6 +52,8 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
+import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
@@ -205,8 +210,18 @@ object KdfTestHarness {
     )
 
     val testModule = module {
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val driver = AndroidSqliteDriver(
+            schema = PassGenDatabase.Schema.synchronous(),
+            context = context,
+            name = null
+        )
+        val db = PassGenDatabase(driver)
+        val repo = SqlDelightPassGenConfigRepository(db, driver)
+
         single { SettingsAppConfigRepository(MapSettings()) } bind AppConfigRepository::class
-        single { SettingsPassGenConfigRepository(MapSettings()) } bind PassGenConfigRepository::class
+        single { repo } bind PassGenConfigRepository::class
         single { TestHmacSigner() } bind HmacSigner::class
         //  single { PlatformHmacSigner } bind HmacSigner::class
         single {
@@ -352,6 +367,8 @@ object KdfTestHarness {
         timeoutMs: Long = GENERATION_TIMEOUT_MS
     ) {
         closeSoftKeyboard()
+        rule.onNodeWithTag("pass_gen_items_container")
+            .performScrollToNode(hasPassGenItemCardParent(configName))
 
         // Wait until the password calculation completes
         rule.waitUntil(timeoutMs) {
