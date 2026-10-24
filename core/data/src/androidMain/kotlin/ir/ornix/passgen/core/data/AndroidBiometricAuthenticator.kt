@@ -6,6 +6,7 @@ import android.hardware.biometrics.BiometricManager
 import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
 import android.os.CancellationSignal
+import ir.ornix.passgen.core.common.AppContextProvider
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import java.util.concurrent.Executor
 

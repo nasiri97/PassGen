@@ -1,6 +1,7 @@
 package ir.ornix.passgen.core.model
 
 enum class PasswordStrengthLevel(val ratio: Float) {
+    Unknown(ratio = 0F),
     Fragile(ratio = 0.1F),
     Weak(ratio = 0.28F),
     Fair(ratio = 0.46F),
@@ -11,6 +12,8 @@ enum class PasswordStrengthLevel(val ratio: Float) {
     companion object {
         /**
          * Maps entropy size to a password strength level:
+         *
+         * null → Unknown
          *
          * 0–7 bytes   → Fragile
          *
@@ -24,7 +27,9 @@ enum class PasswordStrengthLevel(val ratio: Float) {
          *
          * 24+ bytes   → Robust
          */
-        fun entropyByteSizeToPasswordStrengthLevel(entropyByteSize: Int): PasswordStrengthLevel {
+        fun entropyByteSizeToPasswordStrengthLevel(entropyByteSize: Int?): PasswordStrengthLevel {
+            if (entropyByteSize == null) return Unknown
+
             require(entropyByteSize >= 0) {
                 "entropyByteSize must not be negative."
             }

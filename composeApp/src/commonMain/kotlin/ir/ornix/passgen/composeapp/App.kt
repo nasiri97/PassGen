@@ -73,9 +73,9 @@ import ir.ornix.passgen.core.ui.app_name
 import ir.ornix.passgen.core.ui.app_subtitle
 import ir.ornix.passgen.core.ui.content_desc_menu
 import ir.ornix.passgen.core.ui.nav_about
+import ir.ornix.passgen.core.ui.nav_credentials
 import ir.ornix.passgen.core.ui.nav_home
 import ir.ornix.passgen.core.ui.nav_random
-import ir.ornix.passgen.core.ui.nav_saved_passwords
 import ir.ornix.passgen.core.ui.nav_settings
 import ir.ornix.passgen.core.ui.util.setAppLocale
 import ir.ornix.passgen.feature.about.api.AboutRoute
@@ -83,14 +83,14 @@ import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
 import ir.ornix.passgen.feature.config.api.AddConfigRoute
 import ir.ornix.passgen.feature.config.api.PassGenConfigType
 import ir.ornix.passgen.feature.config.impl.AddConfigScreen
+import ir.ornix.passgen.feature.credentials.api.CredentialsRoute
+import ir.ornix.passgen.feature.credentials.impl.ui.CredentialsScreen
 import ir.ornix.passgen.feature.home.api.HomeRoute
 import ir.ornix.passgen.feature.home.impl.ui.HomeScreen
 import ir.ornix.passgen.feature.localauth.api.LocalAuthRoute
 import ir.ornix.passgen.feature.localauth.impl.ui.SecretSetupScreen
 import ir.ornix.passgen.feature.random.api.RandomRoute
 import ir.ornix.passgen.feature.random.impl.ui.RandomScreen
-import ir.ornix.passgen.feature.savedpasswords.api.SavedPasswordsRoute
-import ir.ornix.passgen.feature.savedpasswords.impl.ui.SavedPasswordsScreen
 import ir.ornix.passgen.feature.settings.api.SettingsRoute
 import ir.ornix.passgen.feature.settings.impl.ui.SettingsScreen
 import ir.ornix.passgen.feature.unlock.api.UnlockRoute
@@ -253,7 +253,7 @@ private fun AppContent(
 
                         is HomeRoute,
                         is RandomRoute,
-                        is SavedPasswordsRoute,
+                        is CredentialsRoute,
                         is SettingsRoute,
                         is AboutRoute -> MainAppContent(
                             currentRoute = key,
@@ -294,8 +294,8 @@ private fun MainAppContent(
         NavItem(HomeRoute, stringResource(Res.string.nav_home), Icons.Default.Home),
         NavItem(RandomRoute, stringResource(Res.string.nav_random), Icons.Default.Shuffle),
         NavItem(
-            SavedPasswordsRoute,
-            stringResource(Res.string.nav_saved_passwords),
+            CredentialsRoute,
+            stringResource(Res.string.nav_credentials),
             Icons.Default.Lock
         ),
         NavItem(SettingsRoute, stringResource(Res.string.nav_settings), Icons.Default.Settings),
@@ -367,7 +367,7 @@ private fun MainAppContent(
                         onNavigateToCreateConfig(PassGenConfigType.PASS_GEN_CONFIG_RANDOM)
                     })
 
-                    SavedPasswordsRoute -> SavedPasswordsScreen()
+                    CredentialsRoute -> CredentialsScreen()
                     SettingsRoute -> SettingsScreen(
                         onNavigateToSecretSetupClick = {
                             scope.launch { drawerState.close() }

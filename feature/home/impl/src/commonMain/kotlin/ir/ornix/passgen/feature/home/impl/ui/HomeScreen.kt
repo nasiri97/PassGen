@@ -111,7 +111,7 @@ fun HomeScreen(
                     removePasswordItem = {
                         viewModel.dispatch(HomeIntent.RemoveConfig(it.config))
                     },
-                    addNewAccount = { viewModel.dispatch(HomeIntent.SaveAccount(it)) },
+                    addNewCredential = { viewModel.dispatch(HomeIntent.SaveCredential(it)) },
                     onCopyRequested = onCopyRequested,
                     revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
                 )

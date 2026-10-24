@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
@@ -24,7 +24,7 @@ import ir.ornix.passgen.core.ui.passgen.config.PassGenConfigDialog
 fun PassGenItemList(
     passGenItems: List<PassGenItem>,
     removePasswordItem: (PassGenItem) -> Unit,
-    addNewAccount: (account: Account) -> Unit,
+    addNewCredential: (credential: Credential) -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
     modifier: Modifier = Modifier
@@ -47,7 +47,7 @@ fun PassGenItemList(
             PassGenItemCard(
                 passGenItem = passwordItem,
                 onRemove = { removePasswordItem(passwordItem) },
-                addNewAccount = addNewAccount,
+                addNewCredential = addNewCredential,
                 showPassGenInfoDialog = { passGenConfig = it },
                 onCopyRequested = onCopyRequested,
                 revealTimeoutMillis = revealTimeoutMillis

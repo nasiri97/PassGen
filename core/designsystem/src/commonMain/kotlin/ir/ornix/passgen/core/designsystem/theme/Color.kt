@@ -13,6 +13,7 @@ val Pink40 = Color(0xFF7D5260)
 
 // Password Strength Level Colors
 // Light Mode
+val PassStrengthUnknownLight = Color(0xFF757575)
 val PassStrengthFragileLight = Color(0xFFB00020)
 val PassStrengthWeakLight = Color(0xFFFF6F00)
 val PassStrengthFairLight = Color(0xFFFFC107)
@@ -22,6 +23,7 @@ val PassStrengthRobustLight = Color(0xFF1B5E20)
 
 // Password Strength Level Colors
 // Dark Mode
+val PassStrengthUnknownDark = Color(0xFFB0B0B0)
 val PassStrengthFragileDark = Color(0xFFCF6679)
 val PassStrengthWeakDark = Color(0xFFFFA040)
 val PassStrengthFairDark = Color(0xFFFFD54F)

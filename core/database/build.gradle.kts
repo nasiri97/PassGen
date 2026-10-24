@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(project(":core:common"))
                 implementation(libs.sqldelight.coroutines)
                 implementation(libs.sqldelight.async)
                 implementation(libs.sqldelight.primitive.adapters)

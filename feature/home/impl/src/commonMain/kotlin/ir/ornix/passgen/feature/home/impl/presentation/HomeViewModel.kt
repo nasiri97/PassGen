@@ -2,7 +2,7 @@ package ir.ornix.passgen.feature.home.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
+import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
@@ -27,7 +27,7 @@ class HomeViewModel(
     getAllPassGenConfigs: GetAllKdfPassGenConfigsUseCase,
     private val generateKDFPass: GenerateKDFPassUseCase,
     private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
-    private val saveAccountUseCase: SaveAccountUseCase,
+    private val saveCredentialUseCase: SaveCredentialUseCase,
     private val isCopyEnabled: IsCopyEnabledUseCase,
     private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
@@ -113,8 +113,8 @@ class HomeViewModel(
                         removePassGenConfig(intent.passGenConfig.id)
                     }
 
-                    is HomeIntent.SaveAccount -> {
-                        saveAccountUseCase(intent.account)
+                    is HomeIntent.SaveCredential -> {
+                        saveCredentialUseCase(intent.credential)
                     }
                 }
             }

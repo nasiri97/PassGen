@@ -46,13 +46,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.PasswordStrengthLevel
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
+import ir.ornix.passgen.core.ui.credentialeditor.CredentialEditor
 import ir.ornix.passgen.core.ui.password_strength
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import ir.ornix.passgen.core.ui.util.label
@@ -67,7 +68,7 @@ private val passCardCornerRadius = 20.dp
 fun PassGenItemCard(
     passGenItem: PassGenItem,
     onRemove: () -> Unit,
-    addNewAccount: (account: Account) -> Unit,
+    addNewCredential: (credential: Credential) -> Unit,
     showPassGenInfoDialog: (PassGenConfig) -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
@@ -90,10 +91,11 @@ fun PassGenItemCard(
     }
 
     if (showNewAccountDialog && password != null && password.value.isNotEmpty()) {
-        NewAccountDialog(
+        CredentialEditor(
             password = password,
-            onSubmit = { newAccount ->
-                addNewAccount(newAccount)
+            defaultTitle = passGenItem.config.name,
+            onSubmit = { newCredential ->
+                addNewCredential(newCredential)
                 showNewAccountDialog = false
             },
             onDismissRequest = { showNewAccountDialog = false },

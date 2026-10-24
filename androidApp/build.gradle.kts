@@ -14,11 +14,14 @@ kotlin {
 
 dependencies {
     implementation(project(":composeApp"))
-    implementation(project(":core:data"))
-    implementation(project(":core:database"))
+    implementation(project(":core:domain"))
     implementation(project(":core:common"))
     implementation(project(":core:ui"))
+    implementation(libs.koin.core)
     implementation(libs.androidx.activity.compose)
+
+    implementation(libs.androidx.glance)
+    implementation(libs.androidx.glance.appwidget)
 }
 
 val signingEnvironment = listOf(

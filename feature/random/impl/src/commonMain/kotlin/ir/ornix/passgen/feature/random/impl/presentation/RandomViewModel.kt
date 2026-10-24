@@ -2,9 +2,9 @@ package ir.ornix.passgen.feature.random.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
+import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.GetAllRandomPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.RemoveRandomPassGenConfigUseCase
@@ -21,7 +21,7 @@ class RandomViewModel(
     getAllPassGenConfigs: GetAllRandomPassGenConfigsUseCase,
     private val generateRandomPass: GenerateRandomPassUseCase,
     private val removePassGenConfig: RemoveRandomPassGenConfigUseCase,
-    private val saveAccountUseCase: SaveAccountUseCase,
+    private val saveCredentialUseCase: SaveCredentialUseCase,
     private val isCopyEnabled: IsCopyEnabledUseCase,
     private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
@@ -92,8 +92,8 @@ class RandomViewModel(
                         removePassGenConfig(intent.passGenConfig.id)
                     }
 
-                    is RandomIntent.SaveAccount -> {
-                        saveAccountUseCase(intent.account)
+                    is RandomIntent.SaveCredential -> {
+                        saveCredentialUseCase(intent.credential)
                     }
 
                     RandomIntent.RefreshHintShown -> {

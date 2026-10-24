@@ -4,7 +4,7 @@
     <string name="app_version">نسخه %1$s</string>
     <string name="nav_home">خانه</string>
     <string name="nav_random">تصادفی</string>
-    <string name="nav_saved_passwords">گذرواژه‌های ذخیره‌شده</string>
+    <string name="nav_credentials">اطلاعات ورود</string>
     <string name="nav_settings">تنظیمات</string>
     <string name="nav_about">درباره</string>
     <string name="content_desc_menu">منو</string>
@@ -39,9 +39,24 @@
     <string name="error_password_generation_failed">تولید رمز عبور ناموفق بود</string>
 
     <!-- New Account Dialog -->
-    <string name="create_new_account_title">ایجاد حساب جدید</string>
+    <string name="create_new_account_title">ذخیره اعتبارنامه</string>
+    <string name="label_title">عنوان / نام</string>
     <string name="label_username">نام کاربری</string>
-    <string name="action_create">ایجاد</string>
+    <string name="label_email">آدرس ایمیل</string>
+    <string name="label_phone">شماره تلفن</string>
+    <string name="label_description">توضیحات / یادداشت</string>
+    <string name="label_package_names">نام‌های پکیج</string>
+    <string name="label_web_domains">دامنه‌های وب</string>
+    <string name="label_keywords">کلمات کلیدی</string>
+    <string name="placeholder_package_name">مانند com.example.app</string>
+    <string name="placeholder_web_domain">مانند example.com</string>
+    <string name="placeholder_keyword">مانند example</string>
+    <string name="action_add">افزودن</string>
+    <string name="section_basic_info">اطلاعات اعتبارنامه</string>
+    <string name="section_account_details">تماس و هویت</string>
+    <string name="section_apps_and_webs_and_keywords">برنامه‌ها، وب‌سایت‌ها و کلمات کلیدی</string>
+    <string name="section_description">یادداشت‌ها</string>
+    <string name="action_create">ذخیره</string>
 
     <!-- Config Dialogs -->
     <string name="section_preprocess_settings">تنظیمات پیش‌پردازش</string>
@@ -67,7 +82,15 @@
     <string name="add_config_content_desc">افزودن پیکربندی</string>
 
     <!-- Saved Passwords &amp; About -->
-    <string name="title_saved_passwords">صفحه گذرواژه‌های ذخیره‌شده</string>
+    <string name="title_saved_passwords">گذرواژه‌های ذخیره‌شده</string>
+    <string name="search_credentials_placeholder">جستجوی اعتبارنامه‌ها...</string>
+    <string name="no_saved_credentials_message">هنوز هیچ اعتبارنامه‌ای ذخیره نشده است</string>
+    <string name="no_saved_credentials_subtitle">اعتبارنامه‌هایی که ذخیره می‌کنید در اینجا قرار می‌گیرند</string>
+    <string name="no_credentials_found_message">هیچ اعتبارنامه‌ای با الگوی جستجو یافت نشد</string>
+    <string name="edit_credential">ویرایش اعتبارنامه</string>
+    <string name="credential_details">جزئیات اعتبارنامه</string>
+    <string name="action_edit">ویرایش</string>
+    <string name="saved_credentials_count">%1$d اعتبارنامه ذخیره‌شده</string>
     <string name="title_about">درباره رمزآفرین</string>
 
     <string name="about_github_button">مشاهده در گیت‌هاب</string>
@@ -224,6 +247,7 @@
     <string name="copy_success_toast_message">رمز عبور در کلیپ‌بورد کپی شد</string>
     <string name="password_strength">قدرت گذرواژه</string>
 
+    <string name="strength_unknown">نامعلوم</string>
     <string name="strength_fragile">شکننده</string>
     <string name="strength_weak">ضعیف</string>
     <string name="strength_fair">متوسط</string>

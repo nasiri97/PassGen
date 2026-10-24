@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Password(
     val value: CharArray,
-    val entropyByteSize: Int
+    val entropyByteSize: Int?
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -17,11 +17,8 @@ data class Password(
                 entropyByteSize == other.entropyByteSize
     }
 
-    override fun hashCode(): Int {
-        var result = value.contentHashCode()
-        result = 31 * result + entropyByteSize
-        return result
-    }
+    override fun hashCode() =
+        31 * value.contentHashCode() + (entropyByteSize?.hashCode() ?: 0)
 
     val length = value.size
 
@@ -50,7 +47,7 @@ data class Password(
     }
 
     companion object {
-        fun String.toPassword(entropyByteSize: Int): Password {
+        fun String.toPassword(entropyByteSize: Int?): Password {
             return Password(
                 value = this.toCharArray(),
                 entropyByteSize = entropyByteSize

@@ -6,12 +6,12 @@ import com.russhwolf.settings.MapSettings
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightAccountRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightCredentialRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.LocalAuthType
-import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
@@ -43,19 +43,27 @@ class SqlDelightRepositoryTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         PassGenDatabase.Schema.synchronous().create(driver)
         val db = PassGenDatabase(driver)
-        val repo = SqlDelightAccountRepository(db, driver)
+        val repo = SqlDelightCredentialRepository(db, driver)
 
-        val account = Account(
+        val credential = Credential(
             id = 0,
+            title = "Test Account",
             username = "testuser",
-            password = "SecretPassword123!".toPassword(32)
+            passwordValue = "SecretPassword123!".toPassword(32),
+            email = "user@example.com",
+            associatedPackageNames = setOf("com.example.app"),
+            associatedWebDomains = setOf("example.com")
         )
 
-        repo.save(account)
+        repo.save(credential)
         val accounts = repo.getAll().first()
         assertEquals(1, accounts.size)
+        assertEquals("Test Account", accounts[0].title)
         assertEquals("testuser", accounts[0].username)
-        assertEquals("SecretPassword123!", accounts[0].password.value.concatToString())
+        assertEquals("SecretPassword123!", accounts[0].passwordValue.value.concatToString())
+        assertEquals("user@example.com", accounts[0].email)
+        assertEquals(setOf("com.example.app"), accounts[0].associatedPackageNames)
+        assertEquals(setOf("example.com"), accounts[0].associatedWebDomains)
 
         val savedId = accounts[0].id
         repo.delete(savedId)

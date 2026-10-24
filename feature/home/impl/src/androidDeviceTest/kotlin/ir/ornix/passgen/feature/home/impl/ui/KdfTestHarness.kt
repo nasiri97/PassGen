@@ -54,20 +54,20 @@ import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
-import ir.ornix.passgen.core.domain.AccountRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
+import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
-import ir.ornix.passgen.core.domain.account.SaveAccountUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
+import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
-import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
@@ -225,12 +225,12 @@ object KdfTestHarness {
         single { TestHmacSigner() } bind HmacSigner::class
         //  single { PlatformHmacSigner } bind HmacSigner::class
         single {
-            object : AccountRepository {
-                override suspend fun save(account: Account) {}
-                override suspend fun delete(accountId: Int) {}
-                override fun getAll(): Flow<List<Account>> = flowOf(emptyList())
+            object : CredentialRepository {
+                override suspend fun save(credential: Credential) {}
+                override suspend fun delete(credentialId: Long) {}
+                override fun getAll(): Flow<List<Credential>> = flowOf(emptyList())
             }
-        } bind AccountRepository::class
+        } bind CredentialRepository::class
 
         factoryOf(::IsCopyEnabledUseCase)
         factoryOf(::GetVisibilityTimeoutUseCase)
@@ -238,7 +238,7 @@ object KdfTestHarness {
         factoryOf(::AddKdfPassGenConfigUseCase)
         factoryOf(::GetAllKdfPassGenConfigsUseCase)
         factoryOf(::RemoveKdfPassGenConfigUseCase)
-        factoryOf(::SaveAccountUseCase)
+        factoryOf(::SaveCredentialUseCase)
         factory { GenerateRandomPassUseCase() }
 
         viewModelOf(::HomeViewModel)

@@ -1,12 +1,12 @@
 package ir.ornix.passgen.core.data.di
 
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightAccountRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightCredentialRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.database.createDatabaseDriver
-import ir.ornix.passgen.core.domain.AccountRepository
+import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
@@ -23,6 +23,6 @@ val repositoryModule: Module = module {
     single { PassGenDatabase(get()) }
 
     single { SqlDelightPassGenConfigRepository(get(), get()) } bind PassGenConfigRepository::class
-    single { SqlDelightAccountRepository(get(), get()) } bind AccountRepository::class
+    single { SqlDelightCredentialRepository(get(), get()) } bind CredentialRepository::class
     single { SqlDelightLocalAuthRepository(get(), get()) } bind LocalAuthRepository::class
 }

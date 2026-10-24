@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.model.Account
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.Res
@@ -97,7 +97,7 @@ fun RandomScreen(
             RandomList(
                 passGenItems = uiState.passGenItems,
                 onRemovePasswordItemClick = { viewModel.dispatch(RandomIntent.RemoveConfig(it.config)) },
-                addNewAccount = { viewModel.dispatch(RandomIntent.SaveAccount(it)) },
+                addNewCredential = { viewModel.dispatch(RandomIntent.SaveCredential(it)) },
                 onNavigateToCreateConfig = onNavigateToCreateConfig,
                 onCopyRequested = onCopyRequested,
                 revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
@@ -110,7 +110,7 @@ fun RandomScreen(
 private fun RandomList(
     passGenItems: List<PassGenItem>,
     onRemovePasswordItemClick: (PassGenItem) -> Unit,
-    addNewAccount: (account: Account) -> Unit,
+    addNewCredential: (credential: Credential) -> Unit,
     onNavigateToCreateConfig: () -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
@@ -128,7 +128,7 @@ private fun RandomList(
                 .padding(horizontal = 16.dp),
             passGenItems = passGenItems,
             removePasswordItem = onRemovePasswordItemClick,
-            addNewAccount = addNewAccount,
+            addNewCredential = addNewCredential,
             onCopyRequested = onCopyRequested,
             revealTimeoutMillis = revealTimeoutMillis
         )

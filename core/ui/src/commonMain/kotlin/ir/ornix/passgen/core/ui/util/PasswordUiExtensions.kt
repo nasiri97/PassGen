@@ -13,6 +13,8 @@ import ir.ornix.passgen.core.designsystem.theme.PassStrengthRobustDark
 import ir.ornix.passgen.core.designsystem.theme.PassStrengthRobustLight
 import ir.ornix.passgen.core.designsystem.theme.PassStrengthStrongDark
 import ir.ornix.passgen.core.designsystem.theme.PassStrengthStrongLight
+import ir.ornix.passgen.core.designsystem.theme.PassStrengthUnknownDark
+import ir.ornix.passgen.core.designsystem.theme.PassStrengthUnknownLight
 import ir.ornix.passgen.core.designsystem.theme.PassStrengthWeakDark
 import ir.ornix.passgen.core.designsystem.theme.PassStrengthWeakLight
 import ir.ornix.passgen.core.model.PasswordStrengthLevel
@@ -23,10 +25,12 @@ import ir.ornix.passgen.core.ui.strength_fragile
 import ir.ornix.passgen.core.ui.strength_good
 import ir.ornix.passgen.core.ui.strength_robust
 import ir.ornix.passgen.core.ui.strength_strong
+import ir.ornix.passgen.core.ui.strength_unknown
 import ir.ornix.passgen.core.ui.strength_weak
 import org.jetbrains.compose.resources.stringResource
 
 fun PasswordStrengthLevel.strengthColor(isDark: Boolean = false): Color = when (this) {
+    PasswordStrengthLevel.Unknown -> if (isDark) PassStrengthUnknownDark else PassStrengthUnknownLight
     PasswordStrengthLevel.Fragile -> if (isDark) PassStrengthFragileDark else PassStrengthFragileLight
     PasswordStrengthLevel.Weak -> if (isDark) PassStrengthWeakDark else PassStrengthWeakLight
     PasswordStrengthLevel.Fair -> if (isDark) PassStrengthFairDark else PassStrengthFairLight
@@ -37,6 +41,7 @@ fun PasswordStrengthLevel.strengthColor(isDark: Boolean = false): Color = when (
 
 @Composable
 fun PasswordStrengthLevel.label(): String = when (this) {
+    PasswordStrengthLevel.Unknown -> stringResource(Res.string.strength_unknown)
     PasswordStrengthLevel.Fragile -> stringResource(Res.string.strength_fragile)
     PasswordStrengthLevel.Weak -> stringResource(Res.string.strength_weak)
     PasswordStrengthLevel.Fair -> stringResource(Res.string.strength_fair)
