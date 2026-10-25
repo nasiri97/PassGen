@@ -73,6 +73,7 @@ class SettingsViewModelTest {
 
         override fun saveEncryptedSecret(encryptedSecret: ByteArray) {}
         override fun getEncryptedSecret(): ByteArray = ByteArray(0)
+
         override fun isBiometricEnabled(): StateFlow<Boolean> = biometricFlow.asStateFlow()
         override fun setBiometricEnabled(enabled: Boolean) {
             biometricFlow.value = enabled

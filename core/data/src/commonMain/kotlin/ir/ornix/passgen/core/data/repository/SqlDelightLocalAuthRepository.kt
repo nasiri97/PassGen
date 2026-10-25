@@ -1,6 +1,8 @@
 package ir.ornix.passgen.core.data.repository
 
-import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
+import app.cash.sqldelight.async.coroutines.awaitAsOne
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.db.SqlDriver
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.LocalAuthRepository
@@ -9,9 +11,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SqlDelightLocalAuthRepository(
@@ -23,37 +24,17 @@ class SqlDelightLocalAuthRepository(
     private val queries = database.localAuthQueries
     private val scope = CoroutineScope(SupervisorJob() + ioDispatcher)
 
-    private val localAuthTypeFlow = MutableStateFlow(LocalAuthType.NONE)
-    private val biometricEnabledFlow = MutableStateFlow(false)
-    private var encryptedSecretVal: ByteArray? = null
 
-    init {
-        scope.launch {
-            try {
-                PassGenDatabase.Schema.create(driver).await()
-            } catch (_: Exception) {
+    override fun getLocalAuthType(): Flow<LocalAuthType> {
+        return queries.selectLocalAuth()
+            .asFlow()
+            .mapToOne(ioDispatcher)
+            .map {
+                LocalAuthType.valueOf(it.auth_type)
             }
-
-            try {
-                val entity = queries.selectLocalAuth().awaitAsOneOrNull()
-                if (entity != null) {
-                    localAuthTypeFlow.value = try {
-                        LocalAuthType.valueOf(entity.auth_type)
-                    } catch (_: Exception) {
-                        LocalAuthType.NONE
-                    }
-                    biometricEnabledFlow.value = entity.is_biometric_enabled == 1L
-                    encryptedSecretVal = entity.encrypted_secret
-                }
-            } catch (_: Exception) {
-            }
-        }
     }
 
-    override fun getLocalAuthType(): StateFlow<LocalAuthType> = localAuthTypeFlow.asStateFlow()
-
     override fun setLocalAuthType(type: LocalAuthType) {
-        localAuthTypeFlow.value = type
         scope.launch {
             try {
                 PassGenDatabase.Schema.create(driver).await()
@@ -64,7 +45,6 @@ class SqlDelightLocalAuthRepository(
     }
 
     override fun saveEncryptedSecret(encryptedSecret: ByteArray) {
-        encryptedSecretVal = encryptedSecret
         scope.launch {
             try {
                 PassGenDatabase.Schema.create(driver).await()
@@ -74,14 +54,20 @@ class SqlDelightLocalAuthRepository(
         }
     }
 
-    override fun getEncryptedSecret(): ByteArray {
-        return encryptedSecretVal ?: ByteArray(0)
+    override suspend fun getEncryptedSecret(): ByteArray? {
+        return queries.selectLocalAuth().awaitAsOne().encrypted_secret
     }
 
-    override fun isBiometricEnabled(): StateFlow<Boolean> = biometricEnabledFlow.asStateFlow()
+    override fun isBiometricEnabled(): Flow<Boolean> {
+        return queries.selectLocalAuth()
+            .asFlow()
+            .mapToOne(ioDispatcher)
+            .map {
+                it.is_biometric_enabled == 1L
+            }
+    }
 
     override fun setBiometricEnabled(enabled: Boolean) {
-        biometricEnabledFlow.value = enabled
         scope.launch {
             try {
                 PassGenDatabase.Schema.create(driver).await()
@@ -92,9 +78,6 @@ class SqlDelightLocalAuthRepository(
     }
 
     override fun clearAuth() {
-        localAuthTypeFlow.value = LocalAuthType.NONE
-        biometricEnabledFlow.value = false
-        encryptedSecretVal = null
         scope.launch {
             try {
                 PassGenDatabase.Schema.create(driver).await()

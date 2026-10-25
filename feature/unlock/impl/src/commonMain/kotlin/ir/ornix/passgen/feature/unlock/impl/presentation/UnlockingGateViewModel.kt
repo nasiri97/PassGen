@@ -19,26 +19,16 @@ class UnlockingGateViewModel(
     private val validateLocalAuthSecret: ValidateLocalAuthSecretUseCase
 ) : ViewModel() {
 
-    private val localAuthTypeStateFlow = getLocalAuthType()
     private val isBiometricAvailable = biometricAuthenticator.isBiometricAvailable()
-
-    private val isBiometricEnabledStateFlow = isBiometricEnabled()
 
     private val intents = Channel<UnlockingGateIntent>()
 
     val uiState: StateFlow<UnlockingGateUiState>
-        field : MutableStateFlow<UnlockingGateUiState> = MutableStateFlow(
-            UnlockingGateUiState(
-                localAuthType = localAuthTypeStateFlow.value,
-                shouldShowBiometricOption = isBiometricAvailable && isBiometricEnabledStateFlow.value,
-                isLocked = true,
-                errorMessage = null
-            )
-        )
+        field : MutableStateFlow<UnlockingGateUiState> = MutableStateFlow(UnlockingGateUiState())
 
     init {
         viewModelScope.launch {
-            isBiometricEnabledStateFlow.collect { isBiometricEnabled ->
+            isBiometricEnabled().collect { isBiometricEnabled ->
                 apply(
                     UnlockingGatePartialState.BiometricOptionChanged(
                         isBiometricAvailable && isBiometricEnabled
@@ -48,7 +38,7 @@ class UnlockingGateViewModel(
         }
 
         viewModelScope.launch {
-            localAuthTypeStateFlow.collect { localAuthType ->
+            getLocalAuthType().collect { localAuthType ->
                 apply(UnlockingGatePartialState.LocalAuthTypeChanged(localAuthType))
             }
         }
@@ -68,7 +58,7 @@ class UnlockingGateViewModel(
         }
     }
 
-    private fun secretSubmitted(secret: String) {
+    private suspend fun secretSubmitted(secret: String) {
         val isValid = validateLocalAuthSecret(secret.encodeToByteArray())
 
         if (isValid) {

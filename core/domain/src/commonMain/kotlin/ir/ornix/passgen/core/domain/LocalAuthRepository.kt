@@ -1,15 +1,15 @@
 package ir.ornix.passgen.core.domain
 
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 
 interface LocalAuthRepository {
-    fun getLocalAuthType(): StateFlow<LocalAuthType>
+    fun getLocalAuthType(): Flow<LocalAuthType>
     fun setLocalAuthType(type: LocalAuthType)
 
     fun saveEncryptedSecret(encryptedSecret: ByteArray)
-    fun getEncryptedSecret(): ByteArray
+    suspend fun getEncryptedSecret(): ByteArray?
 
-    fun isBiometricEnabled(): StateFlow<Boolean>
+    fun isBiometricEnabled(): Flow<Boolean>
     fun setBiometricEnabled(enabled: Boolean)
 
     fun clearAuth()

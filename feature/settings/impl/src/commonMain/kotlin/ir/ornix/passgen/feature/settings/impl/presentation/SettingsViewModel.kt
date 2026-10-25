@@ -45,13 +45,7 @@ class SettingsViewModel(
     val uiState: StateFlow<SettingsUiState>
         field : MutableStateFlow<SettingsUiState> = MutableStateFlow(
             SettingsUiState(
-                isBiometricAvailable = biometricAuthenticator.isBiometricAvailable(),
-                isBiometricEnabled = isBiometricEnabled().value,
-                currentLocalAuthType = getLocalAuthType().value,
-                selectedLanguage = getLanguage().value,
-                selectedTheme = getTheme().value,
-                isCopyEnabled = isCopyEnabled().value,
-                selectedVisibilityTimeout = getVisibilityTimeout().value
+                isBiometricAvailable = biometricAuthenticator.isBiometricAvailable()
             )
         )
 

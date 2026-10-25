@@ -128,7 +128,7 @@ fun App(
         }
     ) {
         val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
-        val isUnlockingRequired = isUnlockingRequiredUseCase()
+        val isUnlockingRequired by isUnlockingRequiredUseCase().collectAsStateWithLifecycle(true)
 
         val getLanguageUseCase: GetLanguageUseCase = koinInject()
         val getThemeUseCase: GetThemeUseCase = koinInject()

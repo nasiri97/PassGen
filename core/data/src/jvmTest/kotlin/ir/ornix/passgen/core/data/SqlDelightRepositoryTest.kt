@@ -11,9 +11,9 @@ import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.LocalAuthType
-import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
@@ -49,23 +49,23 @@ class SqlDelightRepositoryTest {
             id = 0,
             title = "Test Account",
             username = "testuser",
-            passwordValue = "SecretPassword123!".toPassword(32),
+            password = "SecretPassword123!".toPassword(32),
             email = "user@example.com",
             associatedPackageNames = setOf("com.example.app"),
             associatedWebDomains = setOf("example.com")
         )
 
         repo.save(credential)
-        val accounts = repo.getAll().first()
-        assertEquals(1, accounts.size)
-        assertEquals("Test Account", accounts[0].title)
-        assertEquals("testuser", accounts[0].username)
-        assertEquals("SecretPassword123!", accounts[0].passwordValue.value.concatToString())
-        assertEquals("user@example.com", accounts[0].email)
-        assertEquals(setOf("com.example.app"), accounts[0].associatedPackageNames)
-        assertEquals(setOf("example.com"), accounts[0].associatedWebDomains)
+        val credentials = repo.getAll().first()
+        assertEquals(1, credentials.size)
+        assertEquals("Test Account", credentials[0].title)
+        assertEquals("testuser", credentials[0].username)
+        assertEquals("SecretPassword123!", credentials[0].password.value.concatToString())
+        assertEquals("user@example.com", credentials[0].email)
+        assertEquals(setOf("com.example.app"), credentials[0].associatedPackageNames)
+        assertEquals(setOf("example.com"), credentials[0].associatedWebDomains)
 
-        val savedId = accounts[0].id
+        val savedId = credentials[0].id
         repo.delete(savedId)
         val accountsAfterDelete = repo.getAll().first()
         assertTrue(accountsAfterDelete.isEmpty())
@@ -105,11 +105,11 @@ class SqlDelightRepositoryTest {
         )
 
         testScheduler.advanceUntilIdle()
-        assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().value)
+        assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().first())
 
         repo.setLocalAuthType(LocalAuthType.PIN)
         testScheduler.advanceUntilIdle()
-        assertEquals(LocalAuthType.PIN, repo.getLocalAuthType().value)
+        assertEquals(LocalAuthType.PIN, repo.getLocalAuthType().first())
 
         val secret = byteArrayOf(1, 2, 3, 4, 5)
         repo.saveEncryptedSecret(secret)
@@ -118,12 +118,12 @@ class SqlDelightRepositoryTest {
 
         repo.setBiometricEnabled(true)
         testScheduler.advanceUntilIdle()
-        assertTrue(repo.isBiometricEnabled().value)
+        assertTrue(repo.isBiometricEnabled().first())
 
         repo.clearAuth()
         testScheduler.advanceUntilIdle()
-        assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().value)
-        assertFalse(repo.isBiometricEnabled().value)
+        assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().first())
+        assertFalse(repo.isBiometricEnabled().first())
     }
 
     @Test
