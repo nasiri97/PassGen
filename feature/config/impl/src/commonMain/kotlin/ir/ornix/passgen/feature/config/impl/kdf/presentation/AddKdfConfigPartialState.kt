@@ -4,7 +4,7 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 
-sealed interface AddKdfConfigPartialState {
+internal sealed interface AddKdfConfigPartialState {
     data class StepChanged(val step: AddKdfConfigStep) : AddKdfConfigPartialState
     data object ProcessCancelled : AddKdfConfigPartialState
 

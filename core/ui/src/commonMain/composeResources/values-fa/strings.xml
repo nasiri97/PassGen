@@ -9,6 +9,7 @@
     <string name="nav_about">درباره</string>
     <string name="content_desc_menu">منو</string>
     <string name="password">رمز</string>
+    <string name="error_unknown">مشکلی پیش آمد.</string>
 
     <!-- Unsupported Screen -->
     <string name="unsupported_title">دستگاه پشتیبانی نمی‌شود</string>
@@ -37,9 +38,10 @@
     <string name="action_show_password">نمایش گذرواژه</string>
     <string name="debug_mode_warning">حالت اشکال‌زدایی: ایمن نیست!</string>
     <string name="error_password_generation_failed">تولید رمز عبور ناموفق بود</string>
+    <string name="submit_password">تأیید</string>
 
-    <!-- New Account Dialog -->
-    <string name="create_new_account_title">ذخیره اعتبارنامه</string>
+    <!-- New Credential Dialog -->
+    <string name="create_new_credential_title">ذخیره اعتبارنامه</string>
     <string name="label_title">عنوان / نام</string>
     <string name="label_username">نام کاربری</string>
     <string name="label_email">آدرس ایمیل</string>
@@ -156,24 +158,34 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_persian">فارسی</string>
 
+    <!-- Secrets -->
+    <string name="secret_pin">پین</string>
+    <string name="secret_password">گذرواژه</string>
+    <string name="secret_pattern">الگو</string>
+    <string name="setup_pin">تنظیم پین</string>
+    <string name="setup_password">تنظیم گذرواژه</string>
+    <string name="setup_pattern">تنظیم الگو</string>
+    <string name="error_pins_not_match">پین‌ها مطابقت ندارند. لطفاً دوباره تلاش کنید.</string>
+    <string name="error_passwords_not_match">گذرواژه‌ها مطابقت ندارند. لطفاً دوباره تلاش کنید.</string>
+    <string name="error_patterns_not_match">الگوها مطابقت ندارند. لطفاً دوباره تلاش کنید.</string>
+    <string name="enter_new_pin">پین ۴ رقمی جدید را وارد کنید</string>
+    <string name="enter_new_password">گذرواژهٔ جدید را وارد کنید</string>
+    <string name="enter_new_pattern">الگوی جدید را رسم کنید</string>
+    <string name="confirm_pin">پین ۴ رقمی را تأیید کنید</string>
+    <string name="confirm_password">گذرواژه را تأیید کنید</string>
+    <string name="confirm_pattern">الگو را تأیید کنید</string>
+
     <!-- Local Auth &amp; Secret Setup -->
     <string name="app_security_title">امنیت برنامه</string>
     <string name="local_lock_setup_subtitle">تنظیم روش قفل محلی</string>
-    <string name="setup_pin_button">تنظیم پین</string>
-    <string name="setup_password_button">تنظیم گذرواژه متنی</string>
-    <string name="setup_pattern_button">تنظیم قفل الگو</string>
     <string name="action_skip">رد شدن</string>
-    <string name="confirm_pin_label">پین ۴ رقمی خود را تأیید کنید</string>
-    <string name="confirm_password_label">گذرواژه متنی خود را تأیید کنید</string>
-    <string name="confirm_pattern_label">الگو را دوباره رسم کنید</string>
-    <string name="enter_pin_label">پین ۴ رقمی جدید را وارد کنید</string>
-    <string name="enter_password_label">گذرواژه متنی جدید را وارد کنید</string>
-    <string name="enter_pattern_label">الگوی سرّی خود را رسم کنید</string>
 
     <!-- Unlocking Gate -->
     <string name="application_locked_title">برنامه قفل شده است</string>
     <string name="use_fingerprint_action">استفاده از اثر انگشت</string>
     <string name="content_desc_fingerprint">استفاده از اثر انگشت</string>
+    <string name="error_incorect_secret">%1$d نادرست است. لطفاً دوباره تلاش کنید.</string>
+    <string name="error_incorect_biometric">احراز هویت بیومتریک ناموفق بود. لطفاً دوباره تلاش کنید.</string>
 
     <!-- Add Config Screens -->
     <string name="create_config_title">ایجاد پیکربندی گذرواژه</string>

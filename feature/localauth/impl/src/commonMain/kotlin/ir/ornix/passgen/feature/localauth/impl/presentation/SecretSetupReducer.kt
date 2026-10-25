@@ -13,13 +13,13 @@ internal fun reduce(
                 oldState.copy(
                     selectedSetupType = change.localAuthType,
                     setupStage = SetupStage.CANCELLED,
-                    errorMessage = null
+                    error = null
                 )
             } else {
                 oldState.copy(
                     selectedSetupType = change.localAuthType,
                     setupStage = SetupStage.ENTER_SECRET,
-                    errorMessage = null
+                    error = null
                 )
             }
         }
@@ -29,27 +29,27 @@ internal fun reduce(
             oldState.copy(
                 selectedSetupType = LocalAuthType.NONE,
                 setupStage = SetupStage.CANCELLED,
-                errorMessage = null
+                error = null
             )
         }
 
 
         is SecretSetupPartialState.Error -> {
             oldState.copy(
-                errorMessage = change.errorMessage
+                error = change.error
             )
         }
 
         is SecretSetupPartialState.SecretEntered -> {
             oldState.copy(
                 setupStage = SetupStage.CONFIRM_SECRET,
-                errorMessage = null
+                error = null
             )
         }
 
         is SecretSetupPartialState.ConfirmSecretMismatch -> {
             oldState.copy(
-                errorMessage = "Secrets do not match. Please try again.",
+                error = SecretSetupError.SecretsNotMatch(localAuthType = change.localAuthType),
                 setupStage = SetupStage.ENTER_SECRET
             )
         }
@@ -57,7 +57,7 @@ internal fun reduce(
         is SecretSetupPartialState.ConfirmSecretMatched -> {
             oldState.copy(
                 setupStage = SetupStage.COMPLETED,
-                errorMessage = null
+                error = null
             )
         }
     }

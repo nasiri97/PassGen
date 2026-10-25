@@ -5,7 +5,7 @@ import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 
-data class SettingsUiState(
+internal data class SettingsUiState(
     val isBiometricAvailable: Boolean = false,
     val isBiometricEnabled: Boolean = false,
     val currentLocalAuthType: LocalAuthType = LocalAuthType.NONE,

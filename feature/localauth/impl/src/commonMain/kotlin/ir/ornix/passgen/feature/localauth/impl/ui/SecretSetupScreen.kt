@@ -27,22 +27,23 @@ import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_skip
 import ir.ornix.passgen.core.ui.app_security_title
-import ir.ornix.passgen.core.ui.confirm_password_label
-import ir.ornix.passgen.core.ui.confirm_pattern_label
-import ir.ornix.passgen.core.ui.confirm_pin_label
-import ir.ornix.passgen.core.ui.enter_password_label
-import ir.ornix.passgen.core.ui.enter_pattern_label
-import ir.ornix.passgen.core.ui.enter_pin_label
+import ir.ornix.passgen.core.ui.confirm_password
+import ir.ornix.passgen.core.ui.confirm_pattern
+import ir.ornix.passgen.core.ui.confirm_pin
+import ir.ornix.passgen.core.ui.enter_new_password
+import ir.ornix.passgen.core.ui.enter_new_pattern
+import ir.ornix.passgen.core.ui.enter_new_pin
 import ir.ornix.passgen.core.ui.local_lock_setup_subtitle
 import ir.ornix.passgen.core.ui.lockview.PasswordLockView
 import ir.ornix.passgen.core.ui.lockview.PatternLockView
 import ir.ornix.passgen.core.ui.lockview.PinLockView
-import ir.ornix.passgen.core.ui.setup_password_button
-import ir.ornix.passgen.core.ui.setup_pattern_button
-import ir.ornix.passgen.core.ui.setup_pin_button
+import ir.ornix.passgen.core.ui.setup_password
+import ir.ornix.passgen.core.ui.setup_pattern
+import ir.ornix.passgen.core.ui.setup_pin
 import ir.ornix.passgen.feature.localauth.impl.presentation.SecretSetupIntent
 import ir.ornix.passgen.feature.localauth.impl.presentation.SecretSetupViewModel
 import ir.ornix.passgen.feature.localauth.impl.presentation.SetupStage
+import ir.ornix.passgen.feature.localauth.impl.presentation.asString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -91,7 +92,7 @@ fun SecretSetupScreen(
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
-                        Text(stringResource(Res.string.setup_pin_button))
+                        Text(stringResource(Res.string.setup_pin))
                     }
                     Spacer(Modifier.height(16.dp))
                     Button(
@@ -102,7 +103,7 @@ fun SecretSetupScreen(
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
-                        Text(stringResource(Res.string.setup_password_button))
+                        Text(stringResource(Res.string.setup_password))
                     }
                     Spacer(Modifier.height(16.dp))
                     Button(
@@ -113,7 +114,7 @@ fun SecretSetupScreen(
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
-                        Text(stringResource(Res.string.setup_pattern_button))
+                        Text(stringResource(Res.string.setup_pattern))
                     }
                     Spacer(Modifier.height(32.dp))
                     TextButton(onClick = {
@@ -149,11 +150,11 @@ fun SecretSetupScreen(
             }
 
 
-            uiState.errorMessage?.let { errorMessage ->
+            uiState.error?.let { error ->
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = errorMessage,
+                    text = error.asString(),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -174,15 +175,15 @@ private fun InsertPassword(
 
     val label = if (isConfirming) {
         when (localAuthType) {
-            LocalAuthType.PIN -> stringResource(Res.string.confirm_pin_label)
-            LocalAuthType.PASSWORD -> stringResource(Res.string.confirm_password_label)
-            else -> stringResource(Res.string.confirm_pattern_label)
+            LocalAuthType.PIN -> stringResource(Res.string.confirm_pin)
+            LocalAuthType.PASSWORD -> stringResource(Res.string.confirm_password)
+            else -> stringResource(Res.string.confirm_pattern)
         }
     } else {
         when (localAuthType) {
-            LocalAuthType.PIN -> stringResource(Res.string.enter_pin_label)
-            LocalAuthType.PASSWORD -> stringResource(Res.string.enter_password_label)
-            else -> stringResource(Res.string.enter_pattern_label)
+            LocalAuthType.PIN -> stringResource(Res.string.enter_new_pin)
+            LocalAuthType.PASSWORD -> stringResource(Res.string.enter_new_password)
+            else -> stringResource(Res.string.enter_new_pattern)
         }
     }
 

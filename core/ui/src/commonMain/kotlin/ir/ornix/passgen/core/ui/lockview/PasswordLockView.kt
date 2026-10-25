@@ -16,6 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.secret_password
+import ir.ornix.passgen.core.ui.submit_password
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun PasswordLockView(
@@ -30,7 +34,7 @@ fun PasswordLockView(
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(Res.string.secret_password)) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(0.8f)
@@ -40,7 +44,7 @@ fun PasswordLockView(
             onClick = { onPasswordSubmitted(text) },
             enabled = text.isNotBlank()
         ) {
-            Text("Submit")
+            Text(stringResource(Res.string.submit_password))
         }
     }
 }

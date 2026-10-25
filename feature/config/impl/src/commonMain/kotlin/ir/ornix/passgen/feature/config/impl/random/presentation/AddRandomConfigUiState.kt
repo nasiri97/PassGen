@@ -8,8 +8,7 @@ import ir.ornix.passgen.feature.config.impl.util.getEntropySize
 import ir.ornix.passgen.feature.config.impl.util.getRandomMaxAvailablePassLength
 import ir.ornix.passgen.feature.config.impl.util.getValidPassLength
 
-
-data class AddRandomConfigUiState(
+internal data class AddRandomConfigUiState(
     val name: String = "",
     val availableEncoders: List<PassEncoder> = PassEncoder.getValidItems(RandomPassGen.RANDOM_PASS_GEN_MAX_ENTROPY_BYTE_SIZE),
     val selectedEncoder: PassEncoder = DEFAULT_PASS_ENCODER,

@@ -24,13 +24,13 @@ class RandomViewModel(
     private val generateRandomPass: GenerateRandomPassUseCase,
     private val removePassGenConfig: RemoveRandomPassGenConfigUseCase,
     private val saveCredentialUseCase: SaveCredentialUseCase,
-    private val isCopyEnabled: IsCopyEnabledUseCase,
-    private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
+    isCopyEnabled: IsCopyEnabledUseCase,
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
     private val intents = Channel<RandomIntent>()
 
-    val uiState: StateFlow<RandomUiState>
+    internal val uiState: StateFlow<RandomUiState>
         field : MutableStateFlow<RandomUiState> = MutableStateFlow(RandomUiState())
 
     private val configsFlow: Flow<List<RandomPassGenConfig>> = getAllPassGenConfigs()
@@ -46,7 +46,6 @@ class RandomViewModel(
         getVisibilityTimeout().onEach { timeout ->
             apply(RandomPartialState.PasswordVisibilityTimeoutChanged(timeout))
         }.launchIn(viewModelScope)
-
 
         viewModelScope.launch {
             configsFlow.collect { configs ->
@@ -106,7 +105,7 @@ class RandomViewModel(
     }
 
     /** Send new intent */
-    fun dispatch(intent: RandomIntent) = viewModelScope.launch {
+    internal fun dispatch(intent: RandomIntent) = viewModelScope.launch {
         intents.send(intent)
     }
 

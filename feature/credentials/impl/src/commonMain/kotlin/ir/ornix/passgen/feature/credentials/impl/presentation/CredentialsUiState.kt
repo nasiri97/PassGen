@@ -3,10 +3,10 @@ package ir.ornix.passgen.feature.credentials.impl.presentation
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 
-data class CredentialsUiState(
+internal data class CredentialsUiState(
     val credentials: List<Credential> = emptyList(),
     val searchQuery: String = "",
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val isAddingCredential: Boolean = false,
     val selectedCredentialForDetail: Credential? = null,
     val selectedCredentialForEdit: Credential? = null,

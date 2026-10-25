@@ -7,14 +7,14 @@ internal fun reduce(
     return when (change) {
         is UnlockingGatePartialState.AuthenticationFailed -> {
             oldState.copy(
-                errorMessage = change.errorMessage,
+                error = change.error
             )
         }
 
         UnlockingGatePartialState.AuthenticationSucceeded -> {
             oldState.copy(
                 isLocked = false,
-                errorMessage = null
+                error = null
             )
         }
 

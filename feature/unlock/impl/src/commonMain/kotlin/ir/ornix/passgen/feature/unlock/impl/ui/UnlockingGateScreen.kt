@@ -34,6 +34,7 @@ import ir.ornix.passgen.core.ui.lockview.PinLockView
 import ir.ornix.passgen.core.ui.use_fingerprint_action
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateIntent
 import ir.ornix.passgen.feature.unlock.impl.presentation.UnlockingGateViewModel
+import ir.ornix.passgen.feature.unlock.impl.presentation.asString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -84,7 +85,7 @@ fun UnlockingGateScreen(
                     PinLockView(
                         onPinCompleted = { secret ->
                             viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
-                        },
+                        }
                     )
                 }
 
@@ -92,7 +93,7 @@ fun UnlockingGateScreen(
                     PasswordLockView(
                         onPasswordSubmitted = { secret ->
                             viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
-                        },
+                        }
                     )
                 }
 
@@ -103,7 +104,7 @@ fun UnlockingGateScreen(
                         PatternLockView(
                             onPatternCompleted = { secret ->
                                 viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
-                            },
+                            }
                         )
                     }
                 }
@@ -145,11 +146,11 @@ fun UnlockingGateScreen(
                 }
             }
 
-            uiState.errorMessage?.let { errorMessage ->
+            uiState.error?.let { error ->
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = errorMessage,
+                    text = error.asString(),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium,
                 )

@@ -2,7 +2,7 @@ package ir.ornix.passgen.feature.credentials.impl.presentation
 
 import ir.ornix.passgen.core.model.Credential
 
-sealed interface CredentialsIntent {
+internal sealed interface CredentialsIntent {
     data class SearchQueryChanged(val query: String) : CredentialsIntent
     data object OpenAddCredentialDialog : CredentialsIntent
     data object DismissAddCredentialDialog : CredentialsIntent

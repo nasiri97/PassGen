@@ -4,7 +4,7 @@ import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 
-sealed interface SettingsIntent {
+internal sealed interface SettingsIntent {
     data class SetFingerprintEnabled(val enabled: Boolean) : SettingsIntent
     data object LocalAuthenticationDisabled : SettingsIntent
     data class SelectLanguage(val language: AppLanguage) : SettingsIntent

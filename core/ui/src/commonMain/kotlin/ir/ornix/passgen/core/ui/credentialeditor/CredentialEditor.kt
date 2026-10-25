@@ -59,7 +59,7 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_add
 import ir.ornix.passgen.core.ui.action_cancel
 import ir.ornix.passgen.core.ui.action_create
-import ir.ornix.passgen.core.ui.create_new_account_title
+import ir.ornix.passgen.core.ui.create_new_credential_title
 import ir.ornix.passgen.core.ui.label_description
 import ir.ornix.passgen.core.ui.label_email
 import ir.ornix.passgen.core.ui.label_keywords
@@ -249,7 +249,7 @@ private fun DialogHeader(onDismissRequest: () -> Unit) {
             }
 
             Text(
-                text = stringResource(Res.string.create_new_account_title),
+                text = stringResource(Res.string.create_new_credential_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

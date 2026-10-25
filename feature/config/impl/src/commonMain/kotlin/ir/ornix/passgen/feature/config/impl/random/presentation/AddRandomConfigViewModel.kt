@@ -18,7 +18,7 @@ class AddRandomConfigViewModel(
 
     private val intents = Channel<AddRandomConfigIntent>()
 
-    val uiState: StateFlow<AddRandomConfigUiState>
+    internal val uiState: StateFlow<AddRandomConfigUiState>
         field: MutableStateFlow<AddRandomConfigUiState> = MutableStateFlow(AddRandomConfigUiState())
 
     init {
@@ -45,7 +45,7 @@ class AddRandomConfigViewModel(
         }
     }
 
-    fun dispatch(intent: AddRandomConfigIntent) {
+    internal fun dispatch(intent: AddRandomConfigIntent) {
         viewModelScope.launch {
             intents.send(intent)
         }

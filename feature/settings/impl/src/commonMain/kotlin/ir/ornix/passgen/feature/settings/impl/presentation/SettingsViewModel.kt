@@ -42,7 +42,7 @@ class SettingsViewModel(
 
     private val intents = Channel<SettingsIntent>()
 
-    val uiState: StateFlow<SettingsUiState>
+    internal val uiState: StateFlow<SettingsUiState>
         field : MutableStateFlow<SettingsUiState> = MutableStateFlow(
             SettingsUiState(
                 isBiometricAvailable = biometricAuthenticator.isBiometricAvailable()
@@ -131,7 +131,7 @@ class SettingsViewModel(
     }
 
     /** Send new intent */
-    fun dispatch(intent: SettingsIntent) = viewModelScope.launch {
+    internal fun dispatch(intent: SettingsIntent) = viewModelScope.launch {
         intents.send(intent)
     }
 

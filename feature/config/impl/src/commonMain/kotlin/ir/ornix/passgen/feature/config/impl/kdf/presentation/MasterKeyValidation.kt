@@ -2,7 +2,7 @@ package ir.ornix.passgen.feature.config.impl.kdf.presentation
 
 internal const val MIN_MASTER_KEY_LENGTH = 16
 
-data class MasterKeyValidation(
+internal data class MasterKeyValidation(
     val hasMinLength: Boolean = false,
     val hasLowercase: Boolean = false,
     val hasUppercase: Boolean = false,
@@ -19,7 +19,10 @@ data class MasterKeyValidation(
         get() = (confirmMasterKeyLength != 0) && !keysMatch
 }
 
-fun validateMasterKey(masterKey: CharArray, confirmMasterKey: CharArray): MasterKeyValidation {
+internal fun validateMasterKey(
+    masterKey: CharArray,
+    confirmMasterKey: CharArray
+): MasterKeyValidation {
 
     val hasMinLength = masterKey.size >= MIN_MASTER_KEY_LENGTH
     val hasLowercase = masterKey.any { it.isLowerCase() }

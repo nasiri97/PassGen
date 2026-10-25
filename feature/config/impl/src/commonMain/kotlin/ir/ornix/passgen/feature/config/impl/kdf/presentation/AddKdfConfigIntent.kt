@@ -3,7 +3,7 @@ package ir.ornix.passgen.feature.config.impl.kdf.presentation
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 
-sealed interface AddKdfConfigIntent {
+internal sealed interface AddKdfConfigIntent {
     data class MasterKeyChanged(val masterKey: CharArray) : AddKdfConfigIntent {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

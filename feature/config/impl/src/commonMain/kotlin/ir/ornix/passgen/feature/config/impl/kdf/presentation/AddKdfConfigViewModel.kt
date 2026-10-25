@@ -34,7 +34,7 @@ class AddKdfConfigViewModel(
 
     private val intents = Channel<AddKdfConfigIntent>()
 
-    val uiState: StateFlow<AddKdfConfigUiState>
+    internal val uiState: StateFlow<AddKdfConfigUiState>
         field: MutableStateFlow<AddKdfConfigUiState> = MutableStateFlow(AddKdfConfigUiState())
 
     init {
@@ -126,7 +126,7 @@ class AddKdfConfigViewModel(
         onKeysChanged()
     }
 
-    fun dispatch(intent: AddKdfConfigIntent) {
+    internal fun dispatch(intent: AddKdfConfigIntent) {
         viewModelScope.launch {
             intents.send(intent)
         }

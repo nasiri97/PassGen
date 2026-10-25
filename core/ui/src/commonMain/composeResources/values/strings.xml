@@ -9,6 +9,7 @@
     <string name="nav_about">About</string>
     <string name="content_desc_menu">Menu</string>
     <string name="password">Password</string>
+    <string name="error_unknown">Something went wrong.</string>
 
     <!-- Unsupported Screen -->
     <string name="unsupported_title">Device not supported</string>
@@ -37,9 +38,10 @@
     <string name="action_show_password">Show password</string>
     <string name="debug_mode_warning">Debugging mode: It is not safe!</string>
     <string name="error_password_generation_failed">Password generation failed</string>
+    <string name="submit_password">Submit</string>
 
-    <!-- New Account Dialog -->
-    <string name="create_new_account_title">Save Credential</string>
+    <!-- New Credential Dialog -->
+    <string name="create_new_credential_title">Save Credential</string>
     <string name="label_title">Title / Name</string>
     <string name="label_username">Username</string>
     <string name="label_email">Email Address</string>
@@ -156,24 +158,34 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_persian">فارسی</string>
 
+    <!-- Secrets -->
+    <string name="secret_pin">PIN</string>
+    <string name="secret_password">Password</string>
+    <string name="secret_pattern">Pattern</string>
+    <string name="setup_pin">Setup PIN</string>
+    <string name="setup_password">Setup Password</string>
+    <string name="setup_pattern">Setup Pattern</string>
+    <string name="error_pins_not_match">Pins do not match. Please try again.</string>
+    <string name="error_passwords_not_match">Passwords do not match. Please try again.</string>
+    <string name="error_patterns_not_match">Patterns do not match. Please try again.</string>
+    <string name="enter_new_pin">Enter new 4-digit PIN</string>
+    <string name="enter_new_password">Enter new password</string>
+    <string name="enter_new_pattern">Draw new pattern</string>
+    <string name="confirm_pin">Confirm 4-digit PIN</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="confirm_pattern">Confirm pattern</string>
+
     <!-- Local Auth &amp; Secret Setup -->
     <string name="app_security_title">Application Security</string>
     <string name="local_lock_setup_subtitle">Set a local lock method</string>
-    <string name="setup_pin_button">Setup PIN</string>
-    <string name="setup_password_button">Setup Text Password</string>
-    <string name="setup_pattern_button">Setup Pattern Lock</string>
     <string name="action_skip">Skip</string>
-    <string name="confirm_pin_label">Confirm your 4-digit PIN</string>
-    <string name="confirm_password_label">Confirm your Text Password</string>
-    <string name="confirm_pattern_label">Draw pattern again to confirm</string>
-    <string name="enter_pin_label">Enter new 4-digit PIN</string>
-    <string name="enter_password_label">Enter new Text Password</string>
-    <string name="enter_pattern_label">Draw your secret pattern</string>
 
     <!-- Unlocking Gate -->
     <string name="application_locked_title">Application Locked</string>
     <string name="use_fingerprint_action">Use Fingerprint</string>
     <string name="content_desc_fingerprint">Use fingerprint</string>
+    <string name="error_incorect_secret">Incorrect %1$s. Please try again.</string>
+    <string name="error_incorect_biometric">Biometric authentication failed. Please try again.</string>
 
     <!-- Add Config Screens -->
     <string name="create_config_title">Create Password Config</string>

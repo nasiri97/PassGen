@@ -23,7 +23,7 @@ class UnlockingGateViewModel(
 
     private val intents = Channel<UnlockingGateIntent>()
 
-    val uiState: StateFlow<UnlockingGateUiState>
+    internal val uiState: StateFlow<UnlockingGateUiState>
         field : MutableStateFlow<UnlockingGateUiState> = MutableStateFlow(UnlockingGateUiState())
 
     init {
@@ -66,7 +66,7 @@ class UnlockingGateViewModel(
         } else {
             apply(
                 UnlockingGatePartialState.AuthenticationFailed(
-                    errorMessage = "Incorrect ${uiState.value.localAuthType.value}. Please try again."
+                    error = AuthenticationError.InvalidCredential(localAuthType = uiState.value.localAuthType)
                 )
             )
         }
@@ -79,10 +79,10 @@ class UnlockingGateViewModel(
             onSuccess = {
                 apply(UnlockingGatePartialState.AuthenticationSucceeded)
             },
-            onError = { error ->
+            onError = { _ ->
                 apply(
                     UnlockingGatePartialState.AuthenticationFailed(
-                        errorMessage = error
+                        error = AuthenticationError.InvalidBiometric
                     )
                 )
             }
@@ -90,7 +90,7 @@ class UnlockingGateViewModel(
     }
 
     /** Send new intent */
-    fun dispatch(intent: UnlockingGateIntent) = viewModelScope.launch {
+    internal fun dispatch(intent: UnlockingGateIntent) = viewModelScope.launch {
         intents.send(intent)
     }
 

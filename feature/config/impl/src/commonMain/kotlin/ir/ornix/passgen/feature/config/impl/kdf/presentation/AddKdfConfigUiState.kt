@@ -10,12 +10,12 @@ import ir.ornix.passgen.feature.config.impl.util.getEntropySize
 import ir.ornix.passgen.feature.config.impl.util.getKdfMaxAvailablePassLength
 import ir.ornix.passgen.feature.config.impl.util.getValidPassLength
 
-enum class AddKdfConfigStep {
+internal enum class AddKdfConfigStep {
     MasterKey,
     ConfigDetails
 }
 
-data class AddKdfConfigUiState(
+internal data class AddKdfConfigUiState(
     val step: AddKdfConfigStep = AddKdfConfigStep.MasterKey,
     val isProcessCancelled: Boolean = false,
     val masterKeyValidation: MasterKeyValidation = MasterKeyValidation(),

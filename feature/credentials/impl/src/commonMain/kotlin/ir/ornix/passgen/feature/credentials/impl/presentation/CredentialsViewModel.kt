@@ -16,19 +16,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CredentialsViewModel(
-    private val getAllCredentials: GetAllCredentialsUseCase,
+    getAllCredentials: GetAllCredentialsUseCase,
     private val saveCredential: SaveCredentialUseCase,
     private val deleteCredential: DeleteCredentialUseCase,
-    private val isCopyEnabled: IsCopyEnabledUseCase,
-    private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
+    isCopyEnabled: IsCopyEnabledUseCase,
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
     private val intents = Channel<CredentialsIntent>()
 
-    val uiState: StateFlow<CredentialsUiState>
-        field: MutableStateFlow<CredentialsUiState> = MutableStateFlow(
-            CredentialsUiState(isLoading = true)
-        )
+    internal val uiState: StateFlow<CredentialsUiState>
+        field: MutableStateFlow<CredentialsUiState> = MutableStateFlow(CredentialsUiState())
 
     init {
         // Observe Credentials
@@ -101,7 +99,7 @@ class CredentialsViewModel(
 
 
     /** Send new intent */
-    fun dispatch(intent: CredentialsIntent) = viewModelScope.launch {
+    internal fun dispatch(intent: CredentialsIntent) = viewModelScope.launch {
         intents.send(intent)
     }
 

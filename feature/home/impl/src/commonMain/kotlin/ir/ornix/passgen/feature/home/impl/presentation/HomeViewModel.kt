@@ -30,13 +30,13 @@ class HomeViewModel(
     private val generateKDFPass: GenerateKDFPassUseCase,
     private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
     private val saveCredentialUseCase: SaveCredentialUseCase,
-    private val isCopyEnabled: IsCopyEnabledUseCase,
-    private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
+    isCopyEnabled: IsCopyEnabledUseCase,
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
 
     private val intents = Channel<HomeIntent>()
 
-    val uiState: StateFlow<HomeUiState>
+    internal val uiState: StateFlow<HomeUiState>
         field : MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
 
     private val configsFlow: Flow<List<KdfPassGenConfig>> = getAllPassGenConfigs()
@@ -122,7 +122,7 @@ class HomeViewModel(
     }
 
     /** Send new intent */
-    fun dispatch(intent: HomeIntent) = viewModelScope.launch {
+    internal fun dispatch(intent: HomeIntent) = viewModelScope.launch {
         intents.send(intent)
     }
 
