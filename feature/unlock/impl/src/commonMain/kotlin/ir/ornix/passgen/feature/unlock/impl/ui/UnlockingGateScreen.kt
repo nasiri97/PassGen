@@ -53,7 +53,7 @@ fun UnlockingGateScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(uiState.shouldShowBiometricOption) {
         if (uiState.shouldShowBiometricOption) {
             viewModel.dispatch(UnlockingGateIntent.BiometricClicked)
         }
