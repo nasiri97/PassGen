@@ -11,6 +11,8 @@ internal fun reduce(
         is CredentialEditorIntent.EmailChanged -> oldState.copy(email = intent.email)
         is CredentialEditorIntent.PhoneChanged -> oldState.copy(phone = intent.phone)
 
+        is CredentialEditorIntent.PasswordChanged -> oldState.copy(password = intent.password)
+
         is CredentialEditorIntent.PackageInputChanged -> oldState.copy(packageInput = intent.packageInput)
         is CredentialEditorIntent.AddPackageName -> {
             val trimmed = intent.packageName.trim()
@@ -51,5 +53,6 @@ internal fun reduce(
         is CredentialEditorIntent.RemoveKeyword -> oldState.copy(associatedKeywords = oldState.associatedKeywords - intent.keyword)
 
         is CredentialEditorIntent.TitleBlurred -> oldState.copy(isTitleTouched = true)
+        is CredentialEditorIntent.PasswordBlurred -> oldState.copy(isPasswordTouched = true)
     }
 }

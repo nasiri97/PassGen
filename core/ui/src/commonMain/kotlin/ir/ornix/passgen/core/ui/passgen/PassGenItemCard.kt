@@ -5,7 +5,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -228,28 +227,15 @@ private fun Content(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
             )
 
-            // Middle: Password Display in Container with Border
-            Surface(
+            // Password Display
+            PasswordDisplay(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.4f),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
-            ) {
-                PasswordDisplay(
-                    password = passGenItem.password,
-                    revealTimeoutMillis = revealTimeoutMillis,
-                    isLoading = passGenItem.isCalculating,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = passGenItem.password != null) {
-                            passGenItem.password?.let(onCopyRequested)
-                        }
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                )
-            }
+                password = passGenItem.password,
+                revealTimeoutMillis = revealTimeoutMillis,
+                isLoading = passGenItem.isCalculating,
+                isClickable = passGenItem.password != null,
+                onClick = { passGenItem.password?.let(onCopyRequested) }
+            )
 
             // Divider between Password Display and Strength Section
             HorizontalDivider(

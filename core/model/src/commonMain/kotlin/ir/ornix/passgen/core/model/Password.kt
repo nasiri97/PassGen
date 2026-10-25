@@ -47,11 +47,15 @@ data class Password(
     }
 
     companion object {
-        fun String.toPassword(entropyByteSize: Int?): Password {
+        fun CharArray.toPassword(entropyByteSize: Int?): Password {
             return Password(
-                value = this.toCharArray(),
+                value = this,
                 entropyByteSize = entropyByteSize
             )
         }
+
+        fun String.toPassword(entropyByteSize: Int?) =
+            toCharArray().toPassword(entropyByteSize)
+
     }
 }

@@ -81,8 +81,7 @@
     <string name="add_first_config_button">Add your first config</string>
     <string name="add_config_content_desc">Add Config</string>
 
-    <!-- Saved Passwords &amp; About -->
-    <string name="title_saved_passwords">Saved Passwords</string>
+    <!-- Saved Credentials &amp; About -->
     <string name="search_credentials_placeholder">Search credentials...</string>
     <string name="no_saved_credentials_message">No saved credentials yet</string>
     <string name="no_saved_credentials_subtitle">Credentials you save will appear here for quick reference</string>
@@ -244,7 +243,7 @@
     <string name="settings_timeout_1m">1 minute</string>
 
     <string name="copy_disabled_toast_message">Copying to clipboard is disabled in Settings for security</string>
-    <string name="copy_success_toast_message">Password copied to clipboard</string>
+    <string name="copy_success_toast_message">Copied to clipboard</string>
     <string name="password_strength">Strength</string>
 
     <string name="strength_unknown">Unknown</string>

@@ -24,6 +24,7 @@ import ir.ornix.passgen.core.ui.error_max_length
 import ir.ornix.passgen.core.ui.label_confirm_master_key
 import ir.ornix.passgen.core.ui.label_master_key
 import ir.ornix.passgen.core.ui.master_key_explanation
+import ir.ornix.passgen.core.ui.security.PasswordTextField
 import ir.ornix.passgen.core.ui.setup_master_key_title
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.MasterKeyValidation
 import org.jetbrains.compose.resources.stringResource
@@ -59,7 +60,7 @@ internal fun MasterKeyStepContent(
 
         val isAtLimit = validation.masterKeyLength >= MAX_MASTER_KEY_CHARS
 
-        MasterKeyTextField(
+        PasswordTextField(
             onValueChange = onMasterKeyChange,
             revealTimeoutMillis = revealTimeoutMillis,
             maxLength = MAX_MASTER_KEY_CHARS,
@@ -75,7 +76,7 @@ internal fun MasterKeyStepContent(
             testTag = "master_key_input"
         )
 
-        MasterKeyTextField(
+        PasswordTextField(
             onValueChange = onConfirmMasterKeyChange,
             revealTimeoutMillis = revealTimeoutMillis,
             maxLength = MAX_MASTER_KEY_CHARS,

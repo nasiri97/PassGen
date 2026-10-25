@@ -160,11 +160,11 @@ internal fun CredentialPreviewDialog(
                 ) {
                     // Password Section
                     PasswordDisplay(
+                        modifier = Modifier.fillMaxWidth(),
                         password = credential.password,
                         revealTimeoutMillis = revealTimeoutMillis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onCopyPasswordRequested(credential.password) }
+                        isClickable = true,
+                        onClick = { onCopyPasswordRequested(credential.password) }
                     )
 
                     // Identity & Contact

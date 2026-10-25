@@ -1,5 +1,6 @@
-package ir.ornix.passgen.feature.config.impl.kdf.ui.master_key_step
+package ir.ornix.passgen.core.ui.security
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
@@ -27,24 +28,25 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_hide_password
 import ir.ornix.passgen.core.ui.action_show_password
 import ir.ornix.passgen.core.ui.password
-import ir.ornix.passgen.core.ui.security.secureInput
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun MasterKeyTextField(
+fun PasswordTextField(
     onValueChange: (CharArray) -> Unit,
     revealTimeoutMillis: Long,   // auto re-mask after this long; 0 = no timeout
     maxLength: Int,
     modifier: Modifier = Modifier,
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
     contentDescription: String? = null,
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
@@ -96,6 +98,7 @@ fun MasterKeyTextField(
         state = state,
         modifier = testTag?.let { secureModifier.testTag(testTag) } ?: secureModifier,
         label = label,
+        leadingIcon = leadingIcon,
         supportingText = supportingText,
         isError = isError,
         inputTransformation = InputTransformation.maxLength(maxLength),
@@ -106,19 +109,21 @@ fun MasterKeyTextField(
             keyboardType = KeyboardType.Password,
             autoCorrectEnabled = false,
             capitalization = KeyboardCapitalization.None,
-            imeAction = ImeAction.Done,
+            imeAction = ImeAction.Done
         ),
         onKeyboardAction = { onDone() },
         trailingIcon = {
             IconButton(onClick = { revealed = !revealed }) {
                 Icon(
-                    imageVector = if (revealed) Icons.Default.VisibilityOff
-                    else Icons.Default.Visibility,
-                    contentDescription = if (revealed) stringResource(Res.string.action_hide_password) else stringResource(
-                        Res.string.action_show_password
-                    ),
+                    imageVector =
+                        if (revealed) Icons.Default.VisibilityOff
+                        else Icons.Default.Visibility,
+                    contentDescription =
+                        if (revealed) stringResource(Res.string.action_hide_password)
+                        else stringResource(Res.string.action_show_password)
                 )
             }
-        }
+        },
+        shape = RoundedCornerShape(12.dp)
     )
 }

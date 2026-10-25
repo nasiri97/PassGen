@@ -2,9 +2,9 @@ package ir.ornix.passgen.feature.home.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
+import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
@@ -19,6 +19,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,6 +65,16 @@ class HomeViewModel(
     }
 
     init {
+        // Observe CopyEnabled
+        isCopyEnabled().onEach { enabled ->
+            apply(HomePartialState.CopyEnabledChanged(enabled))
+        }.launchIn(viewModelScope)
+
+        // Observe password visibility timeout
+        getVisibilityTimeout().onEach { timeout ->
+            apply(HomePartialState.PasswordVisibilityTimeoutChanged(timeout))
+        }.launchIn(viewModelScope)
+
         viewModelScope.launch {
             configsFlow.collect { configs ->
                 val currentPasswordItems = uiState.value.passGenItems
@@ -83,18 +95,6 @@ class HomeViewModel(
                 }
 
                 apply(HomePartialState.PasswordItemsLoaded(passGenItems))
-            }
-        }
-
-        viewModelScope.launch {
-            isCopyEnabled().collect {
-                apply(HomePartialState.CopyEnabledChanged(it))
-            }
-        }
-
-        viewModelScope.launch {
-            getVisibilityTimeout().collect {
-                apply(HomePartialState.PasswordVisibilityTimeoutChanged(it))
             }
         }
 

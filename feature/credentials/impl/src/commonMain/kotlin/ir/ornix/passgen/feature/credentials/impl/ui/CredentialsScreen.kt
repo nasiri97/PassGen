@@ -3,27 +3,33 @@ package ir.ornix.passgen.feature.credentials.impl.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -35,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_add
 import ir.ornix.passgen.core.ui.action_clear
 import ir.ornix.passgen.core.ui.component.ConfirmDeleteDialog
 import ir.ornix.passgen.core.ui.copy_disabled_toast_message
@@ -50,21 +58,16 @@ import ir.ornix.passgen.core.ui.credentialeditor.CredentialEditor
 import ir.ornix.passgen.core.ui.no_credentials_found_message
 import ir.ornix.passgen.core.ui.no_saved_credentials_message
 import ir.ornix.passgen.core.ui.no_saved_credentials_subtitle
-import ir.ornix.passgen.core.ui.saved_credentials_count
 import ir.ornix.passgen.core.ui.search_credentials_placeholder
-import ir.ornix.passgen.core.ui.title_saved_passwords
 import ir.ornix.passgen.feature.credentials.impl.presentation.CredentialsIntent
 import ir.ornix.passgen.feature.credentials.impl.presentation.CredentialsViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-
-private const val DEFAULT_FOR_TITLELESS = "-"
-
 @Composable
 fun CredentialsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val viewModel: CredentialsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -98,21 +101,75 @@ fun CredentialsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        floatingActionButton = {
+            if (uiState.credentials.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = { viewModel.dispatch(CredentialsIntent.OpenAddCredentialDialog) },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text(stringResource(Res.string.action_add)) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = RoundedCornerShape(16.dp),
+                )
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Screen Title & Search Header
-            HeaderSection(
-                searchQuery = uiState.searchQuery,
-                credentialCount = uiState.filteredCredentials.size,
-                onSearchQueryChanged = { viewModel.dispatch(CredentialsIntent.SearchQueryChanged(it)) }
-            )
+            // Search Bar (Only shown when there are saved credentials)
+            if (uiState.credentials.isNotEmpty()) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.dispatch(CredentialsIntent.SearchQueryChanged(it)) },
+                    placeholder = {
+                        Text(
+                            text = stringResource(Res.string.search_credentials_placeholder),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    trailingIcon = {
+                        if (uiState.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = {
+                                viewModel.dispatch(
+                                    CredentialsIntent.SearchQueryChanged(
+                                        ""
+                                    )
+                                )
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = stringResource(Res.string.action_clear),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = Color.Transparent
+                    )
+                )
+            }
 
             // Content Body
             if (uiState.isLoading) {
@@ -125,7 +182,8 @@ fun CredentialsScreen(
             } else if (uiState.credentials.isEmpty()) {
                 EmptyStateCard(
                     title = stringResource(Res.string.no_saved_credentials_message),
-                    subtitle = stringResource(Res.string.no_saved_credentials_subtitle)
+                    subtitle = stringResource(Res.string.no_saved_credentials_subtitle),
+                    onAddClicked = { viewModel.dispatch(CredentialsIntent.OpenAddCredentialDialog) }
                 )
             } else if (uiState.filteredCredentials.isEmpty()) {
                 NoResultsCard(
@@ -134,7 +192,8 @@ fun CredentialsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
                     items(
                         items = uiState.filteredCredentials,
@@ -172,6 +231,22 @@ fun CredentialsScreen(
 
     // --- Dialogs ---
 
+    // Direct Add Modal Dialog
+    if (uiState.isAddingCredential) {
+        CredentialEditor(
+            password = null,
+            isPasswordEditable = true,
+            onSubmit = { newCredential ->
+                viewModel.dispatch(CredentialsIntent.CreateCredential(newCredential))
+            },
+            onDismissRequest = {
+                viewModel.dispatch(CredentialsIntent.DismissAddCredentialDialog)
+            },
+            onCopyRequested = onCopyRequested,
+            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
+        )
+    }
+
     // Detail Modal Dialog
     if (uiState.selectedCredentialForDetail != null) {
         val credential = uiState.selectedCredentialForDetail!!
@@ -186,11 +261,11 @@ fun CredentialsScreen(
             },
             onCopyPasswordRequested = onCopyRequested,
             onCopyTextRequested = onCopyTextRequested,
-            revealTimeoutMillis = uiState.revealTimeoutMillis
+            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
         )
     }
 
-    // Edit Modal Dialog (Reusing NewAccountDialog in Edit mode)
+    // Edit Modal Dialog
     if (uiState.selectedCredentialForEdit != null) {
         val credentialToEdit = uiState.selectedCredentialForEdit!!
         CredentialEditor(
@@ -203,7 +278,7 @@ fun CredentialsScreen(
                 viewModel.dispatch(CredentialsIntent.SelectCredentialForEdit(null))
             },
             onCopyRequested = onCopyRequested,
-            revealTimeoutMillis = uiState.revealTimeoutMillis
+            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
         )
     }
 
@@ -223,76 +298,15 @@ fun CredentialsScreen(
 }
 
 @Composable
-private fun HeaderSection(
-    searchQuery: String,
-    credentialCount: Int,
-    onSearchQueryChanged: (String) -> Unit
+private fun EmptyStateCard(
+    title: String,
+    subtitle: String,
+    onAddClicked: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(Res.string.title_saved_passwords),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
-            ) {
-                Text(
-                    text = stringResource(Res.string.saved_credentials_count, credentialCount),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                )
-            }
-        }
-
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = onSearchQueryChanged,
-            placeholder = { Text(stringResource(Res.string.search_credentials_placeholder)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { onSearchQueryChanged("") }) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = stringResource(Res.string.action_clear)
-                        )
-                    }
-                }
-            },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp)
-        )
-    }
-}
-
-
-@Composable
-private fun EmptyStateCard(title: String, subtitle: String) {
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 32.dp),
+            .padding(vertical = 24.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -301,37 +315,55 @@ private fun EmptyStateCard(title: String, subtitle: String) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(32.dp),
+                .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(64.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(32.dp)
                     )
                 }
             }
 
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Button(
+                onClick = onAddClicked,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(Res.string.action_add))
+            }
         }
     }
 }
@@ -351,7 +383,10 @@ private fun NoResultsCard(onClearSearch: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Button(onClick = onClearSearch) {
+        Button(
+            onClick = onClearSearch,
+            shape = RoundedCornerShape(12.dp)
+        ) {
             Text(stringResource(Res.string.action_clear))
         }
     }

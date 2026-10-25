@@ -26,21 +26,40 @@ class CredentialsViewModel(
     private val intents = Channel<CredentialsIntent>()
 
     val uiState: StateFlow<CredentialsUiState>
-        field  : MutableStateFlow<CredentialsUiState> = MutableStateFlow(
-            CredentialsUiState(
-                isLoading = true
-            )
+        field: MutableStateFlow<CredentialsUiState> = MutableStateFlow(
+            CredentialsUiState(isLoading = true)
         )
 
     init {
-        observeCredentials()
-        observeCopyConfig()
+        // Observe Credentials
+        getAllCredentials().onEach { credentials ->
+            apply(CredentialsPartialState.CredentialsLoaded(credentials))
+        }.launchIn(viewModelScope)
+
+        // Observe CopyEnabled
+        isCopyEnabled().onEach { enabled ->
+            apply(CredentialsPartialState.CopyEnabledChanged(enabled))
+        }.launchIn(viewModelScope)
+
+        // Observe password visibility timeout
+        getVisibilityTimeout().onEach { timeout ->
+            apply(CredentialsPartialState.PasswordVisibilityTimeoutChanged(timeout))
+        }.launchIn(viewModelScope)
+
 
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
                     is CredentialsIntent.SearchQueryChanged -> {
                         apply(CredentialsPartialState.SearchQueryChanged(intent.query))
+                    }
+
+                    is CredentialsIntent.OpenAddCredentialDialog -> {
+                        apply(CredentialsPartialState.AddCredentialDialogVisibilityChanged(isVisible = true))
+                    }
+
+                    is CredentialsIntent.DismissAddCredentialDialog -> {
+                        apply(CredentialsPartialState.AddCredentialDialogVisibilityChanged(isVisible = false))
                     }
 
                     is CredentialsIntent.SelectCredentialForDetail -> {
@@ -53,6 +72,13 @@ class CredentialsViewModel(
 
                     is CredentialsIntent.SelectCredentialForDelete -> {
                         apply(CredentialsPartialState.CredentialSelectedForDelete(intent.credential))
+                    }
+
+                    is CredentialsIntent.CreateCredential -> {
+                        viewModelScope.launch {
+                            saveCredential(intent.credential)
+                            apply(CredentialsPartialState.CredentialCreated)
+                        }
                     }
 
                     is CredentialsIntent.UpdateCredential -> {
@@ -73,27 +99,6 @@ class CredentialsViewModel(
         }
     }
 
-    private fun observeCredentials() {
-        getAllCredentials()
-            .onEach { credentials ->
-                uiState.update { it.copy(credentials = credentials, isLoading = false) }
-            }
-            .launchIn(viewModelScope)
-    }
-
-    private fun observeCopyConfig() {
-        isCopyEnabled()
-            .onEach { enabled ->
-                uiState.update { it.copy(isCopyEnabled = enabled) }
-            }
-            .launchIn(viewModelScope)
-
-        getVisibilityTimeout()
-            .onEach { timeout ->
-                uiState.update { it.copy(revealTimeoutMillis = timeout.timeoutMillis) }
-            }
-            .launchIn(viewModelScope)
-    }
 
     /** Send new intent */
     fun dispatch(intent: CredentialsIntent) = viewModelScope.launch {

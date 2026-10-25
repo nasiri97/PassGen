@@ -2,7 +2,6 @@ package ir.ornix.passgen.core.ui.credentialeditor
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,13 +29,11 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,7 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -58,6 +54,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.Password
+import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_add
 import ir.ornix.passgen.core.ui.action_cancel
@@ -71,6 +68,7 @@ import ir.ornix.passgen.core.ui.label_phone
 import ir.ornix.passgen.core.ui.label_title
 import ir.ornix.passgen.core.ui.label_username
 import ir.ornix.passgen.core.ui.label_web_domains
+import ir.ornix.passgen.core.ui.password
 import ir.ornix.passgen.core.ui.placeholder_keyword
 import ir.ornix.passgen.core.ui.placeholder_package_name
 import ir.ornix.passgen.core.ui.placeholder_web_domain
@@ -79,11 +77,13 @@ import ir.ornix.passgen.core.ui.section_apps_and_webs_and_keywords
 import ir.ornix.passgen.core.ui.section_basic_info
 import ir.ornix.passgen.core.ui.section_description
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
+import ir.ornix.passgen.core.ui.security.PasswordTextField
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CredentialEditor(
-    password: Password,
+    password: Password? = null,
+    isPasswordEditable: Boolean = password == null,
     defaultTitle: String = "",
     existingCredential: Credential? = null,
     onSubmit: (credential: Credential) -> Unit,
@@ -93,7 +93,13 @@ fun CredentialEditor(
     modifier: Modifier = Modifier
 ) {
     var uiState by remember {
-        mutableStateOf(CredentialEditorUiState.fromCredential(existingCredential, defaultTitle))
+        mutableStateOf(
+            CredentialEditorUiState.fromCredential(
+                credential = existingCredential,
+                defaultTitle = defaultTitle,
+                initialPassword = password
+            )
+        )
     }
 
     val dispatch: (CredentialEditorIntent) -> Unit = { intent ->
@@ -135,12 +141,22 @@ fun CredentialEditor(
                         .padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    // Password Preview Card
-                    PasswordPreviewCard(
-                        password = password,
-                        onCopyRequested = onCopyRequested,
-                        revealTimeoutMillis = revealTimeoutMillis
-                    )
+                    if (isPasswordEditable) {
+                        // Editable Password Section
+                        PasswordInputSection(
+                            uiState = uiState,
+                            dispatch = dispatch
+                        )
+                    } else if (password != null) {
+                        // Read-only Password Preview Card
+                        PasswordDisplay(
+                            modifier = Modifier.fillMaxWidth(),
+                            password = password,
+                            revealTimeoutMillis = revealTimeoutMillis,
+                            isClickable = true,
+                            onClick = { onCopyRequested(password) }
+                        )
+                    }
 
                     // Basic Info Section
                     BasicInfoSection(
@@ -174,25 +190,30 @@ fun CredentialEditor(
 
                 // Footer Actions
                 DialogFooterActions(
-                    isSaveEnabled = uiState.isTitleValid,
+                    isSaveEnabled = uiState.isSaveEnabled(),
                     onCancel = onDismissRequest,
                     onSave = {
-                        if (uiState.isTitleValid) {
-                            val credential = Credential(
-                                id = existingCredential?.id ?: 0,
-                                title = uiState.title.trim(),
-                                description = uiState.description.trim().ifBlank { null },
-                                password = password,
-                                username = uiState.username.trim().ifBlank { null },
-                                email = uiState.email.trim().ifBlank { null },
-                                phone = uiState.phone.trim().ifBlank { null },
-                                associatedPackageNames = uiState.associatedPackageNames,
-                                associatedWebDomains = uiState.associatedWebDomains,
-                                associatedKeywords = uiState.associatedKeywords
-                            )
-                            onSubmit(credential)
+                        if (uiState.isSaveEnabled()) {
+                            uiState.password?.let { password ->
+                                val credential = Credential(
+                                    id = existingCredential?.id ?: 0,
+                                    title = uiState.title.trim(),
+                                    description = uiState.description.trim().ifBlank { null },
+                                    password = password,
+                                    username = uiState.username.trim().ifBlank { null },
+                                    email = uiState.email.trim().ifBlank { null },
+                                    phone = uiState.phone.trim().ifBlank { null },
+                                    associatedPackageNames = uiState.associatedPackageNames,
+                                    associatedWebDomains = uiState.associatedWebDomains,
+                                    associatedKeywords = uiState.associatedKeywords
+                                )
+                                onSubmit(credential)
+                            }
                         } else {
-                            dispatch(CredentialEditorIntent.TitleBlurred)
+                            if (!uiState.isTitleValid) dispatch(CredentialEditorIntent.TitleBlurred)
+                            if (isPasswordEditable && !uiState.isPasswordValid) dispatch(
+                                CredentialEditorIntent.PasswordBlurred
+                            )
                         }
                     }
                 )
@@ -246,36 +267,43 @@ private fun DialogHeader(onDismissRequest: () -> Unit) {
 }
 
 @Composable
-private fun PasswordPreviewCard(
-    password: Password,
-    onCopyRequested: (Password) -> Unit,
-    revealTimeoutMillis: Long
+private fun PasswordInputSection(
+    uiState: CredentialEditorUiState,
+    dispatch: (CredentialEditorIntent) -> Unit
 ) {
-    OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+
+    //  value = uiState.rawPasswordInput
+    // visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+    //   singleLine = true,
+
+    SectionContainer(title = stringResource(Res.string.password)) {
+        PasswordTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused && (uiState.password?.value?.isEmpty() == true)) {
+                        dispatch(CredentialEditorIntent.PasswordBlurred)
+                    }
+                },
+            onValueChange = {
+                dispatch(
+                    CredentialEditorIntent.PasswordChanged(
+                        it.toPassword(entropyByteSize = null)
+                    )
+                )
+            },
+            label = { Text(stringResource(Res.string.password) + " *") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            isError = uiState.showPasswordError,
+            revealTimeoutMillis = 0L,
+            maxLength = 256
         )
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            PasswordDisplay(
-                password = password,
-                revealTimeoutMillis = revealTimeoutMillis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onCopyRequested(password) }
-            )
-        }
     }
 }
 
@@ -413,7 +441,6 @@ private fun AssociationSection(
         )
     }
 }
-
 
 @Composable
 private fun AssociationItem(

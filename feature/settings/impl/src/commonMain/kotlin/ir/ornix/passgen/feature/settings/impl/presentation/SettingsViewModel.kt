@@ -19,6 +19,8 @@ import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -54,6 +56,16 @@ class SettingsViewModel(
         )
 
     init {
+        // Observe CopyEnabled
+        isCopyEnabled().onEach { enabled ->
+            apply(SettingsPartialState.CopyEnabledChanged(enabled))
+        }.launchIn(viewModelScope)
+
+        // Observe password visibility timeout
+        getVisibilityTimeout().onEach { timeout ->
+            apply(SettingsPartialState.PasswordVisibilityTimeoutChanged(timeout))
+        }.launchIn(viewModelScope)
+
         viewModelScope.launch {
             isBiometricEnabled().collect {
                 apply(SettingsPartialState.FingerprintEnabledChanged(it))
@@ -75,18 +87,6 @@ class SettingsViewModel(
         viewModelScope.launch {
             getTheme().collect {
                 apply(SettingsPartialState.ThemeChanged(it))
-            }
-        }
-
-        viewModelScope.launch {
-            isCopyEnabled().collect {
-                apply(SettingsPartialState.CopyEnabledChanged(it))
-            }
-        }
-
-        viewModelScope.launch {
-            getVisibilityTimeout().collect {
-                apply(SettingsPartialState.PasswordVisibilityTimeoutChanged(it))
             }
         }
 

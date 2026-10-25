@@ -14,6 +14,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -35,6 +37,17 @@ class RandomViewModel(
 
 
     init {
+        // Observe CopyEnabled
+        isCopyEnabled().onEach { enabled ->
+            apply(RandomPartialState.CopyEnabledChanged(enabled))
+        }.launchIn(viewModelScope)
+
+        // Observe password visibility timeout
+        getVisibilityTimeout().onEach { timeout ->
+            apply(RandomPartialState.PasswordVisibilityTimeoutChanged(timeout))
+        }.launchIn(viewModelScope)
+
+
         viewModelScope.launch {
             configsFlow.collect { configs ->
                 apply(RandomPartialState.Refreshing)
@@ -55,18 +68,6 @@ class RandomViewModel(
                 }
 
                 apply(RandomPartialState.PasswordItemsLoaded(passGenItems))
-            }
-        }
-
-        viewModelScope.launch {
-            isCopyEnabled().collect {
-                apply(RandomPartialState.CopyEnabledChanged(it))
-            }
-        }
-
-        viewModelScope.launch {
-            getVisibilityTimeout().collect {
-                apply(RandomPartialState.PasswordVisibilityTimeoutChanged(it))
             }
         }
 

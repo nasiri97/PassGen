@@ -81,8 +81,7 @@
     <string name="add_first_config_button">افزودن اولین پیکربندی</string>
     <string name="add_config_content_desc">افزودن پیکربندی</string>
 
-    <!-- Saved Passwords &amp; About -->
-    <string name="title_saved_passwords">گذرواژه‌های ذخیره‌شده</string>
+    <!-- Saved Credentials &amp; About -->
     <string name="search_credentials_placeholder">جستجوی اعتبارنامه‌ها...</string>
     <string name="no_saved_credentials_message">هنوز هیچ اعتبارنامه‌ای ذخیره نشده است</string>
     <string name="no_saved_credentials_subtitle">اعتبارنامه‌هایی که ذخیره می‌کنید در اینجا قرار می‌گیرند</string>
@@ -244,7 +243,7 @@
     <string name="settings_timeout_1m">۱ دقیقه</string>
 
     <string name="copy_disabled_toast_message">کپی در کلیپ‌بورد به دلایل امنیتی در تنظیمات غیرفعال است</string>
-    <string name="copy_success_toast_message">رمز عبور در کلیپ‌بورد کپی شد</string>
+    <string name="copy_success_toast_message">در کلیپبورد کپی شد</string>
     <string name="password_strength">قدرت گذرواژه</string>
 
     <string name="strength_unknown">نامعلوم</string>

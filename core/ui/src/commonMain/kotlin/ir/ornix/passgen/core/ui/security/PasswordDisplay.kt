@@ -1,15 +1,21 @@
 package ir.ornix.passgen.core.ui.security
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,10 +72,12 @@ import kotlin.time.Duration.Companion.milliseconds
 fun PasswordDisplay(
     password: Password?,
     revealTimeoutMillis: Long,
+    modifier: Modifier = Modifier,
     isLoading: Boolean = false,
     maskChar: Char = '•',
     maskLength: Int? = null,
-    modifier: Modifier = Modifier
+    isClickable: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
 
     var revealed by rememberSaveable { mutableStateOf(false) }
@@ -99,42 +107,58 @@ fun PasswordDisplay(
         else -> maskChar.toString().repeat(maskLength ?: password.value.size)
     }
 
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    OutlinedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
-        if (isLoading) {
-            LinearWavyProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                wavelength = 20.dp
-            )
-        } else {
-            Text(
-                modifier = Modifier.weight(1f).secureContent(stringResource(Res.string.password)),
-                text = displayText ?: stringResource(Res.string.error_password_generation_failed),
-                style = MaterialTheme.typography.bodyLarge,
-                fontFamily = FontFamily.Monospace,
-                color =
-                    if (displayText == null) MaterialTheme.colorScheme.error
-                    else Color.Unspecified
-            )
-        }
-
-        IconButton(
-            onClick = { revealed = !revealed },
-            modifier = Modifier.testTag("password_visibility_toggle")
+        Row(
+            modifier = Modifier
+                .clickable(enabled = isClickable) { onClick() }
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector =
-                    if (revealed) Icons.Default.VisibilityOff
-                    else Icons.Default.Visibility,
-                contentDescription =
-                    if (revealed) stringResource(Res.string.action_hide)
-                    else stringResource(Res.string.action_show)
-            )
+            if (isLoading) {
+                LinearWavyProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    wavelength = 20.dp
+                )
+            } else {
+                Text(
+                    modifier = Modifier.weight(1f)
+                        .secureContent(stringResource(Res.string.password)),
+                    text = displayText
+                        ?: stringResource(Res.string.error_password_generation_failed),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = FontFamily.Monospace,
+                    color =
+                        if (displayText == null) MaterialTheme.colorScheme.error
+                        else Color.Unspecified
+                )
+            }
+
+            IconButton(
+                onClick = { revealed = !revealed },
+                modifier = Modifier.testTag("password_visibility_toggle")
+            ) {
+                Icon(
+                    imageVector =
+                        if (revealed) Icons.Default.VisibilityOff
+                        else Icons.Default.Visibility,
+                    contentDescription =
+                        if (revealed) stringResource(Res.string.action_hide)
+                        else stringResource(Res.string.action_show)
+                )
+            }
         }
     }
 }
