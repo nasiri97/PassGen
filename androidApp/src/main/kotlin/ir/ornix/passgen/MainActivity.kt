@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import ir.ornix.passgen.autofill.requestEnableAutofill
 import ir.ornix.passgen.composeapp.App
@@ -31,7 +30,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AppContextProvider.setActivity(this)
 
-
         /**
          * Prevent Screenshots & Screen Recording (FLAG_SECURE)
          */
@@ -39,7 +37,6 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
         )
-
 
         /**
          * prevents other apps' overlay windows (like "draw over other apps" permission overlays) from being shown on top of your activity.
@@ -53,18 +50,20 @@ class MainActivity : ComponentActivity() {
             var isDeviceRooted by remember { mutableStateOf<Boolean?>(null) }
 
             LaunchedEffect(Unit) {
-                isDeviceRooted = withContext(Dispatchers.IO) {
+                isDeviceRooted = withContext(Dispatchers.Default) {
                     RootDetector.isDeviceRooted(applicationContext)
                 }
             }
 
-            val deviceSupportStatus = when (isDeviceRooted) {
-                true -> DeviceSupportStatus.ROOTED
-                else -> DeviceSupportStatus.SUPPORTED
+            val supportStatus = when {
+                isDeviceRooted == true -> DeviceSupportStatus.ROOTED
+                isDbInitializationFailed -> DeviceSupportStatus.INITIALIZATION_FAILED
+                isDeviceRooted == false && isDbInitializationCompleted -> DeviceSupportStatus.SUPPORTED
+                else -> null
             }
 
             App(
-                deviceSupportStatus = deviceSupportStatus,
+                supportStatus = supportStatus,
                 onExit = {
                     this.finishAffinity()
                 }
@@ -96,10 +95,4 @@ fun AutofillSetupButton() {
     } else {
         Text("Autofill is enabled")
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
 }

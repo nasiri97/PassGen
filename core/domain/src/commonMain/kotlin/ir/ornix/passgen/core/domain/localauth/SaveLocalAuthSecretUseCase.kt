@@ -8,7 +8,7 @@ class SaveLocalAuthSecretUseCase(
     private val crypto: Crypto,
     private val repository: LocalAuthRepository
 ) {
-    operator fun invoke(type: LocalAuthType, secret: ByteArray) {
+    suspend operator fun invoke(type: LocalAuthType, secret: ByteArray) {
         repository.setLocalAuthType(type)
         repository.saveEncryptedSecret(crypto.encrypt(secret))
         secret.fill(0)

@@ -16,8 +16,9 @@
     <string name="supported_message">Device supported</string>
     <string name="unsupported_message">This app can’t run on this device because it doesn’t meet our security or compatibility requirements.</string>
     <string name="unsupported_exit">Close app</string>
-    <string name="root_detected_message">We detected that this device is rooted or its system software has been modified. To keep your data and account secure, this app can’t run on it.</string>
+    <string name="unsupported_root_detected_message">We detected that this device is rooted or its system software has been modified. To keep your data and account secure, this app can’t run on it.</string>
     <string name="unsupported_os_message">This app requires a newer version of the operating system. Please update your device to continue.</string>
+    <string name="unsupported_initialization_failed_message">Something went wrong while initializing the app. Please try again.</string>
 
     <!-- Confirm Delete Dialog -->
     <string name="delete_item_title">Delete item</string>

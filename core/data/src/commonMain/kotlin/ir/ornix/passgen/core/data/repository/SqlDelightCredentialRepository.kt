@@ -2,7 +2,6 @@ package ir.ornix.passgen.core.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import app.cash.sqldelight.db.SqlDriver
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.model.Credential
@@ -15,18 +14,12 @@ import kotlinx.coroutines.withContext
 
 class SqlDelightCredentialRepository(
     database: PassGenDatabase,
-    private val driver: SqlDriver,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : CredentialRepository {
 
     private val queries = database.credentialQueries
 
-    override suspend fun save(credential: Credential): Unit = withContext(ioDispatcher) {
-        try {
-            PassGenDatabase.Schema.create(driver).await()
-        } catch (_: Exception) {
-        }
-
+    override suspend fun save(credential: Credential): Unit = withContext(dispatcher) {
         val packageNamesStr = credential.associatedPackageNames.joinToString(",")
         val webDomainsStr = credential.associatedWebDomains.joinToString(",")
         val keywordsStr = credential.associatedKeywords.joinToString(",")
@@ -61,18 +54,14 @@ class SqlDelightCredentialRepository(
         }
     }
 
-    override suspend fun delete(credentialId: Long): Unit = withContext(ioDispatcher) {
-        try {
-            PassGenDatabase.Schema.create(driver).await()
-        } catch (_: Exception) {
-        }
+    override suspend fun delete(credentialId: Long): Unit = withContext(dispatcher) {
         queries.deleteCredentialById(credentialId)
     }
 
     override fun getAll(): Flow<List<Credential>> {
         return queries.selectAllCredentials()
             .asFlow()
-            .mapToList(ioDispatcher)
+            .mapToList(dispatcher)
             .map { list ->
                 list.map { entity ->
                     Credential(

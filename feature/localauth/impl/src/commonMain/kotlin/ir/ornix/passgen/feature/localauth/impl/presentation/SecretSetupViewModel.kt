@@ -42,8 +42,7 @@ class SecretSetupViewModel(
 
     private var firstInputBuffer: String = ""
 
-    private fun handleSecretInput(secret: String) {
-
+    private suspend fun handleSecretInput(secret: String) {
         when (uiState.value.setupStage) {
             SetupStage.ENTER_SECRET -> {
                 firstInputBuffer = secret

@@ -57,7 +57,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import ir.ornix.passgen.composeapp.di.appModule
 import ir.ornix.passgen.composeapp.navigation.NavEntryScopedViewModelStore
 import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.composeapp.navigation.appNavConfiguration
@@ -99,20 +98,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.dsl.koinConfiguration
 import kotlin.time.Duration.Companion.milliseconds
 
 data class NavItem(val route: NavKey, val label: String, val icon: ImageVector)
 
-
 @Composable
 fun App(
+    supportStatus: DeviceSupportStatus?,
+    onExit: (() -> Unit)?,
     modifier: Modifier = Modifier,
-    deviceSupportStatus: DeviceSupportStatus? = DeviceSupportStatus.SUPPORTED,
-    onExit: (() -> Unit)? = null
 ) {
 
     var splashTimeElapsed by rememberSaveable { mutableStateOf(false) }
@@ -122,70 +118,74 @@ fun App(
         splashTimeElapsed = true
     }
 
-    KoinApplication(
-        configuration = koinConfiguration {
-            modules(appModule)
-        }
-    ) {
+
+    val isUnlockingRequired by
+    if (supportStatus == DeviceSupportStatus.SUPPORTED) {
         val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
-        val isUnlockingRequired by isUnlockingRequiredUseCase().collectAsStateWithLifecycle(true)
+        isUnlockingRequiredUseCase().collectAsStateWithLifecycle(true)
+    } else mutableStateOf(null)
 
+    val selectedLanguage by
+    if (supportStatus == DeviceSupportStatus.SUPPORTED) {
         val getLanguageUseCase: GetLanguageUseCase = koinInject()
+        getLanguageUseCase().collectAsStateWithLifecycle()
+    } else mutableStateOf(AppLanguage.SYSTEM)
+
+    val selectedTheme by
+    if (supportStatus == DeviceSupportStatus.SUPPORTED) {
         val getThemeUseCase: GetThemeUseCase = koinInject()
+        getThemeUseCase().collectAsStateWithLifecycle()
+    } else mutableStateOf(AppTheme.SYSTEM)
 
-        val selectedLanguage by getLanguageUseCase().collectAsStateWithLifecycle()
-        val selectedTheme by getThemeUseCase().collectAsStateWithLifecycle()
+    // Apply locale synchronously during composition so string resources resolve immediately
+    setAppLocale(selectedLanguage)
 
-        // Apply locale synchronously during composition so string resources resolve immediately
-        setAppLocale(selectedLanguage)
+    val isDarkTheme = when (selectedTheme) {
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+        AppTheme.LIGHT -> false
+        AppTheme.DARK -> true
+    }
 
-        val isDarkTheme = when (selectedTheme) {
-            AppTheme.SYSTEM -> isSystemInDarkTheme()
-            AppTheme.LIGHT -> false
-            AppTheme.DARK -> true
-        }
+    val systemLocaleList = LocalLocaleList.current
+    val localeList = when (selectedLanguage) {
+        AppLanguage.SYSTEM -> systemLocaleList
+        AppLanguage.ENGLISH -> LocaleList(Locale("en"))
+        AppLanguage.PERSIAN -> LocaleList(Locale("fa"))
+    }
 
-        val systemLocaleList = LocalLocaleList.current
-        val localeList = when (selectedLanguage) {
-            AppLanguage.SYSTEM -> systemLocaleList
-            AppLanguage.ENGLISH -> LocaleList(Locale("en"))
-            AppLanguage.PERSIAN -> LocaleList(Locale("fa"))
-        }
+    val activeLanguageCode = when (selectedLanguage) {
+        AppLanguage.SYSTEM -> systemLocaleList.firstOrNull()?.language?.lowercase() ?: "en"
+        AppLanguage.ENGLISH -> "en"
+        AppLanguage.PERSIAN -> "fa"
+    }
 
-        val activeLanguageCode = when (selectedLanguage) {
-            AppLanguage.SYSTEM -> systemLocaleList.firstOrNull()?.language?.lowercase() ?: "en"
-            AppLanguage.ENGLISH -> "en"
-            AppLanguage.PERSIAN -> "fa"
-        }
+    val layoutDirection = if (activeLanguageCode in listOf("fa", "ar", "he", "ur")) {
+        LayoutDirection.Rtl
+    } else {
+        LayoutDirection.Ltr
+    }
 
-        val layoutDirection = if (activeLanguageCode in listOf("fa", "ar", "he", "ur")) {
-            LayoutDirection.Rtl
-        } else {
-            LayoutDirection.Ltr
-        }
+    CompositionLocalProvider(
+        LocalProvidableLocaleList provides localeList,
+        LocalLayoutDirection provides layoutDirection
+    ) {
+        PassGenTheme(darkTheme = isDarkTheme) {
+            Surface(
+                modifier = modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                when {
+                    supportStatus == DeviceSupportStatus.SUPPORTED && splashTimeElapsed && isUnlockingRequired != null ->
+                        AppContent(isUnlockingRequired = isUnlockingRequired!!)
 
-        CompositionLocalProvider(
-            LocalProvidableLocaleList provides localeList,
-            LocalLayoutDirection provides layoutDirection
-        ) {
-            PassGenTheme(darkTheme = isDarkTheme) {
-                Surface(
-                    modifier = modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    when {
-                        deviceSupportStatus == DeviceSupportStatus.SUPPORTED && splashTimeElapsed ->
-                            AppContent(isUnlockingRequired = isUnlockingRequired)
+                    supportStatus != null && supportStatus != DeviceSupportStatus.SUPPORTED ->
+                        UnsupportedDeviceScreen(
+                            reason = supportStatus,
+                            onExit = onExit
+                        )
 
-                        deviceSupportStatus == null || !splashTimeElapsed ->
-                            SplashScreen()
-
-                        else ->
-                            UnsupportedDeviceScreen(
-                                reason = deviceSupportStatus,
-                                onExit = onExit
-                            )
-                    }
+                    else ->
+                        SplashScreen()
                 }
             }
         }
@@ -197,6 +197,7 @@ private fun AppContent(
     isUnlockingRequired: Boolean,
     modifier: Modifier = Modifier
 ) {
+
     val initialRoute = when {
         isUnlockingRequired -> UnlockRoute
         else -> HomeRoute

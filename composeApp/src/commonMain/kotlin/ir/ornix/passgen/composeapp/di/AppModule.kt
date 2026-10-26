@@ -1,10 +1,8 @@
 package ir.ornix.passgen.composeapp.di
 
-import com.russhwolf.settings.Settings
 import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
-import ir.ornix.passgen.core.data.di.repositoryModule
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.Crypto
@@ -47,9 +45,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
-    includes(configModule, repositoryModule)
-
-    single { Settings() }
+    includes(configModule)
 
     single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
     single<HmacSigner> { PlatformHmacSigner }

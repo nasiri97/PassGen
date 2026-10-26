@@ -3,55 +3,36 @@ package ir.ornix.passgen.core.data.repository
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOne
-import app.cash.sqldelight.db.SqlDriver
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.LocalAuthType
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class SqlDelightLocalAuthRepository(
     database: PassGenDatabase,
-    private val driver: SqlDriver,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : LocalAuthRepository {
 
     private val queries = database.localAuthQueries
-    private val scope = CoroutineScope(SupervisorJob() + ioDispatcher)
-
 
     override fun getLocalAuthType(): Flow<LocalAuthType> {
         return queries.selectLocalAuth()
             .asFlow()
-            .mapToOne(ioDispatcher)
+            .mapToOne(dispatcher)
             .map {
                 LocalAuthType.valueOf(it.auth_type)
             }
     }
 
-    override fun setLocalAuthType(type: LocalAuthType) {
-        scope.launch {
-            try {
-                PassGenDatabase.Schema.create(driver).await()
-                queries.updateAuthType(type.name)
-            } catch (_: Exception) {
-            }
-        }
+    override suspend fun setLocalAuthType(type: LocalAuthType) {
+        queries.updateAuthType(type.name)
     }
 
-    override fun saveEncryptedSecret(encryptedSecret: ByteArray) {
-        scope.launch {
-            try {
-                PassGenDatabase.Schema.create(driver).await()
-                queries.updateEncryptedSecret(encryptedSecret)
-            } catch (_: Exception) {
-            }
-        }
+    override suspend fun saveEncryptedSecret(encryptedSecret: ByteArray) {
+        queries.updateEncryptedSecret(encryptedSecret)
     }
 
     override suspend fun getEncryptedSecret(): ByteArray? {
@@ -61,29 +42,17 @@ class SqlDelightLocalAuthRepository(
     override fun isBiometricEnabled(): Flow<Boolean> {
         return queries.selectLocalAuth()
             .asFlow()
-            .mapToOne(ioDispatcher)
+            .mapToOne(dispatcher)
             .map {
                 it.is_biometric_enabled == 1L
             }
     }
 
-    override fun setBiometricEnabled(enabled: Boolean) {
-        scope.launch {
-            try {
-                PassGenDatabase.Schema.create(driver).await()
-                queries.updateBiometricEnabled(if (enabled) 1L else 0L)
-            } catch (_: Exception) {
-            }
-        }
+    override suspend fun setBiometricEnabled(enabled: Boolean) {
+        queries.updateBiometricEnabled(if (enabled) 1L else 0L)
     }
 
-    override fun clearAuth() {
-        scope.launch {
-            try {
-                PassGenDatabase.Schema.create(driver).await()
-                queries.clearLocalAuth()
-            } catch (_: Exception) {
-            }
-        }
+    override suspend fun clearAuth() {
+        queries.clearLocalAuth()
     }
 }

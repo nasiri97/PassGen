@@ -3,7 +3,6 @@ package ir.ornix.passgen.core.data.repository
 import app.cash.sqldelight.async.coroutines.awaitAsOne
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import app.cash.sqldelight.db.SqlDriver
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.database.PassGenDatabase
@@ -20,18 +19,12 @@ import kotlinx.coroutines.withContext
 
 class SqlDelightPassGenConfigRepository(
     private val database: PassGenDatabase,
-    private val driver: SqlDriver,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : PassGenConfigRepository {
 
     private val queries = database.passGenConfigQueries
 
-    override suspend fun add(config: PassGenConfig): Int = withContext(ioDispatcher) {
-        try {
-            PassGenDatabase.Schema.create(driver).await()
-        } catch (_: Exception) {
-        }
-
+    override suspend fun add(config: PassGenConfig): Int = withContext(dispatcher) {
         database.transactionWithResult {
             val configId: Long = if (config.id > 0) {
                 queries.insertPassGenConfigWithId(
@@ -72,18 +65,14 @@ class SqlDelightPassGenConfigRepository(
         }
     }
 
-    override suspend fun removeById(configId: Int): Unit = withContext(ioDispatcher) {
-        try {
-            PassGenDatabase.Schema.create(driver).await()
-        } catch (_: Exception) {
-        }
+    override suspend fun removeById(configId: Int): Unit = withContext(dispatcher) {
         queries.deletePassGenConfigById(configId.toLong())
     }
 
     override fun getAll(): Flow<List<PassGenConfig>> {
         return queries.selectAllPassGenConfigs()
             .asFlow()
-            .mapToList(ioDispatcher)
+            .mapToList(dispatcher)
             .map { list ->
                 list.mapNotNull { row ->
                     try {

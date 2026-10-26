@@ -43,7 +43,7 @@ class SqlDelightRepositoryTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         PassGenDatabase.Schema.synchronous().create(driver)
         val db = PassGenDatabase(driver)
-        val repo = SqlDelightCredentialRepository(db, driver)
+        val repo = SqlDelightCredentialRepository(db)
 
         val credential = Credential(
             id = 0,
@@ -100,8 +100,7 @@ class SqlDelightRepositoryTest {
         val testDispatcher = UnconfinedTestDispatcher(testScheduler)
         val repo = SqlDelightLocalAuthRepository(
             database = db,
-            driver = driver,
-            ioDispatcher = testDispatcher
+            dispatcher = testDispatcher
         )
 
         testScheduler.advanceUntilIdle()
@@ -131,7 +130,7 @@ class SqlDelightRepositoryTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         PassGenDatabase.Schema.synchronous().create(driver)
         val db = PassGenDatabase(driver)
-        val repo = SqlDelightPassGenConfigRepository(db, driver)
+        val repo = SqlDelightPassGenConfigRepository(db)
 
         val kdfConfig = KdfPassGenConfig(
             id = 0,

@@ -9,9 +9,9 @@ import org.w3c.dom.Worker
 private external fun createWorker(): Worker
 
 @OptIn(ExperimentalWasmJsInterop::class)
-actual fun createDatabaseDriver(): SqlDriver {
+actual suspend fun createDatabaseDriver(): SqlDriver {
     val worker: Worker = createWorker()
     val driver = WebWorkerDriver(worker.unsafeCast())
-    PassGenDatabase.Schema.create(driver)
+    PassGenDatabase.Schema.create(driver).await()
     return driver
 }

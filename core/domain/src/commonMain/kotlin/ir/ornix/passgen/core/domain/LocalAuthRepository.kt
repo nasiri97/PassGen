@@ -4,13 +4,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalAuthRepository {
     fun getLocalAuthType(): Flow<LocalAuthType>
-    fun setLocalAuthType(type: LocalAuthType)
+    suspend fun setLocalAuthType(type: LocalAuthType)
 
-    fun saveEncryptedSecret(encryptedSecret: ByteArray)
+    suspend fun saveEncryptedSecret(encryptedSecret: ByteArray)
     suspend fun getEncryptedSecret(): ByteArray?
 
     fun isBiometricEnabled(): Flow<Boolean>
-    fun setBiometricEnabled(enabled: Boolean)
+    suspend fun setBiometricEnabled(enabled: Boolean)
 
-    fun clearAuth()
+    suspend fun clearAuth()
 }

@@ -67,19 +67,19 @@ class SettingsViewModelTest {
         val biometricFlow = MutableStateFlow(false)
 
         override fun getLocalAuthType(): StateFlow<LocalAuthType> = authTypeFlow.asStateFlow()
-        override fun setLocalAuthType(type: LocalAuthType) {
+        override suspend fun setLocalAuthType(type: LocalAuthType) {
             authTypeFlow.value = type
         }
 
-        override fun saveEncryptedSecret(encryptedSecret: ByteArray) {}
-        override fun getEncryptedSecret(): ByteArray = ByteArray(0)
+        override suspend fun saveEncryptedSecret(encryptedSecret: ByteArray) {}
+        override suspend fun getEncryptedSecret(): ByteArray = ByteArray(0)
 
         override fun isBiometricEnabled(): StateFlow<Boolean> = biometricFlow.asStateFlow()
-        override fun setBiometricEnabled(enabled: Boolean) {
+        override suspend fun setBiometricEnabled(enabled: Boolean) {
             biometricFlow.value = enabled
         }
 
-        override fun clearAuth() {
+        override suspend fun clearAuth() {
             authTypeFlow.value = LocalAuthType.NONE
             biometricFlow.value = false
         }
