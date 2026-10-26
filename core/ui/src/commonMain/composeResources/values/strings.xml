@@ -55,7 +55,7 @@
     <string name="placeholder_keyword">e.g. example</string>
     <string name="action_add">Add</string>
     <string name="section_basic_info">Credential Info</string>
-    <string name="section_account_details">Contact &amp; Identity</string>
+    <string name="section_credential_details">Contact &amp; Identity</string>
     <string name="section_apps_and_webs_and_keywords">Apps, Websites and Keywords</string>
     <string name="section_description">Notes</string>
     <string name="action_create">Save</string>

@@ -77,9 +77,9 @@ import ir.ornix.passgen.core.ui.password
 import ir.ornix.passgen.core.ui.placeholder_keyword
 import ir.ornix.passgen.core.ui.placeholder_package_name
 import ir.ornix.passgen.core.ui.placeholder_web_domain
-import ir.ornix.passgen.core.ui.section_account_details
 import ir.ornix.passgen.core.ui.section_apps_and_webs_and_keywords
 import ir.ornix.passgen.core.ui.section_basic_info
+import ir.ornix.passgen.core.ui.section_credential_details
 import ir.ornix.passgen.core.ui.section_description
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import ir.ornix.passgen.core.ui.security.PasswordTextField
@@ -162,7 +162,8 @@ fun CredentialEditor(
                             // Editable Password Section
                             PasswordInputSection(
                                 uiState = uiState,
-                                dispatch = dispatch
+                                dispatch = dispatch,
+                                revealTimeoutMillis = revealTimeoutMillis
                             )
                         } else if (password != null) {
                             // Read-only Password Preview Card
@@ -182,7 +183,7 @@ fun CredentialEditor(
                         )
 
                         // Contact & Identity Section
-                        AccountDetailsSection(
+                        CredentialDetailsSection(
                             uiState = uiState,
                             dispatch = dispatch
                         )
@@ -227,10 +228,10 @@ fun CredentialEditor(
                                     onSubmit(credential)
                                 }
                             } else {
-                                if (!uiState.isTitleValid) dispatch(CredentialEditorIntent.TitleBlurred)
-                                if (isPasswordEditable && !uiState.isPasswordValid) dispatch(
-                                    CredentialEditorIntent.PasswordBlurred
-                                )
+                                if (!uiState.isTitleValid)
+                                    dispatch(CredentialEditorIntent.TitleBlurred)
+                                if (isPasswordEditable && !uiState.isPasswordValid)
+                                    dispatch(CredentialEditorIntent.PasswordBlurred)
                             }
                         }
                     )
@@ -250,9 +251,12 @@ fun CredentialEditor(
 }
 
 @Composable
-private fun DialogHeader(onDismissRequest: () -> Unit) {
+private fun DialogHeader(
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -296,22 +300,22 @@ private fun DialogHeader(onDismissRequest: () -> Unit) {
 @Composable
 private fun PasswordInputSection(
     uiState: CredentialEditorUiState,
-    dispatch: (CredentialEditorIntent) -> Unit
+    dispatch: (CredentialEditorIntent) -> Unit,
+    revealTimeoutMillis: Long,
+    modifier: Modifier = Modifier
 ) {
-
-    //  value = uiState.rawPasswordInput
-    // visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-    //   singleLine = true,
-
-    SectionContainer(title = stringResource(Res.string.password)) {
+    SectionContainer(
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                if (!focusState.isFocused && (uiState.password?.value?.isEmpty() == true)) {
+                    dispatch(CredentialEditorIntent.PasswordBlurred)
+                }
+            },
+        title = stringResource(Res.string.password)
+    ) {
         PasswordTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    if (!focusState.isFocused && (uiState.password?.value?.isEmpty() == true)) {
-                        dispatch(CredentialEditorIntent.PasswordBlurred)
-                    }
-                },
+            modifier = Modifier.fillMaxWidth(),
             onValueChange = {
                 dispatch(
                     CredentialEditorIntent.PasswordChanged(
@@ -328,7 +332,7 @@ private fun PasswordInputSection(
                 )
             },
             isError = uiState.showPasswordError,
-            revealTimeoutMillis = 0L,
+            revealTimeoutMillis = revealTimeoutMillis,
             maxLength = 256
         )
     }
@@ -337,22 +341,30 @@ private fun PasswordInputSection(
 @Composable
 private fun BasicInfoSection(
     uiState: CredentialEditorUiState,
-    dispatch: (CredentialEditorIntent) -> Unit
+    dispatch: (CredentialEditorIntent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    SectionContainer(title = stringResource(Res.string.section_basic_info)) {
+    var hasBeenFocused by remember { mutableStateOf(false) }
+
+    SectionContainer(
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    hasBeenFocused = true
+                } else if (hasBeenFocused && uiState.title.isBlank()) {
+                    dispatch(CredentialEditorIntent.TitleBlurred)
+                }
+            },
+        title = stringResource(Res.string.section_basic_info)
+    ) {
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
             value = uiState.title,
             onValueChange = { dispatch(CredentialEditorIntent.TitleChanged(it)) },
             label = { Text(stringResource(Res.string.label_title) + " *") },
             isError = uiState.showTitleError,
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { focusState ->
-                    if (!focusState.isFocused && uiState.title.isBlank()) {
-                        dispatch(CredentialEditorIntent.TitleBlurred)
-                    }
-                },
             shape = RoundedCornerShape(12.dp),
             trailingIcon = {
                 if (uiState.title.isNotEmpty()) {
@@ -366,11 +378,15 @@ private fun BasicInfoSection(
 }
 
 @Composable
-private fun AccountDetailsSection(
+private fun CredentialDetailsSection(
     uiState: CredentialEditorUiState,
-    dispatch: (CredentialEditorIntent) -> Unit
+    dispatch: (CredentialEditorIntent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    SectionContainer(title = stringResource(Res.string.section_account_details)) {
+    SectionContainer(
+        modifier = modifier,
+        title = stringResource(Res.string.section_credential_details)
+    ) {
         OutlinedTextField(
             value = uiState.username,
             onValueChange = { dispatch(CredentialEditorIntent.UsernameChanged(it)) },
@@ -427,9 +443,13 @@ private fun AccountDetailsSection(
 @Composable
 private fun AssociationSection(
     uiState: CredentialEditorUiState,
-    dispatch: (CredentialEditorIntent) -> Unit
+    dispatch: (CredentialEditorIntent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    SectionContainer(title = stringResource(Res.string.section_apps_and_webs_and_keywords)) {
+    SectionContainer(
+        modifier = modifier,
+        title = stringResource(Res.string.section_apps_and_webs_and_keywords)
+    ) {
         // Package Names
         AssociationItem(
             label = { Text(stringResource(Res.string.label_package_names)) },
@@ -539,9 +559,13 @@ private fun AssociationItem(
 @Composable
 private fun DescriptionSection(
     uiState: CredentialEditorUiState,
-    dispatch: (CredentialEditorIntent) -> Unit
+    dispatch: (CredentialEditorIntent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    SectionContainer(title = stringResource(Res.string.section_description)) {
+    SectionContainer(
+        modifier = modifier,
+        title = stringResource(Res.string.section_description)
+    ) {
         OutlinedTextField(
             value = uiState.description,
             onValueChange = { dispatch(CredentialEditorIntent.DescriptionChanged(it)) },
@@ -564,10 +588,11 @@ private fun DescriptionSection(
 @Composable
 private fun SectionContainer(
     title: String,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
@@ -584,10 +609,11 @@ private fun SectionContainer(
 private fun DialogFooterActions(
     isSaveEnabled: Boolean,
     onCancel: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.End,

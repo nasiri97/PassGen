@@ -60,8 +60,8 @@ import ir.ornix.passgen.core.ui.label_package_names
 import ir.ornix.passgen.core.ui.label_phone
 import ir.ornix.passgen.core.ui.label_username
 import ir.ornix.passgen.core.ui.label_web_domains
-import ir.ornix.passgen.core.ui.section_account_details
 import ir.ornix.passgen.core.ui.section_apps_and_webs_and_keywords
+import ir.ornix.passgen.core.ui.section_credential_details
 import ir.ornix.passgen.core.ui.section_description
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import org.jetbrains.compose.resources.stringResource
@@ -187,7 +187,7 @@ internal fun CredentialPreviewDialog(
 
                         // Identity & Contact
                         if (!credential.username.isNullOrBlank() || !credential.email.isNullOrBlank() || !credential.phone.isNullOrBlank()) {
-                            DetailSectionContainer(title = stringResource(Res.string.section_account_details)) {
+                            DetailSectionContainer(title = stringResource(Res.string.section_credential_details)) {
                                 credential.username?.takeIf { it.isNotBlank() }?.let { username ->
                                     DetailRowItem(
                                         label = stringResource(Res.string.label_username),

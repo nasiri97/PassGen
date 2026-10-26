@@ -55,7 +55,7 @@
     <string name="placeholder_keyword">مانند example</string>
     <string name="action_add">افزودن</string>
     <string name="section_basic_info">اطلاعات اعتبارنامه</string>
-    <string name="section_account_details">تماس و هویت</string>
+    <string name="section_credential_details">تماس و هویت</string>
     <string name="section_apps_and_webs_and_keywords">برنامه‌ها، وب‌سایت‌ها و کلمات کلیدی</string>
     <string name="section_description">یادداشت‌ها</string>
     <string name="action_create">ذخیره</string>
