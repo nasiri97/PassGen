@@ -126,6 +126,7 @@ kotlin {
             resources.srcDir(generatedWebResources)
 
             dependencies {
+                implementation(project(":core:logging"))
                 implementation(project(":composeApp"))
                 implementation(libs.compose.ui)
             }

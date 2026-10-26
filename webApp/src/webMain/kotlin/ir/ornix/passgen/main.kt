@@ -11,6 +11,7 @@ import androidx.compose.ui.window.ComposeViewport
 import ir.ornix.passgen.composeapp.App
 import ir.ornix.passgen.composeapp.DeviceSupportStatus
 import ir.ornix.passgen.composeapp.di.initKoin
+import ir.ornix.passgen.core.logging.Logger
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
@@ -28,7 +29,8 @@ private fun AppStartup() {
         try {
             initKoin()
             isDbInitializationCompleted = true
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Logger.e("Koin initialization failed.", e)
             isDbInitializationFailed = true
         }
     }

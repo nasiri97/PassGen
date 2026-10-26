@@ -10,6 +10,7 @@ import androidx.compose.ui.window.application
 import ir.ornix.passgen.composeapp.App
 import ir.ornix.passgen.composeapp.DeviceSupportStatus
 import ir.ornix.passgen.composeapp.di.initKoin
+import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.app_icon
 import ir.ornix.passgen.core.ui.app_name
@@ -25,7 +26,8 @@ fun main() = application {
         try {
             initKoin()
             isDbInitializationCompleted = true
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Logger.e("Koin initialization failed.", e)
             isDbInitializationFailed = true
         }
     }

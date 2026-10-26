@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -108,21 +109,20 @@ data class NavItem(val route: NavKey, val label: String, val icon: ImageVector)
 fun App(
     supportStatus: DeviceSupportStatus?,
     onExit: (() -> Unit)?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
 
     var splashTimeElapsed by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(3_000L.milliseconds)
+        delay(2_000L.milliseconds)
         splashTimeElapsed = true
     }
-
 
     val isUnlockingRequired by
     if (supportStatus == DeviceSupportStatus.SUPPORTED) {
         val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
-        isUnlockingRequiredUseCase().collectAsStateWithLifecycle(true)
+        isUnlockingRequiredUseCase().collectAsStateWithLifecycle(null)
     } else mutableStateOf(null)
 
     val selectedLanguage by
@@ -203,7 +203,9 @@ private fun AppContent(
         else -> HomeRoute
     }
 
-    val backStack = rememberNavBackStack(appNavConfiguration, initialRoute)
+    val backStack = key(initialRoute) {
+        rememberNavBackStack(appNavConfiguration, initialRoute)
+    }
 
     val navViewModelStoreProvider: NavViewModelStoreProvider = koinViewModel()
     LaunchedEffect(backStack.toList()) {
