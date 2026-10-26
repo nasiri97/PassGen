@@ -14,18 +14,11 @@ import kotlin.test.assertEquals
 class AppConfigUseCasesTest {
 
     private class FakeAppConfigRepository : AppConfigRepository {
-        private var firstLaunch = true
         private val languageState = MutableStateFlow(AppLanguage.SYSTEM)
         private val themeState = MutableStateFlow(AppTheme.SYSTEM)
         private val copyEnabledState = MutableStateFlow(false)
         private val passwordVisibilityTimeoutState =
             MutableStateFlow(PasswordVisibilityTimeout.default)
-
-        override fun isFirstLaunch(): Boolean = firstLaunch
-
-        override fun setFirstLaunch(isFirstLaunch: Boolean) {
-            firstLaunch = isFirstLaunch
-        }
 
         override fun getLanguage(): StateFlow<AppLanguage> = languageState.asStateFlow()
 
@@ -40,7 +33,6 @@ class AppConfigUseCasesTest {
         }
 
         override fun isCopyEnabled(): StateFlow<Boolean> = copyEnabledState.asStateFlow()
-
         override fun setCopyEnabled(enabled: Boolean) {
             copyEnabledState.value = enabled
         }

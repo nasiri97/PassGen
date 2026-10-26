@@ -51,23 +51,15 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
+import ir.ornix.passgen.core.data.di.sqlDelightRepositoryModule
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.AppConfigRepository
-import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
-import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
-import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
-import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
+import ir.ornix.passgen.core.domain.di.domainModule
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
-import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
-import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
-import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
@@ -79,7 +71,6 @@ import kotlinx.coroutines.flow.flowOf
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
-import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -215,31 +206,18 @@ object KdfTestHarness {
         val driver = AndroidSqliteDriver(
             schema = PassGenDatabase.Schema.synchronous(),
             context = context,
-            name = null
+            name = null // In-memory database
         )
-        val db = PassGenDatabase(driver)
-        val repo = SqlDelightPassGenConfigRepository(db, driver)
+
+        includes(
+            domainModule,
+            sqlDelightRepositoryModule(driver = driver)
+        )
 
         single { SettingsAppConfigRepository(MapSettings()) } bind AppConfigRepository::class
-        single { repo } bind PassGenConfigRepository::class
+
         single { TestHmacSigner() } bind HmacSigner::class
         //  single { PlatformHmacSigner } bind HmacSigner::class
-        single {
-            object : CredentialRepository {
-                override suspend fun save(credential: Credential) {}
-                override suspend fun delete(credentialId: Long) {}
-                override fun getAll(): Flow<List<Credential>> = flowOf(emptyList())
-            }
-        } bind CredentialRepository::class
-
-        factoryOf(::IsCopyEnabledUseCase)
-        factoryOf(::GetVisibilityTimeoutUseCase)
-        factoryOf(::GenerateKDFPassUseCase)
-        factoryOf(::AddKdfPassGenConfigUseCase)
-        factoryOf(::GetAllKdfPassGenConfigsUseCase)
-        factoryOf(::RemoveKdfPassGenConfigUseCase)
-        factoryOf(::SaveCredentialUseCase)
-        factory { GenerateRandomPassUseCase() }
 
         viewModelOf(::HomeViewModel)
         viewModelOf(::AddKdfConfigViewModel)
