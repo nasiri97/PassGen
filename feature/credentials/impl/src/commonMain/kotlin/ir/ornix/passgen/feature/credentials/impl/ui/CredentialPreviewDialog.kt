@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -31,10 +32,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -72,202 +76,226 @@ internal fun CredentialPreviewDialog(
     onEditRequested: () -> Unit,
     onCopyPasswordRequested: (Password) -> Unit,
     onCopyTextRequested: (String) -> Unit,
-    revealTimeoutMillis: Long
+    revealTimeoutMillis: Long,
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState? = null,
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
 ) {
+
+    val isSnackbarAvailableInChildren = true
+
+    LaunchedEffect(isSnackbarAvailableInChildren) {
+        onSnackbarAvailabilityChanged(isSnackbarAvailableInChildren)
+    }
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.92f)
-                .padding(vertical = 24.dp),
-            shape = RoundedCornerShape(28.dp),
-            tonalElevation = 6.dp,
-            color = MaterialTheme.colorScheme.surface
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .fillMaxWidth(0.92f)
+                    .padding(vertical = 24.dp),
+                shape = RoundedCornerShape(28.dp),
+                tonalElevation = 6.dp,
+                color = MaterialTheme.colorScheme.surface
             ) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(44.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = credential.title?.take(1)?.uppercase()
-                                        ?: DEFAULT_FOR_TITLELESS,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
-                        }
-
-                        Column {
-                            Text(
-                                text = credential.title ?: DEFAULT_FOR_TITLELESS,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Text(
-                                text = stringResource(Res.string.credential_details),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    IconButton(onClick = onDismissRequest) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = stringResource(Res.string.action_close)
-                        )
-                    }
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
-
-                // Scrollable Details Body
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f, fill = false)
-                        .heightIn(max = 520.dp)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                        .padding(vertical = 16.dp)
                 ) {
-                    // Password Section
-                    PasswordDisplay(
-                        modifier = Modifier.fillMaxWidth(),
-                        password = credential.password,
-                        revealTimeoutMillis = revealTimeoutMillis,
-                        isClickable = true,
-                        onClick = { onCopyPasswordRequested(credential.password) }
-                    )
-
-                    // Identity & Contact
-                    if (!credential.username.isNullOrBlank() || !credential.email.isNullOrBlank() || !credential.phone.isNullOrBlank()) {
-                        DetailSectionContainer(title = stringResource(Res.string.section_account_details)) {
-                            credential.username?.takeIf { it.isNotBlank() }?.let { username ->
-                                DetailRowItem(
-                                    label = stringResource(Res.string.label_username),
-                                    value = username,
-                                    icon = Icons.Outlined.Person,
-                                    onCopy = { onCopyTextRequested(username) }
-                                )
-                            }
-
-                            credential.email?.takeIf { it.isNotBlank() }?.let { email ->
-                                DetailRowItem(
-                                    label = stringResource(Res.string.label_email),
-                                    value = email,
-                                    icon = Icons.Outlined.Email,
-                                    onCopy = { onCopyTextRequested(email) }
-                                )
-                            }
-
-                            credential.phone?.takeIf { it.isNotBlank() }?.let { phone ->
-                                DetailRowItem(
-                                    label = stringResource(Res.string.label_phone),
-                                    value = phone,
-                                    icon = Icons.Outlined.Phone,
-                                    onCopy = { onCopyTextRequested(phone) }
-                                )
-                            }
-                        }
-                    }
-
-                    // Apps & Web Linking & Keywords
-                    if (credential.associatedPackageNames.isNotEmpty() || credential.associatedWebDomains.isNotEmpty()) {
-                        DetailSectionContainer(title = stringResource(Res.string.section_apps_and_webs_and_keywords)) {
-                            AssociationSection(
-                                label = stringResource(Res.string.label_package_names),
-                                items = credential.associatedPackageNames,
-                                onCopyTextRequested = onCopyTextRequested
-                            )
-
-                            AssociationSection(
-                                label = stringResource(Res.string.label_web_domains),
-                                items = credential.associatedWebDomains,
-                                onCopyTextRequested = onCopyTextRequested
-                            )
-
-                            AssociationSection(
-                                label = stringResource(Res.string.label_keywords),
-                                items = credential.associatedKeywords,
-                                onCopyTextRequested = onCopyTextRequested
-                            )
-                        }
-                    }
-
-                    // Description / Notes
-                    credential.description?.takeIf { it.isNotBlank() }?.let { desc ->
-                        DetailSectionContainer(title = stringResource(Res.string.section_description)) {
-                            OutlinedCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.outlinedCardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                                )
+                    // Header
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.size(44.dp)
                             ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = credential.title?.take(1)?.uppercase()
+                                            ?: DEFAULT_FOR_TITLELESS,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+
+                            Column {
                                 Text(
-                                    text = desc,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(14.dp),
+                                    text = credential.title ?: DEFAULT_FOR_TITLELESS,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+
+                                Text(
+                                    text = stringResource(Res.string.credential_details),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
+                        }
+
+                        IconButton(onClick = onDismissRequest) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = stringResource(Res.string.action_close)
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Scrollable Details Body
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false)
+                            .heightIn(max = 520.dp)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
+                    ) {
+                        // Password Section
+                        PasswordDisplay(
+                            modifier = Modifier.fillMaxWidth(),
+                            password = credential.password,
+                            revealTimeoutMillis = revealTimeoutMillis,
+                            isClickable = true,
+                            onClick = { onCopyPasswordRequested(credential.password) }
+                        )
+
+                        // Identity & Contact
+                        if (!credential.username.isNullOrBlank() || !credential.email.isNullOrBlank() || !credential.phone.isNullOrBlank()) {
+                            DetailSectionContainer(title = stringResource(Res.string.section_account_details)) {
+                                credential.username?.takeIf { it.isNotBlank() }?.let { username ->
+                                    DetailRowItem(
+                                        label = stringResource(Res.string.label_username),
+                                        value = username,
+                                        icon = Icons.Outlined.Person,
+                                        onCopy = { onCopyTextRequested(username) }
+                                    )
+                                }
+
+                                credential.email?.takeIf { it.isNotBlank() }?.let { email ->
+                                    DetailRowItem(
+                                        label = stringResource(Res.string.label_email),
+                                        value = email,
+                                        icon = Icons.Outlined.Email,
+                                        onCopy = { onCopyTextRequested(email) }
+                                    )
+                                }
+
+                                credential.phone?.takeIf { it.isNotBlank() }?.let { phone ->
+                                    DetailRowItem(
+                                        label = stringResource(Res.string.label_phone),
+                                        value = phone,
+                                        icon = Icons.Outlined.Phone,
+                                        onCopy = { onCopyTextRequested(phone) }
+                                    )
+                                }
+                            }
+                        }
+
+                        // Apps & Web Linking & Keywords
+                        if (credential.associatedPackageNames.isNotEmpty() || credential.associatedWebDomains.isNotEmpty()) {
+                            DetailSectionContainer(title = stringResource(Res.string.section_apps_and_webs_and_keywords)) {
+                                AssociationSection(
+                                    label = stringResource(Res.string.label_package_names),
+                                    items = credential.associatedPackageNames,
+                                    onCopyTextRequested = onCopyTextRequested
+                                )
+
+                                AssociationSection(
+                                    label = stringResource(Res.string.label_web_domains),
+                                    items = credential.associatedWebDomains,
+                                    onCopyTextRequested = onCopyTextRequested
+                                )
+
+                                AssociationSection(
+                                    label = stringResource(Res.string.label_keywords),
+                                    items = credential.associatedKeywords,
+                                    onCopyTextRequested = onCopyTextRequested
+                                )
+                            }
+                        }
+
+                        // Description / Notes
+                        credential.description?.takeIf { it.isNotBlank() }?.let { desc ->
+                            DetailSectionContainer(title = stringResource(Res.string.section_description)) {
+                                OutlinedCard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.outlinedCardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                    )
+                                ) {
+                                    Text(
+                                        text = desc,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(14.dp),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Actions Footer
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = onDismissRequest) {
+                            Text(stringResource(Res.string.action_cancel))
+                        }
+
+                        Spacer(Modifier.width(12.dp))
+
+                        Button(
+                            onClick = onEditRequested,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(Res.string.action_edit))
                         }
                     }
                 }
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(top = 16.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
-
-                // Actions Footer
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text(stringResource(Res.string.action_cancel))
-                    }
-
-                    Spacer(Modifier.width(12.dp))
-
-                    Button(
-                        onClick = onEditRequested,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(Res.string.action_edit))
-                    }
+                if (snackbarHostState != null) {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp)
+                    )
                 }
             }
         }

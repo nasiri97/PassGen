@@ -19,8 +19,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -69,9 +71,17 @@ fun HomeScreen(
         }
     }
 
+    var isSnackbarAvailableInPassGenItemList by remember { mutableStateOf(false) }
+
+    val isSnackbarAvailableInChildren =
+        uiState.passGenItems.isNotEmpty() && isSnackbarAvailableInPassGenItemList
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = {
+            if (!isSnackbarAvailableInChildren)
+                SnackbarHost(snackbarHostState)
+        },
         floatingActionButton = {
             if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
@@ -113,7 +123,9 @@ fun HomeScreen(
                     },
                     addNewCredential = { viewModel.dispatch(HomeIntent.SaveCredential(it)) },
                     onCopyRequested = onCopyRequested,
-                    revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
+                    revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
+                    snackbarHostState = snackbarHostState,
+                    onSnackbarAvailabilityChanged = { isSnackbarAvailableInPassGenItemList = it }
                 )
             }
         }

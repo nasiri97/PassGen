@@ -27,12 +27,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,10 +73,21 @@ fun PassGenItemCard(
     showPassGenInfoDialog: (PassGenConfig) -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState? = null,
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
 ) {
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
-    var showNewAccountDialog by remember { mutableStateOf(false) }
+    var showCredentialDialog by remember { mutableStateOf(false) }
+
+    var isSnackbarAvailableInCredentialDialog by remember { mutableStateOf(false) }
+
+    val isSnackbarAvailableInChildren =
+        showCredentialDialog && isSnackbarAvailableInCredentialDialog
+
+    LaunchedEffect(isSnackbarAvailableInChildren) {
+        onSnackbarAvailabilityChanged(isSnackbarAvailableInChildren)
+    }
 
     val password = passGenItem.password
 
@@ -89,17 +102,19 @@ fun PassGenItemCard(
         )
     }
 
-    if (showNewAccountDialog && password != null && password.value.isNotEmpty()) {
+    if (showCredentialDialog && password != null && password.value.isNotEmpty()) {
         CredentialEditor(
             password = password,
             defaultTitle = passGenItem.config.name,
             onSubmit = { newCredential ->
                 addNewCredential(newCredential)
-                showNewAccountDialog = false
+                showCredentialDialog = false
             },
-            onDismissRequest = { showNewAccountDialog = false },
+            onDismissRequest = { showCredentialDialog = false },
             onCopyRequested = onCopyRequested,
-            revealTimeoutMillis = revealTimeoutMillis
+            revealTimeoutMillis = revealTimeoutMillis,
+            snackbarHostState = snackbarHostState,
+            onSnackbarAvailabilityChanged = { isSnackbarAvailableInCredentialDialog = it }
         )
     }
 
@@ -112,7 +127,7 @@ fun PassGenItemCard(
         onDismiss = { value ->
             when (value) {
                 SwipeToDismissBoxValue.StartToEnd -> {
-                    showNewAccountDialog = true
+                    showCredentialDialog = true
                     scope.launch { swipeState.reset() }
                 }
 

@@ -37,8 +37,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,6 +62,7 @@ import ir.ornix.passgen.core.ui.no_saved_credentials_message
 import ir.ornix.passgen.core.ui.no_saved_credentials_subtitle
 import ir.ornix.passgen.core.ui.search_credentials_placeholder
 import ir.ornix.passgen.feature.credentials.impl.presentation.CredentialsIntent
+import ir.ornix.passgen.feature.credentials.impl.presentation.CredentialsUiState
 import ir.ornix.passgen.feature.credentials.impl.presentation.CredentialsViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -67,7 +70,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun CredentialsScreen(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val viewModel: CredentialsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -99,10 +102,117 @@ fun CredentialsScreen(
         }
     }
 
+    var isSnackbarAvailableInNewCredentialDialog by remember { mutableStateOf(false) }
+    var isSnackbarAvailableInEditCredentialDialog by remember { mutableStateOf(false) }
+    var isSnackbarAvailableInCredentialPreviewDialog by remember { mutableStateOf(false) }
+
+    val isSnackbarAvailableInChildren =
+        (uiState.isAddingCredential && isSnackbarAvailableInNewCredentialDialog) ||
+                (uiState.selectedCredentialForDetail != null && isSnackbarAvailableInCredentialPreviewDialog) ||
+                (uiState.selectedCredentialForEdit != null && isSnackbarAvailableInEditCredentialDialog)
+
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Credential Screen content
+        CredentialsScreenContent(
+            uiState = uiState,
+            viewModel = viewModel,
+            snackbarHost = {
+                if (!isSnackbarAvailableInChildren) {
+                    SnackbarHost(snackbarHostState)
+                }
+            }
+        )
+
+        // Detail Modal Dialog
+        if (uiState.selectedCredentialForDetail != null) {
+            val credential = uiState.selectedCredentialForDetail!!
+            CredentialPreviewDialog(
+                credential = credential,
+                onDismissRequest = {
+                    viewModel.dispatch(CredentialsIntent.SelectCredentialForDetail(null))
+                },
+                onEditRequested = {
+                    viewModel.dispatch(CredentialsIntent.SelectCredentialForDetail(null))
+                    viewModel.dispatch(CredentialsIntent.SelectCredentialForEdit(credential))
+                },
+                onCopyPasswordRequested = onCopyRequested,
+                onCopyTextRequested = onCopyTextRequested,
+                revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
+                snackbarHostState = snackbarHostState,
+                onSnackbarAvailabilityChanged = {
+                    isSnackbarAvailableInCredentialPreviewDialog = it
+                }
+            )
+        }
+
+        // Direct Add Modal Dialog
+        if (uiState.isAddingCredential) {
+            CredentialEditor(
+                password = null,
+                isPasswordEditable = true,
+                onSubmit = { newCredential ->
+                    viewModel.dispatch(CredentialsIntent.CreateCredential(newCredential))
+                },
+                onDismissRequest = {
+                    viewModel.dispatch(CredentialsIntent.DismissAddCredentialDialog)
+                },
+                onCopyRequested = onCopyRequested,
+                revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
+                snackbarHostState = snackbarHostState,
+                onSnackbarAvailabilityChanged = { isSnackbarAvailableInNewCredentialDialog = it }
+            )
+        }
+
+        // Edit Modal Dialog
+        if (uiState.selectedCredentialForEdit != null) {
+            val credentialToEdit = uiState.selectedCredentialForEdit!!
+            CredentialEditor(
+                password = credentialToEdit.password,
+                existingCredential = credentialToEdit,
+                onSubmit = { updated ->
+                    viewModel.dispatch(CredentialsIntent.UpdateCredential(updated))
+                },
+                onDismissRequest = {
+                    viewModel.dispatch(CredentialsIntent.SelectCredentialForEdit(null))
+                },
+                onCopyRequested = onCopyRequested,
+                revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
+                snackbarHostState = snackbarHostState,
+                onSnackbarAvailabilityChanged = { isSnackbarAvailableInEditCredentialDialog = it }
+            )
+        }
+
+        // Confirm Delete Dialog
+        if (uiState.selectedCredentialForDelete != null) {
+            val credentialToDelete = uiState.selectedCredentialForDelete!!
+            ConfirmDeleteDialog(
+                itemLabel = credentialToDelete.title,
+                onConfirmDelete = {
+                    viewModel.dispatch(CredentialsIntent.DeleteCredential(credentialToDelete.id))
+                },
+                onDismissRequest = {
+                    viewModel.dispatch(CredentialsIntent.SelectCredentialForDelete(null))
+                }
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun CredentialsScreenContent(
+    uiState: CredentialsUiState,
+    viewModel: CredentialsViewModel,
+    modifier: Modifier = Modifier,
+    snackbarHost: @Composable () -> Unit = {}
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = snackbarHost,
         floatingActionButton = {
             if (uiState.credentials.isNotEmpty()) {
                 ExtendedFloatingActionButton(
@@ -228,74 +338,8 @@ fun CredentialsScreen(
             }
         }
     }
-
-    // --- Dialogs ---
-
-    // Direct Add Modal Dialog
-    if (uiState.isAddingCredential) {
-        CredentialEditor(
-            password = null,
-            isPasswordEditable = true,
-            onSubmit = { newCredential ->
-                viewModel.dispatch(CredentialsIntent.CreateCredential(newCredential))
-            },
-            onDismissRequest = {
-                viewModel.dispatch(CredentialsIntent.DismissAddCredentialDialog)
-            },
-            onCopyRequested = onCopyRequested,
-            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
-        )
-    }
-
-    // Detail Modal Dialog
-    if (uiState.selectedCredentialForDetail != null) {
-        val credential = uiState.selectedCredentialForDetail!!
-        CredentialPreviewDialog(
-            credential = credential,
-            onDismissRequest = {
-                viewModel.dispatch(CredentialsIntent.SelectCredentialForDetail(null))
-            },
-            onEditRequested = {
-                viewModel.dispatch(CredentialsIntent.SelectCredentialForDetail(null))
-                viewModel.dispatch(CredentialsIntent.SelectCredentialForEdit(credential))
-            },
-            onCopyPasswordRequested = onCopyRequested,
-            onCopyTextRequested = onCopyTextRequested,
-            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
-        )
-    }
-
-    // Edit Modal Dialog
-    if (uiState.selectedCredentialForEdit != null) {
-        val credentialToEdit = uiState.selectedCredentialForEdit!!
-        CredentialEditor(
-            password = credentialToEdit.password,
-            existingCredential = credentialToEdit,
-            onSubmit = { updated ->
-                viewModel.dispatch(CredentialsIntent.UpdateCredential(updated))
-            },
-            onDismissRequest = {
-                viewModel.dispatch(CredentialsIntent.SelectCredentialForEdit(null))
-            },
-            onCopyRequested = onCopyRequested,
-            revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
-        )
-    }
-
-    // Confirm Delete Dialog
-    if (uiState.selectedCredentialForDelete != null) {
-        val credentialToDelete = uiState.selectedCredentialForDelete!!
-        ConfirmDeleteDialog(
-            itemLabel = credentialToDelete.title,
-            onConfirmDelete = {
-                viewModel.dispatch(CredentialsIntent.DeleteCredential(credentialToDelete.id))
-            },
-            onDismissRequest = {
-                viewModel.dispatch(CredentialsIntent.SelectCredentialForDelete(null))
-            }
-        )
-    }
 }
+
 
 @Composable
 private fun EmptyStateCard(

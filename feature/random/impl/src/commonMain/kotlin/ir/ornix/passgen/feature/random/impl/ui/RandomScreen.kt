@@ -19,8 +19,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -72,9 +74,16 @@ fun RandomScreen(
         }
     }
 
+    var isSnackbarAvailableInRandomList by remember { mutableStateOf(false) }
+
+    val isSnackbarAvailableInChildren = isSnackbarAvailableInRandomList
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = {
+            if (!isSnackbarAvailableInChildren)
+                SnackbarHost(snackbarHostState)
+        },
         floatingActionButton = {
             if (uiState.passGenItems.isNotEmpty())
                 FloatingActionButton(onClick = onNavigateToCreateConfig) {
@@ -100,7 +109,9 @@ fun RandomScreen(
                 addNewCredential = { viewModel.dispatch(RandomIntent.SaveCredential(it)) },
                 onNavigateToCreateConfig = onNavigateToCreateConfig,
                 onCopyRequested = onCopyRequested,
-                revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis
+                revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
+                snackbarHostState = snackbarHostState,
+                onSnackbarAvailabilityChanged = { isSnackbarAvailableInRandomList = it }
             )
         }
     }
@@ -114,7 +125,9 @@ private fun RandomList(
     onNavigateToCreateConfig: () -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState? = null,
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
 ) {
     if (passGenItems.isEmpty()) {
         EmptyRandomContent(
@@ -130,7 +143,9 @@ private fun RandomList(
             removePasswordItem = onRemovePasswordItemClick,
             addNewCredential = addNewCredential,
             onCopyRequested = onCopyRequested,
-            revealTimeoutMillis = revealTimeoutMillis
+            revealTimeoutMillis = revealTimeoutMillis,
+            snackbarHostState = snackbarHostState,
+            onSnackbarAvailabilityChanged = onSnackbarAvailabilityChanged
         )
     }
 }

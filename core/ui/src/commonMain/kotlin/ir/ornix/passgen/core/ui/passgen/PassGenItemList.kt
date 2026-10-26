@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +28,9 @@ fun PassGenItemList(
     addNewCredential: (credential: Credential) -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState? = null,
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
 ) {
     var passGenConfig by remember { mutableStateOf<PassGenConfig?>(null) }
 
@@ -50,7 +53,9 @@ fun PassGenItemList(
                 addNewCredential = addNewCredential,
                 showPassGenInfoDialog = { passGenConfig = it },
                 onCopyRequested = onCopyRequested,
-                revealTimeoutMillis = revealTimeoutMillis
+                revealTimeoutMillis = revealTimeoutMillis,
+                snackbarHostState = snackbarHostState,
+                onSnackbarAvailabilityChanged = onSnackbarAvailabilityChanged
             )
         }
     }

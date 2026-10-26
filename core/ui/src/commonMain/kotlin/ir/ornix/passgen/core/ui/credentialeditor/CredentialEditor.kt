@@ -4,11 +4,13 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -35,10 +37,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,7 +95,9 @@ fun CredentialEditor(
     onDismissRequest: () -> Unit,
     onCopyRequested: (Password) -> Unit,
     revealTimeoutMillis: Long,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState? = null,
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
 ) {
     var uiState by remember {
         mutableStateOf(
@@ -106,117 +113,137 @@ fun CredentialEditor(
         uiState = reduce(uiState, intent)
     }
 
+    val isSnackbarAvailableInChildren = true
+
+    LaunchedEffect(isSnackbarAvailableInChildren) {
+        onSnackbarAvailabilityChanged(isSnackbarAvailableInChildren)
+    }
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Surface(
-            modifier = modifier
-                .fillMaxWidth(0.92f)
-                .padding(vertical = 24.dp),
-            shape = RoundedCornerShape(28.dp),
-            tonalElevation = 6.dp,
-            color = MaterialTheme.colorScheme.surface
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+            Surface(
+                modifier = modifier
+                    .fillMaxWidth(0.92f)
+                    .padding(vertical = 24.dp),
+                shape = RoundedCornerShape(28.dp),
+                tonalElevation = 6.dp,
+                color = MaterialTheme.colorScheme.surface
             ) {
-                // Header
-                DialogHeader(onDismissRequest = onDismissRequest)
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
-
-                // Scrollable Content
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f, fill = false)
-                        .heightIn(max = 520.dp)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                        .padding(vertical = 16.dp)
                 ) {
-                    if (isPasswordEditable) {
-                        // Editable Password Section
-                        PasswordInputSection(
+                    // Header
+                    DialogHeader(onDismissRequest = onDismissRequest)
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Scrollable Content
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false)
+                            .heightIn(max = 520.dp)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        if (isPasswordEditable) {
+                            // Editable Password Section
+                            PasswordInputSection(
+                                uiState = uiState,
+                                dispatch = dispatch
+                            )
+                        } else if (password != null) {
+                            // Read-only Password Preview Card
+                            PasswordDisplay(
+                                modifier = Modifier.fillMaxWidth(),
+                                password = password,
+                                revealTimeoutMillis = revealTimeoutMillis,
+                                isClickable = true,
+                                onClick = { onCopyRequested(password) }
+                            )
+                        }
+
+                        // Basic Info Section
+                        BasicInfoSection(
                             uiState = uiState,
                             dispatch = dispatch
                         )
-                    } else if (password != null) {
-                        // Read-only Password Preview Card
-                        PasswordDisplay(
-                            modifier = Modifier.fillMaxWidth(),
-                            password = password,
-                            revealTimeoutMillis = revealTimeoutMillis,
-                            isClickable = true,
-                            onClick = { onCopyRequested(password) }
+
+                        // Contact & Identity Section
+                        AccountDetailsSection(
+                            uiState = uiState,
+                            dispatch = dispatch
+                        )
+
+                        // Apps & Web Linking Section
+                        AssociationSection(
+                            uiState = uiState,
+                            dispatch = dispatch
+                        )
+
+                        // Notes Section
+                        DescriptionSection(
+                            uiState = uiState,
+                            dispatch = dispatch
                         )
                     }
 
-                    // Basic Info Section
-                    BasicInfoSection(
-                        uiState = uiState,
-                        dispatch = dispatch
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                     )
 
-                    // Contact & Identity Section
-                    AccountDetailsSection(
-                        uiState = uiState,
-                        dispatch = dispatch
-                    )
-
-                    // Apps & Web Linking Section
-                    AssociationSection(
-                        uiState = uiState,
-                        dispatch = dispatch
-                    )
-
-                    // Notes Section
-                    DescriptionSection(
-                        uiState = uiState,
-                        dispatch = dispatch
+                    // Footer Actions
+                    DialogFooterActions(
+                        isSaveEnabled = uiState.isSaveEnabled(),
+                        onCancel = onDismissRequest,
+                        onSave = {
+                            if (uiState.isSaveEnabled()) {
+                                uiState.password?.let { password ->
+                                    val credential = Credential(
+                                        id = existingCredential?.id ?: 0,
+                                        title = uiState.title.trim(),
+                                        description = uiState.description.trim().ifBlank { null },
+                                        password = password,
+                                        username = uiState.username.trim().ifBlank { null },
+                                        email = uiState.email.trim().ifBlank { null },
+                                        phone = uiState.phone.trim().ifBlank { null },
+                                        associatedPackageNames = uiState.associatedPackageNames,
+                                        associatedWebDomains = uiState.associatedWebDomains,
+                                        associatedKeywords = uiState.associatedKeywords
+                                    )
+                                    onSubmit(credential)
+                                }
+                            } else {
+                                if (!uiState.isTitleValid) dispatch(CredentialEditorIntent.TitleBlurred)
+                                if (isPasswordEditable && !uiState.isPasswordValid) dispatch(
+                                    CredentialEditorIntent.PasswordBlurred
+                                )
+                            }
+                        }
                     )
                 }
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(top = 16.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
-
-                // Footer Actions
-                DialogFooterActions(
-                    isSaveEnabled = uiState.isSaveEnabled(),
-                    onCancel = onDismissRequest,
-                    onSave = {
-                        if (uiState.isSaveEnabled()) {
-                            uiState.password?.let { password ->
-                                val credential = Credential(
-                                    id = existingCredential?.id ?: 0,
-                                    title = uiState.title.trim(),
-                                    description = uiState.description.trim().ifBlank { null },
-                                    password = password,
-                                    username = uiState.username.trim().ifBlank { null },
-                                    email = uiState.email.trim().ifBlank { null },
-                                    phone = uiState.phone.trim().ifBlank { null },
-                                    associatedPackageNames = uiState.associatedPackageNames,
-                                    associatedWebDomains = uiState.associatedWebDomains,
-                                    associatedKeywords = uiState.associatedKeywords
-                                )
-                                onSubmit(credential)
-                            }
-                        } else {
-                            if (!uiState.isTitleValid) dispatch(CredentialEditorIntent.TitleBlurred)
-                            if (isPasswordEditable && !uiState.isPasswordValid) dispatch(
-                                CredentialEditorIntent.PasswordBlurred
-                            )
-                        }
-                    }
-                )
+                if (snackbarHostState != null) {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp)
+                    )
+                }
             }
         }
     }
