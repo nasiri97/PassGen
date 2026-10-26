@@ -1,11 +1,13 @@
 package ir.ornix.passgen.core.ui.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -17,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.label_encoder_type
@@ -54,8 +57,9 @@ fun EncoderTypeSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            encoders.forEach { passEncoder ->
+            encoders.forEachIndexed { index, passEncoder ->
                 DropdownMenuItem(
+                    modifier = Modifier.padding(vertical = 8.dp),
                     text = {
                         Text(
                             text = passEncoder.fullName,
@@ -69,6 +73,13 @@ fun EncoderTypeSelector(
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
+
+                if (index < encoders.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        thickness = 1.dp
+                    )
+                }
             }
         }
     }
