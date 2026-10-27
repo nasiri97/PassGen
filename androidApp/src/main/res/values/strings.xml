@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PassGen</string>
+    <string name="autofill_service_label">PassGen Autofill</string>
 </resources>

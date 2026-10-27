@@ -1,0 +1,50 @@
+package ir.ornix.passgen.core.ui.lockview
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.secret_password
+import ir.ornix.passgen.core.ui.submit_password
+import org.jetbrains.compose.resources.stringResource
+
+@Composable
+fun PasswordLockView(
+    onPasswordSubmitted: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var text by remember { mutableStateOf("") }
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text(stringResource(Res.string.secret_password)) },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { onPasswordSubmitted(text) },
+            enabled = text.isNotBlank()
+        ) {
+            Text(stringResource(Res.string.submit_password))
+        }
+    }
+}

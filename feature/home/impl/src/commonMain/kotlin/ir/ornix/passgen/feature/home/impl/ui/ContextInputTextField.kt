@@ -1,0 +1,80 @@
+package ir.ornix.passgen.feature.home.impl.ui
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
+import ir.ornix.passgen.core.designsystem.icon.terminal_2
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.action_clear
+import ir.ornix.passgen.core.ui.context_input_label
+import ir.ornix.passgen.core.ui.context_input_placeholder
+import ir.ornix.passgen.core.ui.error_max_length
+import ir.ornix.passgen.core.ui.security.secureInput
+import org.jetbrains.compose.resources.stringResource
+
+private const val MAX_CONTEXT_INPUT_CHARS = 256
+
+@Composable
+internal fun ContextInputTextField(
+    input: String,
+    onInputChange: (String) -> Unit,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isAtLimit = input.length >= MAX_CONTEXT_INPUT_CHARS
+
+    OutlinedTextField(
+        modifier = modifier
+            .secureInput(stringResource(Res.string.context_input_label))
+            .fillMaxWidth()
+            .testTag("context_input"),
+        value = input,
+        onValueChange = {
+            if (!it.contains('\n')) onInputChange(it.take(MAX_CONTEXT_INPUT_CHARS))
+        },
+        label = { Text(stringResource(Res.string.context_input_label)) },
+        placeholder = {
+            Text(
+                text = stringResource(Res.string.context_input_placeholder),
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Visible
+            )
+        },
+        leadingIcon = {
+            Icon(terminal_2, contentDescription = null)
+        },
+        trailingIcon = {
+            if (input.isNotEmpty()) {
+                IconButton(onClick = { onInputChange("") }) {
+                    Icon(
+                        Icons.Default.Clear,
+                        contentDescription = stringResource(Res.string.action_clear)
+                    )
+                }
+            }
+        },
+        isError = isAtLimit,
+        supportingText = {
+            if (isAtLimit) {
+                Text(stringResource(Res.string.error_max_length, MAX_CONTEXT_INPUT_CHARS))
+            }
+        },
+        singleLine = true,
+        shape = MaterialTheme.shapes.medium,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { onDone() })
+    )
+}

@@ -1,0 +1,47 @@
+CREATE TABLE IF NOT EXISTS passGenConfigEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    pass_encoder_key TEXT NOT NULL,
+    password_length INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS kdfPassGenConfigDetailsEntity (
+    config_id INTEGER PRIMARY KEY NOT NULL REFERENCES passGenConfigEntity(id) ON DELETE CASCADE,
+    input_hasher_key TEXT NOT NULL,
+    trim_spaces INTEGER NOT NULL DEFAULT 1,
+    collapse_spaces INTEGER NOT NULL DEFAULT 1,
+    convert_lowercase INTEGER NOT NULL DEFAULT 1
+);
+
+insertPassGenConfigWithId:
+INSERT INTO passGenConfigEntity (id, name, type, pass_encoder_key, password_length)
+VALUES (?, ?, ?, ?, ?);
+
+insertPassGenConfigAutoId:
+INSERT INTO passGenConfigEntity (name, type, pass_encoder_key, password_length)
+VALUES (?, ?, ?, ?);
+
+lastInsertedId:
+SELECT last_insert_rowid();
+
+insertKdfDetails:
+INSERT INTO kdfPassGenConfigDetailsEntity (config_id, input_hasher_key, trim_spaces, collapse_spaces, convert_lowercase)
+VALUES (?, ?, ?, ?, ?);
+
+deletePassGenConfigById:
+DELETE FROM passGenConfigEntity WHERE id = ?;
+
+selectAllPassGenConfigs:
+SELECT
+    c.id,
+    c.name,
+    c.type,
+    c.pass_encoder_key,
+    c.password_length,
+    k.input_hasher_key,
+    k.trim_spaces,
+    k.collapse_spaces,
+    k.convert_lowercase
+FROM passGenConfigEntity AS c
+LEFT JOIN kdfPassGenConfigDetailsEntity AS k ON c.id = k.config_id;

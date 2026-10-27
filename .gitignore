@@ -1,15 +1,15 @@
 *.iml
 .kotlin
 .gradle
+.artifacts
+.idea
+.cxx
+.DS_Store
+.externalNativeBuild
 **/build/
 xcuserdata
-!src/**/build/
 local.properties
-.idea
-.DS_Store
 captures
-.externalNativeBuild
-.cxx
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
@@ -17,3 +17,10 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+
+# SQLite Database Files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite

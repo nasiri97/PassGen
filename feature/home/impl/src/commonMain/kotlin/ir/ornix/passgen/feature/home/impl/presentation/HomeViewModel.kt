@@ -1,0 +1,134 @@
+package ir.ornix.passgen.feature.home.impl.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
+import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
+import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
+import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.model.PassGenItem
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class HomeViewModel(
+    getAllPassGenConfigs: GetAllKdfPassGenConfigsUseCase,
+    private val generateKDFPass: GenerateKDFPassUseCase,
+    private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
+    private val saveCredentialUseCase: SaveCredentialUseCase,
+    isCopyEnabled: IsCopyEnabledUseCase,
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase
+) : ViewModel() {
+
+    private val intents = Channel<HomeIntent>()
+
+    internal val uiState: StateFlow<HomeUiState>
+        field : MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
+
+    private val configsFlow: Flow<List<KdfPassGenConfig>> = getAllPassGenConfigs()
+
+    private val jobs = HashMap<Int, Job>()
+
+    private fun calculate(config: PassGenConfig, input: String) {
+        jobs[config.id]?.cancel()
+
+        jobs[config.id] = viewModelScope.launch {
+            apply(HomePartialState.PasswordIsCalculating(config.id))
+
+            val password = withContext(Dispatchers.Default) {
+                generateKDFPass(config as KdfPassGenConfig, input)
+            }
+
+            currentCoroutineContext().ensureActive()
+
+            apply(
+                HomePartialState.PasswordGenerated(
+                    configId = config.id,
+                    password = password
+                )
+            )
+        }
+    }
+
+    init {
+        // Observe CopyEnabled
+        isCopyEnabled().onEach { enabled ->
+            apply(HomePartialState.CopyEnabledChanged(enabled))
+        }.launchIn(viewModelScope)
+
+        // Observe password visibility timeout
+        getVisibilityTimeout().onEach { timeout ->
+            apply(HomePartialState.PasswordVisibilityTimeoutChanged(timeout))
+        }.launchIn(viewModelScope)
+
+        viewModelScope.launch {
+            configsFlow.collect { configs ->
+                val currentPasswordItems = uiState.value.passGenItems
+                val passGenItems = mutableListOf<PassGenItem>()
+
+                configs.forEach { config ->
+                    passGenItems.add(
+                        currentPasswordItems.find {
+                            it.config.id == config.id
+                        } ?: PassGenItem(
+                            config = config,
+                            password = null,
+                            isCalculating = true
+                        ).apply {
+                            calculate(config, uiState.value.input)
+                        }
+                    )
+                }
+
+                apply(HomePartialState.PasswordItemsLoaded(passGenItems))
+            }
+        }
+
+        viewModelScope.launch {
+            for (intent in intents) {
+                when (intent) {
+                    is HomeIntent.InputChanged -> {
+                        uiState.value.passGenItems.forEach { passwordItem ->
+                            calculate(passwordItem.config, intent.input)
+                        }
+
+                        apply(HomePartialState.InputChanged(intent.input))
+                    }
+
+                    is HomeIntent.RemoveConfig -> {
+                        removePassGenConfig(intent.passGenConfig.id)
+                    }
+
+                    is HomeIntent.SaveCredential -> {
+                        saveCredentialUseCase(intent.credential)
+                    }
+                }
+            }
+        }
+    }
+
+    /** Send new intent */
+    internal fun dispatch(intent: HomeIntent) = viewModelScope.launch {
+        intents.send(intent)
+    }
+
+    private fun apply(change: HomePartialState) {
+        uiState.update {
+            reduce(oldState = it, change = change)
+        }
+    }
+}

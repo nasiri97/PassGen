@@ -6,6 +6,107 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+val isDebugWebBuild =
+    providers.gradleProperty("debugBuild")
+        .map(String::toBoolean)
+        .getOrElse(false)
+
+
+// webApp/build/generated/webMain/resources/build-config.js
+val generatedWebResources =
+    layout.buildDirectory.dir("generated/webMain/resources")
+
+
+/*
+ * Generates the web build configuration used by the JavaScript/Wasm targets.
+ *
+ * The generated file is:
+ *
+ *   build/generated/webMain/resources/build-config.js
+ *
+ * It is consumed by index.html:
+ *
+ *   <script src="build-config.js"></script>
+ *
+ * The debug flag is controlled explicitly using the `debugBuild` Gradle property.
+ * It defaults to `false` when the property is not provided.
+ *
+ *
+ * Development build:
+ *
+ *   JS:
+ *     ./gradlew :webApp:jsBrowserDevelopmentRun
+ *     ./gradlew :webApp:jsBrowserDevelopmentRun -PdebugBuild=true
+ *
+ *   Wasm:
+ *     ./gradlew :webApp:wasmJsBrowserDevelopmentRun
+ *     ./gradlew :webApp:wasmJsBrowserDevelopmentRun -PdebugBuild=true
+ *
+ *
+ * Production distribution:
+ *
+ *   JS:
+ *     ./gradlew :webApp:jsBrowserProductionExecutableDistribution
+ *     ./gradlew :webApp:jsBrowserProductionExecutableDistribution -PdebugBuild=true
+ *
+ *   Wasm:
+ *     ./gradlew :webApp:wasmJsBrowserDistribution
+ *     ./gradlew :webApp:wasmJsBrowserDistribution -PdebugBuild=true
+ *
+ *
+ * Without `-PdebugBuild=true`:
+ *
+ *   globalThis.__APP_DEBUG__ = false;
+ *
+ * With `-PdebugBuild=true`:
+ *
+ *   globalThis.__APP_DEBUG__ = true;
+ *
+ *
+ * The generated file is located under `build/`, so it is not committed to Git.
+ */
+abstract class GenerateWebBuildConfigTask : DefaultTask() {
+    @get:Input
+    abstract val debugBuild: Property<Boolean>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val directory = outputDir.get().asFile
+        directory.mkdirs()
+
+        directory.resolve("build-config.js").writeText(
+            """
+            globalThis.__APP_DEBUG__ = ${debugBuild.get()};
+            """.trimIndent()
+        )
+    }
+}
+
+val generateWebBuildConfig = tasks.register<GenerateWebBuildConfigTask>("generateWebBuildConfig") {
+    description = "Generates the web build configuration file."
+    group = "build"
+
+    outputDir.set(generatedWebResources)
+    debugBuild.set(isDebugWebBuild)
+}
+
+val copySqlJsWasmResources = tasks.register<Copy>("copySqlJsWasmResources") {
+    description = "Copies sql.js and sqldelight worker files to web resources."
+    group = "build"
+
+    val nodeModulesDir = rootProject.layout.buildDirectory.dir("js/node_modules")
+    from(nodeModulesDir.map { it.dir("sql.js/dist") }) {
+        include("sql-wasm.wasm")
+    }
+    from(nodeModulesDir.map { it.dir("@cashapp/sqldelight-sqljs-worker") }) {
+        include("sqljs.worker.js")
+    }
+    into(generatedWebResources)
+}
+
 kotlin {
     js {
         browser()
@@ -19,10 +120,32 @@ kotlin {
     }
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(project(":shared"))
+        val webMain = create("webMain") {
+            dependsOn(commonMain.get())
 
-            implementation(libs.compose.ui)
+            resources.srcDir(generatedWebResources)
+
+            dependencies {
+                implementation(project(":core:logging"))
+                implementation(project(":composeApp"))
+                implementation(libs.compose.ui)
+            }
         }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+        }
+    }
+}
+
+// Ensure generated web resources exist before any resource-processing task consumes them.
+tasks.configureEach {
+    if (name.endsWith("ProcessResources")) {
+        dependsOn(generateWebBuildConfig)
+        dependsOn(copySqlJsWasmResources)
     }
 }
