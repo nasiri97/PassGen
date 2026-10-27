@@ -1,7 +1,7 @@
 # 🔐 PassGen — Stateless Deterministic Password Generator
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
-[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.12.0-blue.svg?style=flat&logo=jetpackcompose)](https://github.com/JetBrains/compose-multiplatform)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org/)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-v1.12.2-blue.svg?style=flat&logo=jetpackcompose)](https://github.com/JetBrains/compose-multiplatform)
 [![Platform Support](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Desktop%20%7C%20Web%20(Wasm%2FJS)-green.svg?style=flat)](#-building--running-the-applications)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
