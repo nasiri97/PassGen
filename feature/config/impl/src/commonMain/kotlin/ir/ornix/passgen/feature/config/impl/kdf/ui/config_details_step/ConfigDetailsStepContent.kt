@@ -39,7 +39,7 @@ import ir.ornix.passgen.core.ui.option_collapse_spaces
 import ir.ornix.passgen.core.ui.option_convert_lowercase
 import ir.ornix.passgen.core.ui.option_trim_spaces
 import ir.ornix.passgen.core.ui.title_config_details
-import ir.ornix.passgen.core.ui.title_preprocessing
+import ir.ornix.passgen.core.ui.title_context_input_normalization
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigUiState
 import org.jetbrains.compose.resources.stringResource
 
@@ -163,7 +163,7 @@ private fun Preprocessing(
 ) {
     Column(modifier) {
         Text(
-            stringResource(Res.string.title_preprocessing),
+            stringResource(Res.string.title_context_input_normalization),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )

@@ -62,7 +62,6 @@
     <string name="action_create">ذخیره</string>
 
     <!-- Config Dialogs -->
-    <string name="section_preprocess_settings">تنظیمات پیش‌پردازش</string>
     <string name="section_generating_settings">تنظیمات تولید</string>
     <string name="section_postprocess_settings">تنظیمات پس‌پردازش</string>
     <string name="label_output_encoder_type">نوع رمزگذار خروجی</string>
@@ -222,13 +221,12 @@
     <string name="req_match">کلیدهای اصلی مطابقت دارند</string>
     <string name="title_config_details">جزئیات پیکربندی</string>
     <string name="label_config_name">نام پیکربندی</string>
-    <string name="title_preprocessing">پیش‌پردازش</string>
+    <string name="title_context_input_normalization">نرمال‌سازی ورودی (Context Input)</string>
     <string name="option_trim_spaces">حذف فاصله‌های ابتدا و انتها</string>
     <string name="option_collapse_spaces">ادغام فاصله‌های متوالی</string>
     <string name="option_convert_lowercase">تبدیل به حروف کوچک</string>
     <string name="label_password_length_format">طول گذرواژه: %1$d</string>
     <string name="label_approx_bytes_format">≈ %1$d بایت</string>
-
 
     <string name="master_key_notice_expand">نمایش جزئیات</string>
     <string name="master_key_notice_collapse">بستن جزئیات</string>

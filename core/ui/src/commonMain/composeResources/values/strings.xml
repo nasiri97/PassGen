@@ -62,7 +62,6 @@
     <string name="action_create">Save</string>
 
     <!-- Config Dialogs -->
-    <string name="section_preprocess_settings">Preprocess Settings</string>
     <string name="section_generating_settings">Generating Settings</string>
     <string name="section_postprocess_settings">Postprocess Settings</string>
     <string name="label_output_encoder_type">Output Encoder Type</string>
@@ -222,13 +221,12 @@
     <string name="req_match">Master keys match</string>
     <string name="title_config_details">Configuration Details</string>
     <string name="label_config_name">Configuration Name</string>
-    <string name="title_preprocessing">Preprocessing</string>
+    <string name="title_context_input_normalization">Context Input normalization</string>
     <string name="option_trim_spaces">Trim leading/trailing spaces</string>
     <string name="option_collapse_spaces">Collapse multiple spaces</string>
     <string name="option_convert_lowercase">Convert to lowercase</string>
     <string name="label_password_length_format">Password length: %1$d</string>
     <string name="label_approx_bytes_format">≈ %1$d bytes</string>
-
 
     <string name="master_key_notice_expand">Show details</string>
     <string name="master_key_notice_collapse">Hide details</string>

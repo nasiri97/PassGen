@@ -52,12 +52,12 @@ import ir.ornix.passgen.core.ui.label_type
 import ir.ornix.passgen.core.ui.password_strength
 import ir.ornix.passgen.core.ui.section_generating_settings
 import ir.ornix.passgen.core.ui.section_info
-import ir.ornix.passgen.core.ui.section_preprocess_settings
 import ir.ornix.passgen.core.ui.setting_collapse_spaces
 import ir.ornix.passgen.core.ui.setting_to_lowercase
 import ir.ornix.passgen.core.ui.setting_trim_spaces
 import ir.ornix.passgen.core.ui.state_disabled
 import ir.ornix.passgen.core.ui.state_enabled
+import ir.ornix.passgen.core.ui.title_context_input_normalization
 import ir.ornix.passgen.core.ui.type_kdf
 import ir.ornix.passgen.core.ui.type_random
 import ir.ornix.passgen.core.ui.util.label
@@ -119,7 +119,7 @@ fun PassGenConfigDialog(
 @Composable
 private fun KdfSections(config: KdfPassGenConfig) {
     ConfigSection(
-        title = stringResource(Res.string.section_preprocess_settings),
+        title = stringResource(Res.string.title_context_input_normalization),
         icon = Icons.Default.Build
     ) {
         ToggleRow(
