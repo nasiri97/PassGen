@@ -221,7 +221,7 @@
     <string name="req_match">Master keys match</string>
     <string name="title_config_details">Configuration Details</string>
     <string name="label_config_name">Configuration Name</string>
-    <string name="title_context_input_normalization">Context Input normalization</string>
+    <string name="title_context_input_normalization">Context Input Normalization</string>
     <string name="option_trim_spaces">Trim leading/trailing spaces</string>
     <string name="option_collapse_spaces">Collapse multiple spaces</string>
     <string name="option_convert_lowercase">Convert to lowercase</string>

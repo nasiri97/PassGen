@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,7 +14,6 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -37,6 +37,7 @@ import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.action_hide
 import ir.ornix.passgen.core.ui.action_show
 import ir.ornix.passgen.core.ui.error_password_generation_failed
+import ir.ornix.passgen.core.ui.passgen.PasswordGeneratingIndicator
 import ir.ornix.passgen.core.ui.password
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -116,23 +117,19 @@ fun PasswordDisplay(
         border = BorderStroke(
             width = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        )
+        ),
     ) {
-        Row(
-            modifier = Modifier
-                .clickable(enabled = isClickable) { onClick() }
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (isLoading) {
-                LinearWavyProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    wavelength = 20.dp
-                )
-            } else {
+
+        if (isLoading) {
+            PasswordGeneratingIndicator(Modifier.fillMaxWidth().height(64.dp))
+        } else {
+            Row(
+                modifier = Modifier
+                    .clickable(enabled = isClickable) { onClick() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     modifier = Modifier.weight(1f)
                         .secureContent(stringResource(Res.string.password)),
@@ -144,20 +141,21 @@ fun PasswordDisplay(
                         if (displayText == null) MaterialTheme.colorScheme.error
                         else Color.Unspecified
                 )
-            }
 
-            IconButton(
-                onClick = { revealed = !revealed },
-                modifier = Modifier.testTag("password_visibility_toggle")
-            ) {
-                Icon(
-                    imageVector =
-                        if (revealed) Icons.Default.VisibilityOff
-                        else Icons.Default.Visibility,
-                    contentDescription =
-                        if (revealed) stringResource(Res.string.action_hide)
-                        else stringResource(Res.string.action_show)
-                )
+
+                IconButton(
+                    onClick = { revealed = !revealed },
+                    modifier = Modifier.testTag("password_visibility_toggle")
+                ) {
+                    Icon(
+                        imageVector =
+                            if (revealed) Icons.Default.VisibilityOff
+                            else Icons.Default.Visibility,
+                        contentDescription =
+                            if (revealed) stringResource(Res.string.action_hide)
+                            else stringResource(Res.string.action_show)
+                    )
+                }
             }
         }
     }
