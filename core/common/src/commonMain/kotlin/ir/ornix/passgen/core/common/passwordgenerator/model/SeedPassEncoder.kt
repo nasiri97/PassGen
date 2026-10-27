@@ -2,12 +2,13 @@ package ir.ornix.passgen.core.common.passwordgenerator.model
 
 import ir.ornix.passgen.core.common.codec.Bip39Codec
 import ir.ornix.passgen.core.common.codec.Bip39Codec.Strength
-import ir.ornix.passgen.core.common.codec.core.Encoder
 
 sealed class SeedPassEncoder(
     key: String,
-    instance: Encoder
+    instance: Bip39Codec
 ) : PassEncoder(key, instance) {
+
+    val wordCount = instance.strength.wordCount
 
     object Bip39L12PassEncoder : SeedPassEncoder(
         key = KEY_PASS_ENCODER_BIP39_12_WORDS,

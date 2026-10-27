@@ -19,7 +19,6 @@ import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.ui.component.getAdaptiveValue
-import ir.ornix.passgen.core.ui.passgen.config.PassGenConfigDialog
 
 @Composable
 fun PassGenItemList(

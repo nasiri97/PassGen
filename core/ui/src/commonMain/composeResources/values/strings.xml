@@ -66,11 +66,23 @@
     <string name="section_generating_settings">Generating Settings</string>
     <string name="section_postprocess_settings">Postprocess Settings</string>
     <string name="label_output_encoder_type">Output Encoder Type</string>
+    <string name="label_length">Length</string>
     <string name="label_password_length">Password Length</string>
     <string name="setting_trim_spaces">Trim Spaces</string>
     <string name="setting_collapse_spaces">Collapse Spaces</string>
     <string name="setting_to_lowercase">To Lowercase</string>
     <string name="action_close">Close</string>
+    <string name="type_kdf">KDF</string>
+    <string name="type_random">Random</string>
+    <string name="state_enabled">Enabled</string>
+    <string name="state_disabled">Disabled</string>
+    <string name="section_info">Info</string>
+    <string name="label_type">Type</string>
+    <string name="label_entropy_size">Entropy size</string>
+    <string name="password_strength">Strength</string>
+    <string name="value_bytes">%1$d bytes</string>
+    <string name="value_characters">%1$d characters</string>
+    <string name="value_words">%1$d words</string>
 
     <!-- Pull To Refresh -->
     <string name="pull_down_to_refresh">Pull down to refresh</string>
@@ -257,7 +269,6 @@
 
     <string name="copy_disabled_toast_message">Copying to clipboard is disabled in Settings for security</string>
     <string name="copy_success_toast_message">Copied to clipboard</string>
-    <string name="password_strength">Strength</string>
 
     <string name="strength_unknown">Unknown</string>
     <string name="strength_fragile">Fragile</string>

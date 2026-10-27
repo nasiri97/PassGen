@@ -66,11 +66,23 @@
     <string name="section_generating_settings">تنظیمات تولید</string>
     <string name="section_postprocess_settings">تنظیمات پس‌پردازش</string>
     <string name="label_output_encoder_type">نوع رمزگذار خروجی</string>
+    <string name="label_length">طول</string>
     <string name="label_password_length">طول گذرواژه</string>
     <string name="setting_trim_spaces">حذف فاصله‌های ابتدا و انتها</string>
     <string name="setting_collapse_spaces">ادغام فاصله‌های متوالی</string>
     <string name="setting_to_lowercase">تبدیل به حروف کوچک</string>
     <string name="action_close">بستن</string>
+    <string name="type_kdf">KDF</string>
+    <string name="type_random">تصادفی</string>
+    <string name="state_enabled">فعال</string>
+    <string name="state_disabled">غیرفعال</string>
+    <string name="section_info">اطلاعات</string>
+    <string name="label_type">نوع</string>
+    <string name="label_entropy_size">اندازه آنتروپی</string>
+    <string name="password_strength">قدرت گذرواژه</string>
+    <string name="value_bytes">%1$d بایت</string>
+    <string name="value_characters">%1$d نویسه</string>
+    <string name="value_words">%1$d واژه</string>
 
     <!-- Pull To Refresh -->
     <string name="pull_down_to_refresh">برای به‌روزرسانی به پایین بکشید</string>
@@ -257,7 +269,6 @@
 
     <string name="copy_disabled_toast_message">کپی در کلیپ‌بورد به دلایل امنیتی در تنظیمات غیرفعال است</string>
     <string name="copy_success_toast_message">در کلیپبورد کپی شد</string>
-    <string name="password_strength">قدرت گذرواژه</string>
 
     <string name="strength_unknown">نامعلوم</string>
     <string name="strength_fragile">شکننده</string>
