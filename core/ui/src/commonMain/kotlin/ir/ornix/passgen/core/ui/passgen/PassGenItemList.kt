@@ -18,7 +18,6 @@ import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
-import ir.ornix.passgen.core.ui.component.getAdaptiveValue
 
 @Composable
 fun PassGenItemList(
@@ -33,17 +32,12 @@ fun PassGenItemList(
 ) {
     var passGenConfig by remember { mutableStateOf<PassGenConfig?>(null) }
 
-    val columnsCount = getAdaptiveValue(
-        compact = { 1 },
-        expanded = { 2 }
-    )
-
     LazyVerticalStaggeredGrid(
         modifier = modifier.testTag("pass_gen_items_container"),
-        columns = StaggeredGridCells.Fixed(columnsCount),
+        columns = StaggeredGridCells.Adaptive(minSize = 320.dp),
         verticalItemSpacing = 16.dp,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(top = 16.dp, bottom = 64.dp)
+        contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp)
     ) {
         items(items = passGenItems, key = { it.config.id }) { passwordItem ->
             PassGenItemCard(
