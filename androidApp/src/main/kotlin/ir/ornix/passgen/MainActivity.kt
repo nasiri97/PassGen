@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import ir.ornix.passgen.autofill.requestEnableAutofill
 import ir.ornix.passgen.composeapp.App
@@ -26,6 +27,7 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         AppContextProvider.setActivity(this)
@@ -45,6 +47,8 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             window.setHideOverlayWindows(true)
         }
+
+        splashScreen.setKeepOnScreenCondition { false }
 
         setContent {
             var isDeviceRooted by remember { mutableStateOf<Boolean?>(null) }

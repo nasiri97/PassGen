@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen Theme -->
+    <style name="Theme.PassGen" parent="Theme.SplashScreen">
+        <!-- Splash screen background color (matches light background) -->
+        <item name="windowSplashScreenBackground">#FEF7FF</item>
+        <!-- Blank/transparent icon so the system splash screen shows no icon -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/blank_icon</item>
+        <!-- Theme to apply after splash screen finishes -->
+        <item name="postSplashScreenTheme">@style/android:Theme.Material.Light.NoActionBar</item>
+    </style>
+</resources>
