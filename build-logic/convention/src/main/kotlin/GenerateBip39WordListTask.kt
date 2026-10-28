@@ -31,11 +31,21 @@ abstract class GenerateBip39WordListTask : DefaultTask() {
     fun generate() {
         val input = wordListFile.get().asFile
         val bytes = input.readBytes()
+        val content = bytes.decodeToString()
 
-        // 1. Verify the exact official file
+        // 0. Normalize line endings (CRLF and CR -> LF).
+        val normalizedContent = content
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+
+        val normalizedBytes = normalizedContent.toByteArray(Charsets.UTF_8)
+
+
+        // 1. Verify the normalized official file.
         val actualSha256 = MessageDigest.getInstance("SHA-256")
-            .digest(bytes)
+            .digest(normalizedBytes)
             .joinToString("") { "%02x".format(it.toInt() and 0xFF) }
+
 
         require(actualSha256.equals(expectedSha256.get(), ignoreCase = true)) {
             """
@@ -47,7 +57,10 @@ abstract class GenerateBip39WordListTask : DefaultTask() {
         }
 
         // 2. Parse and validate
-        val words = bytes.decodeToString().lines().map(String::trim).filter(String::isNotEmpty)
+        val words = normalizedContent
+            .lines()
+            .map(String::trim)
+            .filter(String::isNotEmpty)
 
         require(words.size == WORD_COUNT) {
             "BIP-39 word list must contain exactly $WORD_COUNT words. Found: ${words.size}"
