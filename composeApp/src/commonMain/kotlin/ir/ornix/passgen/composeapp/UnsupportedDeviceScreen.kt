@@ -51,7 +51,7 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 fun UnsupportedDeviceScreen(
-    reason: DeviceSupportStatus,
+    reason: FailedInitializationReason,
     onExit: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {

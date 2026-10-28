@@ -53,7 +53,6 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -107,7 +106,7 @@ data class NavItem(val route: NavKey, val label: String, val icon: ImageVector)
 
 @Composable
 fun App(
-    supportStatus: DeviceSupportStatus?,
+    initializationState: InitializationState,
     onExit: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
@@ -119,23 +118,34 @@ fun App(
         splashTimeElapsed = true
     }
 
-    val isUnlockingRequired by
-    if (supportStatus == DeviceSupportStatus.SUPPORTED) {
+    var isUnlockingRequired by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var selectedLanguage by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
+    var selectedTheme by rememberSaveable { mutableStateOf(AppTheme.SYSTEM) }
+
+    if (initializationState == InitializationState.Completed) {
         val isUnlockingRequiredUseCase: IsUnlockingRequiredUseCase = koinInject()
-        isUnlockingRequiredUseCase().collectAsStateWithLifecycle(null)
-    } else mutableStateOf(null)
-
-    val selectedLanguage by
-    if (supportStatus == DeviceSupportStatus.SUPPORTED) {
         val getLanguageUseCase: GetLanguageUseCase = koinInject()
-        getLanguageUseCase().collectAsStateWithLifecycle()
-    } else mutableStateOf(AppLanguage.SYSTEM)
-
-    val selectedTheme by
-    if (supportStatus == DeviceSupportStatus.SUPPORTED) {
         val getThemeUseCase: GetThemeUseCase = koinInject()
-        getThemeUseCase().collectAsStateWithLifecycle()
-    } else mutableStateOf(AppTheme.SYSTEM)
+
+        LaunchedEffect(Unit) {
+            isUnlockingRequiredUseCase().collect { newValue ->
+                if (isUnlockingRequired == null)
+                    isUnlockingRequired = newValue
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            getLanguageUseCase().collect { newValue ->
+                selectedLanguage = newValue
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            getThemeUseCase().collect { newValue ->
+                selectedTheme = newValue
+            }
+        }
+    }
 
     // Apply locale synchronously during composition so string resources resolve immediately
     setAppLocale(selectedLanguage)
@@ -174,18 +184,16 @@ fun App(
                 modifier = modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                when {
-                    supportStatus == DeviceSupportStatus.SUPPORTED && splashTimeElapsed && isUnlockingRequired != null ->
+                when (initializationState) {
+                    is InitializationState.Completed if splashTimeElapsed && isUnlockingRequired != null ->
                         AppContent(isUnlockingRequired = isUnlockingRequired!!)
 
-                    supportStatus != null && supportStatus != DeviceSupportStatus.SUPPORTED ->
-                        UnsupportedDeviceScreen(
-                            reason = supportStatus,
-                            onExit = onExit
-                        )
+                    is InitializationState.Failed -> UnsupportedDeviceScreen(
+                        reason = initializationState.reason,
+                        onExit = onExit
+                    )
 
-                    else ->
-                        SplashScreen()
+                    else -> SplashScreen()
                 }
             }
         }

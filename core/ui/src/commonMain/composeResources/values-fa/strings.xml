@@ -13,11 +13,8 @@
 
     <!-- Unsupported Screen -->
     <string name="unsupported_title">دستگاه پشتیبانی نمی‌شود</string>
-    <string name="supported_message">دستگاه پشتیبانی می‌شود</string>
-    <string name="unsupported_message">این برنامه به دلیل عدم رعایت الزامات امنیتی یا سازگاری، روی این دستگاه اجرا نمی‌شود.</string>
     <string name="unsupported_exit">بستن برنامه</string>
     <string name="unsupported_root_detected_message">دستگاه شما روت شده یا نرم‌افزار سیستمی آن تغییر کرده است. برای حفظ امنیت اطلاعات و حساب کاربری شما، اجرای این برنامه روی این دستگاه امکان‌پذیر نیست.</string>
-    <string name="unsupported_os_message">این برنامه به نسخه جدیدتری از سیستم‌عامل نیاز دارد. لطفاً برای ادامه، دستگاه خود را به‌روزرسانی کنید.</string>
     <string name="unsupported_initialization_failed_message">هنگام راه‌اندازی برنامه مشکلی پیش آمد. لطفاً دوباره تلاش کنید.</string>
 
     <!-- Confirm Delete Dialog -->

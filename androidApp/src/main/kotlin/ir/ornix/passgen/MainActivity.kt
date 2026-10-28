@@ -15,12 +15,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import ir.ornix.passgen.autofill.requestEnableAutofill
 import ir.ornix.passgen.composeapp.App
-import ir.ornix.passgen.composeapp.DeviceSupportStatus
+import ir.ornix.passgen.composeapp.FailedInitializationReason
+import ir.ornix.passgen.composeapp.InitializationState
 import ir.ornix.passgen.core.common.AppContextProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,7 +53,7 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { false }
 
         setContent {
-            var isDeviceRooted by remember { mutableStateOf<Boolean?>(null) }
+            var isDeviceRooted by rememberSaveable { mutableStateOf<Boolean?>(null) }
 
             LaunchedEffect(Unit) {
                 isDeviceRooted = withContext(Dispatchers.Default) {
@@ -59,15 +61,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            val supportStatus = when {
-                isDeviceRooted == true -> DeviceSupportStatus.ROOTED
-                isDbInitializationFailed -> DeviceSupportStatus.INITIALIZATION_FAILED
-                isDeviceRooted == false && isDbInitializationCompleted -> DeviceSupportStatus.SUPPORTED
-                else -> null
+            val initializationState = when {
+                isDeviceRooted == true -> InitializationState.Failed(FailedInitializationReason.ROOTED)
+                isDbInitializationFailed -> InitializationState.Failed(FailedInitializationReason.INITIALIZATION_FAILED)
+                isDeviceRooted == false && isDbInitializationCompleted -> InitializationState.Completed
+                else -> InitializationState.Initializing
             }
 
             App(
-                supportStatus = supportStatus,
+                initializationState = initializationState,
                 onExit = {
                     this.finishAffinity()
                 }

@@ -9,7 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import ir.ornix.passgen.composeapp.App
-import ir.ornix.passgen.composeapp.DeviceSupportStatus
+import ir.ornix.passgen.composeapp.FailedInitializationReason
+import ir.ornix.passgen.composeapp.InitializationState
 import ir.ornix.passgen.composeapp.di.initKoin
 import ir.ornix.passgen.core.logging.Logger
 
@@ -22,27 +23,25 @@ fun main() {
 
 @Composable
 private fun AppStartup() {
-    var isDbInitializationCompleted by remember { mutableStateOf(false) }
-    var isDbInitializationFailed by remember { mutableStateOf(false) }
+
+    var initializationState by remember {
+        mutableStateOf<InitializationState>(InitializationState.Initializing)
+    }
 
     LaunchedEffect(Unit) {
         try {
             initKoin()
-            isDbInitializationCompleted = true
+            initializationState = InitializationState.Completed
         } catch (e: Exception) {
             Logger.e("Koin initialization failed.", e)
-            isDbInitializationFailed = true
+            initializationState = InitializationState.Failed(
+                FailedInitializationReason.INITIALIZATION_FAILED
+            )
         }
     }
 
-    val supportStatus = when {
-        isDbInitializationFailed -> DeviceSupportStatus.INITIALIZATION_FAILED
-        isDbInitializationCompleted -> DeviceSupportStatus.SUPPORTED
-        else -> null
-    }
-
     App(
-        supportStatus = supportStatus,
+        initializationState = initializationState,
         onExit = {}
     )
 }
