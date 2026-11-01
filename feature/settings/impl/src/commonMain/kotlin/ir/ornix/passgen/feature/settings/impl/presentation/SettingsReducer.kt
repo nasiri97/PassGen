@@ -52,5 +52,12 @@ internal fun reduce(
                 selectedVisibilityTimeout = change.timeout
             )
         }
+
+        is SettingsPartialState.AutofillStatusChanged -> {
+            oldState.copy(
+                isAutofillSupported = change.isSupported,
+                isAutofillEnabled = change.isEnabled
+            )
+        }
     }
 }

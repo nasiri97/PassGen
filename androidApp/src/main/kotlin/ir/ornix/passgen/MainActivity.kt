@@ -3,23 +3,15 @@ package ir.ornix.passgen
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import android.view.autofill.AutofillManager
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.LifecycleResumeEffect
-import ir.ornix.passgen.autofill.requestEnableAutofill
 import ir.ornix.passgen.composeapp.App
 import ir.ornix.passgen.composeapp.FailedInitializationReason
 import ir.ornix.passgen.composeapp.InitializationState
@@ -80,25 +72,5 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         AppContextProvider.setActivity(this)
-    }
-}
-
-@Composable
-fun AutofillSetupButton() {
-    val activity = LocalActivity.current ?: return
-    val manager = remember(activity) { activity.getSystemService(AutofillManager::class.java) }
-    var enabled by remember { mutableStateOf(manager?.hasEnabledAutofillServices() == true) }
-
-    LifecycleResumeEffect(Unit) {
-        enabled = manager?.hasEnabledAutofillServices() == true
-        onPauseOrDispose { }
-    }
-
-    if (!enabled) {
-        Button(onClick = { activity.requestEnableAutofill() }) {
-            Text("Enable autofill")
-        }
-    } else {
-        Text("Autofill is enabled")
     }
 }

@@ -3,7 +3,9 @@ package ir.ornix.passgen.composeapp.di
 import ir.ornix.passgen.composeapp.navigation.NavViewModelStoreProvider
 import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
+import ir.ornix.passgen.core.data.getPlatformAutofillService
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
+import ir.ornix.passgen.core.domain.AutofillService
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
@@ -22,6 +24,7 @@ val appModule = module {
     includes(configModule)
 
     single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
+    single { getPlatformAutofillService() } bind AutofillService::class
     single<HmacSigner> { PlatformHmacSigner }
     single<Crypto> { PlatformCrypto }
 

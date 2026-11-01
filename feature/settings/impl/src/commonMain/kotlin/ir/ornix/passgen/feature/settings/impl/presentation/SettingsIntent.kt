@@ -13,4 +13,6 @@ internal sealed interface SettingsIntent {
     data object ConfirmEnableCopy : SettingsIntent
     data object DismissCopyWarningDialog : SettingsIntent
     data class SelectVisibilityTimeout(val timeout: PasswordVisibilityTimeout) : SettingsIntent
+    data object CheckAutofillStatus : SettingsIntent
+    data object RequestEnableAutofill : SettingsIntent
 }

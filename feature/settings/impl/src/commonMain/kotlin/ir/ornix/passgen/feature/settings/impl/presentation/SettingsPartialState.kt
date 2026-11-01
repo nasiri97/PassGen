@@ -16,4 +16,9 @@ internal sealed interface SettingsPartialState {
     data class PasswordVisibilityTimeoutChanged(
         val timeout: PasswordVisibilityTimeout
     ) : SettingsPartialState
+
+    data class AutofillStatusChanged(
+        val isSupported: Boolean,
+        val isEnabled: Boolean
+    ) : SettingsPartialState
 }

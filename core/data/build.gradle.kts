@@ -48,6 +48,7 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(libs.androidx.annotation)
+                implementation(libs.androidx.core.ktx)
             }
         }
 

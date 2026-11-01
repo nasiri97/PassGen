@@ -273,4 +273,9 @@
     <string name="strength_strong">Strong</string>
     <string name="strength_robust">Robust</string>
 
+    <!-- Autofill Settings Banner -->
+    <string name="settings_autofill_banner_title">Set as Default Autofill App</string>
+    <string name="settings_autofill_banner_description">To automatically fill saved passwords in apps and websites, set PassGen as your default autofill service. Saved credentials in the Credentials page can only be used when this app is set as default.</string>
+    <string name="settings_autofill_banner_action">Enable Autofill</string>
+
 </resources>

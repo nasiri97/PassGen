@@ -13,5 +13,10 @@ internal data class SettingsUiState(
     val selectedTheme: AppTheme = AppTheme.SYSTEM,
     val isCopyEnabled: Boolean = false,
     val showCopyWarningDialog: Boolean = false,
-    val selectedVisibilityTimeout: PasswordVisibilityTimeout = PasswordVisibilityTimeout.default
-)
+    val selectedVisibilityTimeout: PasswordVisibilityTimeout = PasswordVisibilityTimeout.default,
+    val isAutofillSupported: Boolean = false,
+    val isAutofillEnabled: Boolean = true
+) {
+    val showAutofillBanner: Boolean
+        get() = isAutofillSupported && !isAutofillEnabled
+}

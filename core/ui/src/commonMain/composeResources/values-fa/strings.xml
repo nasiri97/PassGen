@@ -273,4 +273,9 @@
     <string name="strength_strong">قوی</string>
     <string name="strength_robust">مقاوم</string>
 
+    <!-- Autofill Settings Banner -->
+    <string name="settings_autofill_banner_title">تنظیم به‌عنوان سرویس تکمیل خودکار پیش‌فرض</string>
+    <string name="settings_autofill_banner_description">برای تکمیل خودکار گذرواژه‌های ذخیره‌شده در برنامه‌ها و وب‌سایت‌ها، PassGen را به‌عنوان سرویس پیش‌فرض انتخاب کنید. اطلاعات ورود ذخیره‌شده در صفحه گذرواژه‌ها تنها زمانی قابل استفاده هستند که این برنامه به‌عنوان سرویس پیش‌فرض فعال باشد.</string>
+    <string name="settings_autofill_banner_action">فعال‌سازی تکمیل خودکار</string>
+
 </resources>

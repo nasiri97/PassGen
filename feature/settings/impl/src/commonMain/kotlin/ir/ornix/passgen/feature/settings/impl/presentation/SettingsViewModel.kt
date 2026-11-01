@@ -2,6 +2,7 @@ package ir.ornix.passgen.feature.settings.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.AutofillService
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
@@ -27,7 +28,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val isBiometricEnabled: IsBiometricEnabledUseCase,
     private val setBiometricEnabled: SetBiometricEnabledUseCase,
-    biometricAuthenticator: BiometricAuthenticator,
+    private val biometricAuthenticator: BiometricAuthenticator,
     getLocalAuthType: GetLocalAuthTypeUseCase,
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase,
     getLanguage: GetLanguageUseCase,
@@ -37,19 +38,19 @@ class SettingsViewModel(
     isCopyEnabled: IsCopyEnabledUseCase,
     private val setCopyEnabled: SetCopyEnabledUseCase,
     getVisibilityTimeout: GetVisibilityTimeoutUseCase,
-    private val setVisibilityTimeout: SetVisibilityTimeoutUseCase
+    private val setVisibilityTimeout: SetVisibilityTimeoutUseCase,
+    private val autofillService: AutofillService
 ) : ViewModel() {
 
     private val intents = Channel<SettingsIntent>()
 
     internal val uiState: StateFlow<SettingsUiState>
-        field : MutableStateFlow<SettingsUiState> = MutableStateFlow(
-            SettingsUiState(
-                isBiometricAvailable = biometricAuthenticator.isBiometricAvailable()
-            )
-        )
+        field : MutableStateFlow<SettingsUiState> = MutableStateFlow(SettingsUiState())
 
     init {
+        checkBiometricAvailability()
+        checkAutofillStatus()
+
         // Observe CopyEnabled
         isCopyEnabled().onEach { enabled ->
             apply(SettingsPartialState.CopyEnabledChanged(enabled))
@@ -125,9 +126,34 @@ class SettingsViewModel(
                     is SettingsIntent.SelectVisibilityTimeout -> {
                         setVisibilityTimeout(intent.timeout)
                     }
+
+                    is SettingsIntent.CheckAutofillStatus -> {
+                        checkAutofillStatus()
+                    }
+
+                    is SettingsIntent.RequestEnableAutofill -> {
+                        autofillService.requestEnableAutofill()
+                    }
                 }
             }
         }
+    }
+
+    private fun checkBiometricAvailability() {
+        apply(
+            SettingsPartialState.FingerprintAvailabilityChanged(
+                available = biometricAuthenticator.isBiometricAvailable()
+            )
+        )
+    }
+
+    private fun checkAutofillStatus() {
+        apply(
+            SettingsPartialState.AutofillStatusChanged(
+                isSupported = autofillService.isSupported(),
+                isEnabled = autofillService.isAutofillEnabled()
+            )
+        )
     }
 
     /** Send new intent */
