@@ -114,7 +114,7 @@ class PurgeSensitiveDataUseCaseTest {
     }
 
     @Test
-    fun `invoke should delete all master key digests, configs, credentials, and clear local auth`() =
+    fun `invoke should delete all sensitive data`() =
         runTest {
             // Setup initial state
             passGenConfigRepository.add(testConfig)
