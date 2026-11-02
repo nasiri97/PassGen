@@ -127,7 +127,8 @@ fun SecretSetupScreen(
                 SetupStage.ENTER_SECRET -> {
                     InsertPassword(
                         localAuthType = uiState.selectedSetupType,
-                        isConfirming = false
+                        isConfirming = false,
+                        isPasswordInputEnabled = uiState.isPasswordInputEnabled
                     ) {
                         viewModel.dispatch(SecretSetupIntent.SecretInserted(it))
                     }
@@ -136,7 +137,8 @@ fun SecretSetupScreen(
                 SetupStage.CONFIRM_SECRET -> {
                     InsertPassword(
                         localAuthType = uiState.selectedSetupType,
-                        isConfirming = true
+                        isConfirming = true,
+                        isPasswordInputEnabled = uiState.isPasswordInputEnabled
                     ) {
                         viewModel.dispatch(SecretSetupIntent.SecretInserted(it))
                     }
@@ -169,6 +171,7 @@ fun SecretSetupScreen(
 private fun InsertPassword(
     localAuthType: LocalAuthType,
     isConfirming: Boolean,
+    isPasswordInputEnabled: Boolean,
     modifier: Modifier = Modifier,
     onSecretSubmitter: (String) -> Unit
 ) {
@@ -197,7 +200,10 @@ private fun InsertPassword(
 
         when (localAuthType) {
             LocalAuthType.PIN -> {
-                PinLockView(onPinCompleted = { onSecretSubmitter(it) })
+                PinLockView(
+                    enabled = isPasswordInputEnabled,
+                    onPinCompleted = { onSecretSubmitter(it) }
+                )
             }
 
             LocalAuthType.PASSWORD -> {

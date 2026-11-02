@@ -29,5 +29,11 @@ internal fun reduce(
                 localAuthType = change.localAuthType
             )
         }
+
+        is UnlockingGatePartialState.PasswordInputEnabledChanged -> {
+            oldState.copy(
+                isPasswordInputEnabled = change.isEnabled
+            )
+        }
     }
 }

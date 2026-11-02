@@ -33,6 +33,11 @@ internal fun reduce(
             )
         }
 
+        is SecretSetupPartialState.PasswordInputEnabledChanged -> {
+            oldState.copy(
+                isPasswordInputEnabled = change.isEnabled
+            )
+        }
 
         is SecretSetupPartialState.Error -> {
             oldState.copy(

@@ -7,10 +7,12 @@ import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class UnlockingGateViewModel(
     getLocalAuthType: GetLocalAuthTypeUseCase,
@@ -59,6 +61,7 @@ class UnlockingGateViewModel(
     }
 
     private suspend fun secretSubmitted(secret: String) {
+        apply(UnlockingGatePartialState.PasswordInputEnabledChanged(false))
         val isValid = validateLocalAuthSecret(secret.encodeToByteArray())
 
         if (isValid) {
@@ -69,6 +72,9 @@ class UnlockingGateViewModel(
                     error = AuthenticationError.InvalidCredential(localAuthType = uiState.value.localAuthType)
                 )
             )
+
+            delay(500.milliseconds)
+            apply(UnlockingGatePartialState.PasswordInputEnabledChanged(true))
         }
     }
 

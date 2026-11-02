@@ -83,6 +83,7 @@ fun UnlockingGateScreen(
             when (uiState.localAuthType) {
                 LocalAuthType.PIN -> {
                     PinLockView(
+                        enabled = uiState.isPasswordInputEnabled,
                         onPinCompleted = { secret ->
                             viewModel.dispatch(UnlockingGateIntent.SecretSubmitted(secret))
                         }

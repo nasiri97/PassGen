@@ -9,4 +9,8 @@ internal sealed interface UnlockingGatePartialState {
     data class BiometricOptionChanged(
         val shouldShowBiometricOption: Boolean
     ) : UnlockingGatePartialState
+
+    data class PasswordInputEnabledChanged(
+        val isEnabled: Boolean
+    ) : UnlockingGatePartialState
 }

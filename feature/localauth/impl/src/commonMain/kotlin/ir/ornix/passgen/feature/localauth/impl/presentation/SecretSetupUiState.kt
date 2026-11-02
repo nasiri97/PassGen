@@ -5,6 +5,7 @@ import ir.ornix.passgen.core.model.localauth.LocalAuthType
 internal data class SecretSetupUiState(
     val selectedSetupType: LocalAuthType = LocalAuthType.NONE,
     val setupStage: SetupStage = SetupStage.CHOOSE_TYPE,
+    val isPasswordInputEnabled: Boolean = true,
     val error: SecretSetupError? = null
 )
 

@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class SecretSetupViewModel(
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase
@@ -43,10 +45,15 @@ class SecretSetupViewModel(
     private var firstInputBuffer: String = ""
 
     private suspend fun handleSecretInput(secret: String) {
+        apply(SecretSetupPartialState.PasswordInputEnabledChanged(false))
+
         when (uiState.value.setupStage) {
             SetupStage.ENTER_SECRET -> {
                 firstInputBuffer = secret
                 apply(SecretSetupPartialState.SecretEntered)
+
+                delay(500.milliseconds)
+                apply(SecretSetupPartialState.PasswordInputEnabledChanged(true))
             }
 
             SetupStage.CONFIRM_SECRET -> {
@@ -55,6 +62,9 @@ class SecretSetupViewModel(
                     apply(SecretSetupPartialState.ConfirmSecretMatched)
                 } else {
                     apply(SecretSetupPartialState.ConfirmSecretMismatch(localAuthType = uiState.value.selectedSetupType))
+
+                    delay(500.milliseconds)
+                    apply(SecretSetupPartialState.PasswordInputEnabledChanged(true))
                 }
             }
 

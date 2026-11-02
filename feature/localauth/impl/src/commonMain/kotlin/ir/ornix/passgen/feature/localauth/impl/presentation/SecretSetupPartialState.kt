@@ -5,6 +5,11 @@ import ir.ornix.passgen.core.model.localauth.LocalAuthType
 internal sealed interface SecretSetupPartialState {
 
     data class LocalAuthTypeSelected(val localAuthType: LocalAuthType) : SecretSetupPartialState
+
+    data class PasswordInputEnabledChanged(
+        val isEnabled: Boolean
+    ) : SecretSetupPartialState
+
     data class Error(val error: SecretSetupError?) : SecretSetupPartialState
 
     data object SetupCancelled : SecretSetupPartialState

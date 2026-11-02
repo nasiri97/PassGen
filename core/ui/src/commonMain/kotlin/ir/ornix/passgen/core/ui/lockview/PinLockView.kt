@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PinLockView(
+    enabled: Boolean,
     onPinCompleted: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -76,6 +77,7 @@ fun PinLockView(
                         Spacer(Modifier.size(64.dp))
                     } else {
                         OutlinedButton(
+                            enabled = enabled,
                             onClick = {
                                 if (symbol == "C") {
                                     if (pinInput.isNotEmpty()) pinInput.dropLast(1)
