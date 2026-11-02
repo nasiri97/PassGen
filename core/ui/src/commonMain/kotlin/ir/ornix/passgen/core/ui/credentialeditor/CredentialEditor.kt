@@ -57,6 +57,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.Password
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
@@ -97,7 +98,8 @@ fun CredentialEditor(
     revealTimeoutMillis: Long,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState? = null,
-    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {},
+    installedAppsProvider: InstalledAppsProvider
 ) {
     var uiState by remember {
         mutableStateOf(
@@ -191,7 +193,8 @@ fun CredentialEditor(
                         // Apps & Web Linking Section
                         AssociationSection(
                             uiState = uiState,
-                            dispatch = dispatch
+                            dispatch = dispatch,
+                            installedAppsProvider = installedAppsProvider
                         )
 
                         // Notes Section
@@ -444,22 +447,31 @@ private fun CredentialDetailsSection(
 private fun AssociationSection(
     uiState: CredentialEditorUiState,
     dispatch: (CredentialEditorIntent) -> Unit,
+    installedAppsProvider: InstalledAppsProvider,
     modifier: Modifier = Modifier
 ) {
     SectionContainer(
         modifier = modifier,
         title = stringResource(Res.string.section_apps_and_webs_and_keywords)
     ) {
-        // Package Names
-        AssociationItem(
-            label = { Text(stringResource(Res.string.label_package_names)) },
-            placeholder = { Text(stringResource(Res.string.placeholder_package_name)) },
-            currentInput = uiState.packageInput,
-            inputChanged = { dispatch(CredentialEditorIntent.PackageInputChanged(it)) },
-            onAddClicked = { dispatch(CredentialEditorIntent.AddPackageName(uiState.packageInput)) },
-            onRemoveItemClicked = { dispatch(CredentialEditorIntent.RemovePackageName(it)) },
-            items = uiState.associatedPackageNames
-        )
+        // Package Names Area
+        if (installedAppsProvider.isSupported()) {
+            InstalledAppsSection(
+                uiState = uiState,
+                dispatch = dispatch,
+                installedAppsProvider = installedAppsProvider
+            )
+        } else {
+            AssociationItem(
+                label = { Text(stringResource(Res.string.label_package_names)) },
+                placeholder = { Text(stringResource(Res.string.placeholder_package_name)) },
+                currentInput = uiState.packageInput,
+                inputChanged = { dispatch(CredentialEditorIntent.PackageInputChanged(it)) },
+                onAddClicked = { dispatch(CredentialEditorIntent.AddPackageName(uiState.packageInput)) },
+                onRemoveItemClicked = { dispatch(CredentialEditorIntent.RemovePackageName(it)) },
+                items = uiState.associatedPackageNames
+            )
+        }
 
         Spacer(Modifier.height(4.dp))
 

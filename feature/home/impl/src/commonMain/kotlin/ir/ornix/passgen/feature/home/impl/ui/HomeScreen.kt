@@ -125,7 +125,8 @@ fun HomeScreen(
                     onCopyRequested = onCopyRequested,
                     revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
                     snackbarHostState = snackbarHostState,
-                    onSnackbarAvailabilityChanged = { isSnackbarAvailableInPassGenItemList = it }
+                    onSnackbarAvailabilityChanged = { isSnackbarAvailableInPassGenItemList = it },
+                    installedAppsProvider = viewModel.installedAppsProvider
                 )
             }
         }

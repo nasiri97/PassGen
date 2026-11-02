@@ -1,6 +1,7 @@
 package ir.ornix.passgen.core.ui.credentialeditor
 
 import ir.ornix.passgen.core.model.Credential
+import ir.ornix.passgen.core.model.InstalledAppInfo
 import ir.ornix.passgen.core.model.Password
 
 internal data class CredentialEditorUiState(
@@ -17,7 +18,12 @@ internal data class CredentialEditorUiState(
     val packageInput: String = "",
     val domainInput: String = "",
     val keywordInput: String = "",
-    val isTitleTouched: Boolean = false
+    val isTitleTouched: Boolean = false,
+    val isAppPickerExpanded: Boolean = false,
+    val installedApps: List<InstalledAppInfo> = emptyList(),
+    val isLoadingApps: Boolean = false,
+    val appSearchQuery: String = "",
+    val customPackageInput: String = ""
 ) {
     val isTitleValid: Boolean get() = title.isNotBlank()
     val showTitleError: Boolean get() = isTitleTouched && !isTitleValid

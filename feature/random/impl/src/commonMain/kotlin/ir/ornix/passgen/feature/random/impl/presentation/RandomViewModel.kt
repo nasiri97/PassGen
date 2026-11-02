@@ -2,6 +2,7 @@ package ir.ornix.passgen.feature.random.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
@@ -25,7 +26,8 @@ class RandomViewModel(
     private val removePassGenConfig: RemoveRandomPassGenConfigUseCase,
     private val saveCredentialUseCase: SaveCredentialUseCase,
     isCopyEnabled: IsCopyEnabledUseCase,
-    getVisibilityTimeout: GetVisibilityTimeoutUseCase
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase,
+    val installedAppsProvider: InstalledAppsProvider
 ) : ViewModel() {
 
     private val intents = Channel<RandomIntent>()

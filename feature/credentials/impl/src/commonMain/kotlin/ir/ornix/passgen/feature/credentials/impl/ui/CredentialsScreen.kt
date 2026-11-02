@@ -163,7 +163,8 @@ fun CredentialsScreen(
                 onCopyRequested = onCopyRequested,
                 revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
                 snackbarHostState = snackbarHostState,
-                onSnackbarAvailabilityChanged = { isSnackbarAvailableInNewCredentialDialog = it }
+                onSnackbarAvailabilityChanged = { isSnackbarAvailableInNewCredentialDialog = it },
+                installedAppsProvider = viewModel.installedAppsProvider
             )
         }
 
@@ -182,7 +183,8 @@ fun CredentialsScreen(
                 onCopyRequested = onCopyRequested,
                 revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
                 snackbarHostState = snackbarHostState,
-                onSnackbarAvailabilityChanged = { isSnackbarAvailableInEditCredentialDialog = it }
+                onSnackbarAvailabilityChanged = { isSnackbarAvailableInEditCredentialDialog = it },
+                installedAppsProvider = viewModel.installedAppsProvider
             )
         }
 

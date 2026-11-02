@@ -5,10 +5,12 @@ import ir.ornix.passgen.core.data.PlatformCrypto
 import ir.ornix.passgen.core.data.PlatformHmacSigner
 import ir.ornix.passgen.core.data.getPlatformAutofillService
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
+import ir.ornix.passgen.core.data.getPlatformInstalledAppsProvider
 import ir.ornix.passgen.core.domain.AutofillService
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.feature.config.impl.di.configModule
 import ir.ornix.passgen.feature.credentials.impl.presentation.CredentialsViewModel
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
@@ -25,6 +27,7 @@ val appModule = module {
 
     single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
     single { getPlatformAutofillService() } bind AutofillService::class
+    single { getPlatformInstalledAppsProvider() } bind InstalledAppsProvider::class
     single<HmacSigner> { PlatformHmacSigner }
     single<Crypto> { PlatformCrypto }
 

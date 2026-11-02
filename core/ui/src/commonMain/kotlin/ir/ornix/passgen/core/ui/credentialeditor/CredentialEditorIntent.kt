@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.ui.credentialeditor
 
+import ir.ornix.passgen.core.model.InstalledAppInfo
 import ir.ornix.passgen.core.model.Password
 
 internal sealed interface CredentialEditorIntent {
@@ -20,4 +21,11 @@ internal sealed interface CredentialEditorIntent {
     data class RemoveKeyword(val keyword: String) : CredentialEditorIntent
     data object TitleBlurred : CredentialEditorIntent
     data object PasswordBlurred : CredentialEditorIntent
+    data class ToggleAppPickerExpanded(val expanded: Boolean) : CredentialEditorIntent
+    data object LoadingAppsStarted : CredentialEditorIntent
+    data class AppsLoaded(val apps: List<InstalledAppInfo>) : CredentialEditorIntent
+    data class AppSearchQueryChanged(val query: String) : CredentialEditorIntent
+    data class TogglePackageSelection(val packageName: String) : CredentialEditorIntent
+    data class CustomPackageInputChanged(val customInput: String) : CredentialEditorIntent
+    data class AddCustomPackage(val packageName: String) : CredentialEditorIntent
 }

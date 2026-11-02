@@ -38,8 +38,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":core:designsystem"))
-            api(project(":core:model"))
-            api(project(":core:common"))
+            api(project(":core:domain"))
             api(libs.compose.components.resources)
         }
 

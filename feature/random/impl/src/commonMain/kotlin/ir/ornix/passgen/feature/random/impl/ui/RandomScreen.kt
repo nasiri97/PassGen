@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
@@ -111,7 +112,8 @@ fun RandomScreen(
                 onCopyRequested = onCopyRequested,
                 revealTimeoutMillis = uiState.visibilityTimeout.timeoutMillis,
                 snackbarHostState = snackbarHostState,
-                onSnackbarAvailabilityChanged = { isSnackbarAvailableInRandomList = it }
+                onSnackbarAvailabilityChanged = { isSnackbarAvailableInRandomList = it },
+                installedAppsProvider = viewModel.installedAppsProvider
             )
         }
     }
@@ -127,7 +129,8 @@ private fun RandomList(
     revealTimeoutMillis: Long,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState? = null,
-    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {},
+    installedAppsProvider: InstalledAppsProvider
 ) {
     if (passGenItems.isEmpty()) {
         EmptyRandomContent(
@@ -145,7 +148,8 @@ private fun RandomList(
             onCopyRequested = onCopyRequested,
             revealTimeoutMillis = revealTimeoutMillis,
             snackbarHostState = snackbarHostState,
-            onSnackbarAvailabilityChanged = onSnackbarAvailabilityChanged
+            onSnackbarAvailabilityChanged = onSnackbarAvailabilityChanged,
+            installedAppsProvider = installedAppsProvider
         )
     }
 }

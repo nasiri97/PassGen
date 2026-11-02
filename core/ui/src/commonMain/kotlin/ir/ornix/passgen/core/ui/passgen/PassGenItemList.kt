@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
@@ -28,7 +29,8 @@ fun PassGenItemList(
     revealTimeoutMillis: Long,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState? = null,
-    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {},
+    installedAppsProvider: InstalledAppsProvider
 ) {
     var passGenConfig by remember { mutableStateOf<PassGenConfig?>(null) }
 
@@ -48,7 +50,8 @@ fun PassGenItemList(
                 onCopyRequested = onCopyRequested,
                 revealTimeoutMillis = revealTimeoutMillis,
                 snackbarHostState = snackbarHostState,
-                onSnackbarAvailabilityChanged = onSnackbarAvailabilityChanged
+                onSnackbarAvailabilityChanged = onSnackbarAvailabilityChanged,
+                installedAppsProvider = installedAppsProvider
             )
         }
     }

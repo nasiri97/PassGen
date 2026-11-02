@@ -2,6 +2,7 @@ package ir.ornix.passgen.feature.credentials.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.credential.DeleteCredentialUseCase
@@ -20,7 +21,8 @@ class CredentialsViewModel(
     private val saveCredential: SaveCredentialUseCase,
     private val deleteCredential: DeleteCredentialUseCase,
     isCopyEnabled: IsCopyEnabledUseCase,
-    getVisibilityTimeout: GetVisibilityTimeoutUseCase
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase,
+    val installedAppsProvider: InstalledAppsProvider
 ) : ViewModel() {
 
     private val intents = Channel<CredentialsIntent>()

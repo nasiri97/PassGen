@@ -2,6 +2,7 @@ package ir.ornix.passgen.feature.home.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.appconfig.IsCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
@@ -31,7 +32,8 @@ class HomeViewModel(
     private val removePassGenConfig: RemoveKdfPassGenConfigUseCase,
     private val saveCredentialUseCase: SaveCredentialUseCase,
     isCopyEnabled: IsCopyEnabledUseCase,
-    getVisibilityTimeout: GetVisibilityTimeoutUseCase
+    getVisibilityTimeout: GetVisibilityTimeoutUseCase,
+    val installedAppsProvider: InstalledAppsProvider
 ) : ViewModel() {
 
     private val intents = Channel<HomeIntent>()

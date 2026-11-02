@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.Password
@@ -65,7 +66,8 @@ fun PassGenItemCard(
     revealTimeoutMillis: Long,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState? = null,
-    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {}
+    onSnackbarAvailabilityChanged: (Boolean) -> Unit = {},
+    installedAppsProvider: InstalledAppsProvider
 ) {
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     var showCredentialDialog by remember { mutableStateOf(false) }
@@ -104,7 +106,8 @@ fun PassGenItemCard(
             onCopyRequested = onCopyRequested,
             revealTimeoutMillis = revealTimeoutMillis,
             snackbarHostState = snackbarHostState,
-            onSnackbarAvailabilityChanged = { isSnackbarAvailableInCredentialDialog = it }
+            onSnackbarAvailabilityChanged = { isSnackbarAvailableInCredentialDialog = it },
+            installedAppsProvider = installedAppsProvider
         )
     }
 

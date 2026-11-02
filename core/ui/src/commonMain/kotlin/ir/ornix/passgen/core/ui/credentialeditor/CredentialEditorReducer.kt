@@ -54,5 +54,51 @@ internal fun reduce(
 
         is CredentialEditorIntent.TitleBlurred -> oldState.copy(isTitleTouched = true)
         is CredentialEditorIntent.PasswordBlurred -> oldState.copy(isPasswordTouched = true)
+
+        is CredentialEditorIntent.ToggleAppPickerExpanded -> {
+            oldState.copy(
+                isAppPickerExpanded = intent.expanded,
+                appSearchQuery = if (!intent.expanded) "" else oldState.appSearchQuery,
+                customPackageInput = if (!intent.expanded) "" else oldState.customPackageInput
+            )
+        }
+
+        is CredentialEditorIntent.LoadingAppsStarted -> {
+            oldState.copy(isLoadingApps = true)
+        }
+
+        is CredentialEditorIntent.AppsLoaded -> {
+            oldState.copy(
+                installedApps = intent.apps,
+                isLoadingApps = false
+            )
+        }
+
+        is CredentialEditorIntent.AppSearchQueryChanged -> {
+            oldState.copy(appSearchQuery = intent.query)
+        }
+
+        is CredentialEditorIntent.TogglePackageSelection -> {
+            val updated = if (oldState.associatedPackageNames.contains(intent.packageName)) {
+                oldState.associatedPackageNames - intent.packageName
+            } else {
+                oldState.associatedPackageNames + intent.packageName
+            }
+            oldState.copy(associatedPackageNames = updated)
+        }
+
+        is CredentialEditorIntent.CustomPackageInputChanged -> {
+            oldState.copy(customPackageInput = intent.customInput)
+        }
+
+        is CredentialEditorIntent.AddCustomPackage -> {
+            val trimmed = intent.packageName.trim()
+            if (trimmed.isNotBlank()) {
+                oldState.copy(
+                    associatedPackageNames = oldState.associatedPackageNames + trimmed,
+                    customPackageInput = ""
+                )
+            } else oldState
+        }
     }
 }

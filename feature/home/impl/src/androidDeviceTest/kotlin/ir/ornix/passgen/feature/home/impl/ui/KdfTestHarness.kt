@@ -53,10 +53,12 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.common.util.withLineBreakOpportunities
 import ir.ornix.passgen.core.data.di.sqlDelightRepositoryModule
+import ir.ornix.passgen.core.data.getPlatformInstalledAppsProvider
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
+import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.domain.di.domainModule
@@ -216,6 +218,7 @@ object KdfTestHarness {
             sqlDelightRepositoryModule(driver = driver)
         )
 
+        single { getPlatformInstalledAppsProvider() } bind InstalledAppsProvider::class
         single { SettingsAppConfigRepository(MapSettings()) } bind AppConfigRepository::class
 
         single { TestHmacSigner() } bind HmacSigner::class
