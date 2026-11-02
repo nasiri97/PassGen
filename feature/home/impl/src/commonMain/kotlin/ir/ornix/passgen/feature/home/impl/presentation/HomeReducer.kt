@@ -5,8 +5,18 @@ internal fun reduce(
     change: HomePartialState
 ): HomeUiState {
     return when (change) {
-        is HomePartialState.InputChanged -> {
-            oldState.copy(input = change.input)
+        is HomePartialState.ContextInputChanged -> {
+            oldState.copy(
+                contextInput = change.contextInput,
+                passGenItems = oldState.passGenItems.map { passGenItem ->
+                    if (passGenItem.contextInput == change.contextInput) passGenItem
+                    else passGenItem.copy(
+                        contextInput = change.contextInput,
+                        password = null,
+                        isCalculating = true
+                    )
+                }
+            )
         }
 
         is HomePartialState.Loading -> {
@@ -21,26 +31,26 @@ internal fun reduce(
 
         is HomePartialState.PasswordGenerated -> {
             oldState.copy(
-                passGenItems = oldState.passGenItems.map { passwordItem ->
-                    if (passwordItem.config.id == change.configId)
-                        passwordItem.copy(
+                passGenItems = oldState.passGenItems.map { passGenItem ->
+                    if (passGenItem.config.id == change.configId)
+                        passGenItem.copy(
                             password = change.password,
                             isCalculating = false
                         )
-                    else passwordItem
+                    else passGenItem
                 }
             )
         }
 
         is HomePartialState.PasswordIsCalculating -> {
             oldState.copy(
-                passGenItems = oldState.passGenItems.map { passwordItem ->
-                    if (passwordItem.config.id == change.configId)
-                        passwordItem.copy(
+                passGenItems = oldState.passGenItems.map { passGenItem ->
+                    if (passGenItem.config.id == change.configId)
+                        passGenItem.copy(
                             password = null,
                             isCalculating = true
                         )
-                    else passwordItem
+                    else passGenItem
                 }
             )
         }

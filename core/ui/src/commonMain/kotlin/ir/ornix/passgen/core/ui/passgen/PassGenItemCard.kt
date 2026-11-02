@@ -97,7 +97,7 @@ fun PassGenItemCard(
     if (showCredentialDialog && password != null && password.value.isNotEmpty()) {
         CredentialEditor(
             password = password,
-            defaultTitle = passGenItem.config.name,
+            defaultTitle = passGenItem.contextInput,
             onSubmit = { newCredential ->
                 addNewCredential(newCredential)
                 showCredentialDialog = false

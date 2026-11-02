@@ -11,7 +11,6 @@ import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUse
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
-import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -45,14 +44,14 @@ class HomeViewModel(
 
     private val jobs = HashMap<Int, Job>()
 
-    private fun calculate(config: PassGenConfig, input: String) {
+    private fun PassGenItem.calculate() {
         jobs[config.id]?.cancel()
 
         jobs[config.id] = viewModelScope.launch {
             apply(HomePartialState.PasswordIsCalculating(config.id))
 
             val password = withContext(Dispatchers.Default) {
-                generateKDFPass(config as KdfPassGenConfig, input)
+                generateKDFPass(config as KdfPassGenConfig, contextInput)
             }
 
             currentCoroutineContext().ensureActive()
@@ -79,19 +78,20 @@ class HomeViewModel(
 
         viewModelScope.launch {
             configsFlow.collect { configs ->
-                val currentPasswordItems = uiState.value.passGenItems
+                val currentPassGenItems = uiState.value.passGenItems
                 val passGenItems = mutableListOf<PassGenItem>()
 
                 configs.forEach { config ->
                     passGenItems.add(
-                        currentPasswordItems.find {
+                        currentPassGenItems.find {
                             it.config.id == config.id
                         } ?: PassGenItem(
                             config = config,
+                            contextInput = uiState.value.contextInput,
                             password = null,
                             isCalculating = true
                         ).apply {
-                            calculate(config, uiState.value.input)
+                            calculate()
                         }
                     )
                 }
@@ -103,12 +103,12 @@ class HomeViewModel(
         viewModelScope.launch {
             for (intent in intents) {
                 when (intent) {
-                    is HomeIntent.InputChanged -> {
-                        uiState.value.passGenItems.forEach { passwordItem ->
-                            calculate(passwordItem.config, intent.input)
-                        }
+                    is HomeIntent.ContextInputChanged -> {
+                        apply(HomePartialState.ContextInputChanged(intent.contextInput))
 
-                        apply(HomePartialState.InputChanged(intent.input))
+                        uiState.value.passGenItems.forEach { passGenItem ->
+                            passGenItem.calculate()
+                        }
                     }
 
                     is HomeIntent.RemoveConfig -> {

@@ -106,9 +106,9 @@ fun HomeScreen(
             ) {
                 ContextInputTextField(
                     modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp),
-                    input = uiState.input,
+                    input = uiState.contextInput,
                     onInputChange = {
-                        viewModel.dispatch(HomeIntent.InputChanged(it))
+                        viewModel.dispatch(HomeIntent.ContextInputChanged(it))
                     },
                     onDone = { }
                 )

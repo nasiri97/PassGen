@@ -62,6 +62,7 @@ class RandomViewModel(
                             it.config.id == config.id
                         } ?: PassGenItem(
                             config = config,
+                            contextInput = "",
                             password = generateRandomPass(config),
                             isCalculating = false
                         )

@@ -5,7 +5,7 @@ import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 
 internal data class HomeUiState(
     val isLoading: Boolean = true,
-    val input: String = "",
+    val contextInput: String = "",
     val passGenItems: List<PassGenItem> = emptyList(),
     val isCopyEnabled: Boolean = false,
     val visibilityTimeout: PasswordVisibilityTimeout = PasswordVisibilityTimeout.default

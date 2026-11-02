@@ -4,6 +4,7 @@ import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 
 data class PassGenItem(
     val config: PassGenConfig,
+    val contextInput: String,
     val password: Password?,
     val isCalculating: Boolean
 )
