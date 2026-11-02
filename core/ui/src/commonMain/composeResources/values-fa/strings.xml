@@ -11,11 +11,14 @@
     <string name="password">رمز</string>
     <string name="error_unknown">مشکلی پیش آمد.</string>
 
-    <!-- Unsupported Screen -->
+    <!-- Unavailable Screen -->
     <string name="unsupported_title">دستگاه پشتیبانی نمی‌شود</string>
-    <string name="unsupported_exit">بستن برنامه</string>
-    <string name="unsupported_root_detected_message">دستگاه شما روت شده یا نرم‌افزار سیستمی آن تغییر کرده است. برای حفظ امنیت اطلاعات و حساب کاربری شما، اجرای این برنامه روی این دستگاه امکان‌پذیر نیست.</string>
+    <string name="unsupported_root_detected_message">به نظر می‌رسد دستگاه شما روت شده یا از نسخهٔ تغییریافتهٔ سیستم‌عامل استفاده می‌کند. برای محافظت از امنیت شما، تمام اطلاعات حساس به‌طور دائمی پاک شده‌اند و امکان اجرای رمزآفرین روی این دستگاه وجود ندارد.</string>
     <string name="unsupported_initialization_failed_message">هنگام راه‌اندازی برنامه مشکلی پیش آمد. لطفاً دوباره تلاش کنید.</string>
+
+    <string name="sensitive_data_erased_title">اطلاعات حساس پاک شد</string>
+    <string name="sensitive_data_erased_description">تعداد تلاش‌های ناموفق برای احراز هویت از حد مجاز فراتر رفته است. برای محافظت از امنیت شما، تمام اطلاعات حساس برنامه به‌طور دائمی پاک شدند.\n\nلطفاً برنامه را مجدداً راه‌اندازی کنید.</string>
+    <string name="close_app">بستن برنامه</string>
 
     <!-- Confirm Delete Dialog -->
     <string name="delete_item_title">حذف آیتم</string>
@@ -160,6 +163,13 @@
     <string name="settings_lock_active_pattern">قفل الگو فعال است</string>
     <string name="settings_lock_none">هیچ قفل محلی تنظیم نشده است</string>
     <string name="settings_change_local_lock">تغییر روش قفل محلی</string>
+    <string name="settings_failed_attempt_limit_title">محدودیت تلاش‌های ناموفق</string>
+    <string name="settings_failed_attempt_limit_subtitle">پاک‌سازی خودکار داده‌های حساس پس از تلاش‌های متوالی ناموفق برای باز کردن قفل</string>
+    <string name="settings_failed_attempt_limit_disabled">غیرفعال</string>
+    <string name="settings_failed_attempt_limit_1">۱ تلاش</string>
+    <string name="settings_failed_attempt_limit_3">۳ تلاش</string>
+    <string name="settings_failed_attempt_limit_5">۵ تلاش</string>
+    <string name="settings_failed_attempt_limit_10">۱۰ تلاش</string>
 
     <string name="settings_section_appearance">ظاهر و زبان</string>
     <string name="settings_theme_title">تم</string>

@@ -7,7 +7,6 @@ import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
@@ -18,14 +17,18 @@ import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
+import ir.ornix.passgen.core.domain.localauth.GetFailedAuthAttemptLimitUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.UpdateFailedAuthAttemptLimitUseCase
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
+import ir.ornix.passgen.core.model.localauth.FailedAuthAttemptLimit
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
@@ -87,6 +90,8 @@ class SettingsViewModelTest {
     private class FakeLocalAuthRepository : LocalAuthRepository {
         val authTypeFlow = MutableStateFlow(LocalAuthType.NONE)
         val biometricFlow = MutableStateFlow(false)
+        val failedAttemptCountFlow = MutableStateFlow(0L)
+        val failedAttemptLimitFlow = MutableStateFlow(FailedAuthAttemptLimit.DISABLED.maxAttempts)
 
         override fun getLocalAuthType(): StateFlow<LocalAuthType> = authTypeFlow.asStateFlow()
         override suspend fun setLocalAuthType(type: LocalAuthType) {
@@ -101,9 +106,33 @@ class SettingsViewModelTest {
             biometricFlow.value = enabled
         }
 
+        override fun getFailedAuthAttemptCount(): StateFlow<Long> =
+            failedAttemptCountFlow.asStateFlow()
+
+        override suspend fun incrementFailedAuthAttemptCount() {
+            failedAttemptCountFlow.value++
+        }
+
+        override suspend fun resetFailedAuthAttemptCount() {
+            failedAttemptCountFlow.value = 0L
+        }
+
+        override fun getFailedAuthAttemptLimit(): StateFlow<Long> =
+            failedAttemptLimitFlow.asStateFlow()
+
+        override suspend fun updateFailedAuthAttemptLimit(maxAttempts: Long) {
+            failedAttemptLimitFlow.value = maxAttempts
+        }
+
+        override suspend fun disableFailedAuthAttemptLimit() {
+            failedAttemptLimitFlow.value = FailedAuthAttemptLimit.DISABLED.maxAttempts
+        }
+
         override suspend fun clearAuth() {
             authTypeFlow.value = LocalAuthType.NONE
             biometricFlow.value = false
+            failedAttemptCountFlow.value = 0L
+            failedAttemptLimitFlow.value = FailedAuthAttemptLimit.DISABLED.maxAttempts
         }
     }
 
@@ -185,6 +214,8 @@ class SettingsViewModelTest {
             biometricAuthenticator = biometricAuth,
             getLocalAuthType = GetLocalAuthTypeUseCase(localAuthRepo),
             saveLocalAuthSecret = SaveLocalAuthSecretUseCase(FakeCrypto(), localAuthRepo),
+            getFailedAuthAttemptLimit = GetFailedAuthAttemptLimitUseCase(localAuthRepo),
+            updateFailedAuthAttemptLimit = UpdateFailedAuthAttemptLimitUseCase(localAuthRepo),
             getLanguage = GetLanguageUseCase(appConfigRepo),
             setLanguage = SetLanguageUseCase(appConfigRepo),
             getTheme = GetThemeUseCase(appConfigRepo),
@@ -241,6 +272,99 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun testFailedAuthAttemptLimitSelectionAndObservation() = runTest {
+        val localAuthRepo = FakeLocalAuthRepository()
+        val viewModel = createViewModel(localAuthRepo = localAuthRepo)
+
+        advanceUntilIdle()
+        assertEquals(
+            FailedAuthAttemptLimit.DISABLED,
+            viewModel.uiState.value.selectedFailedAuthAttemptLimit
+        )
+
+        viewModel.dispatch(SettingsIntent.SelectFailedAuthAttemptLimit(FailedAuthAttemptLimit.THREE_ATTEMPTS))
+        advanceUntilIdle()
+        assertEquals(
+            FailedAuthAttemptLimit.THREE_ATTEMPTS,
+            viewModel.uiState.value.selectedFailedAuthAttemptLimit
+        )
+        assertEquals(3L, localAuthRepo.failedAttemptLimitFlow.value)
+
+        viewModel.dispatch(SettingsIntent.SelectFailedAuthAttemptLimit(FailedAuthAttemptLimit.FIVE_ATTEMPTS))
+        advanceUntilIdle()
+        assertEquals(
+            FailedAuthAttemptLimit.FIVE_ATTEMPTS,
+            viewModel.uiState.value.selectedFailedAuthAttemptLimit
+        )
+        assertEquals(5L, localAuthRepo.failedAttemptLimitFlow.value)
+
+        viewModel.dispatch(SettingsIntent.SelectFailedAuthAttemptLimit(FailedAuthAttemptLimit.ONE_ATTEMPT))
+        advanceUntilIdle()
+        assertEquals(
+            FailedAuthAttemptLimit.ONE_ATTEMPT,
+            viewModel.uiState.value.selectedFailedAuthAttemptLimit
+        )
+        assertEquals(1L, localAuthRepo.failedAttemptLimitFlow.value)
+
+        viewModel.dispatch(SettingsIntent.SelectFailedAuthAttemptLimit(FailedAuthAttemptLimit.DISABLED))
+        advanceUntilIdle()
+        assertEquals(
+            FailedAuthAttemptLimit.DISABLED,
+            viewModel.uiState.value.selectedFailedAuthAttemptLimit
+        )
+        assertEquals(Long.MAX_VALUE, localAuthRepo.failedAttemptLimitFlow.value)
+    }
+
+    @Test
+    fun testSetFingerprintEnabled() = runTest {
+        val localAuthRepo = FakeLocalAuthRepository()
+        val viewModel = createViewModel(localAuthRepo = localAuthRepo)
+
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isBiometricEnabled)
+
+        viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(true))
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.isBiometricEnabled)
+        assertTrue(localAuthRepo.biometricFlow.value)
+
+        viewModel.dispatch(SettingsIntent.SetFingerprintEnabled(false))
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isBiometricEnabled)
+        assertFalse(localAuthRepo.biometricFlow.value)
+    }
+
+    @Test
+    fun testBiometricAvailabilityStatus() = runTest {
+        val unavailableBiometricAuth = FakeBiometricAuthenticator(available = false)
+        val viewModelUnavailable = createViewModel(biometricAuth = unavailableBiometricAuth)
+
+        advanceUntilIdle()
+        assertFalse(viewModelUnavailable.uiState.value.isBiometricAvailable)
+
+        val availableBiometricAuth = FakeBiometricAuthenticator(available = true)
+        val viewModelAvailable = createViewModel(biometricAuth = availableBiometricAuth)
+
+        advanceUntilIdle()
+        assertTrue(viewModelAvailable.uiState.value.isBiometricAvailable)
+    }
+
+    @Test
+    fun testLocalAuthenticationTypeObservationAndDisable() = runTest {
+        val localAuthRepo = FakeLocalAuthRepository()
+        localAuthRepo.authTypeFlow.value = LocalAuthType.PIN
+        val viewModel = createViewModel(localAuthRepo = localAuthRepo)
+
+        advanceUntilIdle()
+        assertEquals(LocalAuthType.PIN, viewModel.uiState.value.currentLocalAuthType)
+
+        viewModel.dispatch(SettingsIntent.LocalAuthenticationDisabled)
+        advanceUntilIdle()
+        assertEquals(LocalAuthType.NONE, viewModel.uiState.value.currentLocalAuthType)
+        assertEquals(LocalAuthType.NONE, localAuthRepo.authTypeFlow.value)
+    }
+
+    @Test
     fun testCopyEnabledWarningDialogAndConfirmation() = runTest {
         val viewModel = createViewModel()
 
@@ -257,6 +381,29 @@ class SettingsViewModelTest {
         advanceUntilIdle()
         assertFalse(viewModel.uiState.value.showCopyWarningDialog)
         assertTrue(viewModel.uiState.value.isCopyEnabled)
+
+        // Disabling copy directly without dialog
+        viewModel.dispatch(SettingsIntent.RequestSetCopyEnabled(false))
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.showCopyWarningDialog)
+        assertFalse(viewModel.uiState.value.isCopyEnabled)
+    }
+
+    @Test
+    fun testDismissCopyWarningDialog() = runTest {
+        val viewModel = createViewModel()
+
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isCopyEnabled)
+
+        viewModel.dispatch(SettingsIntent.RequestSetCopyEnabled(true))
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.showCopyWarningDialog)
+
+        viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.showCopyWarningDialog)
+        assertFalse(viewModel.uiState.value.isCopyEnabled)
     }
 
     @Test
@@ -271,6 +418,22 @@ class SettingsViewModelTest {
         assertTrue(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
 
         viewModel.dispatch(SettingsIntent.ConfirmPurgeSensitiveData)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
+    }
+
+    @Test
+    fun testDismissPurgeSensitiveDataWarningDialog() = runTest {
+        val viewModel = createViewModel()
+
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
+
+        viewModel.dispatch(SettingsIntent.RequestPurgeSensitiveData)
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
+
+        viewModel.dispatch(SettingsIntent.DismissPurgeSensitiveDataWarning)
         advanceUntilIdle()
         assertFalse(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
     }

@@ -1,4 +1,4 @@
-package ir.ornix.passgen.core.domain
+package ir.ornix.passgen.core.model.localauth
 
 enum class LocalAuthType {
     NONE,

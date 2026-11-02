@@ -24,7 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.application_locked_title
 import ir.ornix.passgen.core.ui.content_desc_fingerprint

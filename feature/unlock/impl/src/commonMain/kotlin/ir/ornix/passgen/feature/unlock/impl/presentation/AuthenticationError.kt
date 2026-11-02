@@ -1,7 +1,7 @@
 package ir.ornix.passgen.feature.unlock.impl.presentation
 
 import androidx.compose.runtime.Composable
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.error_incorect_biometric
 import ir.ornix.passgen.core.ui.error_incorect_secret

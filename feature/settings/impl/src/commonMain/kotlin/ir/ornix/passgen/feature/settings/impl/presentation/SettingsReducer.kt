@@ -17,6 +17,12 @@ internal fun reduce(
             )
         }
 
+        is SettingsPartialState.FailedAuthAttemptLimitChanged -> {
+            oldState.copy(
+                selectedFailedAuthAttemptLimit = change.limit
+            )
+        }
+
         is SettingsPartialState.FingerprintAvailabilityChanged -> {
             oldState.copy(
                 isBiometricAvailable = change.available

@@ -1,7 +1,7 @@
 package ir.ornix.passgen.core.domain.localauth
 
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 

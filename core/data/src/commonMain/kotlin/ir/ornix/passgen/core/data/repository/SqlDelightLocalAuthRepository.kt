@@ -5,7 +5,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOne
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +55,38 @@ class SqlDelightLocalAuthRepository(
     override suspend fun setBiometricEnabled(enabled: Boolean): Unit =
         withContext(dispatcher) {
             queries.updateBiometricEnabled(if (enabled) 1L else 0L)
+        }
+
+    override fun getFailedAuthAttemptCount(): Flow<Long> {
+        return queries.selectFailedAuthAttemptCount()
+            .asFlow()
+            .mapToOne(dispatcher)
+    }
+
+    override suspend fun incrementFailedAuthAttemptCount(): Unit =
+        withContext(dispatcher) {
+            queries.incrementFailedAuthAttemptCount()
+        }
+
+    override suspend fun resetFailedAuthAttemptCount(): Unit =
+        withContext(dispatcher) {
+            queries.resetFailedAuthAttemptCount()
+        }
+
+    override fun getFailedAuthAttemptLimit(): Flow<Long> {
+        return queries.selectFailedAuthAttemptLimit()
+            .asFlow()
+            .mapToOne(dispatcher)
+    }
+
+    override suspend fun updateFailedAuthAttemptLimit(maxAttempts: Long): Unit =
+        withContext(dispatcher) {
+            queries.updateFailedAuthAttemptLimit(maxAttempts)
+        }
+
+    override suspend fun disableFailedAuthAttemptLimit(): Unit =
+        withContext(dispatcher) {
+            queries.disableFailedAuthAttemptLimit()
         }
 
     override suspend fun clearAuth(): Unit =

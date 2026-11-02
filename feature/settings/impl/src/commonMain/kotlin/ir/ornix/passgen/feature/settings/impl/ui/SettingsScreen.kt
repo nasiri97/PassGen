@@ -58,14 +58,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
+import ir.ornix.passgen.core.model.localauth.FailedAuthAttemptLimit
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.settings_change_local_lock
 import ir.ornix.passgen.core.ui.settings_copy_subtitle
 import ir.ornix.passgen.core.ui.settings_copy_title
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_1
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_10
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_3
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_5
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_disabled
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_subtitle
+import ir.ornix.passgen.core.ui.settings_failed_attempt_limit_title
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_available
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_unavailable
 import ir.ornix.passgen.core.ui.settings_fingerprints_title
@@ -114,7 +122,8 @@ import org.koin.compose.viewmodel.koinViewModel
 private enum class ActiveDialog {
     TIMEOUT,
     THEME,
-    LANGUAGE
+    LANGUAGE,
+    FAILED_ATTEMPT_LIMIT
 }
 
 @Composable
@@ -183,6 +192,24 @@ fun SettingsScreen(
             )
         }
 
+        ActiveDialog.FAILED_ATTEMPT_LIMIT -> {
+            SettingSelectionDialog(
+                title = stringResource(Res.string.settings_failed_attempt_limit_title),
+                icon = Icons.Outlined.Shield,
+                options = FailedAuthAttemptLimit.entries,
+                selectedOption = uiState.selectedFailedAuthAttemptLimit,
+                optionLabel = { limit -> getFailedAttemptLimitLabel(limit, false) },
+                onOptionSelected = {
+                    viewModel.dispatch(
+                        SettingsIntent.SelectFailedAuthAttemptLimit(
+                            it
+                        )
+                    )
+                },
+                onDismissRequest = { activeDialog = null }
+            )
+        }
+
         null -> Unit
     }
 
@@ -235,6 +262,21 @@ fun SettingsScreen(
                 },
                 onChangeLocalLock = onNavigateToSecretSetupClick
             )
+
+            if (uiState.currentLocalAuthType != LocalAuthType.NONE) {
+                ItemDivider()
+
+                SettingSelectionRow(
+                    title = stringResource(Res.string.settings_failed_attempt_limit_title),
+                    subtitle = stringResource(Res.string.settings_failed_attempt_limit_subtitle),
+                    icon = Icons.Outlined.Shield,
+                    selectedValueLabel = getFailedAttemptLimitLabel(
+                        uiState.selectedFailedAuthAttemptLimit,
+                        true
+                    ),
+                    onClick = { activeDialog = ActiveDialog.FAILED_ATTEMPT_LIMIT }
+                )
+            }
         }
 
         // Section 2: Security & Privacy
@@ -642,3 +684,13 @@ private fun getLanguageLabel(language: AppLanguage, brief: Boolean): String = wh
     AppLanguage.ENGLISH -> stringResource(Res.string.settings_language_english)
     AppLanguage.PERSIAN -> stringResource(Res.string.settings_language_persian)
 }
+
+@Composable
+private fun getFailedAttemptLimitLabel(limit: FailedAuthAttemptLimit, brief: Boolean): String =
+    when (limit) {
+        FailedAuthAttemptLimit.DISABLED -> stringResource(Res.string.settings_failed_attempt_limit_disabled)
+        FailedAuthAttemptLimit.ONE_ATTEMPT -> stringResource(Res.string.settings_failed_attempt_limit_1)
+        FailedAuthAttemptLimit.THREE_ATTEMPTS -> stringResource(Res.string.settings_failed_attempt_limit_3)
+        FailedAuthAttemptLimit.FIVE_ATTEMPTS -> stringResource(Res.string.settings_failed_attempt_limit_5)
+        FailedAuthAttemptLimit.TEN_ATTEMPTS -> stringResource(Res.string.settings_failed_attempt_limit_10)
+    }

@@ -5,9 +5,9 @@ import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
 import ir.ornix.passgen.core.model.Credential
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,9 +31,13 @@ class ValidateLocalAuthSecretUseCaseTest {
 
     private class FakeLocalAuthRepository(
         private var encryptedSecretValue: ByteArray? = null,
-        private var authType: LocalAuthType = LocalAuthType.NONE
+        private var authType: LocalAuthType = LocalAuthType.NONE,
+        private val attemptCount: MutableStateFlow<Long> = MutableStateFlow(0L),
+        private val attemptLimit: MutableStateFlow<Long> = MutableStateFlow(Long.MAX_VALUE)
     ) : LocalAuthRepository {
         var clearAuthCalled = false
+        var incrementAttemptCountCalled = false
+        var resetAttemptCountCalled = false
 
         override fun getLocalAuthType(): Flow<LocalAuthType> =
             MutableStateFlow(authType).asStateFlow()
@@ -49,10 +53,33 @@ class ValidateLocalAuthSecretUseCaseTest {
         override suspend fun getEncryptedSecret(): ByteArray? = encryptedSecretValue
         override fun isBiometricEnabled(): Flow<Boolean> = MutableStateFlow(false).asStateFlow()
         override suspend fun setBiometricEnabled(enabled: Boolean) {}
+
+        override fun getFailedAuthAttemptCount(): Flow<Long> = attemptCount.asStateFlow()
+        override suspend fun incrementFailedAuthAttemptCount() {
+            incrementAttemptCountCalled = true
+            attemptCount.value++
+        }
+
+        override suspend fun resetFailedAuthAttemptCount() {
+            resetAttemptCountCalled = true
+            attemptCount.value = 0L
+        }
+
+        override fun getFailedAuthAttemptLimit(): Flow<Long> = attemptLimit.asStateFlow()
+        override suspend fun updateFailedAuthAttemptLimit(maxAttempts: Long) {
+            attemptLimit.value = maxAttempts
+        }
+
+        override suspend fun disableFailedAuthAttemptLimit() {
+            attemptLimit.value = Long.MAX_VALUE
+        }
+
         override suspend fun clearAuth() {
             clearAuthCalled = true
             authType = LocalAuthType.NONE
             encryptedSecretValue = null
+            attemptCount.value = 0L
+            attemptLimit.value = Long.MAX_VALUE
         }
     }
 
@@ -84,8 +111,14 @@ class ValidateLocalAuthSecretUseCaseTest {
                 credentialRepository = FakeCredentialRepository(),
                 localAuthRepository = repo
             )
-            useCase =
-                ValidateLocalAuthSecretUseCase(crypto, repo, getLocalAuthType, purgeSensitiveData)
+
+            useCase = ValidateLocalAuthSecretUseCase(
+                crypto,
+                repo,
+                getLocalAuthType,
+                purgeSensitiveData,
+                IsFailedAuthAttemptLimitExceededUseCase(repo)
+            )
 
             val secret = "1234".encodeToByteArray()
             val isValid = useCase(secret)
@@ -106,8 +139,14 @@ class ValidateLocalAuthSecretUseCaseTest {
                 credentialRepository = FakeCredentialRepository(),
                 localAuthRepository = repo
             )
-            useCase =
-                ValidateLocalAuthSecretUseCase(crypto, repo, getLocalAuthType, purgeSensitiveData)
+
+            useCase = ValidateLocalAuthSecretUseCase(
+                crypto,
+                repo,
+                getLocalAuthType,
+                purgeSensitiveData,
+                IsFailedAuthAttemptLimitExceededUseCase(repo)
+            )
 
             val secret = "1234".encodeToByteArray()
             val isValid = useCase(secret)
@@ -130,7 +169,13 @@ class ValidateLocalAuthSecretUseCaseTest {
             credentialRepository = FakeCredentialRepository(),
             localAuthRepository = repo
         )
-        useCase = ValidateLocalAuthSecretUseCase(crypto, repo, getLocalAuthType, purgeSensitiveData)
+        useCase = ValidateLocalAuthSecretUseCase(
+            crypto,
+            repo,
+            getLocalAuthType,
+            purgeSensitiveData,
+            IsFailedAuthAttemptLimitExceededUseCase(repo)
+        )
 
         val isValid = useCase("secret123".encodeToByteArray())
 
@@ -152,7 +197,14 @@ class ValidateLocalAuthSecretUseCaseTest {
             credentialRepository = FakeCredentialRepository(),
             localAuthRepository = repo
         )
-        useCase = ValidateLocalAuthSecretUseCase(crypto, repo, getLocalAuthType, purgeSensitiveData)
+
+        useCase = ValidateLocalAuthSecretUseCase(
+            crypto,
+            repo,
+            getLocalAuthType,
+            purgeSensitiveData,
+            IsFailedAuthAttemptLimitExceededUseCase(repo)
+        )
 
         val isValid = useCase("wrongsecret".encodeToByteArray())
 

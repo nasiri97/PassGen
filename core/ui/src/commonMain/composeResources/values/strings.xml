@@ -11,11 +11,14 @@
     <string name="password">Password</string>
     <string name="error_unknown">Something went wrong.</string>
 
-    <!-- Unsupported Screen -->
+    <!-- Unavailable Screen -->
     <string name="unsupported_title">Device not supported</string>
-    <string name="unsupported_exit">Close app</string>
-    <string name="unsupported_root_detected_message">We detected that this device is rooted or its system software has been modified. To keep your data and account secure, this app can’t run on it.</string>
+    <string name="unsupported_root_detected_message">This device appears to be rooted or running modified system software. For your security, all sensitive data has been permanently erased, and PassGen cannot run on this device.</string>
     <string name="unsupported_initialization_failed_message">Something went wrong while initializing the app. Please try again.</string>
+
+    <string name="sensitive_data_erased_title">Sensitive Data Erased</string>
+    <string name="sensitive_data_erased_description">The maximum number of failed authentication attempts has been exceeded. To protect your security, all sensitive data has been permanently erased.\n\nPlease restart the application.</string>
+    <string name="close_app">Close app</string>
 
     <!-- Confirm Delete Dialog -->
     <string name="delete_item_title">Delete item</string>
@@ -160,6 +163,13 @@
     <string name="settings_lock_active_pattern">Pattern lock is active</string>
     <string name="settings_lock_none">No local lock configured</string>
     <string name="settings_change_local_lock">Change local lock method</string>
+    <string name="settings_failed_attempt_limit_title">Max auth attempt limit</string>
+    <string name="settings_failed_attempt_limit_subtitle">Purge sensitive data after consecutive failed unlock attempts</string>
+    <string name="settings_failed_attempt_limit_disabled">Disabled</string>
+    <string name="settings_failed_attempt_limit_1">1 attempt</string>
+    <string name="settings_failed_attempt_limit_3">3 attempts</string>
+    <string name="settings_failed_attempt_limit_5">5 attempts</string>
+    <string name="settings_failed_attempt_limit_10">10 attempts</string>
 
     <string name="settings_section_appearance">Appearance &amp; Language</string>
     <string name="settings_theme_title">Theme</string>

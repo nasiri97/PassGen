@@ -38,20 +38,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.unsupported_exit
-import ir.ornix.passgen.core.ui.unsupported_title
+import ir.ornix.passgen.core.ui.close_app
 import org.jetbrains.compose.resources.stringResource
 
-/**
- * Full-screen, centered "device not supported" screen (Compose Multiplatform).
- * RTL (Persian) is handled automatically.
- *
- * @param onExit closes the app. If null (platform can't exit, e.g. iOS),
- *               the button is hidden.
- */
 @Composable
 fun UnsupportedDeviceScreen(
-    reason: FailedInitializationReason,
+    title: String,
+    description: String,
     onExit: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
@@ -75,7 +68,7 @@ fun UnsupportedDeviceScreen(
                 Spacer(Modifier.height(24.dp))
 
                 Text(
-                    text = stringResource(Res.string.unsupported_title),
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -85,7 +78,7 @@ fun UnsupportedDeviceScreen(
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    text = stringResource(reason.message),
+                    text = description,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -106,7 +99,7 @@ fun UnsupportedDeviceScreen(
                         )
                     ) {
                         Text(
-                            text = stringResource(Res.string.unsupported_exit),
+                            text = stringResource(Res.string.close_app),
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -150,7 +143,7 @@ private fun PulsingWarningIcon() {
         ) {
             Icon(
                 imageVector = Icons.Rounded.Warning,
-                contentDescription = null, // decorative; the title conveys the meaning
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onErrorContainer,
                 modifier = Modifier.size(48.dp)
             )

@@ -1,6 +1,6 @@
 package ir.ornix.passgen.feature.unlock.impl.presentation
 
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 
 internal sealed interface UnlockingGatePartialState {
     data object AuthenticationSucceeded : UnlockingGatePartialState

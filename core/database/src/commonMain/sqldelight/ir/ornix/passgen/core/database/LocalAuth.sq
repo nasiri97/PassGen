@@ -1,12 +1,22 @@
 CREATE TABLE IF NOT EXISTS localAuthEntity (
-    id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
-    auth_type TEXT NOT NULL DEFAULT 'NONE',
+    id INTEGER PRIMARY KEY NOT NULL
+        CHECK (id = 1),
+    auth_type TEXT NOT NULL
+        DEFAULT 'NONE',
     encrypted_secret BLOB,
-    is_biometric_enabled INTEGER NOT NULL DEFAULT 0
+    is_biometric_enabled INTEGER NOT NULL
+        DEFAULT 0
+        CHECK (is_biometric_enabled IN (0, 1)),
+    failed_auth_attempt_count INTEGER NOT NULL
+        DEFAULT 0
+        CHECK (failed_auth_attempt_count >= 0),
+    failed_auth_attempt_limit INTEGER NOT NULL
+        DEFAULT 5
+        CHECK (failed_auth_attempt_limit >= 0)
 );
 
-INSERT OR IGNORE INTO localAuthEntity (id, auth_type, encrypted_secret, is_biometric_enabled)
-VALUES (1, 'NONE', NULL, 0);
+INSERT OR IGNORE INTO localAuthEntity (id, auth_type, encrypted_secret)
+VALUES (1, 'NONE', NULL);
 
 selectLocalAuth:
 SELECT * FROM localAuthEntity WHERE id = 1;
@@ -20,5 +30,42 @@ UPDATE localAuthEntity SET encrypted_secret = ? WHERE id = 1;
 updateBiometricEnabled:
 UPDATE localAuthEntity SET is_biometric_enabled = ? WHERE id = 1;
 
+selectFailedAuthAttemptCount:
+SELECT failed_auth_attempt_count
+FROM localAuthEntity
+WHERE id = 1;
+
+incrementFailedAuthAttemptCount:
+UPDATE localAuthEntity
+SET failed_auth_attempt_count = failed_auth_attempt_count + 1
+WHERE id = 1
+    AND failed_auth_attempt_count < (9223372036854775807 - 1);
+
+resetFailedAuthAttemptCount:
+UPDATE localAuthEntity
+SET failed_auth_attempt_count = 0
+WHERE id = 1;
+
+selectFailedAuthAttemptLimit:
+SELECT failed_auth_attempt_limit
+FROM localAuthEntity
+WHERE id = 1;
+
+updateFailedAuthAttemptLimit:
+UPDATE localAuthEntity
+SET failed_auth_attempt_limit = ?
+WHERE id = 1;
+
+disableFailedAuthAttemptLimit:
+UPDATE localAuthEntity
+SET failed_auth_attempt_limit = 9223372036854775807
+WHERE id = 1;
+
 clearLocalAuth:
-UPDATE localAuthEntity SET auth_type = 'NONE', encrypted_secret = NULL, is_biometric_enabled = 0 WHERE id = 1;
+UPDATE localAuthEntity
+SET auth_type = 'NONE',
+    encrypted_secret = NULL,
+    is_biometric_enabled = 0,
+    failed_auth_attempt_count = 0,
+    failed_auth_attempt_limit = 5
+WHERE id = 1;

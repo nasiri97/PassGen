@@ -10,12 +10,12 @@ import ir.ornix.passgen.core.data.repository.SqlDelightCredentialRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
-import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
@@ -125,10 +125,37 @@ class SqlDelightRepositoryTest {
         testScheduler.advanceUntilIdle()
         assertTrue(repo.isBiometricEnabled().first())
 
+        // Test failed auth attempt count
+        assertEquals(0L, repo.getFailedAuthAttemptCount().first())
+        repo.incrementFailedAuthAttemptCount()
+        testScheduler.advanceUntilIdle()
+        assertEquals(1L, repo.getFailedAuthAttemptCount().first())
+        repo.incrementFailedAuthAttemptCount()
+        testScheduler.advanceUntilIdle()
+        assertEquals(2L, repo.getFailedAuthAttemptCount().first())
+        repo.resetFailedAuthAttemptCount()
+        testScheduler.advanceUntilIdle()
+        assertEquals(0L, repo.getFailedAuthAttemptCount().first())
+
+        // Test failed auth attempt limit
+        assertEquals(5L, repo.getFailedAuthAttemptLimit().first())
+        repo.updateFailedAuthAttemptLimit(3L)
+        testScheduler.advanceUntilIdle()
+        assertEquals(3L, repo.getFailedAuthAttemptLimit().first())
+        repo.disableFailedAuthAttemptLimit()
+        testScheduler.advanceUntilIdle()
+        assertEquals(Long.MAX_VALUE, repo.getFailedAuthAttemptLimit().first())
+
+        // Test clearAuth resets all auth settings and attempt metrics
+        repo.incrementFailedAuthAttemptCount()
+        repo.updateFailedAuthAttemptLimit(3L)
+        testScheduler.advanceUntilIdle()
         repo.clearAuth()
         testScheduler.advanceUntilIdle()
         assertEquals(LocalAuthType.NONE, repo.getLocalAuthType().first())
         assertFalse(repo.isBiometricEnabled().first())
+        assertEquals(0L, repo.getFailedAuthAttemptCount().first())
+        assertEquals(5, repo.getFailedAuthAttemptLimit().first())
     }
 
     @Test

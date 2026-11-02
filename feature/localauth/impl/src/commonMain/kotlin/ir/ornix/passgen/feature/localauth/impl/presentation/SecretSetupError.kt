@@ -1,7 +1,7 @@
 package ir.ornix.passgen.feature.localauth.impl.presentation
 
 import androidx.compose.runtime.Composable
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.error_passwords_not_match
 import ir.ornix.passgen.core.ui.error_patterns_not_match

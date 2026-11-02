@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.AutofillService
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
-import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
@@ -14,10 +13,13 @@ import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
+import ir.ornix.passgen.core.domain.localauth.GetFailedAuthAttemptLimitUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.UpdateFailedAuthAttemptLimitUseCase
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +34,8 @@ class SettingsViewModel(
     private val biometricAuthenticator: BiometricAuthenticator,
     getLocalAuthType: GetLocalAuthTypeUseCase,
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase,
+    getFailedAuthAttemptLimit: GetFailedAuthAttemptLimitUseCase,
+    private val updateFailedAuthAttemptLimit: UpdateFailedAuthAttemptLimitUseCase,
     getLanguage: GetLanguageUseCase,
     private val setLanguage: SetLanguageUseCase,
     getTheme: GetThemeUseCase,
@@ -76,6 +80,12 @@ class SettingsViewModel(
         }
 
         viewModelScope.launch {
+            getFailedAuthAttemptLimit().collect { limit ->
+                apply(SettingsPartialState.FailedAuthAttemptLimitChanged(limit))
+            }
+        }
+
+        viewModelScope.launch {
             getLanguage().collect {
                 apply(SettingsPartialState.LanguageChanged(it))
             }
@@ -96,6 +106,10 @@ class SettingsViewModel(
 
                     is SettingsIntent.LocalAuthenticationDisabled -> {
                         saveLocalAuthSecret(LocalAuthType.NONE, ByteArray(0))
+                    }
+
+                    is SettingsIntent.SelectFailedAuthAttemptLimit -> {
+                        updateFailedAuthAttemptLimit(intent.limit)
                     }
 
                     is SettingsIntent.SelectLanguage -> {

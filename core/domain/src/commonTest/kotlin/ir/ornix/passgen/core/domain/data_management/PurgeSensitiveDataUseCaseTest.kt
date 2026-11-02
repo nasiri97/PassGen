@@ -6,9 +6,9 @@ import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.FakeHmacSigner
 import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
 import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.LocalAuthType
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +52,8 @@ class PurgeSensitiveDataUseCaseTest {
         private val authType = MutableStateFlow(LocalAuthType.PIN)
         private val encryptedSecret = MutableStateFlow<ByteArray?>(byteArrayOf(1, 2, 3))
         private val biometricEnabled = MutableStateFlow(true)
+        private val attemptCount = MutableStateFlow(0L)
+        private val attemptLimit = MutableStateFlow(3L)
 
         override fun getLocalAuthType(): Flow<LocalAuthType> = authType.asStateFlow()
         override suspend fun setLocalAuthType(type: LocalAuthType) {
@@ -68,10 +70,30 @@ class PurgeSensitiveDataUseCaseTest {
             biometricEnabled.value = enabled
         }
 
+        override fun getFailedAuthAttemptCount(): Flow<Long> = attemptCount.asStateFlow()
+        override suspend fun incrementFailedAuthAttemptCount() {
+            attemptCount.value++
+        }
+
+        override suspend fun resetFailedAuthAttemptCount() {
+            attemptCount.value = 0L
+        }
+
+        override fun getFailedAuthAttemptLimit(): Flow<Long> = attemptLimit.asStateFlow()
+        override suspend fun updateFailedAuthAttemptLimit(maxAttempts: Long) {
+            attemptLimit.value = maxAttempts
+        }
+
+        override suspend fun disableFailedAuthAttemptLimit() {
+            attemptLimit.value = Long.MAX_VALUE
+        }
+
         override suspend fun clearAuth() {
             authType.value = LocalAuthType.NONE
             encryptedSecret.value = null
             biometricEnabled.value = false
+            attemptCount.value = 0L
+            attemptLimit.value = Long.MAX_VALUE
         }
     }
 

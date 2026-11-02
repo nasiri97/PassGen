@@ -1,6 +1,6 @@
 package ir.ornix.passgen.feature.localauth.impl.presentation
 
-import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 
 internal fun reduce(
     oldState: SecretSetupUiState,

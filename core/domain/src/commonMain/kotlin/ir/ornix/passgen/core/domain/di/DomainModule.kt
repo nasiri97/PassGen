@@ -12,11 +12,14 @@ import ir.ornix.passgen.core.domain.credential.DeleteCredentialUseCase
 import ir.ornix.passgen.core.domain.credential.GetAllCredentialsUseCase
 import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
 import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
+import ir.ornix.passgen.core.domain.localauth.GetFailedAuthAttemptLimitUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.IsFailedAuthAttemptLimitExceededUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
+import ir.ornix.passgen.core.domain.localauth.UpdateFailedAuthAttemptLimitUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
@@ -49,11 +52,14 @@ val domainModule = module {
     factoryOf(::PurgeSensitiveDataUseCase)
 
     // localauth
+    factoryOf(::GetFailedAuthAttemptLimitUseCase)
     factoryOf(::GetLocalAuthTypeUseCase)
     factoryOf(::IsBiometricEnabledUseCase)
+    factoryOf(::IsFailedAuthAttemptLimitExceededUseCase)
     factoryOf(::IsUnlockingRequiredUseCase)
     factoryOf(::SaveLocalAuthSecretUseCase)
     factoryOf(::SetBiometricEnabledUseCase)
+    factoryOf(::UpdateFailedAuthAttemptLimitUseCase)
     factoryOf(::ValidateLocalAuthSecretUseCase)
 
     // passgen

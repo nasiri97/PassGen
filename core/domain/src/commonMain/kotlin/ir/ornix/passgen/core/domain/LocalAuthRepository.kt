@@ -1,5 +1,6 @@
 package ir.ornix.passgen.core.domain
 
+import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.flow.Flow
 
 interface LocalAuthRepository {
@@ -11,6 +12,14 @@ interface LocalAuthRepository {
 
     fun isBiometricEnabled(): Flow<Boolean>
     suspend fun setBiometricEnabled(enabled: Boolean)
+
+    fun getFailedAuthAttemptCount(): Flow<Long>
+    suspend fun incrementFailedAuthAttemptCount()
+    suspend fun resetFailedAuthAttemptCount()
+
+    fun getFailedAuthAttemptLimit(): Flow<Long>
+    suspend fun updateFailedAuthAttemptLimit(maxAttempts: Long)
+    suspend fun disableFailedAuthAttemptLimit()
 
     suspend fun clearAuth()
 }

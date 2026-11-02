@@ -64,6 +64,7 @@ import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
+import ir.ornix.passgen.core.domain.localauth.IsFailedAuthAttemptLimitExceededUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
 import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.AppLanguage
@@ -78,6 +79,9 @@ import ir.ornix.passgen.core.ui.nav_credentials
 import ir.ornix.passgen.core.ui.nav_home
 import ir.ornix.passgen.core.ui.nav_random
 import ir.ornix.passgen.core.ui.nav_settings
+import ir.ornix.passgen.core.ui.sensitive_data_erased_description
+import ir.ornix.passgen.core.ui.sensitive_data_erased_title
+import ir.ornix.passgen.core.ui.unsupported_title
 import ir.ornix.passgen.core.ui.util.setAppLocale
 import ir.ornix.passgen.feature.about.api.AboutRoute
 import ir.ornix.passgen.feature.about.impl.ui.AboutScreen
@@ -196,12 +200,17 @@ fun App(
             ) {
                 when (initializationState) {
                     is InitializationState.Completed if splashTimeElapsed && isUnlockingRequired != null ->
-                        AppContent(isUnlockingRequired = isUnlockingRequired!!)
+                        AppContent(
+                            isUnlockingRequired = isUnlockingRequired!!,
+                            onExit = onExit
+                        )
 
-                    is InitializationState.Failed -> UnsupportedDeviceScreen(
-                        reason = initializationState.reason,
-                        onExit = onExit
-                    )
+                    is InitializationState.Failed ->
+                        UnsupportedDeviceScreen(
+                            title = stringResource(Res.string.unsupported_title),
+                            description = stringResource(initializationState.reason.message),
+                            onExit = onExit
+                        )
 
                     else -> SplashScreen()
                 }
@@ -210,11 +219,41 @@ fun App(
     }
 }
 
+
+@Composable
+private fun failedAuthAttemptLimitGate(onExit: (() -> Unit)?): Boolean {
+    val isFailedAuthAttemptLimitExceededUseCase:
+            IsFailedAuthAttemptLimitExceededUseCase = koinInject()
+
+    var isFailedAuthAttemptLimitExceeded by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isFailedAuthAttemptLimitExceededUseCase().collect { newValue ->
+            if (newValue) isFailedAuthAttemptLimitExceeded = true
+        }
+    }
+
+    if (isFailedAuthAttemptLimitExceeded) {
+        UnsupportedDeviceScreen(
+            title = stringResource(Res.string.sensitive_data_erased_title),
+            description = stringResource(Res.string.sensitive_data_erased_description),
+            onExit = onExit
+        )
+        return true
+    }
+
+    return false
+}
+
+
 @Composable
 private fun AppContent(
     isUnlockingRequired: Boolean,
+    onExit: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
+
+    if (failedAuthAttemptLimitGate(onExit)) return
 
     val initialRoute = when {
         isUnlockingRequired -> UnlockRoute
