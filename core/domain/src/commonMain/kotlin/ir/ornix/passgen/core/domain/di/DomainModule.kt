@@ -11,6 +11,7 @@ import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.credential.DeleteCredentialUseCase
 import ir.ornix.passgen.core.domain.credential.GetAllCredentialsUseCase
 import ir.ornix.passgen.core.domain.credential.SaveCredentialUseCase
+import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
@@ -43,6 +44,9 @@ val domainModule = module {
     factoryOf(::DeleteCredentialUseCase)
     factoryOf(::GetAllCredentialsUseCase)
     factoryOf(::SaveCredentialUseCase)
+
+    // data_management
+    factoryOf(::PurgeSensitiveDataUseCase)
 
     // localauth
     factoryOf(::GetLocalAuthTypeUseCase)

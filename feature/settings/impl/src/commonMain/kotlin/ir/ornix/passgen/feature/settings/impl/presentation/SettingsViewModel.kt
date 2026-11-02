@@ -13,6 +13,7 @@ import ir.ornix.passgen.core.domain.appconfig.SetCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
+import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
@@ -39,7 +40,8 @@ class SettingsViewModel(
     private val setCopyEnabled: SetCopyEnabledUseCase,
     getVisibilityTimeout: GetVisibilityTimeoutUseCase,
     private val setVisibilityTimeout: SetVisibilityTimeoutUseCase,
-    private val autofillService: AutofillService
+    private val autofillService: AutofillService,
+    private val purgeSensitiveData: PurgeSensitiveDataUseCase
 ) : ViewModel() {
 
     private val intents = Channel<SettingsIntent>()
@@ -121,6 +123,31 @@ class SettingsViewModel(
 
                     is SettingsIntent.DismissCopyWarningDialog -> {
                         apply(SettingsPartialState.CopyWarningDialogVisibilityChanged(false))
+                    }
+
+                    is SettingsIntent.RequestPurgeSensitiveData -> {
+                        apply(
+                            SettingsPartialState.PurgeSensitiveDataWarningDialogVisibilityChanged(
+                                visible = true
+                            )
+                        )
+                    }
+
+                    is SettingsIntent.ConfirmPurgeSensitiveData -> {
+                        apply(
+                            SettingsPartialState.PurgeSensitiveDataWarningDialogVisibilityChanged(
+                                visible = false
+                            )
+                        )
+                        purgeSensitiveData()
+                    }
+
+                    is SettingsIntent.DismissPurgeSensitiveDataWarning -> {
+                        apply(
+                            SettingsPartialState.PurgeSensitiveDataWarningDialogVisibilityChanged(
+                                visible = false
+                            )
+                        )
                     }
 
                     is SettingsIntent.SelectVisibilityTimeout -> {

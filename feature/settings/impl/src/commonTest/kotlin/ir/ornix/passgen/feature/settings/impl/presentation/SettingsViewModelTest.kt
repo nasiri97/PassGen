@@ -3,9 +3,12 @@ package ir.ornix.passgen.feature.settings.impl.presentation
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.AutofillService
 import ir.ornix.passgen.core.domain.BiometricAuthenticator
+import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.Crypto
+import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.LocalAuthType
+import ir.ornix.passgen.core.domain.PassGenConfigRepository
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
@@ -14,15 +17,21 @@ import ir.ornix.passgen.core.domain.appconfig.SetCopyEnabledUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.SetVisibilityTimeoutUseCase
+import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
+import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
+import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -127,24 +136,50 @@ class SettingsViewModelTest {
         }
     }
 
-    @BeforeTest
-    fun setUp() {
-        Dispatchers.setMain(testDispatcher)
+    private class FakeCredentialRepository : CredentialRepository {
+        override suspend fun save(credential: Credential) {}
+        override suspend fun delete(credentialId: Long) {}
+        override fun getAll(): Flow<List<Credential>> =
+            MutableStateFlow<List<Credential>>(emptyList()).asStateFlow()
+
+        override suspend fun deleteAllCredentials() {}
     }
 
-    @AfterTest
-    fun tearDown() {
-        Dispatchers.resetMain()
+    private class FakeHmacSigner : HmacSigner {
+        override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {}
+        override suspend fun sign(mkdId: String, input: String): ByteArray = ByteArray(0)
+        override suspend fun hasMasterKeyDigest(mkdId: String): Boolean = false
+        override suspend fun deleteMasterKeyDigest(mkdId: String) {}
     }
 
-    @Test
-    fun testLanguageSelectionIntentUpdatesState() = runTest {
-        val appConfigRepo = FakeAppConfigRepository()
-        val localAuthRepo = FakeLocalAuthRepository()
-        val biometricAuth = FakeBiometricAuthenticator()
-        val autofillService = FakeAutofillService()
+    private class FakePassGenConfigRepository : PassGenConfigRepository {
+        override suspend fun add(config: PassGenConfig): Int = 0
+        override suspend fun removeKdfPassGenConfigById(configId: Int) {}
+        override suspend fun removeRandomPassGenConfigById(configId: Int) {}
+        override suspend fun getAllKdfPassGenConfigIds(): List<Int> = emptyList()
+        override fun getAllKdfPassGenConfigs(): Flow<List<KdfPassGenConfig>> =
+            MutableStateFlow<List<KdfPassGenConfig>>(emptyList()).asStateFlow()
 
-        val viewModel = SettingsViewModel(
+        override fun getAllRandomPassGenConfigs(): Flow<List<RandomPassGenConfig>> =
+            MutableStateFlow<List<RandomPassGenConfig>>(emptyList()).asStateFlow()
+
+        override suspend fun deleteAllPassGenConfigs() {}
+    }
+
+    private fun createViewModel(
+        appConfigRepo: AppConfigRepository = FakeAppConfigRepository(),
+        localAuthRepo: FakeLocalAuthRepository = FakeLocalAuthRepository(),
+        biometricAuth: BiometricAuthenticator = FakeBiometricAuthenticator(),
+        autofillService: AutofillService = FakeAutofillService()
+    ): SettingsViewModel {
+        val purgeSensitiveDataUseCase = PurgeSensitiveDataUseCase(
+            hmacSigner = FakeHmacSigner(),
+            passGenConfigRepository = FakePassGenConfigRepository(),
+            credentialRepository = FakeCredentialRepository(),
+            localAuthRepository = localAuthRepo
+        )
+
+        return SettingsViewModel(
             isBiometricEnabled = IsBiometricEnabledUseCase(localAuthRepo),
             setBiometricEnabled = SetBiometricEnabledUseCase(localAuthRepo),
             biometricAuthenticator = biometricAuth,
@@ -158,8 +193,24 @@ class SettingsViewModelTest {
             setCopyEnabled = SetCopyEnabledUseCase(appConfigRepo),
             getVisibilityTimeout = GetVisibilityTimeoutUseCase(appConfigRepo),
             setVisibilityTimeout = SetVisibilityTimeoutUseCase(appConfigRepo),
-            autofillService = autofillService
+            autofillService = autofillService,
+            purgeSensitiveData = purgeSensitiveDataUseCase
         )
+    }
+
+    @BeforeTest
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun testLanguageSelectionIntentUpdatesState() = runTest {
+        val viewModel = createViewModel()
 
         advanceUntilIdle()
         assertEquals(AppLanguage.SYSTEM, viewModel.uiState.value.selectedLanguage)
@@ -175,27 +226,7 @@ class SettingsViewModelTest {
 
     @Test
     fun testThemeSelectionIntentUpdatesState() = runTest {
-        val appConfigRepo = FakeAppConfigRepository()
-        val localAuthRepo = FakeLocalAuthRepository()
-        val biometricAuth = FakeBiometricAuthenticator()
-        val autofillService = FakeAutofillService()
-
-        val viewModel = SettingsViewModel(
-            isBiometricEnabled = IsBiometricEnabledUseCase(localAuthRepo),
-            setBiometricEnabled = SetBiometricEnabledUseCase(localAuthRepo),
-            biometricAuthenticator = biometricAuth,
-            getLocalAuthType = GetLocalAuthTypeUseCase(localAuthRepo),
-            saveLocalAuthSecret = SaveLocalAuthSecretUseCase(FakeCrypto(), localAuthRepo),
-            getLanguage = GetLanguageUseCase(appConfigRepo),
-            setLanguage = SetLanguageUseCase(appConfigRepo),
-            getTheme = GetThemeUseCase(appConfigRepo),
-            setTheme = SetThemeUseCase(appConfigRepo),
-            isCopyEnabled = IsCopyEnabledUseCase(appConfigRepo),
-            setCopyEnabled = SetCopyEnabledUseCase(appConfigRepo),
-            getVisibilityTimeout = GetVisibilityTimeoutUseCase(appConfigRepo),
-            setVisibilityTimeout = SetVisibilityTimeoutUseCase(appConfigRepo),
-            autofillService = autofillService
-        )
+        val viewModel = createViewModel()
 
         advanceUntilIdle()
         assertEquals(AppTheme.SYSTEM, viewModel.uiState.value.selectedTheme)
@@ -211,27 +242,7 @@ class SettingsViewModelTest {
 
     @Test
     fun testCopyEnabledWarningDialogAndConfirmation() = runTest {
-        val appConfigRepo = FakeAppConfigRepository()
-        val localAuthRepo = FakeLocalAuthRepository()
-        val biometricAuth = FakeBiometricAuthenticator()
-        val autofillService = FakeAutofillService()
-
-        val viewModel = SettingsViewModel(
-            isBiometricEnabled = IsBiometricEnabledUseCase(localAuthRepo),
-            setBiometricEnabled = SetBiometricEnabledUseCase(localAuthRepo),
-            biometricAuthenticator = biometricAuth,
-            getLocalAuthType = GetLocalAuthTypeUseCase(localAuthRepo),
-            saveLocalAuthSecret = SaveLocalAuthSecretUseCase(FakeCrypto(), localAuthRepo),
-            getLanguage = GetLanguageUseCase(appConfigRepo),
-            setLanguage = SetLanguageUseCase(appConfigRepo),
-            getTheme = GetThemeUseCase(appConfigRepo),
-            setTheme = SetThemeUseCase(appConfigRepo),
-            isCopyEnabled = IsCopyEnabledUseCase(appConfigRepo),
-            setCopyEnabled = SetCopyEnabledUseCase(appConfigRepo),
-            getVisibilityTimeout = GetVisibilityTimeoutUseCase(appConfigRepo),
-            setVisibilityTimeout = SetVisibilityTimeoutUseCase(appConfigRepo),
-            autofillService = autofillService
-        )
+        val viewModel = createViewModel()
 
         advanceUntilIdle()
         assertFalse(viewModel.uiState.value.isCopyEnabled)
@@ -249,28 +260,24 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun testVisibilityTimeoutSelection() = runTest {
-        val appConfigRepo = FakeAppConfigRepository()
-        val localAuthRepo = FakeLocalAuthRepository()
-        val biometricAuth = FakeBiometricAuthenticator()
-        val autofillService = FakeAutofillService()
+    fun testPurgeSensitiveDataWarningDialogAndConfirmation() = runTest {
+        val viewModel = createViewModel()
 
-        val viewModel = SettingsViewModel(
-            isBiometricEnabled = IsBiometricEnabledUseCase(localAuthRepo),
-            setBiometricEnabled = SetBiometricEnabledUseCase(localAuthRepo),
-            biometricAuthenticator = biometricAuth,
-            getLocalAuthType = GetLocalAuthTypeUseCase(localAuthRepo),
-            saveLocalAuthSecret = SaveLocalAuthSecretUseCase(FakeCrypto(), localAuthRepo),
-            getLanguage = GetLanguageUseCase(appConfigRepo),
-            setLanguage = SetLanguageUseCase(appConfigRepo),
-            getTheme = GetThemeUseCase(appConfigRepo),
-            setTheme = SetThemeUseCase(appConfigRepo),
-            isCopyEnabled = IsCopyEnabledUseCase(appConfigRepo),
-            setCopyEnabled = SetCopyEnabledUseCase(appConfigRepo),
-            getVisibilityTimeout = GetVisibilityTimeoutUseCase(appConfigRepo),
-            setVisibilityTimeout = SetVisibilityTimeoutUseCase(appConfigRepo),
-            autofillService = autofillService
-        )
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
+
+        viewModel.dispatch(SettingsIntent.RequestPurgeSensitiveData)
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
+
+        viewModel.dispatch(SettingsIntent.ConfirmPurgeSensitiveData)
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.showPurgeSensitiveDataWarningDialog)
+    }
+
+    @Test
+    fun testVisibilityTimeoutSelection() = runTest {
+        val viewModel = createViewModel()
 
         advanceUntilIdle()
         assertEquals(
@@ -288,27 +295,8 @@ class SettingsViewModelTest {
 
     @Test
     fun testAutofillBannerVisibilityAndRequestEnable() = runTest {
-        val appConfigRepo = FakeAppConfigRepository()
-        val localAuthRepo = FakeLocalAuthRepository()
-        val biometricAuth = FakeBiometricAuthenticator()
         val autofillService = FakeAutofillService(supported = true, enabled = false)
-
-        val viewModel = SettingsViewModel(
-            isBiometricEnabled = IsBiometricEnabledUseCase(localAuthRepo),
-            setBiometricEnabled = SetBiometricEnabledUseCase(localAuthRepo),
-            biometricAuthenticator = biometricAuth,
-            getLocalAuthType = GetLocalAuthTypeUseCase(localAuthRepo),
-            saveLocalAuthSecret = SaveLocalAuthSecretUseCase(FakeCrypto(), localAuthRepo),
-            getLanguage = GetLanguageUseCase(appConfigRepo),
-            setLanguage = SetLanguageUseCase(appConfigRepo),
-            getTheme = GetThemeUseCase(appConfigRepo),
-            setTheme = SetThemeUseCase(appConfigRepo),
-            isCopyEnabled = IsCopyEnabledUseCase(appConfigRepo),
-            setCopyEnabled = SetCopyEnabledUseCase(appConfigRepo),
-            getVisibilityTimeout = GetVisibilityTimeoutUseCase(appConfigRepo),
-            setVisibilityTimeout = SetVisibilityTimeoutUseCase(appConfigRepo),
-            autofillService = autofillService
-        )
+        val viewModel = createViewModel(autofillService = autofillService)
 
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value.showAutofillBanner)
@@ -317,7 +305,6 @@ class SettingsViewModelTest {
         advanceUntilIdle()
         assertTrue(autofillService.enableRequested)
 
-        // When autofill becomes enabled, re-checking status hides the banner
         autofillService.enabled = true
         viewModel.dispatch(SettingsIntent.CheckAutofillStatus)
         advanceUntilIdle()

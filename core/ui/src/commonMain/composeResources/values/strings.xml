@@ -167,6 +167,14 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_persian">فارسی</string>
 
+    <!-- Settings Screen / Data Management / Purge Sensitive Data -->
+    <string name="settings_section_data_management">Data Management</string>
+    <string name="settings_purge_data_title">Purge Sensitive Data</string>
+    <string name="settings_purge_data_subtitle">Permanently delete all credentials, configurations, and local lock</string>
+    <string name="settings_purge_data_warning_title">Purge All Sensitive Data?</string>
+    <string name="settings_purge_data_warning_message">This will permanently delete all your saved credentials, generator configurations, and local authentication lock. This action cannot be undone.</string>
+    <string name="settings_purge_data_warning_confirm">Purge Data</string>
+
     <!-- Secrets -->
     <string name="secret_pin">PIN</string>
     <string name="secret_password">Password</string>

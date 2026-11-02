@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 class SqlDelightLocalAuthRepository(
     database: PassGenDatabase,
@@ -27,17 +28,20 @@ class SqlDelightLocalAuthRepository(
             }
     }
 
-    override suspend fun setLocalAuthType(type: LocalAuthType) {
-        queries.updateAuthType(type.name)
-    }
+    override suspend fun setLocalAuthType(type: LocalAuthType): Unit =
+        withContext(dispatcher) {
+            queries.updateAuthType(type.name)
+        }
 
-    override suspend fun saveEncryptedSecret(encryptedSecret: ByteArray) {
-        queries.updateEncryptedSecret(encryptedSecret)
-    }
+    override suspend fun saveEncryptedSecret(encryptedSecret: ByteArray): Unit =
+        withContext(dispatcher) {
+            queries.updateEncryptedSecret(encryptedSecret)
+        }
 
-    override suspend fun getEncryptedSecret(): ByteArray? {
-        return queries.selectLocalAuth().awaitAsOne().encrypted_secret
-    }
+    override suspend fun getEncryptedSecret(): ByteArray? =
+        withContext(dispatcher) {
+            queries.selectLocalAuth().awaitAsOne().encrypted_secret
+        }
 
     override fun isBiometricEnabled(): Flow<Boolean> {
         return queries.selectLocalAuth()
@@ -48,11 +52,13 @@ class SqlDelightLocalAuthRepository(
             }
     }
 
-    override suspend fun setBiometricEnabled(enabled: Boolean) {
-        queries.updateBiometricEnabled(if (enabled) 1L else 0L)
-    }
+    override suspend fun setBiometricEnabled(enabled: Boolean): Unit =
+        withContext(dispatcher) {
+            queries.updateBiometricEnabled(if (enabled) 1L else 0L)
+        }
 
-    override suspend fun clearAuth() {
-        queries.clearLocalAuth()
-    }
+    override suspend fun clearAuth(): Unit =
+        withContext(dispatcher) {
+            queries.clearLocalAuth()
+        }
 }

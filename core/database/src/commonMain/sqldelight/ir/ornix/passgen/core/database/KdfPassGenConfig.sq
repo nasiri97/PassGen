@@ -1,0 +1,34 @@
+CREATE TABLE IF NOT EXISTS kdfPassGenConfigEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL,
+    password_length INTEGER,
+    pass_encoder_key TEXT NOT NULL,
+    input_hasher_key TEXT NOT NULL,
+    trim_spaces INTEGER NOT NULL DEFAULT 1,
+    collapse_spaces INTEGER NOT NULL DEFAULT 1,
+    convert_lowercase INTEGER NOT NULL DEFAULT 1
+);
+
+insertKdfPassGenConfigWithId:
+INSERT INTO kdfPassGenConfigEntity (id, name, password_length, pass_encoder_key, input_hasher_key, trim_spaces, collapse_spaces, convert_lowercase)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+insertKdfPassGenConfigAutoId:
+INSERT INTO kdfPassGenConfigEntity (name, password_length, pass_encoder_key, input_hasher_key, trim_spaces, collapse_spaces, convert_lowercase)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+lastInsertedId:
+SELECT last_insert_rowid();
+
+deleteKdfPassGenConfigById:
+DELETE FROM kdfPassGenConfigEntity WHERE id = ?;
+
+selectAllKdfPassGenConfigIds:
+SELECT id FROM kdfPassGenConfigEntity;
+
+selectAllKdfPassGenConfigs:
+SELECT * FROM kdfPassGenConfigEntity;
+
+
+deleteAllKdfPassGenConfigs:
+DELETE FROM kdfPassGenConfigEntity;

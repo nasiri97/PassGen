@@ -96,13 +96,13 @@ class GetAllKdfPassGenConfigsUseCaseTest {
         assertEquals(listOf(defaultConfig1, defaultConfig2), afterAdd2)
 
         // Remove config 1
-        repository.removeById(defaultConfig1.id)
+        repository.removeKdfPassGenConfigById(defaultConfig1.id)
         val afterRemove1 = useCase().first()
         assertEquals(1, afterRemove1.size)
         assertEquals(defaultConfig2, afterRemove1.first())
 
         // Remove config 2
-        repository.removeById(defaultConfig2.id)
+        repository.removeKdfPassGenConfigById(defaultConfig2.id)
         val afterRemove2 = useCase().first()
         assertTrue(afterRemove2.isEmpty(), "Repository should be empty after removing all configs")
     }

@@ -8,7 +8,7 @@ class RemoveKdfPassGenConfigUseCase(
     private val hmacSigner: HmacSigner
 ) {
     suspend operator fun invoke(configId: Int) {
-        configRepo.removeById(configId)
+        configRepo.removeKdfPassGenConfigById(configId)
         hmacSigner.deleteMasterKeyDigest("$configId")
     }
 }

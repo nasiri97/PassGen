@@ -19,44 +19,46 @@ class SqlDelightCredentialRepository(
 
     private val queries = database.credentialQueries
 
-    override suspend fun save(credential: Credential): Unit = withContext(dispatcher) {
-        val packageNamesStr = credential.associatedPackageNames.joinToString(",")
-        val webDomainsStr = credential.associatedWebDomains.joinToString(",")
-        val keywordsStr = credential.associatedKeywords.joinToString(",")
+    override suspend fun save(credential: Credential): Unit =
+        withContext(dispatcher) {
+            val packageNamesStr = credential.associatedPackageNames.joinToString(",")
+            val webDomainsStr = credential.associatedWebDomains.joinToString(",")
+            val keywordsStr = credential.associatedKeywords.joinToString(",")
 
-        if (credential.id > 0) {
-            queries.updateCredential(
-                id = credential.id,
-                title = credential.title,
-                description = credential.description,
-                password_value = credential.passwordValue.concatToString(),
-                password_entropy_byte_size = credential.passwordEntropyByteSize?.toLong(),
-                username = credential.username,
-                email = credential.email,
-                phone = credential.phone,
-                associated_package_names = packageNamesStr,
-                associated_web_domains = webDomainsStr,
-                associated_keywords = keywordsStr
-            )
-        } else {
-            queries.insertCredentialAutoId(
-                title = credential.title,
-                description = credential.description,
-                password_value = credential.passwordValue.concatToString(),
-                password_entropy_byte_size = credential.passwordEntropyByteSize?.toLong(),
-                username = credential.username,
-                email = credential.email,
-                phone = credential.phone,
-                associated_package_names = packageNamesStr,
-                associated_web_domains = webDomainsStr,
-                associated_keywords = keywordsStr
-            )
+            if (credential.id > 0) {
+                queries.updateCredential(
+                    id = credential.id,
+                    title = credential.title,
+                    description = credential.description,
+                    password_value = credential.passwordValue.concatToString(),
+                    password_entropy_byte_size = credential.passwordEntropyByteSize?.toLong(),
+                    username = credential.username,
+                    email = credential.email,
+                    phone = credential.phone,
+                    associated_package_names = packageNamesStr,
+                    associated_web_domains = webDomainsStr,
+                    associated_keywords = keywordsStr
+                )
+            } else {
+                queries.insertCredentialAutoId(
+                    title = credential.title,
+                    description = credential.description,
+                    password_value = credential.passwordValue.concatToString(),
+                    password_entropy_byte_size = credential.passwordEntropyByteSize?.toLong(),
+                    username = credential.username,
+                    email = credential.email,
+                    phone = credential.phone,
+                    associated_package_names = packageNamesStr,
+                    associated_web_domains = webDomainsStr,
+                    associated_keywords = keywordsStr
+                )
+            }
         }
-    }
 
-    override suspend fun delete(credentialId: Long): Unit = withContext(dispatcher) {
-        queries.deleteCredentialById(credentialId)
-    }
+    override suspend fun delete(credentialId: Long): Unit =
+        withContext(dispatcher) {
+            queries.deleteCredentialById(credentialId)
+        }
 
     override fun getAll(): Flow<List<Credential>> {
         return queries.selectAllCredentials()
@@ -88,4 +90,9 @@ class SqlDelightCredentialRepository(
                 }
             }
     }
+
+    override suspend fun deleteAllCredentials(): Unit =
+        withContext(dispatcher) {
+            queries.deleteAllCredentials()
+        }
 }

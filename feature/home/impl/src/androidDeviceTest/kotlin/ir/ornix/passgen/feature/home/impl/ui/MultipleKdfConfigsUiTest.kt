@@ -1,10 +1,9 @@
 package ir.ornix.passgen.feature.home.impl.ui
 
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.assertIsConfigDisplayed
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -59,12 +58,12 @@ class MultipleKdfConfigsUiTest : KoinTest {
                 configName = name2,
                 hasher = hasher2,
                 encoder = encoder2,
-                isFirstConfig = false,
+                isFirstConfig = false
             )
 
             // Both config titles are displayed
-            composeTestRule.onNodeWithText(name1).assertIsDisplayed()
-            composeTestRule.onNodeWithText(name2).assertIsDisplayed()
+            assertIsConfigDisplayed(rule = composeTestRule, configName = name1)
+            assertIsConfigDisplayed(rule = composeTestRule, configName = name2)
 
             // Enter input phrase
             KdfTestHarness.enterInputPhrase(composeTestRule, inputPhrase)

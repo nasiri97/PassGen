@@ -132,12 +132,12 @@ class GenerateKDFPassUseCaseTest {
                 passwordLength = 16,
             )
             configRepo.add(config)
-            assertEquals(1, configRepo.getAll().first().size)
+            assertEquals(1, configRepo.getAllKdfPassGenConfigs().first().size)
 
             val result = useCase(config, "secret_input")
 
             assertNull(result)
-            assertTrue(configRepo.getAll().first().isEmpty())
+            assertTrue(configRepo.getAllKdfPassGenConfigs().first().isEmpty())
         }
 
     @Test

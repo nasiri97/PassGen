@@ -9,6 +9,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.getConfigNameNodeInAddConfigScreen
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.getNextButtonNodeInAddConfigScreen
+import ir.ornix.passgen.feature.home.impl.ui.KdfTestHarness.getSubmitButtonNodeInAddConfigScreen
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -54,7 +57,7 @@ class KdfConfigCreationUiTest : KoinTest {
             composeTestRule.onNodeWithTag("confirm_master_key_input").performTextInput(shortKey)
 
             // Next button must be disabled
-            composeTestRule.onNodeWithTag("next_button").assertIsNotEnabled()
+            getNextButtonNodeInAddConfigScreen(rule = composeTestRule).assertIsNotEnabled()
         }
     }
 
@@ -75,7 +78,7 @@ class KdfConfigCreationUiTest : KoinTest {
             composeTestRule.onNodeWithText("Master keys do not match").assertIsDisplayed()
 
             // Next button must be disabled
-            composeTestRule.onNodeWithTag("next_button").assertIsNotEnabled()
+            getNextButtonNodeInAddConfigScreen(rule = composeTestRule).assertIsNotEnabled()
         }
     }
 
@@ -93,7 +96,7 @@ class KdfConfigCreationUiTest : KoinTest {
             composeTestRule.onNodeWithTag("confirm_master_key_input").performTextInput(validKey)
 
             // Next button must be enabled
-            composeTestRule.onNodeWithTag("next_button").assertIsEnabled()
+            getNextButtonNodeInAddConfigScreen(rule = composeTestRule).assertIsEnabled()
         }
     }
 
@@ -108,16 +111,17 @@ class KdfConfigCreationUiTest : KoinTest {
             KdfTestHarness.acknowledgeMasterKeyNotice(rule = composeTestRule)
             composeTestRule.onNodeWithTag("master_key_input").performTextInput(validKey)
             composeTestRule.onNodeWithTag("confirm_master_key_input").performTextInput(validKey)
-            composeTestRule.onNodeWithTag("next_button").performClick()
+
+            getNextButtonNodeInAddConfigScreen(rule = composeTestRule).performClick()
 
             // Step 2 reached: Name is empty initially
-            composeTestRule.onNodeWithTag("submit_button").assertIsNotEnabled()
+            getSubmitButtonNodeInAddConfigScreen(rule = composeTestRule).assertIsNotEnabled()
 
             // Type a name
-            composeTestRule.onNodeWithTag("config_name_input").performTextInput("My Config")
+            getConfigNameNodeInAddConfigScreen(rule = composeTestRule).performTextInput("My Config")
 
             // Submit button becomes enabled
-            composeTestRule.onNodeWithTag("submit_button").assertIsEnabled()
+            getSubmitButtonNodeInAddConfigScreen(rule = composeTestRule).assertIsEnabled()
         }
     }
 

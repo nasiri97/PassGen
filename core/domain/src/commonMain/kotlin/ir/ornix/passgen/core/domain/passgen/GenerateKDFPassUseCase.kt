@@ -30,7 +30,7 @@ class GenerateKDFPassUseCase(
                 "Failed to generate KDF password: no MKD is registered for mkdId = ${config.id}.",
                 e
             )
-            configRepo.removeById(config.id)
+            configRepo.removeKdfPassGenConfigById(config.id)
             null
         }
     }

@@ -10,6 +10,7 @@ import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -69,14 +70,14 @@ class RemoveKdfPassGenConfigUseCaseTest {
             hmacSigner.registerKey("${testConfig1.id}", masterKey1)
 
             // Verify initial state
-            assertEquals(1, repository.getAll().first().size)
+            assertEquals(1, repository.getAllKdfPassGenConfigs().first().size)
             assertTrue(hmacSigner.hasMasterKeyDigest("${testConfig1.id}"))
 
             // Perform removal
             useCase(testConfig1.id)
 
             // Verify config is removed from repository
-            val configs = repository.getAll().first()
+            val configs = repository.getAllKdfPassGenConfigs().first()
             assertTrue(configs.isEmpty(), "Repository should be empty after removal")
 
             // Verify key digest is removed from hmacSigner
@@ -104,7 +105,7 @@ class RemoveKdfPassGenConfigUseCaseTest {
             useCase(testConfig1.id)
 
             // Verify config 1 is gone, config 2 remains
-            val configs = repository.getAll().first()
+            val configs = repository.getAllKdfPassGenConfigs().first()
             assertEquals(1, configs.size)
             assertEquals(testConfig2, configs.first())
 
@@ -121,7 +122,7 @@ class RemoveKdfPassGenConfigUseCaseTest {
         useCase(999)
 
         // Verify original config and key remain untouched
-        val configs = repository.getAll().first()
+        val configs = repository.getAllKdfPassGenConfigs().first()
         assertEquals(1, configs.size)
         assertEquals(testConfig1, configs.first())
         assertTrue(hmacSigner.hasMasterKeyDigest("${testConfig1.id}"))
@@ -134,11 +135,26 @@ class RemoveKdfPassGenConfigUseCaseTest {
 
             val failingRepo = object : PassGenConfigRepository {
                 override suspend fun add(config: PassGenConfig): Int = config.id
-                override suspend fun removeById(configId: Int) {
+
+                override suspend fun removeKdfPassGenConfigById(configId: Int) {
                     throw IllegalStateException("Database delete failed")
                 }
 
-                override fun getAll(): Flow<List<PassGenConfig>> = repository.getAll()
+                override suspend fun removeRandomPassGenConfigById(configId: Int) {
+                    throw IllegalStateException("Database delete failed")
+                }
+
+                override suspend fun getAllKdfPassGenConfigIds(): List<Int> =
+                    repository.getAllKdfPassGenConfigIds()
+
+                override fun getAllKdfPassGenConfigs(): Flow<List<KdfPassGenConfig>> =
+                    repository.getAllKdfPassGenConfigs()
+
+                override fun getAllRandomPassGenConfigs(): Flow<List<RandomPassGenConfig>> =
+                    repository.getAllRandomPassGenConfigs()
+
+                override suspend fun deleteAllPassGenConfigs() =
+                    repository.deleteAllPassGenConfigs()
             }
 
             val failingUseCase = RemoveKdfPassGenConfigUseCase(failingRepo, hmacSigner)
@@ -176,6 +192,6 @@ class RemoveKdfPassGenConfigUseCaseTest {
 
             assertEquals("Key deletion failed", exception.message)
             // Note: repo removal succeeded first
-            assertTrue(repository.getAll().first().isEmpty())
+            assertTrue(repository.getAllKdfPassGenConfigs().first().isEmpty())
         }
 }

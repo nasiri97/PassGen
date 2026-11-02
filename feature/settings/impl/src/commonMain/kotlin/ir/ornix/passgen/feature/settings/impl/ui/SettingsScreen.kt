@@ -5,14 +5,12 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,16 +20,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.filled.UnfoldMore
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Language
@@ -40,20 +36,15 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material.icons.outlined.WarningAmber
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,9 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,16 +63,9 @@ import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import ir.ornix.passgen.core.ui.Res
-import ir.ornix.passgen.core.ui.settings_autofill_banner_action
-import ir.ornix.passgen.core.ui.settings_autofill_banner_description
-import ir.ornix.passgen.core.ui.settings_autofill_banner_title
 import ir.ornix.passgen.core.ui.settings_change_local_lock
 import ir.ornix.passgen.core.ui.settings_copy_subtitle
 import ir.ornix.passgen.core.ui.settings_copy_title
-import ir.ornix.passgen.core.ui.settings_copy_warning_cancel
-import ir.ornix.passgen.core.ui.settings_copy_warning_confirm
-import ir.ornix.passgen.core.ui.settings_copy_warning_message
-import ir.ornix.passgen.core.ui.settings_copy_warning_title
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_available
 import ir.ornix.passgen.core.ui.settings_fingerprints_subtitle_unavailable
 import ir.ornix.passgen.core.ui.settings_fingerprints_title
@@ -98,7 +80,10 @@ import ir.ornix.passgen.core.ui.settings_lock_active_password
 import ir.ornix.passgen.core.ui.settings_lock_active_pattern
 import ir.ornix.passgen.core.ui.settings_lock_active_pin
 import ir.ornix.passgen.core.ui.settings_lock_none
+import ir.ornix.passgen.core.ui.settings_purge_data_subtitle
+import ir.ornix.passgen.core.ui.settings_purge_data_title
 import ir.ornix.passgen.core.ui.settings_section_appearance
+import ir.ornix.passgen.core.ui.settings_section_data_management
 import ir.ornix.passgen.core.ui.settings_section_security_privacy
 import ir.ornix.passgen.core.ui.settings_section_verification_methods
 import ir.ornix.passgen.core.ui.settings_theme_dark
@@ -151,6 +136,13 @@ fun SettingsScreen(
         CopyWarningDialog(
             onConfirm = { viewModel.dispatch(SettingsIntent.ConfirmEnableCopy) },
             onDismiss = { viewModel.dispatch(SettingsIntent.DismissCopyWarningDialog) }
+        )
+    }
+
+    if (uiState.showPurgeSensitiveDataWarningDialog) {
+        PurgeSensitiveDataWarningDialog(
+            onConfirm = { viewModel.dispatch(SettingsIntent.ConfirmPurgeSensitiveData) },
+            onDismiss = { viewModel.dispatch(SettingsIntent.DismissPurgeSensitiveDataWarning) }
         )
     }
 
@@ -292,89 +284,19 @@ fun SettingsScreen(
                 onClick = { activeDialog = ActiveDialog.LANGUAGE }
             )
         }
-    }
-}
 
-@Composable
-private fun AutofillBannerCard(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedCard(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        // Section 4: Data Management (Purge Sensitive Data)
+        SectionCard(
+            sectionTitle = stringResource(Res.string.settings_section_data_management),
+            sectionIcon = Icons.Outlined.DeleteForever
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.AutoAwesome,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-                Text(
-                    text = stringResource(Res.string.settings_autofill_banner_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Text(
-                text = stringResource(Res.string.settings_autofill_banner_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            SettingActionRow(
+                title = stringResource(Res.string.settings_purge_data_title),
+                subtitle = stringResource(Res.string.settings_purge_data_subtitle),
+                icon = Icons.Outlined.DeleteForever,
+                isDestructive = true,
+                onClick = { viewModel.dispatch(SettingsIntent.RequestPurgeSensitiveData) }
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = onClick,
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.settings_autofill_banner_action),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
         }
     }
 }
@@ -431,21 +353,60 @@ private fun SectionCard(
 @Composable
 private fun SettingIcon(
     imageVector: ImageVector,
+    isDestructive: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .size(40.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+            .background(
+                if (isDestructive) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+                else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = imageVector,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            tint = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.size(22.dp)
         )
+    }
+}
+
+@Composable
+private fun SettingActionRow(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    isDestructive: Boolean = false,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        SettingIcon(imageVector = icon, isDestructive = isDestructive)
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -631,141 +592,6 @@ private fun ItemDivider() {
     HorizontalDivider(
         modifier = Modifier.padding(start = 70.dp, end = 16.dp),
         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-    )
-}
-
-@Composable
-private fun <T> SettingSelectionDialog(
-    title: String,
-    icon: ImageVector,
-    options: List<T>,
-    selectedOption: T,
-    optionLabel: @Composable (T) -> String,
-    onOptionSelected: (T) -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        icon = {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        },
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                options.forEach { option ->
-                    val isSelected = option == selectedOption
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .selectable(
-                                selected = isSelected,
-                                onClick = {
-                                    onOptionSelected(option)
-                                    onDismissRequest()
-                                },
-                                role = Role.RadioButton
-                            )
-                            .padding(horizontal = 12.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        RadioButton(
-                            selected = isSelected,
-                            onClick = null
-                        )
-                        Text(
-                            text = optionLabel(option),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(stringResource(Res.string.settings_copy_warning_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-private fun CopyWarningDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.errorContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.WarningAmber,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        },
-        title = {
-            Text(
-                text = stringResource(Res.string.settings_copy_warning_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Text(
-                text = stringResource(Res.string.settings_copy_warning_message),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(Res.string.settings_copy_warning_confirm),
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(Res.string.settings_copy_warning_cancel))
-            }
-        }
     )
 }
 

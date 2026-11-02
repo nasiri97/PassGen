@@ -13,6 +13,10 @@ internal sealed interface SettingsPartialState {
     data class ThemeChanged(val theme: AppTheme) : SettingsPartialState
     data class CopyEnabledChanged(val enabled: Boolean) : SettingsPartialState
     data class CopyWarningDialogVisibilityChanged(val visible: Boolean) : SettingsPartialState
+    data class PurgeSensitiveDataWarningDialogVisibilityChanged(
+        val visible: Boolean
+    ) : SettingsPartialState
+
     data class PasswordVisibilityTimeoutChanged(
         val timeout: PasswordVisibilityTimeout
     ) : SettingsPartialState

@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.filterToOne
@@ -63,6 +64,7 @@ import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigViewModel
 import ir.ornix.passgen.feature.config.impl.kdf.ui.AddKdfConfigScreen
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
@@ -292,13 +294,10 @@ object KdfTestHarness {
         // Step 1: Master Key
         rule.onNodeWithTag("master_key_input").performTextInput(masterKey)
         rule.onNodeWithTag("confirm_master_key_input").performTextInput(masterKey)
-        rule.onNodeWithTag("next_button").performClick()
-
-        // Wait for Step 2 to be rendered
-        rule.onNodeWithTag("config_name_input").assertIsDisplayed()
+        getNextButtonNodeInAddConfigScreen(rule = rule).performClick()
 
         // Step 2: Config Details
-        rule.onNodeWithTag("config_name_input").performTextInput(configName)
+        getConfigNameNodeInAddConfigScreen(rule = rule).performTextInput(configName)
 
         // UI defaults are trimSpaces=true, collapseSpaces=true, lowercase=true. Toggle if target differs:
         if (!trimSpaces) {
@@ -312,20 +311,41 @@ object KdfTestHarness {
         }
 
         // Select Hasher
+        rule.onNodeWithTag("scroll_container").performScrollToNode(hasText("Hashing Algorithm"))
         rule.onNodeWithText("Hashing Algorithm").performClick()
         rule.onAllNodesWithText(hasher.fullName).filterToOne(
             hasParent(hasTestTag("hasher_type_selector"))
         ).performClick()
 
         // Select Encoder
+        rule.onNodeWithTag("scroll_container").performScrollToNode(hasText("Encoder Type"))
         rule.onNodeWithText("Encoder Type").performClick()
         rule.onAllNodesWithText(encoder.fullName).filterToOne(
             hasParent(hasTestTag("encoder_type_selector"))
         ).performClick()
 
-        rule.onNodeWithTag("scroll_container").performScrollToNode(hasTestTag("submit_button"))
-        rule.onNodeWithTag("submit_button").performClick()
+        getSubmitButtonNodeInAddConfigScreen(rule = rule).performClick()
 
+        assertIsConfigDisplayed(rule = rule, configName = configName)
+    }
+
+    fun getNextButtonNodeInAddConfigScreen(rule: ComposeContentTestRule): SemanticsNodeInteraction {
+        rule.onNodeWithTag("scroll_container").performScrollToNode(hasTestTag("next_button"))
+        return rule.onNodeWithTag("next_button")
+    }
+
+    fun getConfigNameNodeInAddConfigScreen(rule: ComposeContentTestRule): SemanticsNodeInteraction {
+        rule.onNodeWithTag("scroll_container").performScrollToNode(hasTestTag("config_name_input"))
+        return rule.onNodeWithTag("config_name_input")
+    }
+
+    fun getSubmitButtonNodeInAddConfigScreen(rule: ComposeContentTestRule): SemanticsNodeInteraction {
+        rule.onNodeWithTag("scroll_container").performScrollToNode(hasTestTag("submit_button"))
+        return rule.onNodeWithTag("submit_button")
+    }
+
+    fun assertIsConfigDisplayed(rule: ComposeContentTestRule, configName: String) {
+        rule.onNodeWithTag("pass_gen_items_container").performScrollToNode(hasText(configName))
         rule.onNodeWithText(configName).assertIsDisplayed()
     }
 
@@ -454,11 +474,22 @@ object KdfTestHarness {
 
         val useCase = GenerateKDFPassUseCase(
             configRepo = object : PassGenConfigRepository {
-                override fun getAll(): Flow<List<PassGenConfig>> = flowOf(emptyList())
                 override suspend fun add(config: PassGenConfig): Int = config.id
-                override suspend fun removeById(configId: Int) {}
+                override suspend fun removeKdfPassGenConfigById(configId: Int) {}
+
+                override suspend fun removeRandomPassGenConfigById(configId: Int) {}
+
+                override suspend fun getAllKdfPassGenConfigIds(): List<Int> = emptyList()
+
+                override fun getAllKdfPassGenConfigs(): Flow<List<KdfPassGenConfig>> =
+                    flowOf(emptyList())
+
+                override fun getAllRandomPassGenConfigs(): Flow<List<RandomPassGenConfig>> =
+                    flowOf(emptyList())
+
+                override suspend fun deleteAllPassGenConfigs() {}
             },
-            hmacSigner = hmacSigner,
+            hmacSigner = hmacSigner
         )
 
         val pass = useCase(kdfConfig, input)

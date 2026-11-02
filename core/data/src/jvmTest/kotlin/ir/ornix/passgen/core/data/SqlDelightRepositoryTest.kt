@@ -69,6 +69,12 @@ class SqlDelightRepositoryTest {
         repo.delete(savedId)
         val accountsAfterDelete = repo.getAll().first()
         assertTrue(accountsAfterDelete.isEmpty())
+
+        // Test deleteAllCredentials
+        repo.save(credential)
+        assertEquals(1, repo.getAll().first().size)
+        repo.deleteAllCredentials()
+        assertTrue(repo.getAll().first().isEmpty())
     }
 
     @Test
@@ -155,10 +161,12 @@ class SqlDelightRepositoryTest {
         val kdfId = repo.add(kdfConfig)
         val randomId = repo.add(randomConfig)
 
-        val configs = repo.getAll().first()
-        assertEquals(2, configs.size)
+        val kdfConfigs = repo.getAllKdfPassGenConfigs().first()
+        val randomConfigs = repo.getAllRandomPassGenConfigs().first()
 
-        val savedKdf = configs.first { it.id == kdfId } as KdfPassGenConfig
+        assertEquals(2, kdfConfigs.size + randomConfigs.size)
+
+        val savedKdf = kdfConfigs.first { it.id == kdfId }
         assertEquals("Test KDF Config", savedKdf.name)
         assertEquals(InputHasher.SHA256, savedKdf.inputHasher)
         assertEquals(16, savedKdf.passwordLength)
@@ -166,12 +174,14 @@ class SqlDelightRepositoryTest {
         assertTrue(savedKdf.preprocessConfig.collapseMultipleSpaces)
         assertFalse(savedKdf.preprocessConfig.convertToLowercase)
 
-        val savedRandom = configs.first { it.id == randomId } as RandomPassGenConfig
+        val savedRandom = randomConfigs.first { it.id == randomId }
         assertEquals("Test Random Config", savedRandom.name)
         assertEquals(20, savedRandom.passwordLength)
 
-        repo.removeById(kdfId)
-        val configsAfterRemove = repo.getAll().first()
+        repo.removeKdfPassGenConfigById(kdfId)
+        val configsAfterRemove =
+            repo.getAllKdfPassGenConfigs().first() + repo.getAllRandomPassGenConfigs().first()
+
         assertEquals(1, configsAfterRemove.size)
         assertEquals(randomId, configsAfterRemove[0].id)
     }

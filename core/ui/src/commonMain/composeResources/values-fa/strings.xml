@@ -167,6 +167,14 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_persian">فارسی</string>
 
+    <!-- Settings Screen / Data Management / Purge Sensitive Data -->
+    <string name="settings_section_data_management">مدیریت داده‌ها</string>
+    <string name="settings_purge_data_title">پاکسازی داده‌های حساس</string>
+    <string name="settings_purge_data_subtitle">حذف دائم تمام اعتبارنامه‌ها، تولیدکننده‌های گذرواژه و قفل محلی</string>
+    <string name="settings_purge_data_warning_title">پاکسازی تمام داده‌های حساس؟</string>
+    <string name="settings_purge_data_warning_message">این کار تمام اعتبارنامه‌های ذخیره‌شده، تولیدکننده‌های گذرواژه و احراز هویت محلی شما را به طور دائم حذف می‌کند. این عمل قابل بازگشت نیست.</string>
+    <string name="settings_purge_data_warning_confirm">پاکسازی داده‌ها</string>
+
     <!-- Secrets -->
     <string name="secret_pin">پین</string>
     <string name="secret_password">گذرواژه</string>

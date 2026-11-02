@@ -47,6 +47,12 @@ internal fun reduce(
             )
         }
 
+        is SettingsPartialState.PurgeSensitiveDataWarningDialogVisibilityChanged -> {
+            oldState.copy(
+                showPurgeSensitiveDataWarningDialog = change.visible
+            )
+        }
+
         is SettingsPartialState.PasswordVisibilityTimeoutChanged -> {
             oldState.copy(
                 selectedVisibilityTimeout = change.timeout

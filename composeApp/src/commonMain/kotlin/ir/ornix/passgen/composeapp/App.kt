@@ -63,7 +63,9 @@ import ir.ornix.passgen.composeapp.navigation.appNavConfiguration
 import ir.ornix.passgen.core.designsystem.theme.PassGenTheme
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
+import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
 import ir.ornix.passgen.core.domain.localauth.IsUnlockingRequiredUseCase
+import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.ui.Res
@@ -116,6 +118,14 @@ fun App(
     LaunchedEffect(Unit) {
         delay(2_000L.milliseconds)
         splashTimeElapsed = true
+    }
+
+    if (initializationState is InitializationState.Failed && initializationState.reason.shouldPurgeSensitiveData) {
+        val purgeSensitiveData: PurgeSensitiveDataUseCase = koinInject()
+        LaunchedEffect(Unit) {
+            purgeSensitiveData()
+            Logger.e("Device is rooted, purging sensitive data.")
+        }
     }
 
     var isUnlockingRequired by rememberSaveable { mutableStateOf<Boolean?>(null) }

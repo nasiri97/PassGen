@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS randomPassGenConfigEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL,
+    password_length INTEGER,
+    pass_encoder_key TEXT NOT NULL
+);
+
+insertRandomPassGenConfigWithId:
+INSERT INTO randomPassGenConfigEntity (id, name, password_length, pass_encoder_key)
+VALUES (?, ?, ?, ?);
+
+insertRandomPassGenConfigAutoId:
+INSERT INTO randomPassGenConfigEntity (name, password_length, pass_encoder_key)
+VALUES (?, ?, ?);
+
+lastInsertedId:
+SELECT last_insert_rowid();
+
+deleteRandomPassGenConfigById:
+DELETE FROM randomPassGenConfigEntity WHERE id = ?;
+
+selectAllRandomPassGenConfigs:
+SELECT * FROM randomPassGenConfigEntity;
+
+deleteAllRandomPassGenConfigs:
+DELETE FROM randomPassGenConfigEntity;

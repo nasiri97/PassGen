@@ -7,4 +7,5 @@ interface CredentialRepository {
     suspend fun save(credential: Credential)
     suspend fun delete(credentialId: Long)
     fun getAll(): Flow<List<Credential>>
+    suspend fun deleteAllCredentials()
 }

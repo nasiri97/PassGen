@@ -6,6 +6,6 @@ class RemoveRandomPassGenConfigUseCase(
     private val configRepo: PassGenConfigRepository
 ) {
     suspend operator fun invoke(configId: Int) {
-        configRepo.removeById(configId)
+        configRepo.removeRandomPassGenConfigById(configId)
     }
 }
