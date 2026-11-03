@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -350,11 +352,13 @@ private fun CredentialsScreenContent(
 private fun EmptyStateCard(
     title: String,
     subtitle: String,
-    onAddClicked: () -> Unit
+    onAddClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     OutlinedCard(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .padding(vertical = 24.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.outlinedCardColors(

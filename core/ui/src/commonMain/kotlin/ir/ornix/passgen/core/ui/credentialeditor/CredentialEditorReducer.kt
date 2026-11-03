@@ -55,14 +55,6 @@ internal fun reduce(
         is CredentialEditorIntent.TitleBlurred -> oldState.copy(isTitleTouched = true)
         is CredentialEditorIntent.PasswordBlurred -> oldState.copy(isPasswordTouched = true)
 
-        is CredentialEditorIntent.ToggleAppPickerExpanded -> {
-            oldState.copy(
-                isAppPickerExpanded = intent.expanded,
-                appSearchQuery = if (!intent.expanded) "" else oldState.appSearchQuery,
-                customPackageInput = if (!intent.expanded) "" else oldState.customPackageInput
-            )
-        }
-
         is CredentialEditorIntent.LoadingAppsStarted -> {
             oldState.copy(isLoadingApps = true)
         }

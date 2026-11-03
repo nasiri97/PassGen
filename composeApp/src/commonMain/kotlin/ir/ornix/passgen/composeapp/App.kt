@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -366,28 +368,15 @@ private fun MainAppContent(
         modifier = modifier,
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                DrawerHeader()
-
-                localizedDrawerItems.forEach { item ->
-                    NavigationDrawerItem(
-                        label = { Text(item.label) },
-                        selected = currentRoute == item.route,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            onNavigate(item.route, true)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = null
-                            )
-                        },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                    )
+            DrawerContent(
+                drawerItems = localizedDrawerItems,
+                currentRoute = currentRoute,
+                onItemClicked = { destination ->
+                    scope.launch { drawerState.close() }
+                    onNavigate(destination, true)
                 }
-            }
-        },
+            )
+        }
     ) {
         Scaffold(
             topBar = {
@@ -437,6 +426,39 @@ private fun MainAppContent(
 
                     AboutRoute -> AboutScreen()
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DrawerContent(
+    drawerItems: List<NavItem>,
+    currentRoute: NavKey,
+    onItemClicked: (destination: NavKey) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ModalDrawerSheet(modifier = modifier) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            DrawerHeader()
+
+            drawerItems.forEach { item ->
+                NavigationDrawerItem(
+                    label = { Text(item.label) },
+                    selected = currentRoute == item.route,
+                    onClick = {
+                        onItemClicked(item.route)
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = null
+                        )
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
             }
         }
     }

@@ -4,3 +4,5 @@ var isIosDebugBuild = false
 
 actual val isDebugBuild: Boolean
     get() = isIosDebugBuild
+
+actual val isGestureRefreshSupported: Boolean = true

@@ -1,7 +1,13 @@
 package ir.ornix.passgen.core.ui.credentialeditor
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,6 +33,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
@@ -51,6 +60,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -84,6 +94,10 @@ import ir.ornix.passgen.core.ui.section_credential_details
 import ir.ornix.passgen.core.ui.section_description
 import ir.ornix.passgen.core.ui.security.PasswordDisplay
 import ir.ornix.passgen.core.ui.security.PasswordTextField
+import ir.ornix.passgen.core.ui.tab_installed_apps
+import ir.ornix.passgen.core.ui.tab_manual_entry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -106,7 +120,8 @@ fun CredentialEditor(
             CredentialEditorUiState.fromCredential(
                 credential = existingCredential,
                 defaultTitle = defaultTitle,
-                initialPassword = password
+                initialPassword = password,
+                isAppSelectionSupported = installedAppsProvider.isSupported()
             )
         )
     }
@@ -119,6 +134,14 @@ fun CredentialEditor(
 
     LaunchedEffect(isSnackbarAvailableInChildren) {
         onSnackbarAvailabilityChanged(isSnackbarAvailableInChildren)
+    }
+
+    LaunchedEffect(Unit) {
+        if (uiState.installedApps.isEmpty() && !uiState.isLoadingApps) {
+            dispatch(CredentialEditorIntent.LoadingAppsStarted)
+            val apps = withContext(Dispatchers.Default) { installedAppsProvider.getInstalledApps() }
+            dispatch(CredentialEditorIntent.AppsLoaded(apps))
+        }
     }
 
     Dialog(
@@ -193,8 +216,7 @@ fun CredentialEditor(
                         // Apps & Web Linking Section
                         AssociationSection(
                             uiState = uiState,
-                            dispatch = dispatch,
-                            installedAppsProvider = installedAppsProvider
+                            dispatch = dispatch
                         )
 
                         // Notes Section
@@ -447,31 +469,17 @@ private fun CredentialDetailsSection(
 private fun AssociationSection(
     uiState: CredentialEditorUiState,
     dispatch: (CredentialEditorIntent) -> Unit,
-    installedAppsProvider: InstalledAppsProvider,
     modifier: Modifier = Modifier
 ) {
     SectionContainer(
         modifier = modifier,
         title = stringResource(Res.string.section_apps_and_webs_and_keywords)
     ) {
-        // Package Names Area
-        if (installedAppsProvider.isSupported()) {
-            InstalledAppsSection(
-                uiState = uiState,
-                dispatch = dispatch,
-                installedAppsProvider = installedAppsProvider
-            )
-        } else {
-            AssociationItem(
-                label = { Text(stringResource(Res.string.label_package_names)) },
-                placeholder = { Text(stringResource(Res.string.placeholder_package_name)) },
-                currentInput = uiState.packageInput,
-                inputChanged = { dispatch(CredentialEditorIntent.PackageInputChanged(it)) },
-                onAddClicked = { dispatch(CredentialEditorIntent.AddPackageName(uiState.packageInput)) },
-                onRemoveItemClicked = { dispatch(CredentialEditorIntent.RemovePackageName(it)) },
-                items = uiState.associatedPackageNames
-            )
-        }
+
+        PackageNameSection(
+            uiState = uiState,
+            dispatch = dispatch
+        )
 
         Spacer(Modifier.height(4.dp))
 
@@ -499,6 +507,187 @@ private fun AssociationSection(
             items = uiState.associatedKeywords
         )
     }
+}
+
+
+@Composable
+private fun PackageNameSection(
+    uiState: CredentialEditorUiState,
+    dispatch: (CredentialEditorIntent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (!uiState.isAppSelectionSupported) {
+        ManualPackageNameSection(
+            packageInput = uiState.packageInput,
+            associatedPackageNames = uiState.associatedPackageNames,
+            dispatch = dispatch
+        )
+    } else {
+        var selectedTab by remember { mutableStateOf(0) } // 0: Installed Apps, 1: Manual Entry
+
+        var selectedInstalledAppCount by remember { mutableStateOf(0) }
+        var customPackageNameCount by remember { mutableStateOf(0) }
+
+        LaunchedEffect(uiState.installedApps, uiState.associatedPackageNames) {
+            val installedAppPackageNames = uiState.installedApps.map { it.packageName }
+            var count = 0
+            uiState.associatedPackageNames.forEach { packageName ->
+                if (installedAppPackageNames.contains(packageName)) count++
+            }
+            selectedInstalledAppCount = count
+            customPackageNameCount = (uiState.associatedPackageNames.size - count).coerceAtLeast(0)
+        }
+
+        Column(modifier = modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Tab 0: Installed Apps
+                val isTab0Selected = selectedTab == 0
+                Surface(
+                    selected = isTab0Selected,
+                    onClick = { selectedTab = 0 },
+                    shape = RoundedCornerShape(10.dp),
+                    color = if (isTab0Selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Apps,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = if (isTab0Selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(Res.string.tab_installed_apps),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isTab0Selected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isTab0Selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (selectedInstalledAppCount > 0) {
+                            Spacer(Modifier.width(6.dp))
+                            Surface(
+                                shape = CircleShape,
+                                color = if (isTab0Selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+                            ) {
+                                Text(
+                                    text = "$selectedInstalledAppCount",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isTab0Selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(
+                                        horizontal = 6.dp,
+                                        vertical = 2.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Tab 1: Manual Entry
+                val isTab1Selected = selectedTab == 1
+                Surface(
+                    selected = isTab1Selected,
+                    onClick = { selectedTab = 1 },
+                    shape = RoundedCornerShape(10.dp),
+                    color = if (isTab1Selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = if (isTab1Selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(Res.string.tab_manual_entry),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isTab1Selected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isTab1Selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (customPackageNameCount > 0) {
+                            Spacer(Modifier.width(6.dp))
+                            Surface(
+                                shape = CircleShape,
+                                color = if (isTab1Selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+                            ) {
+                                Text(
+                                    text = "$customPackageNameCount",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isTab1Selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(
+                                        horizontal = 6.dp,
+                                        vertical = 2.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Tab Content with Animated Transition
+            AnimatedContent(
+                targetState = selectedTab,
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        (slideInHorizontally { width -> width } + fadeIn())
+                            .togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
+                    } else {
+                        (slideInHorizontally { width -> -width } + fadeIn())
+                            .togetherWith(slideOutHorizontally { width -> width } + fadeOut())
+                    }
+                },
+                label = "PackageSelectionTabTransition"
+            ) { tabIndex ->
+                when (tabIndex) {
+                    0 -> InstalledAppsSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        uiState = uiState,
+                        dispatch = dispatch
+                    )
+
+                    1 -> ManualPackageNameSection(
+                        packageInput = uiState.packageInput,
+                        associatedPackageNames = uiState.associatedPackageNames,
+                        dispatch = dispatch
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun ManualPackageNameSection(
+    packageInput: String,
+    associatedPackageNames: Set<String>,
+    dispatch: (CredentialEditorIntent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AssociationItem(
+        modifier = modifier,
+        label = { Text(stringResource(Res.string.label_package_names)) },
+        placeholder = { Text(stringResource(Res.string.placeholder_package_name)) },
+        currentInput = packageInput,
+        inputChanged = { dispatch(CredentialEditorIntent.PackageInputChanged(it)) },
+        onAddClicked = { dispatch(CredentialEditorIntent.AddPackageName(packageInput)) },
+        onRemoveItemClicked = { dispatch(CredentialEditorIntent.RemovePackageName(it)) },
+        items = associatedPackageNames
+    )
 }
 
 @Composable

@@ -19,7 +19,7 @@ internal data class CredentialEditorUiState(
     val domainInput: String = "",
     val keywordInput: String = "",
     val isTitleTouched: Boolean = false,
-    val isAppPickerExpanded: Boolean = false,
+    val isAppSelectionSupported: Boolean = false,
     val installedApps: List<InstalledAppInfo> = emptyList(),
     val isLoadingApps: Boolean = false,
     val appSearchQuery: String = "",
@@ -38,15 +38,17 @@ internal data class CredentialEditorUiState(
     companion object {
         fun fromCredential(
             credential: Credential?,
-            defaultTitle: String = "",
-            initialPassword: Password? = null
+            defaultTitle: String,
+            initialPassword: Password?,
+            isAppSelectionSupported: Boolean
         ): CredentialEditorUiState {
             val initialPassword = initialPassword ?: credential?.password
 
             return if (credential == null)
                 CredentialEditorUiState(
                     title = defaultTitle,
-                    password = initialPassword
+                    password = initialPassword,
+                    isAppSelectionSupported = isAppSelectionSupported
                 )
             else
                 CredentialEditorUiState(
@@ -58,7 +60,8 @@ internal data class CredentialEditorUiState(
                     password = initialPassword,
                     associatedPackageNames = credential.associatedPackageNames,
                     associatedWebDomains = credential.associatedWebDomains,
-                    associatedKeywords = credential.associatedKeywords
+                    associatedKeywords = credential.associatedKeywords,
+                    isAppSelectionSupported = isAppSelectionSupported
                 )
         }
     }

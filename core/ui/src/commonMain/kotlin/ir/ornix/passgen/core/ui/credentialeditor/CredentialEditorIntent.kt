@@ -21,7 +21,6 @@ internal sealed interface CredentialEditorIntent {
     data class RemoveKeyword(val keyword: String) : CredentialEditorIntent
     data object TitleBlurred : CredentialEditorIntent
     data object PasswordBlurred : CredentialEditorIntent
-    data class ToggleAppPickerExpanded(val expanded: Boolean) : CredentialEditorIntent
     data object LoadingAppsStarted : CredentialEditorIntent
     data class AppsLoaded(val apps: List<InstalledAppInfo>) : CredentialEditorIntent
     data class AppSearchQueryChanged(val query: String) : CredentialEditorIntent

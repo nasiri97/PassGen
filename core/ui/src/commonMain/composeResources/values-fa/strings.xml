@@ -62,10 +62,10 @@
     <string name="action_create">ذخیره</string>
 
     <!-- App Selection Dialog -->
+    <string name="tab_manual_entry">ورود دستی</string>
+    <string name="tab_installed_apps">برنامه‌های نصب‌شده</string>
     <string name="label_select_installed_apps">انتخاب برنامه‌های نصب‌شده</string>
     <string name="placeholder_search_apps">جستجو بر اساس نام یا پکیج...</string>
-    <string name="label_custom_package_name">نام پکیج سفارشی</string>
-    <string name="action_add_custom_package">افزودن سفارشی</string>
     <string name="label_no_apps_found">برنامه‌ای یافت نشد</string>
     <string name="label_selected_apps_count">%1$d انتخاب‌شده</string>
     <string name="action_done">تأیید</string>
@@ -94,6 +94,7 @@
 
     <!-- Pull To Refresh -->
     <string name="pull_down_to_refresh">برای به‌روزرسانی به پایین بکشید</string>
+    <string name="action_refresh_all">تولید مجدد همه</string>
 
     <!-- Home &amp; Random Screens -->
     <string name="context_input_label">عبارت ورودی</string>

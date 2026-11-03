@@ -6,3 +6,5 @@ private external fun getDebugBuild(): Boolean
 
 actual val isDebugBuild: Boolean
     get() = getDebugBuild()
+
+actual val isGestureRefreshSupported: Boolean = false

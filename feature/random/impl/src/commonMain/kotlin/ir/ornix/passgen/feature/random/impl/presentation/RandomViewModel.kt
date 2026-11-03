@@ -12,6 +12,7 @@ import ir.ornix.passgen.core.domain.passgenconfig.random.RemoveRandomPassGenConf
 import ir.ornix.passgen.core.model.PassGenItem
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class RandomViewModel(
     getAllPassGenConfigs: GetAllRandomPassGenConfigsUseCase,
@@ -88,6 +90,7 @@ class RandomViewModel(
                             )
                         }
 
+                        delay(1000.milliseconds)
                         apply(RandomPartialState.Refreshed)
                     }
 
