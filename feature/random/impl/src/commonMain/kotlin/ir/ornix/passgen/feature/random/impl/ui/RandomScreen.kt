@@ -46,7 +46,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ir.ornix.passgen.core.common.isGestureRefreshSupported
+import ir.ornix.passgen.core.common.platform
 import ir.ornix.passgen.core.domain.InstalledAppsProvider
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.PassGenItem
@@ -116,7 +116,7 @@ fun RandomScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
 
-        if (isGestureRefreshSupported) {
+        if (platform.isGestureRefreshSupported) {
             PullToRefreshWithHint(
                 modifier = Modifier.padding(innerPadding).fillMaxSize(),
                 isRefreshing = uiState.isRefreshing,

@@ -3,7 +3,6 @@ package ir.ornix.passgen.feature.settings.impl.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.domain.AutofillService
-import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
@@ -19,6 +18,7 @@ import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.UpdateFailedAuthAttemptLimitUseCase
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticator
 import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val isBiometricEnabled: IsBiometricEnabledUseCase,
     private val setBiometricEnabled: SetBiometricEnabledUseCase,
-    private val biometricAuthenticator: BiometricAuthenticator,
+    private val platformAuthenticator: PlatformAuthenticator,
     getLocalAuthType: GetLocalAuthTypeUseCase,
     private val saveLocalAuthSecret: SaveLocalAuthSecretUseCase,
     getFailedAuthAttemptLimit: GetFailedAuthAttemptLimitUseCase,
@@ -183,7 +183,7 @@ class SettingsViewModel(
     private fun checkBiometricAvailability() {
         apply(
             SettingsPartialState.FingerprintAvailabilityChanged(
-                available = biometricAuthenticator.isBiometricAvailable()
+                available = platformAuthenticator.isAvailable().isAvailable
             )
         )
     }

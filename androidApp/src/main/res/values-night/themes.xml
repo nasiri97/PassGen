@@ -3,10 +3,16 @@
     <!-- Splash Screen Theme -->
     <style name="Theme.PassGen" parent="Theme.SplashScreen">
         <!-- Splash screen background color (matches dark background) -->
-        <item name="windowSplashScreenBackground">#141218</item>
+        <item name="windowSplashScreenBackground">@color/splash_screen_background</item>
         <!-- Blank/transparent icon so the system splash screen shows no icon -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/blank_icon</item>
         <!-- Theme to apply after splash screen finishes -->
-        <item name="postSplashScreenTheme">@style/android:Theme.Material.NoActionBar</item>
+        <item name="postSplashScreenTheme">@style/Theme.PassGen.App</item>
+    </style>
+
+    <!-- Theme after the splash: AppCompat, which AppCompatActivity requires -->
+    <style name="Theme.PassGen.App" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:colorBackground">@color/splash_screen_background</item>
+        <item name="android:windowBackground">@color/splash_screen_background</item>
     </style>
 </resources>

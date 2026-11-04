@@ -139,7 +139,7 @@
     <string name="about_section_why_passgen">Why Choose PassGen?</string>
 
     <string name="about_benefit_no_storage_title">Zero Database / No Cloud</string>
-    <string name="about_benefit_no_storage_desc">No cloud databases to hack, leak, or sync. Your passwords don\'t exist until you generate them.</string>
+    <string name="about_benefit_no_storage_desc">No cloud databases to hack, leak, or sync. Your passwords don't exist until you generate them.</string>
 
     <string name="about_benefit_offline_title">100% Offline &amp; Private</string>
     <string name="about_benefit_offline_desc">Runs completely offline on your device without needing an account or internet connection.</string>
@@ -222,7 +222,19 @@
     <string name="use_fingerprint_action">Use Fingerprint</string>
     <string name="content_desc_fingerprint">Use fingerprint</string>
     <string name="error_incorect_secret">Incorrect %1$s. Please try again.</string>
-    <string name="error_incorect_biometric">Biometric authentication failed. Please try again.</string>
+
+    <string name="auth_verify_its_you">Verify it's you</string>
+    <string name="auth_verify_its_you_to_autofill">Verify it's you to autofill</string>
+    <string name="auth_use_biometric">Use your fingerprint to continue</string>
+    <string name="auth_use_biometric_or_screen_lock">Use your fingerprint or screen lock to continue</string>
+
+    <string name="auth_error_not_available">Authentication is not available on this device.</string>
+    <string name="auth_error_hardware_unavailable">The biometric sensor is currently unavailable. Please try again later.</string>
+    <string name="auth_error_not_enrolled">No fingerprint or screen lock is set up. Set one up in your device settings.</string>
+    <string name="auth_error_temporarily_locked">Too many attempts. Please try again in a moment.</string>
+    <string name="auth_error_permanently_locked">Biometrics are locked. Unlock your device with your screen lock first.</string>
+    <string name="auth_error_security_update_required">A security update is required before you can use this feature.</string>
+    <string name="auth_error_unknown">Authentication failed. Please try again.</string>
 
     <!-- Add Config Screens -->
     <string name="create_config_title">Create Password Config</string>

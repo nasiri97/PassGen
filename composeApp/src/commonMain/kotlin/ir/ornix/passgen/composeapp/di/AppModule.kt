@@ -7,7 +7,7 @@ import ir.ornix.passgen.core.data.getPlatformAutofillService
 import ir.ornix.passgen.core.data.getPlatformBiometricAuthenticator
 import ir.ornix.passgen.core.data.getPlatformInstalledAppsProvider
 import ir.ornix.passgen.core.domain.AutofillService
-import ir.ornix.passgen.core.domain.BiometricAuthenticator
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticator
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.InstalledAppsProvider
@@ -25,7 +25,7 @@ import org.koin.dsl.module
 val appModule = module {
     includes(configModule)
 
-    single { getPlatformBiometricAuthenticator() } bind BiometricAuthenticator::class
+    single { getPlatformBiometricAuthenticator() } bind PlatformAuthenticator::class
     single { getPlatformAutofillService() } bind AutofillService::class
     single { getPlatformInstalledAppsProvider() } bind InstalledAppsProvider::class
     single<HmacSigner> { PlatformHmacSigner }

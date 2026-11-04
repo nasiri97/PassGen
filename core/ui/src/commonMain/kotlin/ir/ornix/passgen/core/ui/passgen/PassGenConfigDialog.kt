@@ -60,8 +60,8 @@ import ir.ornix.passgen.core.ui.state_enabled
 import ir.ornix.passgen.core.ui.title_context_input_normalization
 import ir.ornix.passgen.core.ui.type_kdf
 import ir.ornix.passgen.core.ui.type_random
-import ir.ornix.passgen.core.ui.util.label
 import ir.ornix.passgen.core.ui.util.strengthColor
+import ir.ornix.passgen.core.ui.util.toStringResource
 import ir.ornix.passgen.core.ui.value_bytes
 import ir.ornix.passgen.core.ui.value_characters
 import ir.ornix.passgen.core.ui.value_words
@@ -346,7 +346,7 @@ private fun InfoSection(config: PassGenConfig) {
 
         TrailingInfoRow(label = stringResource(Res.string.password_strength)) {
             StrengthBadge(
-                text = config.strengthLevel.label(),
+                text = stringResource(config.strengthLevel.toStringResource()),
                 color = strengthColor
             )
         }

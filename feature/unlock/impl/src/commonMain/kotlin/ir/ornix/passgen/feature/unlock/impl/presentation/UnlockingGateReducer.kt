@@ -18,9 +18,9 @@ internal fun reduce(
             )
         }
 
-        is UnlockingGatePartialState.BiometricOptionChanged -> {
+        is UnlockingGatePartialState.BiometricEnabledChanged -> {
             oldState.copy(
-                shouldShowBiometricOption = change.shouldShowBiometricOption
+                isBiometricEnabled = change.isEnabled
             )
         }
 

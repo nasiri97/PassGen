@@ -1,12 +1,10 @@
 package ir.ornix.passgen.core.domain.localauth
 
-import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
 class IsUnlockingRequiredUseCase(
-    private val biometricAuthenticator: BiometricAuthenticator,
     private val isBiometricEnabled: IsBiometricEnabledUseCase,
     private val getLocalAuthType: GetLocalAuthTypeUseCase
 ) {
@@ -15,7 +13,6 @@ class IsUnlockingRequiredUseCase(
             getLocalAuthType(),
             isBiometricEnabled()
         ) { localAuthType, isBiometricEnabled ->
-            localAuthType != LocalAuthType.NONE ||
-                    (isBiometricEnabled && biometricAuthenticator.isBiometricAvailable())
+            localAuthType != LocalAuthType.NONE || isBiometricEnabled
         }
 }

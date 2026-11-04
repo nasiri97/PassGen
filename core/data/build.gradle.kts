@@ -49,6 +49,8 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.annotation)
                 implementation(libs.androidx.core.ktx)
+                implementation(libs.androidx.biometric)
+                implementation(libs.androidx.fragment.ktx)
             }
         }
 

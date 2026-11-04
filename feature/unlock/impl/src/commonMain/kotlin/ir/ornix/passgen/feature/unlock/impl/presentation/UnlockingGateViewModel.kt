@@ -2,26 +2,32 @@ package ir.ornix.passgen.feature.unlock.impl.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ir.ornix.passgen.core.domain.BiometricAuthenticator
+import ir.ornix.passgen.core.common.Platform
+import ir.ornix.passgen.core.common.platform
 import ir.ornix.passgen.core.domain.localauth.GetLocalAuthTypeUseCase
 import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticationResult
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticator
+import ir.ornix.passgen.core.ui.Res
+import ir.ornix.passgen.core.ui.auth_use_biometric
+import ir.ornix.passgen.core.ui.auth_use_biometric_or_screen_lock
+import ir.ornix.passgen.core.ui.auth_verify_its_you
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import kotlin.time.Duration.Companion.milliseconds
 
 class UnlockingGateViewModel(
     getLocalAuthType: GetLocalAuthTypeUseCase,
     isBiometricEnabled: IsBiometricEnabledUseCase,
-    private val biometricAuthenticator: BiometricAuthenticator,
+    private val platformAuthenticator: PlatformAuthenticator,
     private val validateLocalAuthSecret: ValidateLocalAuthSecretUseCase
 ) : ViewModel() {
-
-    private val isBiometricAvailable = biometricAuthenticator.isBiometricAvailable()
 
     private val intents = Channel<UnlockingGateIntent>()
 
@@ -30,11 +36,9 @@ class UnlockingGateViewModel(
 
     init {
         viewModelScope.launch {
-            isBiometricEnabled().collect { isBiometricEnabled ->
+            isBiometricEnabled().collect { isEnabled ->
                 apply(
-                    UnlockingGatePartialState.BiometricOptionChanged(
-                        isBiometricAvailable && isBiometricEnabled
-                    )
+                    UnlockingGatePartialState.BiometricEnabledChanged(isEnabled)
                 )
             }
         }
@@ -78,19 +82,37 @@ class UnlockingGateViewModel(
         }
     }
 
-    private fun biometricClicked() {
-        if (!isBiometricAvailable) return
+    private suspend fun biometricClicked() {
+        val description = when (platform) {
+            is Platform.Android -> {
+                if ((platform as Platform.Android).apiLevel >= 30) { // Build.VERSION_CODES.R
+                    getString(Res.string.auth_use_biometric_or_screen_lock)
+                } else {
+                    getString(Res.string.auth_use_biometric)
+                }
+            }
 
-        biometricAuthenticator.authenticate(
-            onSuccess = {
-                apply(UnlockingGatePartialState.AuthenticationSucceeded)
-            },
-            onError = { _ ->
-                apply(
-                    UnlockingGatePartialState.AuthenticationFailed(
-                        error = AuthenticationError.InvalidBiometric
-                    )
-                )
+            else -> getString(Res.string.auth_use_biometric)
+        }
+
+        platformAuthenticator.authenticate(
+            title = getString(Res.string.auth_verify_its_you),
+            subtitle = "",
+            description = description,
+            onResult = { result ->
+                when (result) {
+                    is PlatformAuthenticationResult.Success ->
+                        apply(UnlockingGatePartialState.AuthenticationSucceeded)
+
+                    is PlatformAuthenticationResult.Cancelled -> {}
+
+                    is PlatformAuthenticationResult.Error ->
+                        apply(
+                            UnlockingGatePartialState.AuthenticationFailed(
+                                error = AuthenticationError.BiometricAuthenticationError(reason = result.reason)
+                            )
+                        )
+                }
             }
         )
     }

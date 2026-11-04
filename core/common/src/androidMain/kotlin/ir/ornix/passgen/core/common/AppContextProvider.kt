@@ -8,6 +8,8 @@ object AppContextProvider {
     private var currentActivityRef: WeakReference<Activity>? = null
     var applicationContext: Context? = null
 
+    var isDebugBuild: Boolean = false
+
     fun setActivity(activity: Activity) {
         currentActivityRef = WeakReference(activity)
     }

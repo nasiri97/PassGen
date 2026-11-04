@@ -22,8 +22,7 @@ class AndroidAutofillService : AutofillService {
     }
 
     override fun requestEnableAutofill() {
-        val context =
-            AppContextProvider.getActivity() ?: AppContextProvider.applicationContext ?: return
+        val context = AppContextProvider.applicationContext ?: return
         val manager = context.getSystemService(AutofillManager::class.java)
         if (manager?.hasEnabledAutofillServices() == true) return
 

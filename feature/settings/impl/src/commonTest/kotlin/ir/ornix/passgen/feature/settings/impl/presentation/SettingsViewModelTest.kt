@@ -2,7 +2,6 @@ package ir.ornix.passgen.feature.settings.impl.presentation
 
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.AutofillService
-import ir.ornix.passgen.core.domain.BiometricAuthenticator
 import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
@@ -23,6 +22,10 @@ import ir.ornix.passgen.core.domain.localauth.IsBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.SaveLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.localauth.SetBiometricEnabledUseCase
 import ir.ornix.passgen.core.domain.localauth.UpdateFailedAuthAttemptLimitUseCase
+import ir.ornix.passgen.core.domain.platformauth.AuthenticationAvailability
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticationFailureReason
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticationResult
+import ir.ornix.passgen.core.domain.platformauth.PlatformAuthenticator
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
 import ir.ornix.passgen.core.model.Credential
@@ -55,18 +58,26 @@ class SettingsViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private class FakeBiometricAuthenticator(val available: Boolean = true) :
-        BiometricAuthenticator {
-        override val defaultDescription: String = "Test"
-        override fun isBiometricAvailable(): Boolean = available
+    private class FakePlatformAuthenticator(val available: Boolean = true) :
+        PlatformAuthenticator {
+        override fun isAvailable(): AuthenticationAvailability =
+            if (available) AuthenticationAvailability.Available
+            else AuthenticationAvailability.Unavailable(
+                PlatformAuthenticationFailureReason.NotAvailable
+            )
+
         override fun authenticate(
             title: String,
             subtitle: String,
             description: String,
-            onSuccess: () -> Unit,
-            onError: (String) -> Unit
+            onResult: (PlatformAuthenticationResult) -> Unit
         ) {
-            if (available) onSuccess() else onError("Not available")
+            if (available) onResult(PlatformAuthenticationResult.Success)
+            else onResult(
+                PlatformAuthenticationResult.Error(
+                    PlatformAuthenticationFailureReason.NotAvailable
+                )
+            )
         }
     }
 
@@ -198,7 +209,7 @@ class SettingsViewModelTest {
     private fun createViewModel(
         appConfigRepo: AppConfigRepository = FakeAppConfigRepository(),
         localAuthRepo: FakeLocalAuthRepository = FakeLocalAuthRepository(),
-        biometricAuth: BiometricAuthenticator = FakeBiometricAuthenticator(),
+        biometricAuth: PlatformAuthenticator = FakePlatformAuthenticator(),
         autofillService: AutofillService = FakeAutofillService()
     ): SettingsViewModel {
         val purgeSensitiveDataUseCase = PurgeSensitiveDataUseCase(
@@ -211,7 +222,7 @@ class SettingsViewModelTest {
         return SettingsViewModel(
             isBiometricEnabled = IsBiometricEnabledUseCase(localAuthRepo),
             setBiometricEnabled = SetBiometricEnabledUseCase(localAuthRepo),
-            biometricAuthenticator = biometricAuth,
+            platformAuthenticator = biometricAuth,
             getLocalAuthType = GetLocalAuthTypeUseCase(localAuthRepo),
             saveLocalAuthSecret = SaveLocalAuthSecretUseCase(FakeCrypto(), localAuthRepo),
             getFailedAuthAttemptLimit = GetFailedAuthAttemptLimitUseCase(localAuthRepo),
@@ -336,13 +347,13 @@ class SettingsViewModelTest {
 
     @Test
     fun testBiometricAvailabilityStatus() = runTest {
-        val unavailableBiometricAuth = FakeBiometricAuthenticator(available = false)
+        val unavailableBiometricAuth = FakePlatformAuthenticator(available = false)
         val viewModelUnavailable = createViewModel(biometricAuth = unavailableBiometricAuth)
 
         advanceUntilIdle()
         assertFalse(viewModelUnavailable.uiState.value.isBiometricAvailable)
 
-        val availableBiometricAuth = FakeBiometricAuthenticator(available = true)
+        val availableBiometricAuth = FakePlatformAuthenticator(available = true)
         val viewModelAvailable = createViewModel(biometricAuth = availableBiometricAuth)
 
         advanceUntilIdle()

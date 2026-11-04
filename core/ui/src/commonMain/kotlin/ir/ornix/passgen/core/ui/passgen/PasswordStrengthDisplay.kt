@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import ir.ornix.passgen.core.model.PasswordStrengthLevel
 import ir.ornix.passgen.core.ui.Res
 import ir.ornix.passgen.core.ui.password_strength
-import ir.ornix.passgen.core.ui.util.label
 import ir.ornix.passgen.core.ui.util.strengthColor
+import ir.ornix.passgen.core.ui.util.toStringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -56,7 +56,7 @@ fun PasswordStrengthDisplay(
                 color = strengthColor.copy(alpha = 0.15f)
             ) {
                 Text(
-                    text = strengthLevel.label(),
+                    text = stringResource(strengthLevel.toStringResource()),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = strengthColor,

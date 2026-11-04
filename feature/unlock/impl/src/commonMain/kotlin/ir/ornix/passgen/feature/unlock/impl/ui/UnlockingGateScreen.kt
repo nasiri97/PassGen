@@ -53,8 +53,8 @@ fun UnlockingGateScreen(
         }
     }
 
-    LaunchedEffect(uiState.shouldShowBiometricOption) {
-        if (uiState.shouldShowBiometricOption) {
+    LaunchedEffect(uiState.isBiometricEnabled) {
+        if (uiState.isBiometricEnabled) {
             viewModel.dispatch(UnlockingGateIntent.BiometricClicked)
         }
     }
@@ -113,7 +113,7 @@ fun UnlockingGateScreen(
                 LocalAuthType.NONE -> Unit
             }
 
-            if (uiState.shouldShowBiometricOption) {
+            if (uiState.isBiometricEnabled) {
                 Spacer(Modifier.height(24.dp))
 
                 Column(

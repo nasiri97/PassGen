@@ -214,7 +214,7 @@ fun App(
                             onExit = onExit
                         )
 
-                    else -> SplashScreen()
+                    else -> SplashScreen(isDarkTheme = isDarkTheme)
                 }
             }
         }

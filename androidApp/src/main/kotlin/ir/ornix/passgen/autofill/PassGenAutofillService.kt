@@ -1,5 +1,7 @@
 package ir.ornix.passgen.autofill
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.CancellationSignal
 import android.service.autofill.AutofillService
 import android.service.autofill.Dataset
@@ -30,8 +32,8 @@ class PassGenAutofillService : AutofillService() {
     @OptIn(ExperimentalGlanceRemoteViewsApi::class)
     private val glanceRemoteViews = GlanceRemoteViews()
 
-    // Composing is not free and autofill has a short timeout -> cache per entry.
-    private val presentationCache = mutableMapOf<Long, RemoteViews>()
+    // Presentation cache keyed by (credentialId to fieldWidthDp)
+    private val presentationCache = mutableMapOf<Pair<Long, Int>, RemoteViews>()
 
     override fun onDestroy() {
         scope.cancel()
@@ -43,31 +45,44 @@ class PassGenAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback,
     ) {
-        val parsed = StructureParser.parse(request.fillContexts.last().structure)
+        val lastContext = request.fillContexts.lastOrNull()
+        if (lastContext == null) {
+            callback.onSuccess(null)
+            return
+        }
 
-        if (!parsed.isLoginForm) {
+        val parsed = StructureParser.parse(lastContext.structure, applicationContext)
+
+        if (!parsed.hasAutofillableFields) {
             callback.onSuccess(null)
             return
         }
 
         val job = scope.launch {
             try {
-                val matches =
-                    CredentialRepository.findMatches(parsed.packageName, parsed.webDomain, null)
+                val matches = CredentialRepository.findMatches(
+                    packageName = parsed.packageName,
+                    webDomain = parsed.webDomain,
+                    extractedKeywords = parsed.extractedKeywords,
+                )
+
                 if (matches.isEmpty()) {
                     callback.onSuccess(null)
                     return@launch
                 }
 
                 val response = FillResponse.Builder()
-                var added = false
+                var addedCount = 0
+
                 matches.forEach { entry ->
-                    buildDataset(entry, parsed)?.let {
-                        response.addDataset(it)
-                        added = true
+                    val dataset = buildDataset(entry, parsed)
+                    if (dataset != null) {
+                        response.addDataset(dataset)
+                        addedCount++
                     }
                 }
-                callback.onSuccess(if (added) response.build() else null)
+
+                callback.onSuccess(if (addedCount > 0) response.build() else null)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -78,36 +93,64 @@ class PassGenAutofillService : AutofillService() {
     }
 
     @OptIn(ExperimentalGlanceRemoteViewsApi::class)
-    private suspend fun presentationFor(entry: Credential): RemoteViews =
-        presentationCache[entry.id] ?: glanceRemoteViews.compose(
+    private suspend fun presentationFor(entry: Credential, widthDp: Int): RemoteViews {
+        val key = entry.id to widthDp
+        presentationCache[key]?.let { return it }
+
+        val title = entry.title ?: entry.associatedWebDomains.firstOrNull()
+        ?: entry.associatedPackageNames.firstOrNull() ?: "PassGen"
+        val subtitle = entry.username ?: entry.email ?: entry.phone ?: ""
+
+        val rendered = glanceRemoteViews.compose(
             context = this,
-            size = DpSize(256.dp, 56.dp)
+            size = DpSize(widthDp.dp, 56.dp)
         ) {
             AutofillItem(
-                title = entry.title ?: "",
-                subtitle = entry.username ?: entry.email ?: entry.phone ?: ""
+                title = title,
+                subtitle = subtitle,
+                widthDp = widthDp
             )
-        }.remoteViews.also { presentationCache[entry.id] = it }
+        }.remoteViews
 
-    @Suppress("DEPRECATION") // Dataset.Builder(RemoteViews) works on API 26+
-    private suspend fun buildDataset(entry: Credential, p: ParsedStructure): Dataset? {
-        val builder = Dataset.Builder(presentationFor(entry))
-        var hasValue = false
+        presentationCache[key] = rendered
+        return rendered
+    }
 
-        fun set(id: AutofillId?, value: String?) {
-            if (id != null && value != null) {
-                builder.setValue(id, AutofillValue.forText(value))
-                hasValue = true
+    @Suppress("DEPRECATION")
+    private suspend fun buildDataset(entry: Credential, parsed: ParsedStructure): Dataset? {
+        val presentation = presentationFor(entry, parsed.targetFieldWidthDp)
+        val datasetBuilder = Dataset.Builder(presentation)
+
+        val intent = Intent(this, AutofillAuthActivity::class.java).apply {
+            putExtra(AutofillAuthActivity.EXTRA_CREDENTIAL_ID, entry.id)
+            putExtra(AutofillAuthActivity.EXTRA_PARSED_STRUCTURE, parsed)
+        }
+
+        val requestCode = ((entry.id * 31) + parsed.hashCode()).toInt()
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+
+        datasetBuilder.setAuthentication(pendingIntent.intentSender)
+
+        var hasTargetField = false
+        fun associateField(id: AutofillId?) {
+            if (id != null) {
+                datasetBuilder.setValue(id, AutofillValue.forText(""))
+                hasTargetField = true
             }
         }
 
-        set(p.usernameId, entry.username ?: entry.email)
-        set(p.emailId, entry.email ?: entry.username)
-        set(p.passwordId, entry.password.value.concatToString())
-        set(p.phoneId, entry.phone)
+        associateField(parsed.usernameId)
+        associateField(parsed.emailId)
+        associateField(parsed.passwordId)
+        associateField(parsed.phoneId)
+        parsed.genericIds.forEach { associateField(it) }
 
-        // Dataset.Builder.build() throws if no value was set
-        return if (hasValue) builder.build() else null
+        return if (hasTargetField) datasetBuilder.build() else null
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {

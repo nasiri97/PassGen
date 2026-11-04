@@ -6,8 +6,9 @@ internal sealed interface UnlockingGatePartialState {
     data object AuthenticationSucceeded : UnlockingGatePartialState
     data class AuthenticationFailed(val error: AuthenticationError?) : UnlockingGatePartialState
     data class LocalAuthTypeChanged(val localAuthType: LocalAuthType) : UnlockingGatePartialState
-    data class BiometricOptionChanged(
-        val shouldShowBiometricOption: Boolean
+
+    data class BiometricEnabledChanged(
+        val isEnabled: Boolean
     ) : UnlockingGatePartialState
 
     data class PasswordInputEnabledChanged(

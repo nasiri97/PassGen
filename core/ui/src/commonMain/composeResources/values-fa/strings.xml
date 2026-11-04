@@ -222,7 +222,19 @@
     <string name="use_fingerprint_action">استفاده از اثر انگشت</string>
     <string name="content_desc_fingerprint">استفاده از اثر انگشت</string>
     <string name="error_incorect_secret">%1$d نادرست است. لطفاً دوباره تلاش کنید.</string>
-    <string name="error_incorect_biometric">احراز هویت بیومتریک ناموفق بود. لطفاً دوباره تلاش کنید.</string>
+
+    <string name="auth_verify_its_you">هویت خود را تأیید کنید</string>
+    <string name="auth_verify_its_you_to_autofill">تأیید هویت برای تکمیل خودکار</string>
+    <string name="auth_use_biometric">برای ادامه از اثر انگشت خود استفاده کنید</string>
+    <string name="auth_use_biometric_or_screen_lock">برای ادامه از اثر انگشت یا قفل صفحه استفاده کنید</string>
+
+    <string name="auth_error_not_available">احراز هویت در این دستگاه در دسترس نیست.</string>
+    <string name="auth_error_hardware_unavailable">حسگر زیست‌سنجی در حال حاضر در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="auth_error_not_enrolled">اثر انگشت یا قفل صفحه تنظیم نشده است. آن را از تنظیمات دستگاه فعال کنید.</string>
+    <string name="auth_error_temporarily_locked">تعداد تلاش‌ها بیش از حد مجاز بود. لطفاً کمی بعد دوباره تلاش کنید.</string>
+    <string name="auth_error_permanently_locked">زیست‌سنجی قفل شده است. ابتدا با قفل صفحه، دستگاه را باز کنید.</string>
+    <string name="auth_error_security_update_required">برای استفاده از این قابلیت، به‌روزرسانی امنیتی لازم است.</string>
+    <string name="auth_error_unknown">احراز هویت ناموفق بود. لطفاً دوباره تلاش کنید.</string>
 
     <!-- Add Config Screens -->
     <string name="create_config_title">ایجاد پیکربندی گذرواژه</string>

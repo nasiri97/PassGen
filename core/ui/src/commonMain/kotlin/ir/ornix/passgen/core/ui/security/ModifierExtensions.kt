@@ -8,14 +8,14 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
-import ir.ornix.passgen.core.common.isDebugBuild
+import ir.ornix.passgen.core.common.platform
 
 /**
  * Display-only secrets (Text, or a Column of Texts).
  * Clears the semantics of everything inside, so don't put buttons or fields in it.
  */
 fun Modifier.secureContent(contentDescription: String): Modifier =
-    if (isDebugBuild) this.semantics {
+    if (platform.isDebugBuild) this.semantics {
         this.contentDescription = contentDescription
     }
     else clearAndSetSemantics {
@@ -28,7 +28,7 @@ fun Modifier.secureContent(contentDescription: String): Modifier =
  * Merges with the field's own semantics, so typing, focus and TalkBack editing still work.
  */
 fun Modifier.secureInput(contentDescription: String, isCredential: Boolean = true): Modifier =
-    if (isDebugBuild) this.semantics {
+    if (platform.isDebugBuild) this.semantics {
         this.contentDescription = contentDescription
     }
     else semantics {

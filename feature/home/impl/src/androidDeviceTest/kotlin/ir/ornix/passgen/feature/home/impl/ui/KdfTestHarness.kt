@@ -42,12 +42,12 @@ import com.russhwolf.settings.MapSettings
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.HMAC
 import dev.whyoleg.cryptography.algorithms.SHA512
+import ir.ornix.passgen.core.common.AppContextProvider
 import ir.ornix.passgen.core.common.codec.BCryptBase64BinaryCodec
 import ir.ornix.passgen.core.common.codec.Base64BinaryCodec
 import ir.ornix.passgen.core.common.codec.HexBinaryCodec
 import ir.ornix.passgen.core.common.codec.Z85BinaryCodec
 import ir.ornix.passgen.core.common.hashing.Sha512Hasher
-import ir.ornix.passgen.core.common.isAndroidDebugBuild
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
@@ -231,7 +231,7 @@ object KdfTestHarness {
     fun setup() {
         stopKoin()
         startKoin { modules(testModule) }
-        isAndroidDebugBuild = true
+        AppContextProvider.isDebugBuild = true
     }
 
     fun tearDown() {

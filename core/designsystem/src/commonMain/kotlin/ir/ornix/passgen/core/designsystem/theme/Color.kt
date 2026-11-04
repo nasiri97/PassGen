@@ -2,6 +2,14 @@ package ir.ornix.passgen.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
+private val DarkSplashScreenBackground = Color(0xFF0A0A0A)
+private val LightSplashScreenBackground = Color(0xFFFEF7FF)
+
+fun getSplashScreenBackground(isDarkTheme: Boolean): Color {
+    return if (isDarkTheme) DarkSplashScreenBackground
+    else LightSplashScreenBackground
+}
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)

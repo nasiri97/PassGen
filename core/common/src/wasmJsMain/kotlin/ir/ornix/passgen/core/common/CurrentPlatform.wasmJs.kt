@@ -4,7 +4,8 @@ package ir.ornix.passgen.core.common
 @JsFun("() => globalThis.__APP_DEBUG__ === true")
 private external fun getDebugBuild(): Boolean
 
-actual val isDebugBuild: Boolean
-    get() = getDebugBuild()
-
-actual val isGestureRefreshSupported: Boolean = false
+actual val platform: Platform
+    get() = Platform.Web(
+        engine = WebEngine.WASM,
+        isDebugBuild = getDebugBuild()
+    )
