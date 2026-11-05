@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -135,13 +136,14 @@ fun PasswordDisplay(
                         .secureContent(stringResource(Res.string.password)),
                     text = displayText
                         ?: stringResource(Res.string.error_password_generation_failed),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        textDirection = TextDirection.Ltr
+                    ),
                     fontFamily = FontFamily.Monospace,
                     color =
                         if (displayText == null) MaterialTheme.colorScheme.error
                         else Color.Unspecified
                 )
-
 
                 IconButton(
                     onClick = { revealed = !revealed },

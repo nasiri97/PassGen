@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -97,6 +99,9 @@ fun PasswordTextField(
     OutlinedSecureTextField(
         state = state,
         modifier = testTag?.let { secureModifier.testTag(testTag) } ?: secureModifier,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            textDirection = TextDirection.Ltr
+        ),
         label = label,
         leadingIcon = leadingIcon,
         supportingText = supportingText,
