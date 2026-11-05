@@ -132,7 +132,7 @@
     <string name="about_step_2_desc">Once your **configuration** is ready, you can use it to generate all your passwords. Simply enter a specific **Context Input**, such as a service name, website, application name, username, or any other text, and **PassGen** will generate the corresponding password.\n\nFor example, to generate a password for your Google account, you can use any of the following **Context Inputs**:\n• google\n• google 123\n• google.com user@gmail.com</string>
 
     <string name="about_step_3_title">3. Same Password, Everywhere</string>
-    <string name="about_step_3_desc">That\'s it! Using the same **configuration** and **Context Input** will always produce the same password, even across different devices (Android, iOS, Desktop, Web).</string>
+    <string name="about_step_3_desc">That's it! Using the same **configuration** and **Context Input** will always produce the same password, even across different devices (Android, iOS, Desktop, Web).</string>
 
     <string name="about_step_4_title">4. How Autofill Works</string>
     <string name="about_step_4_desc">Saved **credentials** are used to automatically fill usernames and passwords in other apps and websites.\n\nTo match credentials accurately, set the target **Application Package Name** (e.g., com.example.app), **Web Domain** (e.g., example.com), or **Keywords** when creating or editing a credential.\n\nMake sure the **Autofill Service** is enabled in your system settings and set to **PassGen** for autofill to function.</string>

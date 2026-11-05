@@ -27,6 +27,116 @@ PassGen adopts a **Zero-Knowledge, Stateless Architecture**:
 
 ---
 
+## 📖 How to Use PassGen
+
+### 1. Create a Password Generator Configuration
+Choose and remember a single secret **Master Key**. It is the foundation for generating all your passwords.
+
+On the **home page**, create a **Password Generator Configuration** using your **Master Key**. You can also customize settings such as the configuration name, password generation strategy, password length, and other options.
+
+Your **configuration** is stored locally on your device. Your **Master Key** is also protected on your device and is never uploaded to or stored on any external server.
+
+<br/>
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Create_Config_1.jpg" alt="Creating configuration (step 1)" width="100%" />
+        <br/><sub><b>Creating configuration (step 1)</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Create_Config_2.jpg" alt="Creating configuration (step 2)" width="100%" />
+        <br/><sub><b>Creating configuration (step 2)</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Create_Config_3.jpg" alt="Configuration created" width="100%" />
+        <br/><sub><b>Configuration created</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Create_Config_4.jpg" alt="Password generated for empty Context Input" width="100%" />
+        <br/><sub><b>Password generated for empty Context Input</b></sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<br/>
+
+### 2. Enter Context Input
+Once your **configuration** is ready, you can use it to generate all your passwords. Simply enter a specific **Context Input**, such as a service name, website, application name, username, or any other text, and **PassGen** will generate the corresponding password.
+
+For example, to generate a password for your Google account, you can use any of the following **Context Inputs**:\
+• `google`\
+• `google 123`\
+• `google.com user@gmail.com`
+
+<br/>
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="33%">
+        <img src="assets/screenshots/Context_Input_1.jpg" alt="Context Input: Service Name" width="100%" />
+      </td>
+      <td align="center" width="33%">
+        <img src="assets/screenshots/Context_Input_2.jpg" alt="Context Input: Service + Variation" width="100%" />
+      </td>
+      <td align="center" width="33%">
+        <img src="assets/screenshots/Context_Input_3.jpg" alt="Context Input: Domain + Username" width="100%" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+<br/>
+
+### 3. Same Password, Everywhere
+That's it! Using the same **configuration** and **Context Input** will always produce the same password, even across different devices (Android, iOS, Desktop, Web)
+
+<br/>
+
+<div align="center">
+  <img src="assets/screenshots/Same_Password_Everywhere.png" alt="Same Password Everywhere Across Devices" width="85%" />
+  <br/><sub><b>Cross-Device Consistency:</b> Deriving identical passwords across Android, iOS, Desktop, and Web</sub>
+</div>
+
+<br/>
+
+### 4. How Autofill Works
+Saved **credentials** are used to automatically fill usernames and passwords in other apps and websites.
+
+To match credentials accurately, set the target **Application Package Name** (e.g., com.example.app), **Web Domain** (e.g., example.com), or **Keywords** when creating or editing a credential.
+
+Make sure the **Autofill Service** is enabled in your system settings and set to **PassGen** for autofill to function.
+
+<br/>
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Credential_1.jpg" alt="Creating new credential" width="100%" />
+        <br/><sub><b>Creating new credential</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Credential_2.jpg" alt="Setting web domain" width="100%" />
+        <br/><sub><b>Setting web domain</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Credential_3.jpg" alt="Credential created" width="100%" />
+        <br/><sub><b>Credential created</b></sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="assets/screenshots/Credential_4.jpg" alt="Enable Autofill" width="100%" />
+        <br/><sub><b>Enable Autofill</b></sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
 ## 🛠 How PassGen Works (Cryptographic Pipeline)
 
 PassGen offers two distinct modes of password generation: **Deterministic KDF Generation** and **Secure Random Generation**.
@@ -206,9 +316,10 @@ PassGen
  ├── composeApp/            # Aggregated shared UI, DI, and App navigation
  ├── core/
  │    ├── common/           # Cryptographic codecs (BIP39, Z85, Hex, Base64), Hasher implementations, PassGen core
- │    ├── data/             # Repositories (Settings, Accounts, Configurations, Platform HMAC Signers)
+ │    ├── data/             # Repositories (Settings, Credentials, Configurations, Platform HMAC Signers)
+ │    ├── database/         # Local persistence layer & SQLDelight database schemas
  │    ├── domain/           # Use cases (GenerateKDFPassUseCase, LocalAuth, AppConfig)
- │    ├── model/            # Business models (PassGenConfig, Password, Account, PreprocessConfig)
+ │    ├── model/            # Business models (PassGenConfig, Password, Credential, PreprocessConfig)
  │    ├── designsystem/     # Design system tokens, colors, typography, and themes
  │    ├── ui/               # Reusable Jetpack Compose components & resource bindings
  │    └── logging/          # Multiplatform logging engine
@@ -216,7 +327,7 @@ PassGen
       ├── home/             # Deterministic password generation UI & ViewModel
       ├── random/           # Random password generator UI & ViewModel
       ├── config/           # Preset configuration management UI
-      ├── saved-passwords/  # Saved account profiles UI
+      ├── credentials/      # Saved credentials & Autofill management UI (package names, web domains, keywords)
       ├── localauth/        # Local security PIN / Password setup
       ├── unlock/           # App lock screen & Biometric verification
       ├── settings/         # App preferences (Theme, Language, Security)
