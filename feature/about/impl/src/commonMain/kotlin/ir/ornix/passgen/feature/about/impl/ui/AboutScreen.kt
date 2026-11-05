@@ -29,11 +29,10 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.GeneratingTokens
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Key
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.AssistChip
@@ -77,7 +76,7 @@ import ir.ornix.passgen.core.ui.about_github_button
 import ir.ornix.passgen.core.ui.about_open_source_desc
 import ir.ornix.passgen.core.ui.about_open_source_title
 import ir.ornix.passgen.core.ui.about_section_developer
-import ir.ornix.passgen.core.ui.about_section_how_it_works
+import ir.ornix.passgen.core.ui.about_section_how_to_use
 import ir.ornix.passgen.core.ui.about_section_what_is_passgen
 import ir.ornix.passgen.core.ui.about_section_why_passgen
 import ir.ornix.passgen.core.ui.about_step_1_desc
@@ -93,6 +92,7 @@ import ir.ornix.passgen.core.ui.app_icon
 import ir.ornix.passgen.core.ui.app_name
 import ir.ornix.passgen.core.ui.app_subtitle
 import ir.ornix.passgen.core.ui.app_version
+import ir.ornix.passgen.core.ui.util.toMarkdownBold
 import ir.ornix.passgen.feature.about.impl.presentation.AboutViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -120,7 +120,7 @@ fun AboutScreen(modifier: Modifier = Modifier) {
 
         WhatIsPassGenCard()
 
-        HowItWorksSection()
+        HowToUseSection()
 
         WhyChoosePassGenSection()
 
@@ -392,16 +392,16 @@ private fun WhatIsPassGenCard(modifier: Modifier = Modifier) {
 }
 
 // -------------------------------------------------------------
-// 4. HOW IT WORKS SECTION
+// 4. HOW TO USE SECTION
 // -------------------------------------------------------------
 @Composable
-private fun HowItWorksSection(modifier: Modifier = Modifier) {
+private fun HowToUseSection(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = stringResource(Res.string.about_section_how_it_works),
+            text = stringResource(Res.string.about_section_how_to_use),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 4.dp)
@@ -409,28 +409,28 @@ private fun HowItWorksSection(modifier: Modifier = Modifier) {
 
         StepFlowCard(
             stepNumber = 1,
-            icon = Icons.Default.Key,
+            icon = Icons.Default.Create,
             title = stringResource(Res.string.about_step_1_title),
             description = stringResource(Res.string.about_step_1_desc)
         )
 
         StepFlowCard(
             stepNumber = 2,
-            icon = Icons.Default.Language,
+            icon = Icons.Default.GeneratingTokens,
             title = stringResource(Res.string.about_step_2_title),
             description = stringResource(Res.string.about_step_2_desc)
         )
 
         StepFlowCard(
             stepNumber = 3,
-            icon = Icons.Default.Memory,
+            icon = Icons.Default.Devices,
             title = stringResource(Res.string.about_step_3_title),
             description = stringResource(Res.string.about_step_3_desc)
         )
 
         StepFlowCard(
             stepNumber = 4,
-            icon = Icons.Default.Devices,
+            icon = Icons.Default.AutoAwesome,
             title = stringResource(Res.string.about_step_4_title),
             description = stringResource(Res.string.about_step_4_desc)
         )
@@ -504,7 +504,7 @@ private fun StepFlowCard(
                 )
 
                 Text(
-                    text = description,
+                    text = description.toMarkdownBold(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
                     lineHeight = 20.sp
