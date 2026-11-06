@@ -1,14 +1,15 @@
 package ir.ornix.passgen.core.domain.passgenconfig.kdf
 
 import ir.ornix.passgen.core.domain.HmacSigner
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.KdfPassGenConfigRepository
 
 class RemoveKdfPassGenConfigUseCase(
-    private val configRepo: PassGenConfigRepository,
+    private val repo: KdfPassGenConfigRepository,
     private val hmacSigner: HmacSigner
 ) {
-    suspend operator fun invoke(configId: Int) {
-        configRepo.removeKdfPassGenConfigById(configId)
-        hmacSigner.deleteMasterKeyDigest("$configId")
+    suspend operator fun invoke(configId: Long) {
+        val mkdId = repo.getConfigById(configId)?.masterKeyDigestId
+        mkdId?.let { hmacSigner.deleteMasterKeyDigest(it) }
+        repo.removeConfigById(configId)
     }
 }

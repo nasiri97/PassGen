@@ -51,19 +51,17 @@ internal fun reduce(
             )
         }
 
-        is AddRandomConfigPartialState.Submitting -> oldState.copy(
-            isSubmitting = true,
-            errorMessage = null
-        )
+        is AddRandomConfigPartialState.Submitting ->
+            oldState.copy(isSubmitting = true)
 
         is AddRandomConfigPartialState.ConfigCreatedSuccess -> oldState.copy(
             isSubmitting = false,
             isSuccess = true
         )
 
-        is AddRandomConfigPartialState.ConfigCreatedError -> oldState.copy(
+        is AddRandomConfigPartialState.ConfigCreationFailed -> oldState.copy(
             isSubmitting = false,
-            errorMessage = change.message
+            isFailed = true
         )
     }
 }

@@ -42,7 +42,7 @@ class HomeViewModel(
 
     private val configsFlow: Flow<List<KdfPassGenConfig>> = getAllPassGenConfigs()
 
-    private val jobs = HashMap<Int, Job>()
+    private val jobs = HashMap<Long, Job>()
 
     private fun PassGenItem.calculate() {
         jobs[config.id]?.cancel()

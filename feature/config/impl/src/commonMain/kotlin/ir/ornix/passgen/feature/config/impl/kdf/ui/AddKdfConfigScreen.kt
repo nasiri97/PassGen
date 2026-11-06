@@ -49,6 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AddKdfConfigScreen(
     onNavigateBack: () -> Unit,
     onConfigCreated: () -> Unit,
+    onConfigCreationFailed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel: AddKdfConfigViewModel = koinViewModel()
@@ -58,6 +59,12 @@ fun AddKdfConfigScreen(
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onConfigCreated()
+        }
+    }
+
+    LaunchedEffect(uiState.isFailed) {
+        if (uiState.isFailed) {
+            onConfigCreationFailed()
         }
     }
 

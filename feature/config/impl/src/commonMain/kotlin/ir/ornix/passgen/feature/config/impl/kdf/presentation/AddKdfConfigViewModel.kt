@@ -7,6 +7,8 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GenerateMasterKeyDigestIdUseCase
+import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.channels.Channel
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddKdfConfigViewModel(
+    private val generateMasterKeyDigestId: GenerateMasterKeyDigestIdUseCase,
     private val addConfig: AddKdfPassGenConfigUseCase,
     private val getVisibilityTimeout: GetVisibilityTimeoutUseCase
 ) : ViewModel() {
@@ -137,9 +140,12 @@ class AddKdfConfigViewModel(
         viewModelScope.launch {
             apply(AddKdfConfigPartialState.Submitting)
             try {
+                val mkId = generateMasterKeyDigestId()
+
                 val config = KdfPassGenConfig(
                     id = 0,
                     name = state.name.trim(),
+                    masterKeyDigestId = mkId,
                     passEncoder = state.selectedEncoder,
                     passwordLength = when (state.selectedEncoder) {
                         is SeedPassEncoder -> null
@@ -152,24 +158,25 @@ class AddKdfConfigViewModel(
                     ),
                     inputHasher = state.selectedHasher
                 )
-                addConfig(config, masterKey)
-                apply(AddKdfConfigPartialState.ConfigCreatedSuccess)
+
+                val isConfigCreated = addConfig(config, masterKey)
+                if (isConfigCreated) apply(AddKdfConfigPartialState.ConfigCreatedSuccess)
+                else {
+                    Logger.e("Failed to create kdf configuration")
+                    apply(AddKdfConfigPartialState.ConfigCreationFailed)
+                }
             } catch (e: Exception) {
-                apply(
-                    AddKdfConfigPartialState.ConfigCreatedError(
-                        e.message ?: "Failed to create configuration"
-                    )
-                )
+                Logger.e("Failed to create kdf configuration", e)
+                apply(AddKdfConfigPartialState.ConfigCreationFailed)
             }
         }
     }
 
     private fun apply(change: AddKdfConfigPartialState) {
         if (change is AddKdfConfigPartialState.ProcessCancelled ||
-            change is AddKdfConfigPartialState.ConfigCreatedSuccess
-        ) {
-            resetKeys()
-        }
+            change is AddKdfConfigPartialState.ConfigCreatedSuccess ||
+            change is AddKdfConfigPartialState.ConfigCreationFailed
+        ) resetKeys()
 
         uiState.update { reduce(it, change) }
     }

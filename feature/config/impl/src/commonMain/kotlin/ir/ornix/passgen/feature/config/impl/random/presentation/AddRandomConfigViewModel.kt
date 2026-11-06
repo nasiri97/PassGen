@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.passgenconfig.random.AddRandomPassGenConfigUseCase
+import ir.ornix.passgen.core.logging.Logger
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,11 +69,8 @@ class AddRandomConfigViewModel(
                 addConfig(config)
                 apply(AddRandomConfigPartialState.ConfigCreatedSuccess)
             } catch (e: Exception) {
-                apply(
-                    AddRandomConfigPartialState.ConfigCreatedError(
-                        e.message ?: "Failed to create configuration"
-                    )
-                )
+                Logger.e("Failed to create random configuration", e)
+                apply(AddRandomConfigPartialState.ConfigCreationFailed)
             }
         }
     }

@@ -302,6 +302,9 @@ private fun AppContent(
                                 },
                                 onConfigCreated = {
                                     backStack.removeLastOrNull()
+                                },
+                                onConfigCreationFailed = {
+                                    backStack.removeLastOrNull()
                                 }
                             )
                         }

@@ -13,9 +13,10 @@ class FakeHmacSigner : HmacSigner {
     private val masterKeyDigests = mutableMapOf<String, ByteArray>()
     private val sha512Hasher = Sha512Hasher()
 
-    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean {
         // As per HmacSigner.kt doc: rawKey is hashed with SHA-512 and stored
         masterKeyDigests[mkdId] = sha512Hasher.digest(rawMasterKey)
+        return true
     }
 
     override suspend fun sign(mkdId: String, input: String): ByteArray {

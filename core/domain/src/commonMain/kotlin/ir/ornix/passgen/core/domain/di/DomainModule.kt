@@ -24,6 +24,7 @@ import ir.ornix.passgen.core.domain.localauth.ValidateLocalAuthSecretUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
 import ir.ornix.passgen.core.domain.passgen.GenerateRandomPassUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.AddKdfPassGenConfigUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GenerateMasterKeyDigestIdUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.GetAllKdfPassGenConfigsUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.kdf.RemoveKdfPassGenConfigUseCase
 import ir.ornix.passgen.core.domain.passgenconfig.random.AddRandomPassGenConfigUseCase
@@ -68,6 +69,7 @@ val domainModule = module {
 
     // passgenconfig/kdf
     factoryOf(::AddKdfPassGenConfigUseCase)
+    factoryOf(::GenerateMasterKeyDigestIdUseCase)
     factoryOf(::GetAllKdfPassGenConfigsUseCase)
     factoryOf(::RemoveKdfPassGenConfigUseCase)
 

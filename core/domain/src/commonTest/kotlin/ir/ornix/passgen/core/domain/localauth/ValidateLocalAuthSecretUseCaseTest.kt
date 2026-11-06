@@ -3,7 +3,8 @@ package ir.ornix.passgen.core.domain.localauth
 import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.FakeHmacSigner
-import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
+import ir.ornix.passgen.core.domain.FakeKdfPassGenConfigRepository
+import ir.ornix.passgen.core.domain.FakeRandomPassGenConfigRepository
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.domain.data_management.PurgeSensitiveDataUseCase
 import ir.ornix.passgen.core.model.Credential
@@ -105,12 +106,7 @@ class ValidateLocalAuthSecretUseCaseTest {
                 authType = LocalAuthType.NONE
             )
             getLocalAuthType = GetLocalAuthTypeUseCase(repo)
-            purgeSensitiveData = PurgeSensitiveDataUseCase(
-                hmacSigner = FakeHmacSigner(),
-                passGenConfigRepository = FakePassGenConfigRepository(),
-                credentialRepository = FakeCredentialRepository(),
-                localAuthRepository = repo
-            )
+            purgeSensitiveData = createPurgeSensitiveDataUseCase(localAuthRepository = repo)
 
             useCase = ValidateLocalAuthSecretUseCase(
                 crypto,
@@ -133,12 +129,7 @@ class ValidateLocalAuthSecretUseCaseTest {
             val repo =
                 FakeLocalAuthRepository(encryptedSecretValue = null, authType = LocalAuthType.PIN)
             getLocalAuthType = GetLocalAuthTypeUseCase(repo)
-            purgeSensitiveData = PurgeSensitiveDataUseCase(
-                hmacSigner = FakeHmacSigner(),
-                passGenConfigRepository = FakePassGenConfigRepository(),
-                credentialRepository = FakeCredentialRepository(),
-                localAuthRepository = repo
-            )
+            purgeSensitiveData = createPurgeSensitiveDataUseCase(localAuthRepository = repo)
 
             useCase = ValidateLocalAuthSecretUseCase(
                 crypto,
@@ -163,12 +154,7 @@ class ValidateLocalAuthSecretUseCaseTest {
             authType = LocalAuthType.PASSWORD
         )
         getLocalAuthType = GetLocalAuthTypeUseCase(repo)
-        purgeSensitiveData = PurgeSensitiveDataUseCase(
-            hmacSigner = FakeHmacSigner(),
-            passGenConfigRepository = FakePassGenConfigRepository(),
-            credentialRepository = FakeCredentialRepository(),
-            localAuthRepository = repo
-        )
+        purgeSensitiveData = createPurgeSensitiveDataUseCase(localAuthRepository = repo)
         useCase = ValidateLocalAuthSecretUseCase(
             crypto,
             repo,
@@ -191,12 +177,7 @@ class ValidateLocalAuthSecretUseCaseTest {
             authType = LocalAuthType.PASSWORD
         )
         getLocalAuthType = GetLocalAuthTypeUseCase(repo)
-        purgeSensitiveData = PurgeSensitiveDataUseCase(
-            hmacSigner = FakeHmacSigner(),
-            passGenConfigRepository = FakePassGenConfigRepository(),
-            credentialRepository = FakeCredentialRepository(),
-            localAuthRepository = repo
-        )
+        purgeSensitiveData = createPurgeSensitiveDataUseCase(localAuthRepository = repo)
 
         useCase = ValidateLocalAuthSecretUseCase(
             crypto,
@@ -211,4 +192,14 @@ class ValidateLocalAuthSecretUseCaseTest {
         assertFalse(isValid)
         assertFalse(repo.clearAuthCalled)
     }
+
+
+    private fun createPurgeSensitiveDataUseCase(localAuthRepository: LocalAuthRepository) =
+        PurgeSensitiveDataUseCase(
+            hmacSigner = FakeHmacSigner(),
+            kdfConfigRepository = FakeKdfPassGenConfigRepository(),
+            randomConfigRepository = FakeRandomPassGenConfigRepository(),
+            credentialRepository = FakeCredentialRepository(),
+            localAuthRepository = localAuthRepository
+        )
 }

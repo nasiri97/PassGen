@@ -72,7 +72,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val pass1 = KdfTestHarness.computeExpectedPassword(
                 configId = 1,
                 configName = name1,
-                input = inputPhrase,
+                contextInput = inputPhrase,
                 hasher = hasher1,
                 encoder = encoder1,
                 passwordLength = length1
@@ -82,7 +82,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val pass2 = KdfTestHarness.computeExpectedPassword(
                 configId = 2,
                 configName = name2,
-                input = inputPhrase,
+                contextInput = inputPhrase,
                 hasher = hasher2,
                 encoder = encoder2,
                 passwordLength = length2
@@ -141,7 +141,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val pass1Phrase1 = KdfTestHarness.computeExpectedPassword(
                 configId = 1,
                 configName = name1,
-                input = phrase1,
+                contextInput = phrase1,
                 hasher = hasher1,
                 encoder = encoder1,
                 passwordLength = length1
@@ -149,7 +149,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val pass2Phrase1 = KdfTestHarness.computeExpectedPassword(
                 configId = 2,
                 configName = name2,
-                input = phrase1,
+                contextInput = phrase1,
                 hasher = hasher2,
                 encoder = encoder2,
                 passwordLength = length2
@@ -173,7 +173,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val pass1Phrase2 = KdfTestHarness.computeExpectedPassword(
                 configId = 1,
                 configName = name1,
-                input = phrase2,
+                contextInput = phrase2,
                 hasher = hasher1,
                 encoder = encoder1,
                 passwordLength = length1
@@ -181,7 +181,7 @@ class MultipleKdfConfigsUiTest : KoinTest {
             val pass2Phrase2 = KdfTestHarness.computeExpectedPassword(
                 configId = 2,
                 configName = name2,
-                input = phrase2,
+                contextInput = phrase2,
                 hasher = hasher2,
                 encoder = encoder2,
                 passwordLength = length2

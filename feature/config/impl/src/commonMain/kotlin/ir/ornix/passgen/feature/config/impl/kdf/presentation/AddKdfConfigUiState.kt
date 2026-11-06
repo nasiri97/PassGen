@@ -41,6 +41,6 @@ internal data class AddKdfConfigUiState(
     ),
     val isSubmitting: Boolean = false,
     val isSuccess: Boolean = false,
-    val visibilityTimeout: PasswordVisibilityTimeout = PasswordVisibilityTimeout.default,
-    val errorMessage: String? = null
+    val isFailed: Boolean = false,
+    val visibilityTimeout: PasswordVisibilityTimeout = PasswordVisibilityTimeout.default
 )

@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("random_pass_gen_config")
 data class RandomPassGenConfig(
-    override val id: Int,
+    override val id: Long,
     override val name: String,
     override val passEncoder: PassEncoder,
     override val passwordLength: Int?

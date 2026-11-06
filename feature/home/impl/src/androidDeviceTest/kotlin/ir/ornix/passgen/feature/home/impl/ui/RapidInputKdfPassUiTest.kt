@@ -60,7 +60,7 @@ class RapidInputKdfPassUiTest : KoinTest {
             // Compute expected passwords
             val expectedFinalPass = KdfTestHarness.computeExpectedPassword(
                 configName = configName,
-                input = finalInput,
+                contextInput = finalInput,
                 hasher = hasher,
                 encoder = encoder,
                 passwordLength = length
@@ -68,7 +68,7 @@ class RapidInputKdfPassUiTest : KoinTest {
 
             val expectedOldPass = KdfTestHarness.computeExpectedPassword(
                 configName = configName,
-                input = firstInput,
+                contextInput = firstInput,
                 hasher = hasher,
                 encoder = encoder,
                 passwordLength = length

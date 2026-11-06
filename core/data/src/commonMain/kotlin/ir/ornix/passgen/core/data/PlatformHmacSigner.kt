@@ -4,7 +4,7 @@ import ir.ornix.passgen.core.domain.HmacSigner
 
 expect object PlatformHmacSigner : HmacSigner {
 
-    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray)
+    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean
 
     override suspend fun sign(mkdId: String, input: String): ByteArray
 

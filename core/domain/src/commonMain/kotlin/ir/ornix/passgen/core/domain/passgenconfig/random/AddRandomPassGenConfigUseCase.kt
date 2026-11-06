@@ -1,12 +1,12 @@
 package ir.ornix.passgen.core.domain.passgenconfig.random
 
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.RandomPassGenConfigRepository
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 
 class AddRandomPassGenConfigUseCase(
-    private val passGenConfigRepo: PassGenConfigRepository
+    private val repo: RandomPassGenConfigRepository
 ) {
     suspend operator fun invoke(config: RandomPassGenConfig) {
-        passGenConfigRepo.add(config)
+        repo.addConfig(config)
     }
 }

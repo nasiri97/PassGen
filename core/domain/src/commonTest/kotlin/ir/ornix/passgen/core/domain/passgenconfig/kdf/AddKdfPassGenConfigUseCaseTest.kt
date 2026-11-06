@@ -3,14 +3,11 @@ package ir.ornix.passgen.core.domain.passgenconfig.kdf
 import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakeHmacSigner
-import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
+import ir.ornix.passgen.core.domain.FakeKdfPassGenConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.KdfPassGenConfigRepository
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
-import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
-import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -22,7 +19,7 @@ import kotlin.test.assertTrue
 
 class AddKdfPassGenConfigUseCaseTest {
 
-    private lateinit var repository: FakePassGenConfigRepository
+    private lateinit var repository: FakeKdfPassGenConfigRepository
     private lateinit var hmacSigner: FakeHmacSigner
     private lateinit var useCase: AddKdfPassGenConfigUseCase
 
@@ -32,6 +29,7 @@ class AddKdfPassGenConfigUseCaseTest {
     private val testConfig1 = KdfPassGenConfig(
         id = 10,
         name = "Test Config 10",
+        masterKeyDigestId = "master_key_10",
         preprocessConfig = PreprocessConfig(
             trimLeadingAndTrailingSpaces = true,
             collapseMultipleSpaces = false,
@@ -45,6 +43,7 @@ class AddKdfPassGenConfigUseCaseTest {
     private val testConfig2 = KdfPassGenConfig(
         id = 20,
         name = "Test Config 20",
+        masterKeyDigestId = "master_key_20",
         preprocessConfig = PreprocessConfig(
             trimLeadingAndTrailingSpaces = false,
             collapseMultipleSpaces = true,
@@ -57,7 +56,7 @@ class AddKdfPassGenConfigUseCaseTest {
 
     @BeforeTest
     fun setup() {
-        repository = FakePassGenConfigRepository()
+        repository = FakeKdfPassGenConfigRepository()
         hmacSigner = FakeHmacSigner()
         useCase = AddKdfPassGenConfigUseCase(repository, hmacSigner)
     }
@@ -67,19 +66,19 @@ class AddKdfPassGenConfigUseCaseTest {
         useCase(testConfig1, masterKey1)
 
         // Verify repository stores the config
-        val configs = repository.getAllKdfPassGenConfigs().first()
+        val configs = repository.getAllConfigs().first()
         assertEquals(1, configs.size)
         assertEquals(testConfig1, configs.first())
 
         // Verify hmacSigner has key registered under stringified config ID
-        val hasKey = hmacSigner.hasMasterKeyDigest("${testConfig1.id}")
+        val hasKey = hmacSigner.hasMasterKeyDigest(testConfig1.masterKeyDigestId)
         assertTrue(
             hasKey,
             "HmacSigner should have master key digest registered for config ID '${testConfig1.id}'"
         )
 
         // Verify hmacSigner can sign using the registered key
-        val signature = hmacSigner.sign("${testConfig1.id}", "input_data")
+        val signature = hmacSigner.sign(testConfig1.masterKeyDigestId, "input_data")
         assertNotNull(signature)
         assertTrue(
             signature.isNotEmpty(),
@@ -93,12 +92,12 @@ class AddKdfPassGenConfigUseCaseTest {
             useCase(testConfig1, masterKey1)
             useCase(testConfig2, masterKey2)
 
-            val configs = repository.getAllKdfPassGenConfigs().first()
+            val configs = repository.getAllConfigs().first()
             assertEquals(2, configs.size)
             assertEquals(listOf(testConfig1, testConfig2), configs)
 
-            assertTrue(hmacSigner.hasMasterKeyDigest("${testConfig1.id}"))
-            assertTrue(hmacSigner.hasMasterKeyDigest("${testConfig2.id}"))
+            assertTrue(hmacSigner.hasMasterKeyDigest(testConfig1.masterKeyDigestId))
+            assertTrue(hmacSigner.hasMasterKeyDigest(testConfig2.masterKeyDigestId))
         }
 
     @Test
@@ -106,33 +105,31 @@ class AddKdfPassGenConfigUseCaseTest {
         val emptyKey = CharArray(0)
         useCase(testConfig1, emptyKey)
 
-        val configs = repository.getAllKdfPassGenConfigs().first()
+        val configs = repository.getAllConfigs().first()
         assertEquals(1, configs.size)
-        assertTrue(hmacSigner.hasMasterKeyDigest("${testConfig1.id}"))
+        assertTrue(hmacSigner.hasMasterKeyDigest(testConfig1.masterKeyDigestId))
     }
 
     @Test
     fun `invoke should propagate exception when repository add fails and not register key in signer`() =
         runTest {
-            val failingRepo = object : PassGenConfigRepository {
-                override suspend fun add(config: PassGenConfig): Int {
+            val failingRepo = object : KdfPassGenConfigRepository {
+                override suspend fun getConfigById(configId: Long): KdfPassGenConfig? =
+                    repository.getConfigById(configId)
+
+                override suspend fun addConfig(config: KdfPassGenConfig): Long {
                     throw IllegalStateException("Database write failed")
                 }
 
-                override suspend fun removeKdfPassGenConfigById(configId: Int) {}
+                override suspend fun removeConfigById(configId: Long) {}
+                override fun getAllConfigs() = repository.getAllConfigs()
+                override suspend fun deleteAllConfigs() {}
 
-                override suspend fun removeRandomPassGenConfigById(configId: Int) {}
+                override suspend fun doesMasterKeyDigestIdExist(masterKeyDigestId: String) =
+                    repository.doesMasterKeyDigestIdExist(masterKeyDigestId)
 
-                override suspend fun getAllKdfPassGenConfigIds() =
-                    repository.getAllKdfPassGenConfigIds()
-
-                override fun getAllKdfPassGenConfigs(): Flow<List<KdfPassGenConfig>> =
-                    repository.getAllKdfPassGenConfigs()
-
-                override fun getAllRandomPassGenConfigs(): Flow<List<RandomPassGenConfig>> =
-                    repository.getAllRandomPassGenConfigs()
-
-                override suspend fun deleteAllPassGenConfigs() {}
+                override suspend fun getAllMasterKeyDigestIds() =
+                    repository.getAllMasterKeyDigestIds()
             }
 
             val failingUseCase = AddKdfPassGenConfigUseCase(failingRepo, hmacSigner)
@@ -151,7 +148,7 @@ class AddKdfPassGenConfigUseCaseTest {
     @Test
     fun `invoke should propagate exception when hmacSigner registerKey fails`() = runTest {
         val failingSigner = object : HmacSigner {
-            override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+            override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean {
                 throw IllegalArgumentException("Key registration failed")
             }
 
@@ -167,7 +164,6 @@ class AddKdfPassGenConfigUseCaseTest {
         }
 
         assertEquals("Key registration failed", exception.message)
-        // Note: repo add succeeded first
-        assertEquals(1, repository.getAllKdfPassGenConfigs().first().size)
+        assertEquals(0, repository.getAllConfigs().first().size)
     }
 }

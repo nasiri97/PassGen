@@ -7,8 +7,9 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.data.repository.SettingsAppConfigRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightCredentialRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightKdfPassGenConfigRepository
 import ir.ornix.passgen.core.data.repository.SqlDelightLocalAuthRepository
-import ir.ornix.passgen.core.data.repository.SqlDelightPassGenConfigRepository
+import ir.ornix.passgen.core.data.repository.SqlDelightRandomPassGenConfigRepository
 import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.model.AppLanguage
 import ir.ornix.passgen.core.model.AppTheme
@@ -163,11 +164,13 @@ class SqlDelightRepositoryTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         PassGenDatabase.Schema.synchronous().create(driver)
         val db = PassGenDatabase(driver)
-        val repo = SqlDelightPassGenConfigRepository(db)
+        val kdfConfigRepo = SqlDelightKdfPassGenConfigRepository(db)
+        val randomConfigRepo = SqlDelightRandomPassGenConfigRepository(db)
 
         val kdfConfig = KdfPassGenConfig(
             id = 0,
             name = "Test KDF Config",
+            masterKeyDigestId = "master_key_digest_1000",
             preprocessConfig = PreprocessConfig(
                 trimLeadingAndTrailingSpaces = true,
                 collapseMultipleSpaces = true,
@@ -185,11 +188,11 @@ class SqlDelightRepositoryTest {
             passwordLength = 20
         )
 
-        val kdfId = repo.add(kdfConfig)
-        val randomId = repo.add(randomConfig)
+        val kdfId = kdfConfigRepo.addConfig(kdfConfig)
+        val randomId = randomConfigRepo.addConfig(randomConfig)
 
-        val kdfConfigs = repo.getAllKdfPassGenConfigs().first()
-        val randomConfigs = repo.getAllRandomPassGenConfigs().first()
+        val kdfConfigs = kdfConfigRepo.getAllConfigs().first()
+        val randomConfigs = randomConfigRepo.getAllConfigs().first()
 
         assertEquals(2, kdfConfigs.size + randomConfigs.size)
 
@@ -205,9 +208,9 @@ class SqlDelightRepositoryTest {
         assertEquals("Test Random Config", savedRandom.name)
         assertEquals(20, savedRandom.passwordLength)
 
-        repo.removeKdfPassGenConfigById(kdfId)
+        kdfConfigRepo.removeConfigById(kdfId)
         val configsAfterRemove =
-            repo.getAllKdfPassGenConfigs().first() + repo.getAllRandomPassGenConfigs().first()
+            kdfConfigRepo.getAllConfigs().first() + randomConfigRepo.getAllConfigs().first()
 
         assertEquals(1, configsAfterRemove.size)
         assertEquals(randomId, configsAfterRemove[0].id)

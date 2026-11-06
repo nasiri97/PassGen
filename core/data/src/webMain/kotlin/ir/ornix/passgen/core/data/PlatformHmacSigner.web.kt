@@ -7,13 +7,18 @@ actual object PlatformHmacSigner : HmacSigner {
 
     private val masterKeyDigests = mutableMapOf<String, ByteArray>()
 
-    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean {
         val hashedKey = sha512(rawMasterKey)
+        var isRegistered = false
+
         try {
             masterKeyDigests[mkdId] = hashedKey
+            isRegistered = true
         } finally {
             rawMasterKey.fill(0)
         }
+
+        return isRegistered
     }
 
     actual override suspend fun sign(mkdId: String, input: String): ByteArray {

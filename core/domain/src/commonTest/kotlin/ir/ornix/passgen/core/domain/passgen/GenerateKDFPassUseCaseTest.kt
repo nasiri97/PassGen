@@ -9,7 +9,8 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.PassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.SeedPassEncoder
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.FakeHmacSigner
-import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
+import ir.ornix.passgen.core.domain.FakeKdfPassGenConfigRepository
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GenerateMasterKeyDigestIdUseCase
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,9 +30,11 @@ import kotlin.time.Duration.Companion.minutes
 @OptIn(ExperimentalCoroutinesApi::class)
 class GenerateKDFPassUseCaseTest {
 
-    private lateinit var configRepo: FakePassGenConfigRepository
+    private lateinit var configRepo: FakeKdfPassGenConfigRepository
     private lateinit var hmacSigner: FakeHmacSigner
     private lateinit var useCase: GenerateKDFPassUseCase
+
+    private lateinit var generateMasterKeyDigestId: GenerateMasterKeyDigestIdUseCase
 
     private val masterKey = "12345678 12345678 12345678 12345678".encodeToByteArray()
 
@@ -52,9 +55,10 @@ class GenerateKDFPassUseCaseTest {
 
     @BeforeTest
     fun setup() {
-        configRepo = FakePassGenConfigRepository()
+        configRepo = FakeKdfPassGenConfigRepository()
         hmacSigner = FakeHmacSigner()
         useCase = GenerateKDFPassUseCase(configRepo, hmacSigner)
+        generateMasterKeyDigestId = GenerateMasterKeyDigestIdUseCase(configRepo)
     }
 
     @Test
@@ -106,13 +110,15 @@ class GenerateKDFPassUseCaseTest {
         val config = KdfPassGenConfig(
             id = 100,
             name = "Test Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA256,
             passEncoder = StringPassEncoder.HexPassEncoder,
-            passwordLength = 32,
+            passwordLength = 32
         )
-        configRepo.add(config)
-        hmacSigner.registerKey("100", masterKey)
+
+        configRepo.addConfig(config)
+        hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
         val result = useCase(config, "secret_input")
 
@@ -123,21 +129,25 @@ class GenerateKDFPassUseCaseTest {
     @Test
     fun `invoke removes config and returns null when signing key is missing`() =
         runTest(timeout = TIMEOUT) {
+            val mkdId = generateMasterKeyDigestId()
+
             val config = KdfPassGenConfig(
                 id = 200,
                 name = "Missing Key Config",
+                masterKeyDigestId = mkdId,
                 preprocessConfig = rawPreprocessConfig,
                 inputHasher = InputHasher.SHA256,
                 passEncoder = StringPassEncoder.HexPassEncoder,
                 passwordLength = 16,
             )
-            configRepo.add(config)
-            assertEquals(1, configRepo.getAllKdfPassGenConfigs().first().size)
+
+            configRepo.addConfig(config)
+            assertEquals(1, configRepo.getAllConfigs().first().size)
 
             val result = useCase(config, "secret_input")
 
             assertNull(result)
-            assertTrue(configRepo.getAllKdfPassGenConfigs().first().isEmpty())
+            assertTrue(configRepo.getAllConfigs().first().isEmpty())
         }
 
     @Test
@@ -145,13 +155,15 @@ class GenerateKDFPassUseCaseTest {
         runTest(timeout = TIMEOUT) {
             val config = createTestConfig(
                 id = 301,
+                masterKeyDigestId = generateMasterKeyDigestId(),
                 preprocessConfig = PreprocessConfig(
                     trimLeadingAndTrailingSpaces = false,
                     collapseMultipleSpaces = false,
                     convertToLowercase = true,
                 )
             )
-            hmacSigner.registerKey("301", masterKey)
+
+            hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
             val sameResult1 = useCase(config, "My Secret Pass")
             val sameResult2 = useCase(config, "my secret pass")
@@ -174,13 +186,14 @@ class GenerateKDFPassUseCaseTest {
         runTest(timeout = TIMEOUT) {
             val config = createTestConfig(
                 id = 302,
+                masterKeyDigestId = generateMasterKeyDigestId(),
                 preprocessConfig = PreprocessConfig(
                     trimLeadingAndTrailingSpaces = false,
                     collapseMultipleSpaces = true,
                     convertToLowercase = false,
                 )
             )
-            hmacSigner.registerKey("302", masterKey)
+            hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
             val sameResult1 = useCase(config, "hello    world")
             val sameResult2 = useCase(config, "hello world")
@@ -203,13 +216,14 @@ class GenerateKDFPassUseCaseTest {
         runTest(timeout = TIMEOUT) {
             val config = createTestConfig(
                 id = 303,
+                masterKeyDigestId = generateMasterKeyDigestId(),
                 preprocessConfig = PreprocessConfig(
                     trimLeadingAndTrailingSpaces = true,
                     collapseMultipleSpaces = false,
                     convertToLowercase = false,
                 )
             )
-            hmacSigner.registerKey("303", masterKey)
+            hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
             val sameResult1 = useCase(config, "   hello world   ")
             val sameResult2 = useCase(config, "hello world")
@@ -230,8 +244,12 @@ class GenerateKDFPassUseCaseTest {
     @Test
     fun `invoke with no preprocessing preserves original spaces and casing`() =
         runTest(timeout = TIMEOUT) {
-            val config = createTestConfig(id = 304, preprocessConfig = rawPreprocessConfig)
-            hmacSigner.registerKey("304", masterKey)
+            val config = createTestConfig(
+                id = 304,
+                masterKeyDigestId = generateMasterKeyDigestId(),
+                preprocessConfig = rawPreprocessConfig
+            )
+            hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
             val result = useCase(config, "Hello World")
             val differentResult1 = useCase(config, "hello world")
@@ -262,13 +280,14 @@ class GenerateKDFPassUseCaseTest {
         runTest(timeout = TIMEOUT) {
             val config = createTestConfig(
                 id = 305,
+                masterKeyDigestId = generateMasterKeyDigestId(),
                 preprocessConfig = PreprocessConfig(
                     trimLeadingAndTrailingSpaces = true,
                     collapseMultipleSpaces = true,
                     convertToLowercase = true,
                 )
             )
-            hmacSigner.registerKey("305", masterKey)
+            hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
             val sameResult1 = useCase(config, "Hello World")
             val sameResult2 = useCase(config, "hello world")
@@ -341,13 +360,14 @@ class GenerateKDFPassUseCaseTest {
         val config = KdfPassGenConfig(
             id = 500,
             name = "Z85 Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA256,
             passEncoder = StringPassEncoder.Z85PassEncoder,
             passwordLength = 40,
         )
-        configRepo.add(config)
-        hmacSigner.registerKey("500", masterKey)
+        configRepo.addConfig(config)
+        hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
         val result = useCase(config, "z85_input")
 
@@ -358,7 +378,8 @@ class GenerateKDFPassUseCaseTest {
     @Test
     fun `invoke with all valid combinations of InputHasher and StringPassEncoder`() =
         runTest(timeout = TIMEOUT) {
-            hmacSigner.registerKey("600", masterKey)
+            val mkdId = generateMasterKeyDigestId()
+            hmacSigner.registerKey(mkdId, masterKey)
 
             for (hasher in InputHasher.allItems) {
                 for (encoder in PassEncoder.getValidItems(hasher)) {
@@ -367,6 +388,7 @@ class GenerateKDFPassUseCaseTest {
                         val config = KdfPassGenConfig(
                             id = 600,
                             name = "Combo Config ${hasher.key}-${encoder.key}",
+                            masterKeyDigestId = mkdId,
                             preprocessConfig = rawPreprocessConfig,
                             inputHasher = hasher,
                             passEncoder = encoder,
@@ -395,11 +417,17 @@ class GenerateKDFPassUseCaseTest {
             val masterKey1 = "key_one_1234567890".encodeToByteArray()
             val masterKey2 = "key_two_0987654321".encodeToByteArray()
 
-            val config1 = createTestConfig(id = 701)
-            val config2 = createTestConfig(id = 702)
+            val config1 = createTestConfig(
+                id = 701,
+                masterKeyDigestId = generateMasterKeyDigestId()
+            )
+            val config2 = createTestConfig(
+                id = 702,
+                masterKeyDigestId = generateMasterKeyDigestId()
+            )
 
-            hmacSigner.registerKey("701", masterKey1)
-            hmacSigner.registerKey("702", masterKey2)
+            hmacSigner.registerKey(config1.masterKeyDigestId, masterKey1)
+            hmacSigner.registerKey(config2.masterKeyDigestId, masterKey2)
 
             val result1 = useCase(config1, "same_input")
             val result2 = useCase(config2, "same_input")
@@ -412,11 +440,17 @@ class GenerateKDFPassUseCaseTest {
     @Test
     fun `invoke produces different passwords for different config IDs`() =
         runTest(timeout = TIMEOUT) {
-            val config1 = createTestConfig(id = 801)
-            val config2 = createTestConfig(id = 802)
+            val config1 = createTestConfig(
+                id = 801,
+                masterKeyDigestId = generateMasterKeyDigestId()
+            )
+            val config2 = createTestConfig(
+                id = 802,
+                masterKeyDigestId = generateMasterKeyDigestId()
+            )
 
-            hmacSigner.registerKey("801", ByteArray(1))
-            hmacSigner.registerKey("802", ByteArray(2))
+            hmacSigner.registerKey(config1.masterKeyDigestId, ByteArray(1))
+            hmacSigner.registerKey(config2.masterKeyDigestId, ByteArray(2))
 
             val result1 = useCase(config1, "same_input")
             val result2 = useCase(config2, "same_input")
@@ -429,8 +463,11 @@ class GenerateKDFPassUseCaseTest {
     @Test
     fun `invoke handles very long input strings`() = runTest(timeout = TIMEOUT) {
         val longInput = "a".repeat(10_000)
-        val config = createTestConfig(id = 900)
-        hmacSigner.registerKey("900", masterKey)
+        val config = createTestConfig(
+            id = 900,
+            masterKeyDigestId = generateMasterKeyDigestId()
+        )
+        hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
         val result = useCase(config, longInput)
 
@@ -439,20 +476,21 @@ class GenerateKDFPassUseCaseTest {
     }
 
     private suspend fun verifyBip39SeedEncoder(
-        configId: Int,
+        configId: Long,
         passEncoder: SeedPassEncoder,
         expectedWordCount: Int
     ) {
         val config = KdfPassGenConfig(
             id = configId,
             name = "Bip39 ${passEncoder.key} Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA512,
             passEncoder = passEncoder,
             passwordLength = null,
         )
-        configRepo.add(config)
-        hmacSigner.registerKey("$configId", masterKey)
+        configRepo.addConfig(config)
+        hmacSigner.registerKey(config.masterKeyDigestId, masterKey)
 
         val result = useCase(config, "bip39_seed_input")
 
@@ -466,13 +504,15 @@ class GenerateKDFPassUseCaseTest {
     }
 
     private fun createTestConfig(
-        id: Int,
+        id: Long,
+        masterKeyDigestId: String,
         preprocessConfig: PreprocessConfig = rawPreprocessConfig,
         passwordLength: Int = 32
     ): KdfPassGenConfig {
         return KdfPassGenConfig(
             id = id,
             name = "Test Config $id",
+            masterKeyDigestId = masterKeyDigestId,
             preprocessConfig = preprocessConfig,
             inputHasher = InputHasher.SHA256,
             passEncoder = StringPassEncoder.HexPassEncoder,
@@ -490,6 +530,7 @@ class GenerateKDFPassUseCaseTest {
         val sha256Config = KdfPassGenConfig(
             id = 1,
             name = "SHA256 Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA256,
             passEncoder = StringPassEncoder.HexPassEncoder,
@@ -499,6 +540,7 @@ class GenerateKDFPassUseCaseTest {
         val sha512Config = KdfPassGenConfig(
             id = 2,
             name = "SHA512 Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.SHA512,
             passEncoder = StringPassEncoder.Base64PassEncoder,
@@ -508,6 +550,7 @@ class GenerateKDFPassUseCaseTest {
         val bcryptConfig = KdfPassGenConfig(
             id = 3,
             name = "BCrypt Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.BCrypt,
             passEncoder = StringPassEncoder.Z85PassEncoder,
@@ -517,16 +560,17 @@ class GenerateKDFPassUseCaseTest {
         val argon2Config = KdfPassGenConfig(
             id = 4,
             name = "Argon2 Config",
+            masterKeyDigestId = generateMasterKeyDigestId(),
             preprocessConfig = rawPreprocessConfig,
             inputHasher = InputHasher.ARGON2ID,
             passEncoder = StringPassEncoder.Z85PassEncoder,
             passwordLength = 80,
         )
 
-        hmacSigner.registerKey("1", masterKey)
-        hmacSigner.registerKey("2", masterKey)
-        hmacSigner.registerKey("3", masterKey)
-        hmacSigner.registerKey("4", masterKey)
+        hmacSigner.registerKey(sha256Config.masterKeyDigestId, masterKey)
+        hmacSigner.registerKey(sha512Config.masterKeyDigestId, masterKey)
+        hmacSigner.registerKey(bcryptConfig.masterKeyDigestId, masterKey)
+        hmacSigner.registerKey(argon2Config.masterKeyDigestId, masterKey)
 
         val sha256Result = useCase(sha256Config, input)
         val sha512Result = useCase(sha512Config, input)

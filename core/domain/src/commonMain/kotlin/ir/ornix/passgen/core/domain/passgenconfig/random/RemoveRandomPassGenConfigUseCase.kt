@@ -1,11 +1,11 @@
 package ir.ornix.passgen.core.domain.passgenconfig.random
 
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.RandomPassGenConfigRepository
 
 class RemoveRandomPassGenConfigUseCase(
-    private val configRepo: PassGenConfigRepository
+    private val repo: RandomPassGenConfigRepository
 ) {
-    suspend operator fun invoke(configId: Int) {
-        configRepo.removeRandomPassGenConfigById(configId)
+    suspend operator fun invoke(configId: Long) {
+        repo.removeConfigById(configId)
     }
 }

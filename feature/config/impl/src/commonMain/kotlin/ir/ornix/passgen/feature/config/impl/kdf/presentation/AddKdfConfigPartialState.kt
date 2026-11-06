@@ -28,5 +28,5 @@ internal sealed interface AddKdfConfigPartialState {
 
     data object Submitting : AddKdfConfigPartialState
     data object ConfigCreatedSuccess : AddKdfConfigPartialState
-    data class ConfigCreatedError(val message: String) : AddKdfConfigPartialState
+    data object ConfigCreationFailed : AddKdfConfigPartialState
 }

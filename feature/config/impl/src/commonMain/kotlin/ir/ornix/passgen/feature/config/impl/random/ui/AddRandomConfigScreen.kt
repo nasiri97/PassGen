@@ -58,6 +58,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AddRandomConfigScreen(
     onNavigateBack: () -> Unit,
     onConfigCreated: () -> Unit,
+    onConfigCreationFailed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel: AddRandomConfigViewModel = koinViewModel()
@@ -66,6 +67,12 @@ fun AddRandomConfigScreen(
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onConfigCreated()
+        }
+    }
+
+    LaunchedEffect(uiState.isFailed) {
+        if (uiState.isFailed) {
+            onConfigCreationFailed()
         }
     }
 
@@ -176,14 +183,6 @@ private fun ConfigDetailsStepContent(
                 entropyByteSize = entropyByteSize,
                 maxAvailablePassLength = maxAvailablePassLength,
                 onPassLengthChange = onPassLengthChange
-            )
-        }
-
-        uiState.errorMessage?.let { error ->
-            Text(
-                text = error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error
             )
         }
 

@@ -15,15 +15,20 @@ actual object PlatformHmacSigner : HmacSigner {
 
     private val keys = ConcurrentHashMap<String, SecretKey>()
 
-    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean {
         val hashedKey = MessageDigest.getInstance(DIGEST_ALGORITHM).digest(rawMasterKey)
+        var isRegistered = false
+
         try {
             val secretKey = SecretKeySpec(hashedKey, HMAC_ALGORITHM)
             keys[mkdId] = secretKey
+            isRegistered = true
         } finally {
             rawMasterKey.fill(0)
             hashedKey.fill(0)
         }
+
+        return isRegistered
     }
 
     actual override suspend fun sign(mkdId: String, input: String): ByteArray {

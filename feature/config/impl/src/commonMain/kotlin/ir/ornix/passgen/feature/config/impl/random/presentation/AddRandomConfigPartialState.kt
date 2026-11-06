@@ -8,5 +8,5 @@ internal sealed interface AddRandomConfigPartialState {
     data class PassLengthUpdated(val length: Int) : AddRandomConfigPartialState
     data object Submitting : AddRandomConfigPartialState
     data object ConfigCreatedSuccess : AddRandomConfigPartialState
-    data class ConfigCreatedError(val message: String) : AddRandomConfigPartialState
+    data object ConfigCreationFailed : AddRandomConfigPartialState
 }

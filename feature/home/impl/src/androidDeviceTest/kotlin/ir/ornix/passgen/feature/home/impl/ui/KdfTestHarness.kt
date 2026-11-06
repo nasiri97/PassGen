@@ -59,14 +59,13 @@ import ir.ornix.passgen.core.database.PassGenDatabase
 import ir.ornix.passgen.core.domain.AppConfigRepository
 import ir.ornix.passgen.core.domain.HmacSigner
 import ir.ornix.passgen.core.domain.InstalledAppsProvider
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.KdfPassGenConfigRepository
 import ir.ornix.passgen.core.domain.SigningKeyNotFoundException
 import ir.ornix.passgen.core.domain.di.domainModule
 import ir.ornix.passgen.core.domain.passgen.GenerateKDFPassUseCase
+import ir.ornix.passgen.core.domain.passgenconfig.kdf.GenerateMasterKeyDigestIdUseCase
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
-import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
-import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import ir.ornix.passgen.feature.config.impl.kdf.presentation.AddKdfConfigViewModel
 import ir.ornix.passgen.feature.config.impl.kdf.ui.AddKdfConfigScreen
 import ir.ornix.passgen.feature.home.impl.presentation.HomeViewModel
@@ -83,8 +82,9 @@ class TestHmacSigner : HmacSigner {
     private val masterKeyDigests = mutableMapOf<String, ByteArray>()
     private val sha512Hasher = Sha512Hasher()
 
-    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+    override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean {
         masterKeyDigests[mkdId] = sha512Hasher.digest(rawMasterKey)
+        return true
     }
 
     override suspend fun sign(mkdId: String, input: String): ByteArray {
@@ -222,7 +222,6 @@ object KdfTestHarness {
         single { SettingsAppConfigRepository(MapSettings()) } bind AppConfigRepository::class
 
         single { TestHmacSigner() } bind HmacSigner::class
-        //  single { PlatformHmacSigner } bind HmacSigner::class
 
         viewModelOf(::HomeViewModel)
         viewModelOf(::AddKdfConfigViewModel)
@@ -260,6 +259,7 @@ object KdfTestHarness {
                     AddKdfConfigScreen(
                         onNavigateBack = { showAddConfigScreen = false },
                         onConfigCreated = { showAddConfigScreen = false },
+                        onConfigCreationFailed = { showAddConfigScreen = false }
                     )
                 }
             } else {
@@ -449,10 +449,10 @@ object KdfTestHarness {
     }
 
     suspend fun computeExpectedPassword(
-        configId: Int = 1,
+        configId: Long = 1L,
         configName: String = "Test Config",
         masterKey: String = MASTER_KEY_1,
-        input: String,
+        contextInput: String,
         hasher: InputHasher = InputHasher.ARGON2ID,
         encoder: PassEncoder = StringPassEncoder.Z85PassEncoder,
         preprocessConfig: PreprocessConfig = PreprocessConfig(
@@ -462,40 +462,40 @@ object KdfTestHarness {
         ),
         passwordLength: Int?
     ): String {
+        val hmacSigner: HmacSigner =
+            GlobalContext.get().get()
+
+        val generateMasterKeyDigestIdUseCase: GenerateMasterKeyDigestIdUseCase =
+            GlobalContext.get().get()
+
+        val mkdId = generateMasterKeyDigestIdUseCase()
 
         val kdfConfig = KdfPassGenConfig(
             id = configId,
             name = configName,
+            masterKeyDigestId = mkdId,
             preprocessConfig = preprocessConfig,
             inputHasher = hasher,
             passEncoder = encoder,
             passwordLength = passwordLength
         )
 
-        val hmacSigner: HmacSigner = GlobalContext.get().get()
-        hmacSigner.registerKey(configId.toString(), masterKey.encodeToByteArray())
+        hmacSigner.registerKey(mkdId = mkdId, rawMasterKey = masterKey.encodeToByteArray())
 
         val useCase = GenerateKDFPassUseCase(
-            configRepo = object : PassGenConfigRepository {
-                override suspend fun add(config: PassGenConfig): Int = config.id
-                override suspend fun removeKdfPassGenConfigById(configId: Int) {}
-
-                override suspend fun removeRandomPassGenConfigById(configId: Int) {}
-
-                override suspend fun getAllKdfPassGenConfigIds(): List<Int> = emptyList()
-
-                override fun getAllKdfPassGenConfigs(): Flow<List<KdfPassGenConfig>> =
-                    flowOf(emptyList())
-
-                override fun getAllRandomPassGenConfigs(): Flow<List<RandomPassGenConfig>> =
-                    flowOf(emptyList())
-
-                override suspend fun deleteAllPassGenConfigs() {}
+            repo = object : KdfPassGenConfigRepository {
+                override suspend fun getConfigById(configId: Long): KdfPassGenConfig? = null
+                override suspend fun addConfig(config: KdfPassGenConfig): Long = config.id
+                override suspend fun removeConfigById(configId: Long) {}
+                override fun getAllConfigs(): Flow<List<KdfPassGenConfig>> = flowOf(emptyList())
+                override suspend fun deleteAllConfigs() {}
+                override suspend fun doesMasterKeyDigestIdExist(masterKeyDigestId: String) = false
+                override suspend fun getAllMasterKeyDigestIds(): List<String> = emptyList()
             },
             hmacSigner = hmacSigner
         )
 
-        val pass = useCase(kdfConfig, input)
+        val pass = useCase(kdfConfig, contextInput)
         return pass?.value?.concatToString() ?: ""
     }
 }

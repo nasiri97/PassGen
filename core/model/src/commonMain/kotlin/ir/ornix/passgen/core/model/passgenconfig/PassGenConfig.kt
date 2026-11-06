@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface PassGenConfig {
-    val id: Int
+    val id: Long
     val name: String
     val passEncoder: PassEncoder
     val passwordLength: Int?

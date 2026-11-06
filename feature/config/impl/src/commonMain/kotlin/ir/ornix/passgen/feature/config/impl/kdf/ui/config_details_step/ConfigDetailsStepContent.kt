@@ -112,14 +112,6 @@ internal fun ConfigDetailsStepContent(
             )
         }
 
-        uiState.errorMessage?.let { error ->
-            Text(
-                text = error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-
         Spacer(Modifier.height(16.dp))
 
         Row(

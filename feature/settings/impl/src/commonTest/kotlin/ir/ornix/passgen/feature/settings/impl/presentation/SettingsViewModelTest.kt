@@ -5,8 +5,9 @@ import ir.ornix.passgen.core.domain.AutofillService
 import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.Crypto
 import ir.ornix.passgen.core.domain.HmacSigner
+import ir.ornix.passgen.core.domain.KdfPassGenConfigRepository
 import ir.ornix.passgen.core.domain.LocalAuthRepository
-import ir.ornix.passgen.core.domain.PassGenConfigRepository
+import ir.ornix.passgen.core.domain.RandomPassGenConfigRepository
 import ir.ornix.passgen.core.domain.appconfig.GetLanguageUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetThemeUseCase
 import ir.ornix.passgen.core.domain.appconfig.GetVisibilityTimeoutUseCase
@@ -33,7 +34,6 @@ import ir.ornix.passgen.core.model.PasswordVisibilityTimeout
 import ir.ornix.passgen.core.model.localauth.FailedAuthAttemptLimit
 import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
-import ir.ornix.passgen.core.model.passgenconfig.PassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -186,24 +186,32 @@ class SettingsViewModelTest {
     }
 
     private class FakeHmacSigner : HmacSigner {
-        override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {}
+        override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean = true
         override suspend fun sign(mkdId: String, input: String): ByteArray = ByteArray(0)
         override suspend fun hasMasterKeyDigest(mkdId: String): Boolean = false
         override suspend fun deleteMasterKeyDigest(mkdId: String) {}
     }
 
-    private class FakePassGenConfigRepository : PassGenConfigRepository {
-        override suspend fun add(config: PassGenConfig): Int = 0
-        override suspend fun removeKdfPassGenConfigById(configId: Int) {}
-        override suspend fun removeRandomPassGenConfigById(configId: Int) {}
-        override suspend fun getAllKdfPassGenConfigIds(): List<Int> = emptyList()
-        override fun getAllKdfPassGenConfigs(): Flow<List<KdfPassGenConfig>> =
+    private class FakeKdfPassGenConfigRepository : KdfPassGenConfigRepository {
+        override suspend fun getConfigById(configId: Long): KdfPassGenConfig? = null
+        override suspend fun addConfig(config: KdfPassGenConfig): Long = 0
+        override suspend fun removeConfigById(configId: Long) {}
+        override fun getAllConfigs(): Flow<List<KdfPassGenConfig>> =
             MutableStateFlow<List<KdfPassGenConfig>>(emptyList()).asStateFlow()
 
-        override fun getAllRandomPassGenConfigs(): Flow<List<RandomPassGenConfig>> =
+        override suspend fun deleteAllConfigs() {}
+        override suspend fun doesMasterKeyDigestIdExist(masterKeyDigestId: String): Boolean = false
+        override suspend fun getAllMasterKeyDigestIds(): List<String> = emptyList()
+    }
+
+    private class FakeRandomPassGenConfigRepository : RandomPassGenConfigRepository {
+        override suspend fun getConfigById(configId: Long): RandomPassGenConfig? = null
+        override suspend fun addConfig(config: RandomPassGenConfig): Long = 0
+        override suspend fun removeConfigById(configId: Long) {}
+        override fun getAllConfigs(): Flow<List<RandomPassGenConfig>> =
             MutableStateFlow<List<RandomPassGenConfig>>(emptyList()).asStateFlow()
 
-        override suspend fun deleteAllPassGenConfigs() {}
+        override suspend fun deleteAllConfigs() {}
     }
 
     private fun createViewModel(
@@ -214,7 +222,8 @@ class SettingsViewModelTest {
     ): SettingsViewModel {
         val purgeSensitiveDataUseCase = PurgeSensitiveDataUseCase(
             hmacSigner = FakeHmacSigner(),
-            passGenConfigRepository = FakePassGenConfigRepository(),
+            kdfConfigRepository = FakeKdfPassGenConfigRepository(),
+            randomConfigRepository = FakeRandomPassGenConfigRepository(),
             credentialRepository = FakeCredentialRepository(),
             localAuthRepository = localAuthRepo
         )

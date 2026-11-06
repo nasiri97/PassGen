@@ -9,7 +9,7 @@ internal sealed interface RandomPartialState {
     data object Refreshed : RandomPartialState
     data object RefreshHintShown : RandomPartialState
     data class PasswordItemsLoaded(val passGenItems: List<PassGenItem>) : RandomPartialState
-    data class PasswordUpdated(val configId: Int, val password: Password?) : RandomPartialState
+    data class PasswordUpdated(val configId: Long, val password: Password?) : RandomPartialState
     data class CopyEnabledChanged(val isCopyEnabled: Boolean) : RandomPartialState
 
     data class PasswordVisibilityTimeoutChanged(

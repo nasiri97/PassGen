@@ -8,8 +8,8 @@ internal sealed interface HomePartialState {
     data class ContextInputChanged(val contextInput: String) : HomePartialState
     data object Loading : HomePartialState
     data class PasswordItemsLoaded(val passGenItems: List<PassGenItem>) : HomePartialState
-    data class PasswordGenerated(val configId: Int, val password: Password?) : HomePartialState
-    data class PasswordIsCalculating(val configId: Int) : HomePartialState
+    data class PasswordGenerated(val configId: Long, val password: Password?) : HomePartialState
+    data class PasswordIsCalculating(val configId: Long) : HomePartialState
     data class CopyEnabledChanged(val isCopyEnabled: Boolean) : HomePartialState
 
     data class PasswordVisibilityTimeoutChanged(

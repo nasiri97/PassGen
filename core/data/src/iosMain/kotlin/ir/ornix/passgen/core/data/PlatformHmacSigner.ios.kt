@@ -46,8 +46,10 @@ actual object PlatformHmacSigner : HmacSigner {
 
     private const val KEYCHAIN_SERVICE = "ir.ornix.passgen.hmac"
 
-    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray) {
+    actual override suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean {
         val mkd = ByteArray(CC_SHA512_DIGEST_LENGTH)
+        var isRegistered = false
+
         try {
             rawMasterKey.usePinned { rawPinned ->
                 mkd.usePinned { mkdPinned ->
@@ -59,10 +61,13 @@ actual object PlatformHmacSigner : HmacSigner {
                 }
             }
             saveToKeychain(mkdId, mkd)
+            isRegistered = true
         } finally {
             rawMasterKey.fill(0)
             mkd.fill(0)
         }
+
+        return isRegistered
     }
 
     actual override suspend fun sign(mkdId: String, input: String): ByteArray {

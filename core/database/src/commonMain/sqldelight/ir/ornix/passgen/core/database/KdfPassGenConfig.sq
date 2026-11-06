@@ -4,31 +4,42 @@ CREATE TABLE IF NOT EXISTS kdfPassGenConfigEntity (
     password_length INTEGER,
     pass_encoder_key TEXT NOT NULL,
     input_hasher_key TEXT NOT NULL,
+    master_key_digest_id TEXT NOT NULL,
     trim_spaces INTEGER NOT NULL DEFAULT 1,
     collapse_spaces INTEGER NOT NULL DEFAULT 1,
     convert_lowercase INTEGER NOT NULL DEFAULT 1
 );
 
-insertKdfPassGenConfigWithId:
-INSERT INTO kdfPassGenConfigEntity (id, name, password_length, pass_encoder_key, input_hasher_key, trim_spaces, collapse_spaces, convert_lowercase)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+insertConfigWithId:
+INSERT INTO kdfPassGenConfigEntity (id, name, password_length, pass_encoder_key, input_hasher_key, master_key_digest_id, trim_spaces, collapse_spaces, convert_lowercase)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-insertKdfPassGenConfigAutoId:
-INSERT INTO kdfPassGenConfigEntity (name, password_length, pass_encoder_key, input_hasher_key, trim_spaces, collapse_spaces, convert_lowercase)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+insertConfigAutoId:
+INSERT INTO kdfPassGenConfigEntity (name, password_length, pass_encoder_key, input_hasher_key, master_key_digest_id, trim_spaces, collapse_spaces, convert_lowercase)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 lastInsertedId:
 SELECT last_insert_rowid();
 
-deleteKdfPassGenConfigById:
+doesMasterKeyDigestIdExist:
+SELECT EXISTS(
+    SELECT 1
+    FROM kdfPassGenConfigEntity
+    WHERE master_key_digest_id = ?
+);
+
+selectAllMasterKeyDigestIds:
+SELECT master_key_digest_id FROM kdfPassGenConfigEntity;
+
+deleteConfigById:
 DELETE FROM kdfPassGenConfigEntity WHERE id = ?;
 
-selectAllKdfPassGenConfigIds:
-SELECT id FROM kdfPassGenConfigEntity;
+selectConfigById:
+SELECT * FROM kdfPassGenConfigEntity
+WHERE id = ?;
 
-selectAllKdfPassGenConfigs:
+selectAllConfigs:
 SELECT * FROM kdfPassGenConfigEntity;
 
-
-deleteAllKdfPassGenConfigs:
+deleteAllConfigs:
 DELETE FROM kdfPassGenConfigEntity;

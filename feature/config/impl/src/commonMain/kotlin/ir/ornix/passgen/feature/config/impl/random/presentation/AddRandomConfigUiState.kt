@@ -24,5 +24,5 @@ internal data class AddRandomConfigUiState(
     ),
     val isSubmitting: Boolean = false,
     val isSuccess: Boolean = false,
-    val errorMessage: String? = null
+    val isFailed: Boolean = false
 )

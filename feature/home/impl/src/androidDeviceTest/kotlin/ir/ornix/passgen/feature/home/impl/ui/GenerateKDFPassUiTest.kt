@@ -148,7 +148,7 @@ class GenerateKDFPassUiTest : KoinTest {
 
             val expectedPass = KdfTestHarness.computeExpectedPassword(
                 configName = configName,
-                input = rawInput,
+                contextInput = rawInput,
                 hasher = hasher,
                 encoder = encoder,
                 preprocessConfig = preprocessConfig,
@@ -185,7 +185,7 @@ class GenerateKDFPassUiTest : KoinTest {
 
             val expectedPass = KdfTestHarness.computeExpectedPassword(
                 configName = configName,
-                input = inputPhrase,
+                contextInput = inputPhrase,
                 hasher = hasher,
                 encoder = encoder,
                 passwordLength = null
@@ -221,7 +221,7 @@ class GenerateKDFPassUiTest : KoinTest {
 
             val expectedPass = KdfTestHarness.computeExpectedPassword(
                 configName = configName,
-                input = inputPhrase,
+                contextInput = inputPhrase,
                 hasher = hasher,
                 encoder = encoder,
                 passwordLength = 16

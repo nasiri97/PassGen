@@ -55,8 +55,9 @@ interface HmacSigner {
      *
      * @param mkdId identifier used to reference the registered MKD.
      * @param rawMasterKey original Master-Key bytes from which the MKD is derived.
+     * @return `true` if key registration succeeds; `false` otherwise.
      */
-    suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray)
+    suspend fun registerKey(mkdId: String, rawMasterKey: ByteArray): Boolean
 
     /**
      * Computes a Password Seed for [input] using the Master-Key-Digest registered under [mkdId].

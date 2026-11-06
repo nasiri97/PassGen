@@ -4,13 +4,15 @@ import ir.ornix.passgen.core.common.passwordgenerator.model.InputHasher
 import ir.ornix.passgen.core.common.passwordgenerator.model.StringPassEncoder
 import ir.ornix.passgen.core.domain.CredentialRepository
 import ir.ornix.passgen.core.domain.FakeHmacSigner
-import ir.ornix.passgen.core.domain.FakePassGenConfigRepository
+import ir.ornix.passgen.core.domain.FakeKdfPassGenConfigRepository
+import ir.ornix.passgen.core.domain.FakeRandomPassGenConfigRepository
 import ir.ornix.passgen.core.domain.LocalAuthRepository
 import ir.ornix.passgen.core.model.Credential
 import ir.ornix.passgen.core.model.Password.Companion.toPassword
 import ir.ornix.passgen.core.model.localauth.LocalAuthType
 import ir.ornix.passgen.core.model.passgenconfig.KdfPassGenConfig
 import ir.ornix.passgen.core.model.passgenconfig.PreprocessConfig
+import ir.ornix.passgen.core.model.passgenconfig.RandomPassGenConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +27,8 @@ import kotlin.test.assertTrue
 class PurgeSensitiveDataUseCaseTest {
 
     private lateinit var hmacSigner: FakeHmacSigner
-    private lateinit var passGenConfigRepository: FakePassGenConfigRepository
+    private lateinit var kdfConfigRepository: FakeKdfPassGenConfigRepository
+    private lateinit var randomConfigRepository: FakeRandomPassGenConfigRepository
     private lateinit var credentialRepository: FakeCredentialRepository
     private lateinit var localAuthRepository: FakeLocalAuthRepository
     private lateinit var useCase: PurgeSensitiveDataUseCase
@@ -97,15 +100,23 @@ class PurgeSensitiveDataUseCaseTest {
         }
     }
 
-    private val testConfig = KdfPassGenConfig(
+    private val testKdfConfig = KdfPassGenConfig(
         id = 123,
         name = "Test KDF Config",
+        masterKeyDigestId = "master_key_digest_id_123",
         preprocessConfig = PreprocessConfig(
             trimLeadingAndTrailingSpaces = true,
             collapseMultipleSpaces = false,
             convertToLowercase = false
         ),
         inputHasher = InputHasher.SHA256,
+        passEncoder = StringPassEncoder.HexPassEncoder,
+        passwordLength = 16
+    )
+
+    private val testRandomConfig = RandomPassGenConfig(
+        id = 124,
+        name = "Test Random Config",
         passEncoder = StringPassEncoder.HexPassEncoder,
         passwordLength = 16
     )
@@ -123,13 +134,15 @@ class PurgeSensitiveDataUseCaseTest {
     @BeforeTest
     fun setup() {
         hmacSigner = FakeHmacSigner()
-        passGenConfigRepository = FakePassGenConfigRepository()
+        kdfConfigRepository = FakeKdfPassGenConfigRepository()
+        randomConfigRepository = FakeRandomPassGenConfigRepository()
         credentialRepository = FakeCredentialRepository()
         localAuthRepository = FakeLocalAuthRepository()
 
         useCase = PurgeSensitiveDataUseCase(
             hmacSigner = hmacSigner,
-            passGenConfigRepository = passGenConfigRepository,
+            kdfConfigRepository = kdfConfigRepository,
+            randomConfigRepository = randomConfigRepository,
             credentialRepository = credentialRepository,
             localAuthRepository = localAuthRepository
         )
@@ -139,13 +152,18 @@ class PurgeSensitiveDataUseCaseTest {
     fun `invoke should delete all sensitive data`() =
         runTest {
             // Setup initial state
-            passGenConfigRepository.add(testConfig)
-            hmacSigner.registerKey("${testConfig.id}", "master_key".encodeToByteArray())
+            kdfConfigRepository.addConfig(testKdfConfig)
+            randomConfigRepository.addConfig(testRandomConfig)
+            hmacSigner.registerKey(
+                mkdId = testKdfConfig.masterKeyDigestId,
+                rawMasterKey = "master_key".encodeToByteArray()
+            )
             credentialRepository.save(testCredential)
 
             // Verify initial state
-            assertTrue(hmacSigner.hasMasterKeyDigest("${testConfig.id}"))
-            assertEquals(1, passGenConfigRepository.getAllKdfPassGenConfigs().first().size)
+            assertTrue(hmacSigner.hasMasterKeyDigest(testKdfConfig.masterKeyDigestId))
+            assertEquals(1, kdfConfigRepository.getAllConfigs().first().size)
+            assertEquals(1, randomConfigRepository.getAllConfigs().first().size)
             assertEquals(1, credentialRepository.getAll().first().size)
             assertEquals(LocalAuthType.PIN, localAuthRepository.getLocalAuthType().first())
             assertTrue(localAuthRepository.isBiometricEnabled().first())
@@ -154,8 +172,9 @@ class PurgeSensitiveDataUseCaseTest {
             useCase()
 
             // Verify all sensitive data is purged
-            assertFalse(hmacSigner.hasMasterKeyDigest("${testConfig.id}"))
-            assertTrue(passGenConfigRepository.getAllKdfPassGenConfigs().first().isEmpty())
+            assertFalse(hmacSigner.hasMasterKeyDigest(testKdfConfig.masterKeyDigestId))
+            assertTrue(kdfConfigRepository.getAllConfigs().first().isEmpty())
+            assertTrue(randomConfigRepository.getAllConfigs().first().isEmpty())
             assertTrue(credentialRepository.getAll().first().isEmpty())
             assertEquals(LocalAuthType.NONE, localAuthRepository.getLocalAuthType().first())
             assertFalse(localAuthRepository.isBiometricEnabled().first())

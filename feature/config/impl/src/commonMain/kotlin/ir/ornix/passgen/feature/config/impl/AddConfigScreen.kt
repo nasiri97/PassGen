@@ -13,21 +13,24 @@ fun AddConfigScreen(
     configType: PassGenConfigType,
     onNavigateBack: () -> Unit,
     onConfigCreated: () -> Unit,
+    onConfigCreationFailed: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (configType) {
         PassGenConfigType.PASS_GEN_CONFIG_KDF ->
             AddKdfConfigScreen(
+                modifier = modifier.fillMaxSize(),
                 onNavigateBack = onNavigateBack,
                 onConfigCreated = onConfigCreated,
-                modifier = modifier.fillMaxSize(),
+                onConfigCreationFailed = onConfigCreationFailed
             )
 
         PassGenConfigType.PASS_GEN_CONFIG_RANDOM ->
             AddRandomConfigScreen(
+                modifier = modifier.fillMaxSize(),
                 onNavigateBack = onNavigateBack,
                 onConfigCreated = onConfigCreated,
-                modifier = modifier.fillMaxSize(),
+                onConfigCreationFailed = onConfigCreationFailed
             )
     }
 }

@@ -103,19 +103,17 @@ internal fun reduce(
         is AddKdfConfigPartialState.PasswordVisibilityTimeoutChanged ->
             oldState.copy(visibilityTimeout = change.visibilityTimeout)
 
-        is AddKdfConfigPartialState.Submitting -> oldState.copy(
-            isSubmitting = true,
-            errorMessage = null
-        )
+        is AddKdfConfigPartialState.Submitting ->
+            oldState.copy(isSubmitting = true)
 
         is AddKdfConfigPartialState.ConfigCreatedSuccess -> oldState.copy(
             isSubmitting = false,
             isSuccess = true
         )
 
-        is AddKdfConfigPartialState.ConfigCreatedError -> oldState.copy(
+        is AddKdfConfigPartialState.ConfigCreationFailed -> oldState.copy(
             isSubmitting = false,
-            errorMessage = change.message
+            isFailed = true
         )
     }
 }
